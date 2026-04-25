@@ -3,8 +3,12 @@ Imports System.Text
 
 Module modMain
     Private Const DatabasePath As String = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=Filmtopia.mdb;Persist Security Info=False;"
+    Public Const AccessManager As Integer = 1
 
     Public cn As OleDbConnection
+    Public UserAccessLevel As Integer = 0
+    Public CurrentLoginID As Long = 0
+    Public CurrentUsername As String = ""
 
     Public Function DbConnect() As Boolean
         Try
