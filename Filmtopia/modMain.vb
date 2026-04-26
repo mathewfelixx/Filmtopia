@@ -21,6 +21,18 @@ Module modMain
         End Try
     End Function
 
+    Public Function FillTable(SQLCmd As OleDbCommand, dt As DataTable) As Boolean
+        Dim success As Boolean = False
+        If DbConnect() Then
+            SQLCmd.Connection = cn
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            da.Fill(dt)
+            success = True
+            cn.Close()
+        End If
+        Return success
+    End Function
+
     Public Function Encode(plainText As String) As String
         Return Convert.ToBase64String(Encoding.UTF8.GetBytes(plainText))
     End Function
