@@ -14,4 +14,15 @@
         End If
         Return greeting
     End Function
+
+    Private Sub btnLogout_Click(sender As Object, e As EventArgs) Handles btnLogout.Click
+        Me.Close()
+    End Sub
+
+    Private Sub frmMainMenu_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed
+        CurrentLoginID = 0
+        CurrentUsername = ""
+        UserAccessLevel = 0
+        frmLogin.Show()
+    End Sub
 End Class
