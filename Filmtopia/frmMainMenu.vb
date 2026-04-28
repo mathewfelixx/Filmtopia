@@ -1,6 +1,15 @@
 ﻿Public Class frmMainMenu
     Private Sub frmMainMenu_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         lblWelcome.Text = GetGreeting() & ", " & CurrentUsername & "!"
+        ConfigureAccessLevel()
+    End Sub
+
+    Private Sub ConfigureAccessLevel()
+        If UserAccessLevel = AccessManager Then
+            GroupBox1.Text = "Filmtopia Manager"
+        Else
+            GroupBox1.Text = "Filmtopia Staff"
+        End If
     End Sub
 
     Private Function GetGreeting() As String
