@@ -17,6 +17,7 @@ Partial Class frmLogin
 
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmLogin))
         Me.pnlHeader = New System.Windows.Forms.Panel()
         Me.lblTitle = New System.Windows.Forms.Label()
         Me.lblSubtitle = New System.Windows.Forms.Label()
@@ -31,9 +32,10 @@ Partial Class frmLogin
         Me.pnlHeader.SuspendLayout()
         Me.pnlContent.SuspendLayout()
         Me.SuspendLayout()
-
-        ' pnlHeader
-        Me.pnlHeader.BackColor = System.Drawing.Color.FromArgb(173, 20, 87)
+        '
+        'pnlHeader
+        '
+        Me.pnlHeader.BackColor = System.Drawing.Color.FromArgb(CType(CType(173, Byte), Integer), CType(CType(20, Byte), Integer), CType(CType(87, Byte), Integer))
         Me.pnlHeader.Controls.Add(Me.lblTitle)
         Me.pnlHeader.Controls.Add(Me.lblSubtitle)
         Me.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top
@@ -41,25 +43,32 @@ Partial Class frmLogin
         Me.pnlHeader.Name = "pnlHeader"
         Me.pnlHeader.Size = New System.Drawing.Size(400, 80)
         Me.pnlHeader.TabIndex = 0
-
-        ' lblTitle
+        '
+        'lblTitle
+        '
         Me.lblTitle.AutoSize = True
-        Me.lblTitle.Font = New System.Drawing.Font("Segoe UI", 16, System.Drawing.FontStyle.Bold)
+        Me.lblTitle.Font = New System.Drawing.Font("Segoe UI", 16.0!, System.Drawing.FontStyle.Bold)
         Me.lblTitle.ForeColor = System.Drawing.Color.White
         Me.lblTitle.Location = New System.Drawing.Point(20, 14)
         Me.lblTitle.Name = "lblTitle"
+        Me.lblTitle.Size = New System.Drawing.Size(110, 30)
+        Me.lblTitle.TabIndex = 0
         Me.lblTitle.Text = "Filmtopia"
-
-        ' lblSubtitle
+        '
+        'lblSubtitle
+        '
         Me.lblSubtitle.AutoSize = True
-        Me.lblSubtitle.Font = New System.Drawing.Font("Segoe UI", 9)
-        Me.lblSubtitle.ForeColor = System.Drawing.Color.FromArgb(255, 180, 210)
+        Me.lblSubtitle.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblSubtitle.ForeColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(180, Byte), Integer), CType(CType(210, Byte), Integer))
         Me.lblSubtitle.Location = New System.Drawing.Point(22, 50)
         Me.lblSubtitle.Name = "lblSubtitle"
+        Me.lblSubtitle.Size = New System.Drawing.Size(163, 15)
+        Me.lblSubtitle.TabIndex = 1
         Me.lblSubtitle.Text = "Cinema Management System"
-
-        ' pnlContent
-        Me.pnlContent.BackColor = System.Drawing.Color.FromArgb(245, 245, 248)
+        '
+        'pnlContent
+        '
+        Me.pnlContent.BackColor = System.Drawing.Color.FromArgb(CType(CType(245, Byte), Integer), CType(CType(245, Byte), Integer), CType(CType(248, Byte), Integer))
         Me.pnlContent.Controls.Add(Me.lblUsername)
         Me.pnlContent.Controls.Add(Me.txtUsername)
         Me.pnlContent.Controls.Add(Me.lblPassword)
@@ -73,87 +82,102 @@ Partial Class frmLogin
         Me.pnlContent.Padding = New System.Windows.Forms.Padding(30)
         Me.pnlContent.Size = New System.Drawing.Size(400, 270)
         Me.pnlContent.TabIndex = 1
-
-        ' lblUsername
+        '
+        'lblUsername
+        '
         Me.lblUsername.AutoSize = True
-        Me.lblUsername.Font = New System.Drawing.Font("Segoe UI", 9)
-        Me.lblUsername.ForeColor = System.Drawing.Color.FromArgb(80, 80, 80)
+        Me.lblUsername.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblUsername.ForeColor = System.Drawing.Color.FromArgb(CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer))
         Me.lblUsername.Location = New System.Drawing.Point(30, 30)
         Me.lblUsername.Name = "lblUsername"
+        Me.lblUsername.Size = New System.Drawing.Size(60, 15)
+        Me.lblUsername.TabIndex = 0
         Me.lblUsername.Text = "Username"
-
-        ' txtUsername
+        '
+        'txtUsername
+        '
         Me.txtUsername.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txtUsername.Font = New System.Drawing.Font("Segoe UI", 10)
+        Me.txtUsername.Font = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.txtUsername.Location = New System.Drawing.Point(30, 50)
         Me.txtUsername.Name = "txtUsername"
         Me.txtUsername.Size = New System.Drawing.Size(340, 25)
         Me.txtUsername.TabIndex = 1
-
-        ' lblPassword
+        '
+        'lblPassword
+        '
         Me.lblPassword.AutoSize = True
-        Me.lblPassword.Font = New System.Drawing.Font("Segoe UI", 9)
-        Me.lblPassword.ForeColor = System.Drawing.Color.FromArgb(80, 80, 80)
+        Me.lblPassword.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblPassword.ForeColor = System.Drawing.Color.FromArgb(CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer))
         Me.lblPassword.Location = New System.Drawing.Point(30, 95)
         Me.lblPassword.Name = "lblPassword"
+        Me.lblPassword.Size = New System.Drawing.Size(57, 15)
+        Me.lblPassword.TabIndex = 2
         Me.lblPassword.Text = "Password"
-
-        ' txtPassword
+        '
+        'txtPassword
+        '
         Me.txtPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txtPassword.Font = New System.Drawing.Font("Segoe UI", 10)
+        Me.txtPassword.Font = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.txtPassword.Location = New System.Drawing.Point(30, 115)
         Me.txtPassword.Name = "txtPassword"
-        Me.txtPassword.PasswordChar = "*"c
+        Me.txtPassword.PasswordChar = Global.Microsoft.VisualBasic.ChrW(42)
         Me.txtPassword.Size = New System.Drawing.Size(340, 25)
         Me.txtPassword.TabIndex = 2
-
-        ' btnLogin
-        Me.btnLogin.BackColor = System.Drawing.Color.FromArgb(173, 20, 87)
+        '
+        'btnLogin
+        '
+        Me.btnLogin.BackColor = System.Drawing.Color.FromArgb(CType(CType(173, Byte), Integer), CType(CType(20, Byte), Integer), CType(CType(87, Byte), Integer))
+        Me.btnLogin.Cursor = System.Windows.Forms.Cursors.Hand
         Me.btnLogin.FlatAppearance.BorderSize = 0
         Me.btnLogin.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnLogin.Font = New System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold)
+        Me.btnLogin.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
         Me.btnLogin.ForeColor = System.Drawing.Color.White
         Me.btnLogin.Location = New System.Drawing.Point(30, 165)
         Me.btnLogin.Name = "btnLogin"
         Me.btnLogin.Size = New System.Drawing.Size(340, 38)
         Me.btnLogin.TabIndex = 3
         Me.btnLogin.Text = "Log In"
-        Me.btnLogin.Cursor = System.Windows.Forms.Cursors.Hand
-
-        ' btnClose
-        Me.btnClose.BackColor = System.Drawing.Color.FromArgb(245, 245, 248)
-        Me.btnClose.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(220, 220, 225)
-        Me.btnClose.FlatAppearance.BorderSize = 1
+        Me.btnLogin.UseVisualStyleBackColor = False
+        '
+        'btnClose
+        '
+        Me.btnClose.BackColor = System.Drawing.Color.FromArgb(CType(CType(245, Byte), Integer), CType(CType(245, Byte), Integer), CType(CType(248, Byte), Integer))
+        Me.btnClose.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.btnClose.DialogResult = System.Windows.Forms.DialogResult.Cancel
+        Me.btnClose.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(225, Byte), Integer))
         Me.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnClose.Font = New System.Drawing.Font("Segoe UI", 9)
-        Me.btnClose.ForeColor = System.Drawing.Color.FromArgb(150, 150, 150)
+        Me.btnClose.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.btnClose.ForeColor = System.Drawing.Color.FromArgb(CType(CType(150, Byte), Integer), CType(CType(150, Byte), Integer), CType(CType(150, Byte), Integer))
         Me.btnClose.Location = New System.Drawing.Point(30, 215)
         Me.btnClose.Name = "btnClose"
         Me.btnClose.Size = New System.Drawing.Size(340, 30)
         Me.btnClose.TabIndex = 4
         Me.btnClose.Text = "Cancel"
-        Me.btnClose.Cursor = System.Windows.Forms.Cursors.Hand
-        Me.btnClose.DialogResult = System.Windows.Forms.DialogResult.Cancel
-
-        ' lblFooter
+        Me.btnClose.UseVisualStyleBackColor = False
+        '
+        'lblFooter
+        '
         Me.lblFooter.AutoSize = True
-        Me.lblFooter.Font = New System.Drawing.Font("Segoe UI", 8)
+        Me.lblFooter.Font = New System.Drawing.Font("Segoe UI", 8.0!)
         Me.lblFooter.ForeColor = System.Drawing.Color.Gray
         Me.lblFooter.Location = New System.Drawing.Point(30, 255)
         Me.lblFooter.Name = "lblFooter"
+        Me.lblFooter.Size = New System.Drawing.Size(231, 13)
+        Me.lblFooter.TabIndex = 5
         Me.lblFooter.Text = "Filmtopia Cinema Management System  v1.0"
-
-        ' frmLogin
+        '
+        'frmLogin
+        '
         Me.AcceptButton = Me.btnLogin
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.BackColor = System.Drawing.Color.FromArgb(245, 245, 248)
+        Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(245, Byte), Integer), CType(CType(245, Byte), Integer), CType(CType(248, Byte), Integer))
         Me.CancelButton = Me.btnClose
         Me.ClientSize = New System.Drawing.Size(400, 350)
         Me.Controls.Add(Me.pnlContent)
         Me.Controls.Add(Me.pnlHeader)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
-        Me.Icon = New System.Drawing.Icon("C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Backup for project resources\filmtopia-logo.ico")
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.MaximizeBox = False
         Me.Name = "frmLogin"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
@@ -163,6 +187,7 @@ Partial Class frmLogin
         Me.pnlContent.ResumeLayout(False)
         Me.pnlContent.PerformLayout()
         Me.ResumeLayout(False)
+
     End Sub
 
     Friend WithEvents pnlHeader As System.Windows.Forms.Panel

@@ -15,6 +15,7 @@ Public Class frmLogin
             attempts = 0
             LogedIn = True
             ClearLoginFields()
+            Me.Hide()
             frmMainForm.ShowDialog()
         Else
             attempts += 1

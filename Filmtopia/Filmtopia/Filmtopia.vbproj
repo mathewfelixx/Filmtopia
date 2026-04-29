@@ -85,12 +85,6 @@
     <Compile Include="frmFilms.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmKiosk.Designer.vb">
-      <DependentUpon>frmKiosk.vb</DependentUpon>
-    </Compile>
-    <Compile Include="frmKiosk.vb">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="frmLogin.Designer.vb">
       <DependentUpon>frmLogin.vb</DependentUpon>
     </Compile>
@@ -103,10 +97,10 @@
     <Compile Include="frmMainForm.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmScreenings.Designer.vb">
-      <DependentUpon>frmScreenings.vb</DependentUpon>
+    <Compile Include="frmMFilms.Designer.vb">
+      <DependentUpon>frmMFilms.vb</DependentUpon>
     </Compile>
-    <Compile Include="frmScreenings.vb">
+    <Compile Include="frmMFilms.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="frmStartup.Designer.vb">
@@ -139,6 +133,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmMainForm.resx">
       <DependentUpon>frmMainForm.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmMFilms.resx">
+      <DependentUpon>frmMFilms.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmStartup.resx">
       <DependentUpon>frmStartup.vb</DependentUpon>

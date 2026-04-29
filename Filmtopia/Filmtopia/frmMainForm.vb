@@ -17,11 +17,11 @@
     End Sub
 
     Private Sub btnBookings_Click(sender As Object, e As EventArgs) Handles btnBookings.Click
-        frmBooking.ShowDialog()
+        frmBooking.Show()
     End Sub
 
     Private Sub btnScreenings_Click(sender As Object, e As EventArgs) Handles btnScreenings.Click
-        frmScreenings.ShowDialog()
+        frmScreenings.Show()
     End Sub
 
     Private Sub btnFilms_Click(sender As Object, e As EventArgs) Handles btnFilms.Click

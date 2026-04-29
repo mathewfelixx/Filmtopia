@@ -32,7 +32,7 @@ Namespace My
         
         <Global.System.Diagnostics.DebuggerStepThroughAttribute()>  _
         Protected Overrides Sub OnCreateMainForm()
-            Me.MainForm = Global.Filmtopia.frmStartup
+            Me.MainForm = Global.Filmtopia.frmMFilms
         End Sub
     End Class
 End Namespace
