@@ -15,3 +15,7 @@ desktop.ini
 *.suo
 *.user
 *.pdb
+# Visual Studio cache
+.vs/
+obj/
+bin/
