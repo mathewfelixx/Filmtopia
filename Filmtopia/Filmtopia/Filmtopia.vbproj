@@ -85,6 +85,12 @@
     <Compile Include="frmLogin.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmLogs.Designer.vb">
+      <DependentUpon>frmLogs.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmLogs.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmMainForm.Designer.vb">
       <DependentUpon>frmMainForm.vb</DependentUpon>
     </Compile>
@@ -95,6 +101,12 @@
       <DependentUpon>frmMFilms.vb</DependentUpon>
     </Compile>
     <Compile Include="frmMFilms.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmSettings.Designer.vb">
+      <DependentUpon>frmSettings.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmSettings.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="frmStartup.Designer.vb">
@@ -116,6 +128,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="modMain.vb" />
+    <Compile Include="modSettings.vb" />
     <Compile Include="modVersionControl.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
