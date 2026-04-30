@@ -182,6 +182,9 @@
     <EmbeddedResource Include="frmMainForm.resx">
       <DependentUpon>frmMainForm.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="frmMessageBox.resx">
+      <DependentUpon>frmMessageBox.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmMFilms.resx">
       <DependentUpon>frmMFilms.vb</DependentUpon>
     </EmbeddedResource>
