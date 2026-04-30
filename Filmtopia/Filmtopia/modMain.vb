@@ -52,4 +52,10 @@ Module modMain
 
         Return PlainText
     End Function
+
+    Public Sub CommonFormStartup()
+        LoadVersion()
+        UpdateAllVersionLabels()
+
+    End Sub
 End Module

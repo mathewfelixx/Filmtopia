@@ -29,7 +29,7 @@ Partial Class frmMainForm
         Me.lblTitle = New System.Windows.Forms.Label()
         Me.lblAccessLevel = New System.Windows.Forms.Label()
         Me.pnlContent = New System.Windows.Forms.Panel()
-        Me.lblFooter = New System.Windows.Forms.Label()
+        Me.lblVersion = New System.Windows.Forms.Label()
         Me.pnlHeader.SuspendLayout()
         Me.pnlContent.SuspendLayout()
         Me.SuspendLayout()
@@ -42,10 +42,10 @@ Partial Class frmMainForm
         Me.btnLogout.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnLogout.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.btnLogout.ForeColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(180, Byte), Integer), CType(CType(210, Byte), Integer))
-        Me.btnLogout.Location = New System.Drawing.Point(523, 15)
-        Me.btnLogout.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.btnLogout.Location = New System.Drawing.Point(697, 18)
+        Me.btnLogout.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.btnLogout.Name = "btnLogout"
-        Me.btnLogout.Size = New System.Drawing.Size(62, 28)
+        Me.btnLogout.Size = New System.Drawing.Size(83, 34)
         Me.btnLogout.TabIndex = 0
         Me.btnLogout.Text = "Log out"
         Me.ToolTip1.SetToolTip(Me.btnLogout, "Log out and return to the login screen")
@@ -59,10 +59,10 @@ Partial Class frmMainForm
         Me.btnBookings.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnBookings.Font = New System.Drawing.Font("Segoe UI", 11.0!, System.Drawing.FontStyle.Bold)
         Me.btnBookings.ForeColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer))
-        Me.btnBookings.Location = New System.Drawing.Point(20, 21)
-        Me.btnBookings.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.btnBookings.Location = New System.Drawing.Point(27, 26)
+        Me.btnBookings.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.btnBookings.Name = "btnBookings"
-        Me.btnBookings.Size = New System.Drawing.Size(257, 87)
+        Me.btnBookings.Size = New System.Drawing.Size(343, 107)
         Me.btnBookings.TabIndex = 1
         Me.btnBookings.Text = "Manage Bookings" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10)
         Me.ToolTip1.SetToolTip(Me.btnBookings, "Add, view, search and cancel customer bookings")
@@ -76,10 +76,10 @@ Partial Class frmMainForm
         Me.btnScreenings.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnScreenings.Font = New System.Drawing.Font("Segoe UI", 11.0!, System.Drawing.FontStyle.Bold)
         Me.btnScreenings.ForeColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer))
-        Me.btnScreenings.Location = New System.Drawing.Point(302, 21)
-        Me.btnScreenings.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.btnScreenings.Location = New System.Drawing.Point(403, 26)
+        Me.btnScreenings.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.btnScreenings.Name = "btnScreenings"
-        Me.btnScreenings.Size = New System.Drawing.Size(257, 87)
+        Me.btnScreenings.Size = New System.Drawing.Size(343, 107)
         Me.btnScreenings.TabIndex = 2
         Me.btnScreenings.Text = "Manage Screenings" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10)
         Me.ToolTip1.SetToolTip(Me.btnScreenings, "Schedule and manage film screenings")
@@ -93,10 +93,10 @@ Partial Class frmMainForm
         Me.btnFilms.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnFilms.Font = New System.Drawing.Font("Segoe UI", 11.0!, System.Drawing.FontStyle.Bold)
         Me.btnFilms.ForeColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer))
-        Me.btnFilms.Location = New System.Drawing.Point(20, 128)
-        Me.btnFilms.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.btnFilms.Location = New System.Drawing.Point(27, 158)
+        Me.btnFilms.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.btnFilms.Name = "btnFilms"
-        Me.btnFilms.Size = New System.Drawing.Size(257, 87)
+        Me.btnFilms.Size = New System.Drawing.Size(343, 107)
         Me.btnFilms.TabIndex = 3
         Me.btnFilms.Text = "Manage Films" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10)
         Me.ToolTip1.SetToolTip(Me.btnFilms, "Add and manage films in the system")
@@ -110,10 +110,10 @@ Partial Class frmMainForm
         Me.btnReports.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnReports.Font = New System.Drawing.Font("Segoe UI", 11.0!, System.Drawing.FontStyle.Bold)
         Me.btnReports.ForeColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer))
-        Me.btnReports.Location = New System.Drawing.Point(302, 128)
-        Me.btnReports.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.btnReports.Location = New System.Drawing.Point(403, 158)
+        Me.btnReports.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.btnReports.Name = "btnReports"
-        Me.btnReports.Size = New System.Drawing.Size(257, 87)
+        Me.btnReports.Size = New System.Drawing.Size(343, 107)
         Me.btnReports.TabIndex = 4
         Me.btnReports.Text = "View Reports" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10)
         Me.ToolTip1.SetToolTip(Me.btnReports, "View sales reports and booking summaries")
@@ -127,9 +127,9 @@ Partial Class frmMainForm
         Me.pnlHeader.Controls.Add(Me.btnLogout)
         Me.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top
         Me.pnlHeader.Location = New System.Drawing.Point(0, 0)
-        Me.pnlHeader.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.pnlHeader.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.pnlHeader.Name = "pnlHeader"
-        Me.pnlHeader.Size = New System.Drawing.Size(600, 52)
+        Me.pnlHeader.Size = New System.Drawing.Size(800, 64)
         Me.pnlHeader.TabIndex = 0
         '
         'lblTitle
@@ -137,10 +137,9 @@ Partial Class frmMainForm
         Me.lblTitle.AutoSize = True
         Me.lblTitle.Font = New System.Drawing.Font("Segoe UI", 16.0!, System.Drawing.FontStyle.Bold)
         Me.lblTitle.ForeColor = System.Drawing.Color.White
-        Me.lblTitle.Location = New System.Drawing.Point(17, 13)
-        Me.lblTitle.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
+        Me.lblTitle.Location = New System.Drawing.Point(23, 16)
         Me.lblTitle.Name = "lblTitle"
-        Me.lblTitle.Size = New System.Drawing.Size(110, 30)
+        Me.lblTitle.Size = New System.Drawing.Size(140, 37)
         Me.lblTitle.TabIndex = 0
         Me.lblTitle.Text = "Filmtopia"
         '
@@ -149,10 +148,9 @@ Partial Class frmMainForm
         Me.lblAccessLevel.AutoSize = True
         Me.lblAccessLevel.Font = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.lblAccessLevel.ForeColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(180, Byte), Integer), CType(CType(210, Byte), Integer))
-        Me.lblAccessLevel.Location = New System.Drawing.Point(455, 18)
-        Me.lblAccessLevel.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
+        Me.lblAccessLevel.Location = New System.Drawing.Point(607, 22)
         Me.lblAccessLevel.Name = "lblAccessLevel"
-        Me.lblAccessLevel.Size = New System.Drawing.Size(64, 19)
+        Me.lblAccessLevel.Size = New System.Drawing.Size(78, 23)
         Me.lblAccessLevel.TabIndex = 1
         Me.lblAccessLevel.Text = "Manager"
         '
@@ -163,37 +161,37 @@ Partial Class frmMainForm
         Me.pnlContent.Controls.Add(Me.btnScreenings)
         Me.pnlContent.Controls.Add(Me.btnFilms)
         Me.pnlContent.Controls.Add(Me.btnReports)
-        Me.pnlContent.Controls.Add(Me.lblFooter)
+        Me.pnlContent.Controls.Add(Me.lblVersion)
         Me.pnlContent.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.pnlContent.Location = New System.Drawing.Point(0, 52)
-        Me.pnlContent.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.pnlContent.Location = New System.Drawing.Point(0, 64)
+        Me.pnlContent.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.pnlContent.Name = "pnlContent"
-        Me.pnlContent.Padding = New System.Windows.Forms.Padding(20, 21, 20, 21)
-        Me.pnlContent.Size = New System.Drawing.Size(600, 295)
+        Me.pnlContent.Padding = New System.Windows.Forms.Padding(27, 26, 27, 26)
+        Me.pnlContent.Size = New System.Drawing.Size(800, 363)
         Me.pnlContent.TabIndex = 1
         '
-        'lblFooter
+        'lblVersion
         '
-        Me.lblFooter.AutoSize = True
-        Me.lblFooter.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.lblFooter.ForeColor = System.Drawing.Color.Gray
-        Me.lblFooter.Location = New System.Drawing.Point(20, 238)
-        Me.lblFooter.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
-        Me.lblFooter.Name = "lblFooter"
-        Me.lblFooter.Size = New System.Drawing.Size(243, 15)
-        Me.lblFooter.TabIndex = 5
-        Me.lblFooter.Text = "Filmtopia Cinema Management System  v1.0"
+        Me.lblVersion.AutoSize = True
+        Me.lblVersion.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblVersion.ForeColor = System.Drawing.Color.Gray
+        Me.lblVersion.Location = New System.Drawing.Point(27, 293)
+        Me.lblVersion.Name = "lblVersion"
+        Me.lblVersion.Size = New System.Drawing.Size(303, 20)
+        Me.lblVersion.TabIndex = 5
+        Me.lblVersion.Text = "Filmtopia Cinema Management System  v1.0"
         '
         'frmMainForm
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(245, Byte), Integer), CType(CType(245, Byte), Integer), CType(CType(248, Byte), Integer))
-        Me.ClientSize = New System.Drawing.Size(600, 347)
+        Me.ClientSize = New System.Drawing.Size(800, 427)
         Me.Controls.Add(Me.pnlContent)
         Me.Controls.Add(Me.pnlHeader)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
+        Me.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.MaximizeBox = False
         Me.Name = "frmMainForm"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
@@ -216,6 +214,6 @@ Partial Class frmMainForm
     Friend WithEvents btnScreenings As System.Windows.Forms.Button
     Friend WithEvents btnFilms As System.Windows.Forms.Button
     Friend WithEvents btnReports As System.Windows.Forms.Button
-    Friend WithEvents lblFooter As System.Windows.Forms.Label
+    Friend WithEvents lblVersion As System.Windows.Forms.Label
 
 End Class

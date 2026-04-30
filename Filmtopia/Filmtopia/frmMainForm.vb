@@ -1,6 +1,7 @@
 ﻿Public Class frmMainForm
 
     Private Sub frmMainForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        CommonFormStartup()
         ConfigureAccessLevel()
     End Sub
 
@@ -16,13 +17,13 @@
         End If
     End Sub
 
-    Private Sub btnBookings_Click(sender As Object, e As EventArgs) Handles btnBookings.Click
-        frmBooking.Show()
-    End Sub
+    'Private Sub btnBookings_Click(sender As Object, e As EventArgs) Handles btnBookings.Click
+    '    frmBooking.Show()
+    'End Sub
 
-    Private Sub btnScreenings_Click(sender As Object, e As EventArgs) Handles btnScreenings.Click
-        frmScreenings.Show()
-    End Sub
+    'Private Sub btnScreenings_Click(sender As Object, e As EventArgs) Handles btnScreenings.Click
+    '    frmScreenings.Show()
+    'End Sub
 
     Private Sub btnFilms_Click(sender As Object, e As EventArgs) Handles btnFilms.Click
         frmFilms.ShowDialog()

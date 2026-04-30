@@ -103,7 +103,20 @@
     <Compile Include="frmStartup.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmTesting.Designer.vb">
+      <DependentUpon>frmTesting.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmTesting.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmVersionControlUTIL.Designer.vb">
+      <DependentUpon>frmVersionControlUTIL.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmVersionControlUTIL.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="modMain.vb" />
+    <Compile Include="modVersionControl.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -133,6 +146,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmStartup.resx">
       <DependentUpon>frmStartup.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmTesting.resx">
+      <DependentUpon>frmTesting.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmVersionControlUTIL.resx">
+      <DependentUpon>frmVersionControlUTIL.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
