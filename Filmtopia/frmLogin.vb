@@ -36,7 +36,9 @@ Public Class frmLogin
             Else
                 failedAttempts = failedAttempts + 1
                 txtPassword.Text = ""
+                WriteLog(LogAuth, "Failed login for " & username & ", attempt " & failedAttempts & " of " & MaxAttempts)
                 If failedAttempts >= MaxAttempts Then
+                    WriteLog(LogAuth, "Filmtopia closed after " & MaxAttempts & " failed logins")
                     MessageBox.Show("Too many failed attempts. Filmtopia will now close.", "Access Denied", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Application.Exit()
                 Else
