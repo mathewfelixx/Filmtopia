@@ -82,6 +82,13 @@
       <DependentUpon>frmLogin.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmLogs.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmLogs.Designer.vb">
+      <DependentUpon>frmLogs.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmMainMenu.vb">
       <SubType>Form</SubType>
     </Compile>
