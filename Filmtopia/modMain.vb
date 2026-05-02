@@ -33,6 +33,17 @@ Module modMain
         Return success
     End Function
 
+    Public Function RunCommand(SQLCmd As OleDbCommand) As Boolean
+        Dim success As Boolean = False
+        If DbConnect() Then
+            SQLCmd.Connection = cn
+            SQLCmd.ExecuteNonQuery()
+            success = True
+            cn.Close()
+        End If
+        Return success
+    End Function
+
     Public Function Encode(plainText As String) As String
         Return Convert.ToBase64String(Encoding.UTF8.GetBytes(plainText))
     End Function

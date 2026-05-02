@@ -73,6 +73,7 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="modLogs.vb" />
     <Compile Include="modMain.vb" />
     <Compile Include="frmLogin.vb">
       <SubType>Form</SubType>
