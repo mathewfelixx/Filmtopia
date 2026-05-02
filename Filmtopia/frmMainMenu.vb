@@ -29,6 +29,7 @@
     End Sub
 
     Private Sub frmMainMenu_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed
+        WriteLog(LogAuth, CurrentUsername & " logged out")
         CurrentLoginID = 0
         CurrentUsername = ""
         UserAccessLevel = 0
