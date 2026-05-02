@@ -1,6 +1,8 @@
 ﻿Imports System.Data.OleDb
 
 Module modLogs
+    Public Const LogAuth As String = "AUTH"
+
     Public Sub WriteLog(logType As String, message As String)
         Dim SQLCmd As New OleDbCommand("INSERT INTO tblLogs (LogDateTime, LoginID, LogType, LogMessage) VALUES (Now(), @LoginID, @LogType, @LogMessage)")
         If CurrentLoginID = 0 Then

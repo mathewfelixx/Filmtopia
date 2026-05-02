@@ -26,6 +26,7 @@ Public Class frmLogin
                 CurrentLoginID = dt.Rows(0)("LoginID")
                 CurrentUsername = dt.Rows(0)("Username")
                 UserAccessLevel = dt.Rows(0)("AccessLevel")
+                WriteLog(LogAuth, CurrentUsername & " logged in")
                 failedAttempts = 0
                 txtUsername.Text = ""
                 txtPassword.Text = ""
