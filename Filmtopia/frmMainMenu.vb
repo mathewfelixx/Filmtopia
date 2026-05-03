@@ -5,7 +5,14 @@
     End Sub
 
     Private Sub ConfigureAccessLevel()
+        Dim isManager As Boolean = False
         If UserAccessLevel = AccessManager Then
+            isManager = True
+        End If
+
+        btnLogs.Visible = isManager
+
+        If isManager Then
             GroupBox1.Text = "Filmtopia Manager"
         Else
             GroupBox1.Text = "Filmtopia Staff"
@@ -23,6 +30,11 @@
         End If
         Return greeting
     End Function
+
+    Private Sub btnLogs_Click(sender As Object, e As EventArgs) Handles btnLogs.Click
+        frmLogs.Show()
+        frmLogs.BringToFront()
+    End Sub
 
     Private Sub btnLogout_Click(sender As Object, e As EventArgs) Handles btnLogout.Click
         Me.Close()
