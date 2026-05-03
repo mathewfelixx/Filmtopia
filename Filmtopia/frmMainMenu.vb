@@ -45,6 +45,11 @@
         CurrentLoginID = 0
         CurrentUsername = ""
         UserAccessLevel = 0
+        CloseOtherForms()
         frmLogin.Show()
+    End Sub
+
+    Private Sub CloseOtherForms()
+        frmLogs.Close()
     End Sub
 End Class
