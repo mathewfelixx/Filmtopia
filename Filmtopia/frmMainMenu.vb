@@ -31,6 +31,11 @@
         Return greeting
     End Function
 
+    Private Sub btnFilms_Click(sender As Object, e As EventArgs) Handles btnFilms.Click
+        frmFilms.Show()
+        frmFilms.BringToFront()
+    End Sub
+
     Private Sub btnLogs_Click(sender As Object, e As EventArgs) Handles btnLogs.Click
         frmLogs.Show()
         frmLogs.BringToFront()
@@ -50,6 +55,7 @@
     End Sub
 
     Private Sub CloseOtherForms()
+        frmFilms.Close()
         frmLogs.Close()
     End Sub
 End Class
