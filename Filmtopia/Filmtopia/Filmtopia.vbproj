@@ -121,9 +121,7 @@
     <Compile Include="frmMessageBox.Designer.vb">
       <DependentUpon>frmMessageBox.vb</DependentUpon>
     </Compile>
-    <Compile Include="frmMessageBox.vb">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="frmMessageBox.vb" />
     <Compile Include="frmMFilms.Designer.vb">
       <DependentUpon>frmMFilms.vb</DependentUpon>
     </Compile>

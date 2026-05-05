@@ -11,7 +11,7 @@
     Public Sub ChangePassword(Username As String, OldPassword As String)
 
     End Sub
-    Private Sub CreateBackup()
+    Public Sub CreateBackup()
 
     End Sub
 

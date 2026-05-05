@@ -48,3 +48,4 @@ C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILM
 E:\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmTesting.resources
 E:\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmVersionControlUTIL.resources
 C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmMessageBox.resources
+E:\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmMessageBox.resources
