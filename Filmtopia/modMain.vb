@@ -33,6 +33,16 @@ Module modMain
         Return success
     End Function
 
+    Public Function GetValue(SQLCmd As OleDbCommand) As Object
+        Dim value As Object = Nothing
+        If DbConnect() Then
+            SQLCmd.Connection = cn
+            value = SQLCmd.ExecuteScalar()
+            cn.Close()
+        End If
+        Return value
+    End Function
+
     Public Function RunCommand(SQLCmd As OleDbCommand) As Boolean
         Dim success As Boolean = False
         If DbConnect() Then

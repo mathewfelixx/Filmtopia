@@ -21,7 +21,7 @@ Public Class frmFilms
         End If
     End Sub
 
-    Private Function DetailsAreValid() As Boolean
+    Private Function DetailsAreValid(filmID As Long) As Boolean
         Dim valid As Boolean = False
         Dim duration As Integer
 
@@ -37,6 +37,10 @@ Public Class frmFilms
             MessageBox.Show("The duration must be a whole number of minutes.", "Invalid Duration", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtDuration.Focus()
 
+        ElseIf TitleIsTaken(txtTitle.Text.Trim(), filmID) Then
+            MessageBox.Show("There is already a film called " & txtTitle.Text.Trim() & ".", "Duplicate Film", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtTitle.Focus()
+
         Else
             valid = True
         End If
@@ -44,8 +48,16 @@ Public Class frmFilms
         Return valid
     End Function
 
+    Private Function TitleIsTaken(title As String, filmID As Long) As Boolean
+        Dim SQLCmd As New OleDbCommand("SELECT COUNT(*) FROM tblFilm WHERE FilmTitle = @FilmTitle AND FilmID <> @FilmID")
+        SQLCmd.Parameters.AddWithValue("@FilmTitle", title)
+        SQLCmd.Parameters.AddWithValue("@FilmID", filmID)
+        Dim matches As Integer = GetValue(SQLCmd)
+        Return matches > 0
+    End Function
+
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
-        If DetailsAreValid() Then
+        If DetailsAreValid(0) Then
             Dim SQLCmd As New OleDbCommand("INSERT INTO tblFilm (FilmTitle, FilmAgeRating, FilmDuration, FilmDescription) " &
                                            "VALUES (@FilmTitle, @FilmAgeRating, @FilmDuration, @FilmDescription)")
             SQLCmd.Parameters.AddWithValue("@FilmTitle", txtTitle.Text.Trim())
