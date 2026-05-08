@@ -1,6 +1,8 @@
 ﻿Imports System.Data.OleDb
 
 Public Class frmFilms
+    Private selectedFilmID As Long = 0
+
     Private Sub frmFilms_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadFilms()
     End Sub
@@ -72,7 +74,28 @@ Public Class frmFilms
         End If
     End Sub
 
+    Private Sub frmFilms_Shown(sender As Object, e As EventArgs) Handles MyBase.Shown
+        dgvFilms.ClearSelection()
+    End Sub
+
+    Private Sub dgvFilms_DataBindingComplete(sender As Object, e As DataGridViewBindingCompleteEventArgs) Handles dgvFilms.DataBindingComplete
+        dgvFilms.ClearSelection()
+    End Sub
+
+    Private Sub dgvFilms_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvFilms.CellClick
+        If e.RowIndex >= 0 Then
+            Dim row As DataGridViewRow = dgvFilms.Rows(e.RowIndex)
+            selectedFilmID = row.Cells("FilmID").Value
+            txtTitle.Text = row.Cells("FilmTitle").Value
+            cboAgeRating.SelectedItem = row.Cells("FilmAgeRating").Value
+            txtDuration.Text = row.Cells("FilmDuration").Value
+            txtDescription.Text = row.Cells("FilmDescription").Value.ToString()
+        End If
+    End Sub
+
     Private Sub ClearFields()
+        selectedFilmID = 0
+        dgvFilms.ClearSelection()
         txtTitle.Text = ""
         cboAgeRating.SelectedIndex = -1
         txtDuration.Text = ""
