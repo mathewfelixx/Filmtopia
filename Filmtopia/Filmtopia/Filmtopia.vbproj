@@ -160,6 +160,7 @@
     <Compile Include="frmVersionControlUTIL.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="modLogs.vb" />
     <Compile Include="modMain.vb" />
     <Compile Include="modMessageBox.vb" />
     <Compile Include="modSettings.vb" />

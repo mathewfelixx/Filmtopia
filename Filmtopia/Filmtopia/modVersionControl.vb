@@ -1,5 +1,22 @@
 ﻿Imports System.Data.OleDb
 
+
+
+
+'this is a finished feature (theres nothing much more to add)
+
+
+
+
+
+
+
+
+
+
+
+
+
 Module modVersionControl
     Public appversion As String
     'function that returns the current appversion concat with the string before it
@@ -11,16 +28,15 @@ Module modVersionControl
     'subroutine that loads the current appversion from the database
     Public Sub LoadVersion()
         If DbConnect() Then
-            Dim query As String = "SELECT Version FROM tblVersionControl"
-            Dim cmd As New OleDbCommand(query, cn)
-            Dim result = cmd.ExecuteScalar()
-
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT Version FROM tblVersionControl"
+            Dim result = SQLCmd.ExecuteScalar()
             If result IsNot Nothing Then
                 appversion = CStr(result)
             Else
                 appversion = "v1.0.0 [VC ERROR]"
             End If
-
             cn.Close()
         End If
     End Sub
@@ -28,19 +44,19 @@ Module modVersionControl
     'subroutine that saves the new appversion into the Filmtopia.mdb
     Public Sub SaveVersion()
         If DbConnect() Then
-            Dim query As String = "UPDATE tblVersionControl SET Version = @version"
-            Dim cmd As New OleDbCommand(query, cn)
-            cmd.Parameters.AddWithValue("@version", appversion)
-            cmd.ExecuteNonQuery()
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "UPDATE tblVersionControl SET Version = @Version"
+            SQLCmd.Parameters.AddWithValue("@Version", appversion)
+            SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If
     End Sub
 
-
     'subroutine that will contain all the different lblVersions from different forms.
     Public Sub UpdateAllVersionLabels()
         frmLogin.lblVersion.Text = GetVersion()
-        frmMainForm.lblVersion.Text = GetVersion()
+        frmMainFormOLD.lblVersion.Text = GetVersion()
         frmVersionControlUTIL.lblVersion.Text = GetVersion()
     End Sub
 
