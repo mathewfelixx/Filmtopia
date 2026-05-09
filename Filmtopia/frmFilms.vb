@@ -74,6 +74,25 @@ Public Class frmFilms
         End If
     End Sub
 
+    Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
+        If selectedFilmID = 0 Then
+            MessageBox.Show("Please pick a film from the list first.", "No Film Picked", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        ElseIf DetailsAreValid(selectedFilmID) Then
+            Dim SQLCmd As New OleDbCommand("UPDATE tblFilm SET FilmTitle = @FilmTitle, FilmAgeRating = @FilmAgeRating, FilmDuration = @FilmDuration, FilmDescription = @FilmDescription " &
+                                           "WHERE FilmID = @FilmID")
+            SQLCmd.Parameters.AddWithValue("@FilmTitle", txtTitle.Text.Trim())
+            SQLCmd.Parameters.AddWithValue("@FilmAgeRating", cboAgeRating.Text)
+            SQLCmd.Parameters.AddWithValue("@FilmDuration", CInt(txtDuration.Text.Trim()))
+            SQLCmd.Parameters.AddWithValue("@FilmDescription", txtDescription.Text.Trim())
+            SQLCmd.Parameters.AddWithValue("@FilmID", selectedFilmID)
+            If RunCommand(SQLCmd) Then
+                WriteLog(LogFilm, "Updated film " & txtTitle.Text.Trim() & " (film number " & selectedFilmID & ")")
+                LoadFilms()
+                ClearFields()
+            End If
+        End If
+    End Sub
+
     Private Sub frmFilms_Shown(sender As Object, e As EventArgs) Handles MyBase.Shown
         dgvFilms.ClearSelection()
     End Sub
