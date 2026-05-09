@@ -2,8 +2,14 @@
 
 Public Class frmFilms
     Private selectedFilmID As Long = 0
+    Private selectedFilmTitle As String = ""
 
     Private Sub frmFilms_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        If UserAccessLevel = AccessManager Then
+            btnDelete.Visible = True
+        Else
+            btnDelete.Visible = False
+        End If
         LoadFilms()
     End Sub
 
@@ -93,6 +99,20 @@ Public Class frmFilms
         End If
     End Sub
 
+    Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
+        If selectedFilmID = 0 Then
+            MessageBox.Show("Please pick a film from the list first.", "No Film Picked", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        ElseIf MessageBox.Show("Delete " & selectedFilmTitle & "? This cannot be undone.", "Delete Film", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) = DialogResult.Yes Then
+            Dim SQLCmd As New OleDbCommand("DELETE FROM tblFilm WHERE FilmID = @FilmID")
+            SQLCmd.Parameters.AddWithValue("@FilmID", selectedFilmID)
+            If RunCommand(SQLCmd) Then
+                WriteLog(LogFilm, "Deleted film " & selectedFilmTitle & " (film number " & selectedFilmID & ")")
+                LoadFilms()
+                ClearFields()
+            End If
+        End If
+    End Sub
+
     Private Sub frmFilms_Shown(sender As Object, e As EventArgs) Handles MyBase.Shown
         dgvFilms.ClearSelection()
     End Sub
@@ -105,6 +125,7 @@ Public Class frmFilms
         If e.RowIndex >= 0 Then
             Dim row As DataGridViewRow = dgvFilms.Rows(e.RowIndex)
             selectedFilmID = row.Cells("FilmID").Value
+            selectedFilmTitle = row.Cells("FilmTitle").Value
             txtTitle.Text = row.Cells("FilmTitle").Value
             cboAgeRating.SelectedItem = row.Cells("FilmAgeRating").Value
             txtDuration.Text = row.Cells("FilmDuration").Value
@@ -114,6 +135,7 @@ Public Class frmFilms
 
     Private Sub ClearFields()
         selectedFilmID = 0
+        selectedFilmTitle = ""
         dgvFilms.ClearSelection()
         txtTitle.Text = ""
         cboAgeRating.SelectedIndex = -1
