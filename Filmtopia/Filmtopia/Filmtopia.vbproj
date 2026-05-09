@@ -187,6 +187,9 @@
     <EmbeddedResource Include="frmLogin.resx">
       <DependentUpon>frmLogin.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="frmLogs.resx">
+      <DependentUpon>frmLogs.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmMainFormOLD.resx">
       <DependentUpon>frmMainFormOLD.vb</DependentUpon>
     </EmbeddedResource>
