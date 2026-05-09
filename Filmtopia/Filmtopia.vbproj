@@ -73,6 +73,13 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="frmScreens.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmScreens.Designer.vb">
+      <DependentUpon>frmScreens.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="modLogs.vb" />
     <Compile Include="modMain.vb" />
     <Compile Include="frmFilms.vb">
