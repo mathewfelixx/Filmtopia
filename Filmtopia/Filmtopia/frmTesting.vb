@@ -10,7 +10,7 @@
     End Sub
 
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles btnMain.Click
-        frmMainForm.Show()
+        frmMainFormOLD.Show()
         Me.Hide()
     End Sub
 

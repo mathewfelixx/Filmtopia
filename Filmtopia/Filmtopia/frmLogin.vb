@@ -14,9 +14,10 @@ Public Class frmLogin
         If txtPassword.Text = retrievedPassword Then
             attempts = 0
             LogedIn = True
+            WriteLog("AUTH", "User '" & txtUsername.Text & "' logged in successfully")
             ClearLoginFields()
             Me.Hide()
-            frmMainForm.ShowDialog()
+            frmMainFormOLD.ShowDialog()
         Else
             attempts += 1
             txtPassword.Text = ""
@@ -24,6 +25,7 @@ Public Class frmLogin
 
             If attempts >= 3 Then
                 MessageBox.Show("Too many failed attempts. The application will now close.", "Access Denied", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                WriteLog("AUTH", "User '" & txtUsername.Text & "' failed password authentication.")
                 Application.Exit()
             Else
                 MessageBox.Show("Incorrect password. Attempt " & attempts & " of 3.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning)

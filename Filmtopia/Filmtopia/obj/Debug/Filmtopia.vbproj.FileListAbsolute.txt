@@ -33,7 +33,6 @@ C:\Users\mathe\OneDrive - Holy Cross College\COMPUTER SCIENCE\NEA\FILMTOPIA\FILM
 C:\Users\mathe\OneDrive - Holy Cross College\COMPUTER SCIENCE\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.vbproj.AssemblyReference.cache
 C:\Users\mathe\OneDrive - Holy Cross College\COMPUTER SCIENCE\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.exe.config
 C:\Users\mathe\OneDrive - Holy Cross College\COMPUTER SCIENCE\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmLogin.resources
-C:\Users\mathe\OneDrive - Holy Cross College\COMPUTER SCIENCE\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmMainForm.resources
 C:\Users\mathe\OneDrive - Holy Cross College\COMPUTER SCIENCE\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmStartup.resources
 C:\Users\mathe\OneDrive - Holy Cross College\COMPUTER SCIENCE\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.Resources.resources
 C:\Users\mathe\OneDrive - Holy Cross College\COMPUTER SCIENCE\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.vbproj.GenerateResource.cache
@@ -49,3 +48,4 @@ E:\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmto
 E:\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmVersionControlUTIL.resources
 C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmMessageBox.resources
 E:\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmMessageBox.resources
+C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmMainFormOLD.resources
