@@ -1,5 +1,4 @@
-﻿Public Class frmMainForm
-
+﻿Public Class frmMainFormOLD
     Private Sub frmMainForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup()
         ConfigureAccessLevel()
@@ -49,4 +48,6 @@
         frmLogin.Show()
 
     End Sub
+
+
 End Class
