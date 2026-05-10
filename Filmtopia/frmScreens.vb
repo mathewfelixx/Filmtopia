@@ -47,16 +47,54 @@ Public Class frmScreens
         If DetailsAreValid() Then
             Dim screenName As String = txtName.Text.Trim()
             Dim seats As Integer = CInt(txtSeats.Text.Trim())
-            Dim SQLCmd As New OleDbCommand("INSERT INTO tblScreen (ScreenName, ScreenCapacity) VALUES (@ScreenName, @ScreenCapacity)")
-            SQLCmd.Parameters.AddWithValue("@ScreenName", screenName)
-            SQLCmd.Parameters.AddWithValue("@ScreenCapacity", seats)
-            If RunCommand(SQLCmd) Then
+            If SaveNewScreen(screenName, seats) Then
                 WriteLog(LogScreen, "Added screen " & screenName & " with " & seats & " seats")
                 LoadScreens()
                 ClearFields()
             End If
         End If
     End Sub
+
+    Private Function SaveNewScreen(screenName As String, seats As Integer) As Boolean
+        Dim saved As Boolean = False
+
+        If DbConnect() Then
+            Dim trans As OleDbTransaction = cn.BeginTransaction()
+            Try
+                Dim SQLCmd As New OleDbCommand
+                SQLCmd.Connection = cn
+                SQLCmd.Transaction = trans
+                SQLCmd.CommandText = "INSERT INTO tblScreen (ScreenName, ScreenCapacity) VALUES (@ScreenName, @ScreenCapacity)"
+                SQLCmd.Parameters.AddWithValue("@ScreenName", screenName)
+                SQLCmd.Parameters.AddWithValue("@ScreenCapacity", seats)
+                SQLCmd.ExecuteNonQuery()
+
+                SQLCmd.Parameters.Clear()
+                SQLCmd.CommandText = "SELECT @@IDENTITY"
+                Dim newScreenID As Long = SQLCmd.ExecuteScalar()
+
+                SQLCmd.CommandText = "INSERT INTO tblSeat (ScreenID, SeatRow, SeatNumber) VALUES (@ScreenID, @SeatRow, @SeatNumber)"
+                For rowNumber As Integer = 0 To seats \ SeatsPerRow - 1
+                    For seatNumber As Integer = 1 To SeatsPerRow
+                        SQLCmd.Parameters.Clear()
+                        SQLCmd.Parameters.AddWithValue("@ScreenID", newScreenID)
+                        SQLCmd.Parameters.AddWithValue("@SeatRow", Chr(Asc("A") + rowNumber))
+                        SQLCmd.Parameters.AddWithValue("@SeatNumber", seatNumber)
+                        SQLCmd.ExecuteNonQuery()
+                    Next
+                Next
+
+                trans.Commit()
+                saved = True
+            Catch ex As Exception
+                trans.Rollback()
+                MessageBox.Show("The screen could not be saved, so nothing was added. " & ex.Message, "Save Failed", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+            cn.Close()
+        End If
+
+        Return saved
+    End Function
 
     Private Sub ClearFields()
         txtName.Text = ""
