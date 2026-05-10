@@ -10,6 +10,7 @@
             isManager = True
         End If
 
+        btnScreens.Visible = isManager
         btnLogs.Visible = isManager
 
         If isManager Then
@@ -36,6 +37,11 @@
         frmFilms.BringToFront()
     End Sub
 
+    Private Sub btnScreens_Click(sender As Object, e As EventArgs) Handles btnScreens.Click
+        frmScreens.Show()
+        frmScreens.BringToFront()
+    End Sub
+
     Private Sub btnLogs_Click(sender As Object, e As EventArgs) Handles btnLogs.Click
         frmLogs.Show()
         frmLogs.BringToFront()
@@ -56,6 +62,7 @@
 
     Private Sub CloseOtherForms()
         frmFilms.Close()
+        frmScreens.Close()
         frmLogs.Close()
     End Sub
 End Class

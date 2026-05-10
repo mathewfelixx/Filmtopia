@@ -25,6 +25,7 @@ Partial Class frmMainMenu
         Me.flpSidebar = New System.Windows.Forms.FlowLayoutPanel()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.btnFilms = New System.Windows.Forms.Button()
+        Me.btnScreens = New System.Windows.Forms.Button()
         Me.btnLogs = New System.Windows.Forms.Button()
         Me.btnLogout = New System.Windows.Forms.Button()
         Me.pnlContent = New System.Windows.Forms.Panel()
@@ -38,6 +39,7 @@ Partial Class frmMainMenu
         Me.flpSidebar.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(64, Byte), Integer))
         Me.flpSidebar.Controls.Add(Me.GroupBox1)
         Me.flpSidebar.Controls.Add(Me.btnFilms)
+        Me.flpSidebar.Controls.Add(Me.btnScreens)
         Me.flpSidebar.Controls.Add(Me.btnLogs)
         Me.flpSidebar.Controls.Add(Me.btnLogout)
         Me.flpSidebar.Dock = System.Windows.Forms.DockStyle.Left
@@ -73,15 +75,28 @@ Partial Class frmMainMenu
         Me.btnFilms.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnFilms.UseVisualStyleBackColor = False
         '
+        'btnScreens
+        '
+        Me.btnScreens.BackColor = System.Drawing.Color.Transparent
+        Me.btnScreens.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnScreens.Location = New System.Drawing.Point(3, 127)
+        Me.btnScreens.Name = "btnScreens"
+        Me.btnScreens.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
+        Me.btnScreens.Size = New System.Drawing.Size(194, 32)
+        Me.btnScreens.TabIndex = 2
+        Me.btnScreens.Text = "Screens"
+        Me.btnScreens.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnScreens.UseVisualStyleBackColor = False
+        '
         'btnLogs
         '
         Me.btnLogs.BackColor = System.Drawing.Color.Transparent
         Me.btnLogs.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnLogs.Location = New System.Drawing.Point(3, 127)
+        Me.btnLogs.Location = New System.Drawing.Point(3, 165)
         Me.btnLogs.Name = "btnLogs"
         Me.btnLogs.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
         Me.btnLogs.Size = New System.Drawing.Size(194, 32)
-        Me.btnLogs.TabIndex = 2
+        Me.btnLogs.TabIndex = 3
         Me.btnLogs.Text = "Logs"
         Me.btnLogs.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnLogs.UseVisualStyleBackColor = False
@@ -93,11 +108,11 @@ Partial Class frmMainMenu
         Me.btnLogout.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.btnLogout.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnLogout.ForeColor = System.Drawing.Color.White
-        Me.btnLogout.Location = New System.Drawing.Point(3, 165)
+        Me.btnLogout.Location = New System.Drawing.Point(3, 203)
         Me.btnLogout.Name = "btnLogout"
         Me.btnLogout.Padding = New System.Windows.Forms.Padding(5, 0, 0, 0)
         Me.btnLogout.Size = New System.Drawing.Size(194, 34)
-        Me.btnLogout.TabIndex = 3
+        Me.btnLogout.TabIndex = 4
         Me.btnLogout.Text = "Log out"
         Me.btnLogout.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnLogout.UseVisualStyleBackColor = False
@@ -143,6 +158,7 @@ Partial Class frmMainMenu
     Friend WithEvents flpSidebar As System.Windows.Forms.FlowLayoutPanel
     Friend WithEvents GroupBox1 As System.Windows.Forms.GroupBox
     Friend WithEvents btnFilms As System.Windows.Forms.Button
+    Friend WithEvents btnScreens As System.Windows.Forms.Button
     Friend WithEvents btnLogs As System.Windows.Forms.Button
     Friend WithEvents btnLogout As System.Windows.Forms.Button
     Friend WithEvents pnlContent As System.Windows.Forms.Panel
