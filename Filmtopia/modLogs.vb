@@ -3,6 +3,7 @@
 Module modLogs
     Public Const LogAuth As String = "AUTH"
     Public Const LogFilm As String = "FILM"
+    Public Const LogScreen As String = "SCREEN"
 
     Public Sub WriteLog(logType As String, message As String)
         Dim SQLCmd As New OleDbCommand("INSERT INTO tblLogs (LogDateTime, LoginID, LogType, LogMessage) VALUES (Now(), @LoginID, @LogType, @LogMessage)")
