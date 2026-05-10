@@ -20,7 +20,7 @@ Public Class frmScreens
         End If
     End Sub
 
-    Private Function DetailsAreValid() As Boolean
+    Private Function DetailsAreValid(screenID As Long) As Boolean
         Dim valid As Boolean = False
         Dim seats As Integer
 
@@ -36,6 +36,10 @@ Public Class frmScreens
             MessageBox.Show("Seats are set out in rows of 10 lettered A to Z, so the number of seats must be a multiple of 10 from 10 to 260.", "Invalid Number of Seats", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtSeats.Focus()
 
+        ElseIf NameIsTaken(txtName.Text.Trim(), screenID) Then
+            MessageBox.Show("There is already a screen called " & txtName.Text.Trim() & ".", "Duplicate Screen", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtName.Focus()
+
         Else
             valid = True
         End If
@@ -43,8 +47,16 @@ Public Class frmScreens
         Return valid
     End Function
 
+    Private Function NameIsTaken(screenName As String, screenID As Long) As Boolean
+        Dim SQLCmd As New OleDbCommand("SELECT COUNT(*) FROM tblScreen WHERE ScreenName = @ScreenName AND ScreenID <> @ScreenID")
+        SQLCmd.Parameters.AddWithValue("@ScreenName", screenName)
+        SQLCmd.Parameters.AddWithValue("@ScreenID", screenID)
+        Dim matches As Integer = GetValue(SQLCmd)
+        Return matches > 0
+    End Function
+
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
-        If DetailsAreValid() Then
+        If DetailsAreValid(0) Then
             Dim screenName As String = txtName.Text.Trim()
             Dim seats As Integer = CInt(txtSeats.Text.Trim())
             If SaveNewScreen(screenName, seats) Then
