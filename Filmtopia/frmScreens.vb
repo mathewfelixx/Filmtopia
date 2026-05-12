@@ -3,6 +3,9 @@
 Public Class frmScreens
     Private Const SeatsPerRow As Integer = 10
 
+    Private selectedScreenID As Long = 0
+    Private selectedScreenName As String = ""
+
     Private Sub frmScreens_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadScreens()
     End Sub
@@ -108,9 +111,32 @@ Public Class frmScreens
         Return saved
     End Function
 
+    Private Sub frmScreens_Shown(sender As Object, e As EventArgs) Handles MyBase.Shown
+        dgvScreens.ClearSelection()
+    End Sub
+
+    Private Sub dgvScreens_DataBindingComplete(sender As Object, e As DataGridViewBindingCompleteEventArgs) Handles dgvScreens.DataBindingComplete
+        dgvScreens.ClearSelection()
+    End Sub
+
+    Private Sub dgvScreens_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvScreens.CellClick
+        If e.RowIndex >= 0 Then
+            Dim row As DataGridViewRow = dgvScreens.Rows(e.RowIndex)
+            selectedScreenID = row.Cells("ScreenID").Value
+            selectedScreenName = row.Cells("ScreenName").Value
+            txtName.Text = row.Cells("ScreenName").Value
+            txtSeats.Text = row.Cells("ScreenCapacity").Value
+            txtSeats.ReadOnly = True
+        End If
+    End Sub
+
     Private Sub ClearFields()
+        selectedScreenID = 0
+        selectedScreenName = ""
+        dgvScreens.ClearSelection()
         txtName.Text = ""
         txtSeats.Text = ""
+        txtSeats.ReadOnly = False
         txtName.Focus()
     End Sub
 End Class
