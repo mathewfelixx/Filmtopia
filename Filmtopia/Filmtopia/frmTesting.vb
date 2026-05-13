@@ -23,4 +23,9 @@
     Private Sub Button4_Click(sender As Object, e As EventArgs) Handles btnLogs.Click
         frmLogs.Show()
     End Sub
+
+    Private Sub btnMainStaff_Click(sender As Object, e As EventArgs) Handles btnMainStaff.Click
+        frmMainFormStaff.Show()
+
+    End Sub
 End Class

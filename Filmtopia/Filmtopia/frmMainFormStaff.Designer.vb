@@ -26,8 +26,9 @@ Partial Class frmMainFormStaff
         Me.FlowLayoutPanel1 = New System.Windows.Forms.FlowLayoutPanel()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.PictureBox1 = New System.Windows.Forms.PictureBox()
-        Me.Button1 = New System.Windows.Forms.Button()
-        Me.Button2 = New System.Windows.Forms.Button()
+        Me.btnBookings = New System.Windows.Forms.Button()
+        Me.btnScreenings = New System.Windows.Forms.Button()
+        Me.pnlContent = New System.Windows.Forms.Panel()
         Me.FlowLayoutPanel1.SuspendLayout()
         Me.GroupBox1.SuspendLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -37,8 +38,8 @@ Partial Class frmMainFormStaff
         '
         Me.FlowLayoutPanel1.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(64, Byte), Integer))
         Me.FlowLayoutPanel1.Controls.Add(Me.GroupBox1)
-        Me.FlowLayoutPanel1.Controls.Add(Me.Button1)
-        Me.FlowLayoutPanel1.Controls.Add(Me.Button2)
+        Me.FlowLayoutPanel1.Controls.Add(Me.btnBookings)
+        Me.FlowLayoutPanel1.Controls.Add(Me.btnScreenings)
         Me.FlowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Left
         Me.FlowLayoutPanel1.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.8!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.FlowLayoutPanel1.ForeColor = System.Drawing.Color.White
@@ -71,31 +72,40 @@ Partial Class frmMainFormStaff
         Me.PictureBox1.TabIndex = 0
         Me.PictureBox1.TabStop = False
         '
-        'Button1
+        'btnBookings
         '
-        Me.Button1.BackColor = System.Drawing.Color.FromArgb(CType(CType(173, Byte), Integer), CType(CType(20, Byte), Integer), CType(CType(87, Byte), Integer))
-        Me.Button1.Location = New System.Drawing.Point(3, 186)
-        Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(194, 61)
-        Me.Button1.TabIndex = 1
-        Me.Button1.Text = "Bookings"
-        Me.Button1.UseVisualStyleBackColor = False
+        Me.btnBookings.BackColor = System.Drawing.Color.FromArgb(CType(CType(173, Byte), Integer), CType(CType(20, Byte), Integer), CType(CType(87, Byte), Integer))
+        Me.btnBookings.Location = New System.Drawing.Point(3, 186)
+        Me.btnBookings.Name = "btnBookings"
+        Me.btnBookings.Size = New System.Drawing.Size(194, 61)
+        Me.btnBookings.TabIndex = 1
+        Me.btnBookings.Text = "Bookings"
+        Me.btnBookings.UseVisualStyleBackColor = False
         '
-        'Button2
+        'btnScreenings
         '
-        Me.Button2.BackColor = System.Drawing.Color.FromArgb(CType(CType(173, Byte), Integer), CType(CType(20, Byte), Integer), CType(CType(87, Byte), Integer))
-        Me.Button2.Location = New System.Drawing.Point(3, 253)
-        Me.Button2.Name = "Button2"
-        Me.Button2.Size = New System.Drawing.Size(194, 61)
-        Me.Button2.TabIndex = 2
-        Me.Button2.Text = "Screenings"
-        Me.Button2.UseVisualStyleBackColor = False
+        Me.btnScreenings.BackColor = System.Drawing.Color.FromArgb(CType(CType(173, Byte), Integer), CType(CType(20, Byte), Integer), CType(CType(87, Byte), Integer))
+        Me.btnScreenings.Location = New System.Drawing.Point(3, 253)
+        Me.btnScreenings.Name = "btnScreenings"
+        Me.btnScreenings.Size = New System.Drawing.Size(194, 61)
+        Me.btnScreenings.TabIndex = 2
+        Me.btnScreenings.Text = "Screenings"
+        Me.btnScreenings.UseVisualStyleBackColor = False
+        '
+        'pnlContent
+        '
+        Me.pnlContent.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.pnlContent.Location = New System.Drawing.Point(200, 0)
+        Me.pnlContent.Name = "pnlContent"
+        Me.pnlContent.Size = New System.Drawing.Size(882, 603)
+        Me.pnlContent.TabIndex = 1
         '
         'frmMainFormStaff
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1082, 603)
+        Me.Controls.Add(Me.pnlContent)
         Me.Controls.Add(Me.FlowLayoutPanel1)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "frmMainFormStaff"
@@ -110,6 +120,7 @@ Partial Class frmMainFormStaff
     Friend WithEvents FlowLayoutPanel1 As FlowLayoutPanel
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents PictureBox1 As PictureBox
-    Friend WithEvents Button1 As Button
-    Friend WithEvents Button2 As Button
+    Friend WithEvents btnBookings As Button
+    Friend WithEvents btnScreenings As Button
+    Friend WithEvents pnlContent As Panel
 End Class
