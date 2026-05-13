@@ -103,9 +103,7 @@
     <Compile Include="frmLogin.Designer.vb">
       <DependentUpon>frmLogin.vb</DependentUpon>
     </Compile>
-    <Compile Include="frmLogin.vb">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="frmLogin.vb" />
     <Compile Include="frmLogs.Designer.vb">
       <DependentUpon>frmLogs.vb</DependentUpon>
     </Compile>
@@ -182,6 +180,12 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="ucBookings.Designer.vb">
+      <DependentUpon>ucBookings.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ucBookings.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="frmLogin.resx">
@@ -192,6 +196,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmMainFormOLD.resx">
       <DependentUpon>frmMainFormOLD.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmMainFormStaff.resx">
+      <DependentUpon>frmMainFormStaff.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmMessageBox.resx">
       <DependentUpon>frmMessageBox.vb</DependentUpon>

@@ -170,7 +170,7 @@ Partial Class frmLogin
         Me.lblVersion.AutoSize = True
         Me.lblVersion.Font = New System.Drawing.Font("Segoe UI", 8.0!)
         Me.lblVersion.ForeColor = System.Drawing.Color.Gray
-        Me.lblVersion.Location = New System.Drawing.Point(40, 314)
+        Me.lblVersion.Location = New System.Drawing.Point(40, 306)
         Me.lblVersion.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblVersion.Name = "lblVersion"
         Me.lblVersion.Size = New System.Drawing.Size(283, 19)
