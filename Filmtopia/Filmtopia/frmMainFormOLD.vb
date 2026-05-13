@@ -29,6 +29,7 @@
     End Sub
 
     Private Sub btnReports_Click(sender As Object, e As EventArgs) Handles btnReports.Click
+        WriteLog("Click", "Clicked Report Button")
         MessageBox.Show("Reports coming soon")
     End Sub
 
@@ -49,5 +50,7 @@
 
     End Sub
 
-
+    Private Sub btnBookings_Click(sender As Object, e As EventArgs) Handles btnBookings.Click
+        WriteLog("Click", "Clicked booking button")
+    End Sub
 End Class

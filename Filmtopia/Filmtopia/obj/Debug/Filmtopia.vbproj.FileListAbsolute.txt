@@ -25,7 +25,6 @@ E:\COMPUTER SCIENCE\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmto
 E:\COMPUTER SCIENCE\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.xml
 E:\COMPUTER SCIENCE\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.pdb
 E:\COMPUTER SCIENCE\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmStartup.resources
-E:\COMPUTER SCIENCE\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmMainForm.resources
 C:\Users\mathe\OneDrive - Holy Cross College\COMPUTER SCIENCE\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\bin\Debug\Filmtopia.exe.config
 C:\Users\mathe\OneDrive - Holy Cross College\COMPUTER SCIENCE\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\bin\Debug\Filmtopia.exe
 C:\Users\mathe\OneDrive - Holy Cross College\COMPUTER SCIENCE\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\bin\Debug\Filmtopia.pdb
@@ -50,3 +49,6 @@ C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILM
 E:\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmMessageBox.resources
 C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmMainFormOLD.resources
 C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmLogs.resources
+E:\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.exe.config
+E:\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmLogs.resources
+E:\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmMainFormOLD.resources

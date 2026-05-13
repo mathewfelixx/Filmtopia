@@ -42,7 +42,7 @@ Partial Class frmMainFormOLD
         Me.btnLogout.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.btnLogout.ForeColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(180, Byte), Integer), CType(CType(210, Byte), Integer))
         Me.btnLogout.Location = New System.Drawing.Point(523, 15)
-        Me.btnLogout.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.btnLogout.Margin = New System.Windows.Forms.Padding(2)
         Me.btnLogout.Name = "btnLogout"
         Me.btnLogout.Size = New System.Drawing.Size(62, 28)
         Me.btnLogout.TabIndex = 0
@@ -59,7 +59,7 @@ Partial Class frmMainFormOLD
         Me.btnBookings.Font = New System.Drawing.Font("Segoe UI", 11.0!, System.Drawing.FontStyle.Bold)
         Me.btnBookings.ForeColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer))
         Me.btnBookings.Location = New System.Drawing.Point(20, 21)
-        Me.btnBookings.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.btnBookings.Margin = New System.Windows.Forms.Padding(2)
         Me.btnBookings.Name = "btnBookings"
         Me.btnBookings.Size = New System.Drawing.Size(257, 87)
         Me.btnBookings.TabIndex = 1
@@ -76,7 +76,7 @@ Partial Class frmMainFormOLD
         Me.btnScreenings.Font = New System.Drawing.Font("Segoe UI", 11.0!, System.Drawing.FontStyle.Bold)
         Me.btnScreenings.ForeColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer))
         Me.btnScreenings.Location = New System.Drawing.Point(302, 21)
-        Me.btnScreenings.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.btnScreenings.Margin = New System.Windows.Forms.Padding(2)
         Me.btnScreenings.Name = "btnScreenings"
         Me.btnScreenings.Size = New System.Drawing.Size(257, 87)
         Me.btnScreenings.TabIndex = 2
@@ -93,7 +93,7 @@ Partial Class frmMainFormOLD
         Me.btnFilms.Font = New System.Drawing.Font("Segoe UI", 11.0!, System.Drawing.FontStyle.Bold)
         Me.btnFilms.ForeColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer))
         Me.btnFilms.Location = New System.Drawing.Point(20, 128)
-        Me.btnFilms.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.btnFilms.Margin = New System.Windows.Forms.Padding(2)
         Me.btnFilms.Name = "btnFilms"
         Me.btnFilms.Size = New System.Drawing.Size(257, 87)
         Me.btnFilms.TabIndex = 3
@@ -110,7 +110,7 @@ Partial Class frmMainFormOLD
         Me.btnReports.Font = New System.Drawing.Font("Segoe UI", 11.0!, System.Drawing.FontStyle.Bold)
         Me.btnReports.ForeColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer))
         Me.btnReports.Location = New System.Drawing.Point(302, 128)
-        Me.btnReports.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.btnReports.Margin = New System.Windows.Forms.Padding(2)
         Me.btnReports.Name = "btnReports"
         Me.btnReports.Size = New System.Drawing.Size(257, 87)
         Me.btnReports.TabIndex = 4
@@ -126,7 +126,7 @@ Partial Class frmMainFormOLD
         Me.pnlHeader.Controls.Add(Me.btnLogout)
         Me.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top
         Me.pnlHeader.Location = New System.Drawing.Point(0, 0)
-        Me.pnlHeader.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.pnlHeader.Margin = New System.Windows.Forms.Padding(2)
         Me.pnlHeader.Name = "pnlHeader"
         Me.pnlHeader.Size = New System.Drawing.Size(600, 52)
         Me.pnlHeader.TabIndex = 0
@@ -165,7 +165,7 @@ Partial Class frmMainFormOLD
         Me.pnlContent.Controls.Add(Me.lblVersion)
         Me.pnlContent.Dock = System.Windows.Forms.DockStyle.Fill
         Me.pnlContent.Location = New System.Drawing.Point(0, 52)
-        Me.pnlContent.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.pnlContent.Margin = New System.Windows.Forms.Padding(2)
         Me.pnlContent.Name = "pnlContent"
         Me.pnlContent.Padding = New System.Windows.Forms.Padding(20, 21, 20, 21)
         Me.pnlContent.Size = New System.Drawing.Size(600, 295)

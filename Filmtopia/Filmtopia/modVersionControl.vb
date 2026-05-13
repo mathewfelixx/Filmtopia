@@ -21,7 +21,7 @@ Module modVersionControl
     Public appversion As String
     'function that returns the current appversion concat with the string before it
     Public Function GetVersion() As String
-        Dim fullstring As String = "Filmtopia Cinema Management System " & appversion
+        Dim fullstring As String = "Filmtopia Cinema Management System v" & appversion
         Return fullstring
     End Function
 

@@ -30,16 +30,18 @@ Partial Class frmVersionControlUTIL
         '
         'txtVersionControl
         '
-        Me.txtVersionControl.Location = New System.Drawing.Point(32, 194)
+        Me.txtVersionControl.Location = New System.Drawing.Point(24, 158)
+        Me.txtVersionControl.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
         Me.txtVersionControl.Name = "txtVersionControl"
-        Me.txtVersionControl.Size = New System.Drawing.Size(314, 22)
+        Me.txtVersionControl.Size = New System.Drawing.Size(236, 20)
         Me.txtVersionControl.TabIndex = 0
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(148, 238)
+        Me.Button1.Location = New System.Drawing.Point(111, 193)
+        Me.Button1.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
         Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(75, 23)
+        Me.Button1.Size = New System.Drawing.Size(56, 19)
         Me.Button1.TabIndex = 1
         Me.Button1.Text = "Submit"
         Me.Button1.UseVisualStyleBackColor = True
@@ -47,31 +49,34 @@ Partial Class frmVersionControlUTIL
         'Label1
         '
         Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(119, 160)
+        Me.Label1.Location = New System.Drawing.Point(89, 130)
+        Me.Label1.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(149, 16)
+        Me.Label1.Size = New System.Drawing.Size(121, 13)
         Me.Label1.TabIndex = 2
-        Me.Label1.Text = "Enter a version ; ""v1.0.0"""
+        Me.Label1.Text = "Enter a version ; ""1.0.0"""
         '
         'lblVersion
         '
         Me.lblVersion.AutoSize = True
-        Me.lblVersion.Location = New System.Drawing.Point(12, 414)
+        Me.lblVersion.Location = New System.Drawing.Point(9, 336)
+        Me.lblVersion.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.lblVersion.Name = "lblVersion"
-        Me.lblVersion.Size = New System.Drawing.Size(149, 16)
+        Me.lblVersion.Size = New System.Drawing.Size(127, 13)
         Me.lblVersion.TabIndex = 3
         Me.lblVersion.Text = "Enter a version ; ""v1.0.0"""
         '
         'frmVersionControlUTIL
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.ControlDarkDark
-        Me.ClientSize = New System.Drawing.Size(382, 450)
+        Me.ClientSize = New System.Drawing.Size(286, 366)
         Me.Controls.Add(Me.lblVersion)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.Button1)
         Me.Controls.Add(Me.txtVersionControl)
+        Me.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
         Me.Name = "frmVersionControlUTIL"
         Me.Text = "frmVersionControlUTIL"
         Me.ResumeLayout(False)
