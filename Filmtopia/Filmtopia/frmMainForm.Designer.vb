@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class frmMainForm
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -38,10 +38,11 @@ Partial Class frmMainForm
         Me.btnLogout = New System.Windows.Forms.Button()
         Me.pnlContent = New System.Windows.Forms.Panel()
         Me.lblVersion = New System.Windows.Forms.Label()
+        Me.pnlHeader = New System.Windows.Forms.Panel()
         Me.FlowLayoutPanel1.SuspendLayout()
         Me.GroupBox1.SuspendLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.pnlContent.SuspendLayout()
+        Me.pnlHeader.SuspendLayout()
         Me.SuspendLayout()
         '
         'FlowLayoutPanel1
@@ -59,7 +60,7 @@ Partial Class frmMainForm
         Me.FlowLayoutPanel1.Controls.Add(Me.btnSettings)
         Me.FlowLayoutPanel1.Controls.Add(Me.btnLogout)
         Me.FlowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Left
-        Me.FlowLayoutPanel1.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.8!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.FlowLayoutPanel1.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.FlowLayoutPanel1.ForeColor = System.Drawing.Color.White
         Me.FlowLayoutPanel1.Location = New System.Drawing.Point(0, 0)
         Me.FlowLayoutPanel1.Name = "FlowLayoutPanel1"
@@ -69,7 +70,8 @@ Partial Class frmMainForm
         'GroupBox1
         '
         Me.GroupBox1.Controls.Add(Me.PictureBox1)
-        Me.GroupBox1.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.GroupBox1.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.GroupBox1.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.GroupBox1.ForeColor = System.Drawing.Color.White
         Me.GroupBox1.Location = New System.Drawing.Point(3, 3)
         Me.GroupBox1.Name = "GroupBox1"
@@ -86,98 +88,125 @@ Partial Class frmMainForm
         Me.PictureBox1.Location = New System.Drawing.Point(3, 23)
         Me.PictureBox1.Name = "PictureBox1"
         Me.PictureBox1.Size = New System.Drawing.Size(191, 151)
-        Me.PictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage
+        Me.PictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
         Me.PictureBox1.TabIndex = 0
         Me.PictureBox1.TabStop = False
         '
         'btnBookings
         '
-        Me.btnBookings.BackColor = System.Drawing.Color.FromArgb(CType(CType(173, Byte), Integer), CType(CType(20, Byte), Integer), CType(CType(87, Byte), Integer))
+        Me.btnBookings.BackColor = System.Drawing.Color.Transparent
+        Me.btnBookings.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.btnBookings.Location = New System.Drawing.Point(3, 186)
         Me.btnBookings.Name = "btnBookings"
+        Me.btnBookings.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
         Me.btnBookings.Size = New System.Drawing.Size(194, 36)
         Me.btnBookings.TabIndex = 1
         Me.btnBookings.Text = "Bookings"
+        Me.btnBookings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnBookings.UseVisualStyleBackColor = False
         '
         'btnScreenings
         '
-        Me.btnScreenings.BackColor = System.Drawing.Color.FromArgb(CType(CType(173, Byte), Integer), CType(CType(20, Byte), Integer), CType(CType(87, Byte), Integer))
+        Me.btnScreenings.BackColor = System.Drawing.Color.Transparent
+        Me.btnScreenings.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.btnScreenings.Location = New System.Drawing.Point(3, 228)
         Me.btnScreenings.Name = "btnScreenings"
+        Me.btnScreenings.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
         Me.btnScreenings.Size = New System.Drawing.Size(194, 36)
         Me.btnScreenings.TabIndex = 2
         Me.btnScreenings.Text = "Screenings"
+        Me.btnScreenings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnScreenings.UseVisualStyleBackColor = False
         '
         'btnCustomers
         '
-        Me.btnCustomers.BackColor = System.Drawing.Color.FromArgb(CType(CType(173, Byte), Integer), CType(CType(20, Byte), Integer), CType(CType(87, Byte), Integer))
+        Me.btnCustomers.BackColor = System.Drawing.Color.Transparent
+        Me.btnCustomers.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.btnCustomers.Location = New System.Drawing.Point(3, 270)
         Me.btnCustomers.Name = "btnCustomers"
+        Me.btnCustomers.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
         Me.btnCustomers.Size = New System.Drawing.Size(194, 36)
         Me.btnCustomers.TabIndex = 7
         Me.btnCustomers.Text = "Customers"
+        Me.btnCustomers.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnCustomers.UseVisualStyleBackColor = False
         '
         'btnFilms
         '
         Me.btnFilms.BackColor = System.Drawing.Color.FromArgb(CType(CType(173, Byte), Integer), CType(CType(20, Byte), Integer), CType(CType(87, Byte), Integer))
+        Me.btnFilms.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.btnFilms.Location = New System.Drawing.Point(3, 312)
         Me.btnFilms.Name = "btnFilms"
+        Me.btnFilms.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
         Me.btnFilms.Size = New System.Drawing.Size(194, 36)
         Me.btnFilms.TabIndex = 3
         Me.btnFilms.Text = "Films"
+        Me.btnFilms.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnFilms.UseVisualStyleBackColor = False
         '
         'btnScreens
         '
-        Me.btnScreens.BackColor = System.Drawing.Color.FromArgb(CType(CType(173, Byte), Integer), CType(CType(20, Byte), Integer), CType(CType(87, Byte), Integer))
+        Me.btnScreens.BackColor = System.Drawing.Color.Transparent
+        Me.btnScreens.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.btnScreens.Location = New System.Drawing.Point(3, 354)
         Me.btnScreens.Name = "btnScreens"
+        Me.btnScreens.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
         Me.btnScreens.Size = New System.Drawing.Size(194, 36)
         Me.btnScreens.TabIndex = 5
         Me.btnScreens.Text = "Screens"
+        Me.btnScreens.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnScreens.UseVisualStyleBackColor = False
         '
         'btnFood
         '
-        Me.btnFood.BackColor = System.Drawing.Color.FromArgb(CType(CType(173, Byte), Integer), CType(CType(20, Byte), Integer), CType(CType(87, Byte), Integer))
+        Me.btnFood.BackColor = System.Drawing.Color.Transparent
+        Me.btnFood.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.btnFood.Location = New System.Drawing.Point(3, 396)
         Me.btnFood.Name = "btnFood"
+        Me.btnFood.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
         Me.btnFood.Size = New System.Drawing.Size(194, 36)
         Me.btnFood.TabIndex = 6
         Me.btnFood.Text = "Food"
+        Me.btnFood.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnFood.UseVisualStyleBackColor = False
         '
         'btnReports
         '
-        Me.btnReports.BackColor = System.Drawing.Color.FromArgb(CType(CType(173, Byte), Integer), CType(CType(20, Byte), Integer), CType(CType(87, Byte), Integer))
+        Me.btnReports.BackColor = System.Drawing.Color.Transparent
+        Me.btnReports.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.btnReports.Location = New System.Drawing.Point(3, 438)
         Me.btnReports.Name = "btnReports"
+        Me.btnReports.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
         Me.btnReports.Size = New System.Drawing.Size(194, 36)
         Me.btnReports.TabIndex = 4
         Me.btnReports.Text = "Reports"
+        Me.btnReports.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnReports.UseVisualStyleBackColor = False
         '
         'btnLogs
         '
-        Me.btnLogs.BackColor = System.Drawing.Color.FromArgb(CType(CType(173, Byte), Integer), CType(CType(20, Byte), Integer), CType(CType(87, Byte), Integer))
+        Me.btnLogs.BackColor = System.Drawing.Color.Transparent
+        Me.btnLogs.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.btnLogs.Location = New System.Drawing.Point(3, 480)
         Me.btnLogs.Name = "btnLogs"
+        Me.btnLogs.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
         Me.btnLogs.Size = New System.Drawing.Size(194, 36)
         Me.btnLogs.TabIndex = 9
         Me.btnLogs.Text = "Logs"
+        Me.btnLogs.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnLogs.UseVisualStyleBackColor = False
         '
         'btnSettings
         '
-        Me.btnSettings.BackColor = System.Drawing.Color.FromArgb(CType(CType(173, Byte), Integer), CType(CType(20, Byte), Integer), CType(CType(87, Byte), Integer))
+        Me.btnSettings.BackColor = System.Drawing.Color.Transparent
+        Me.btnSettings.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.btnSettings.Location = New System.Drawing.Point(3, 522)
         Me.btnSettings.Name = "btnSettings"
+        Me.btnSettings.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
         Me.btnSettings.Size = New System.Drawing.Size(194, 36)
         Me.btnSettings.TabIndex = 8
         Me.btnSettings.Text = "Settings"
+        Me.btnSettings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnSettings.UseVisualStyleBackColor = False
         '
         'btnLogout
@@ -185,36 +214,47 @@ Partial Class frmMainForm
         Me.btnLogout.BackColor = System.Drawing.Color.Purple
         Me.btnLogout.Cursor = System.Windows.Forms.Cursors.Hand
         Me.btnLogout.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(180, Byte), Integer), CType(CType(210, Byte), Integer))
-        Me.btnLogout.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnLogout.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnLogout.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnLogout.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnLogout.ForeColor = System.Drawing.Color.White
         Me.btnLogout.Location = New System.Drawing.Point(3, 563)
         Me.btnLogout.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.btnLogout.Name = "btnLogout"
+        Me.btnLogout.Padding = New System.Windows.Forms.Padding(5, 0, 0, 0)
         Me.btnLogout.Size = New System.Drawing.Size(191, 34)
         Me.btnLogout.TabIndex = 1
-        Me.btnLogout.Text = "Log out"
+        Me.btnLogout.Text = "-Log out"
+        Me.btnLogout.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnLogout.UseVisualStyleBackColor = False
         '
         'pnlContent
         '
-        Me.pnlContent.Controls.Add(Me.lblVersion)
         Me.pnlContent.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.pnlContent.Location = New System.Drawing.Point(200, 0)
+        Me.pnlContent.Location = New System.Drawing.Point(200, 109)
         Me.pnlContent.Name = "pnlContent"
-        Me.pnlContent.Size = New System.Drawing.Size(882, 603)
+        Me.pnlContent.Size = New System.Drawing.Size(882, 494)
         Me.pnlContent.TabIndex = 1
         '
         'lblVersion
         '
         Me.lblVersion.AutoSize = True
-        Me.lblVersion.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblVersion.Font = New System.Drawing.Font("Microsoft Yi Baiti", 7.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.lblVersion.ForeColor = System.Drawing.Color.Gray
-        Me.lblVersion.Location = New System.Drawing.Point(6, 574)
+        Me.lblVersion.Location = New System.Drawing.Point(620, 79)
         Me.lblVersion.Name = "lblVersion"
-        Me.lblVersion.Size = New System.Drawing.Size(303, 20)
+        Me.lblVersion.Size = New System.Drawing.Size(215, 13)
         Me.lblVersion.TabIndex = 6
         Me.lblVersion.Text = "Filmtopia Cinema Management System  v1.0"
+        '
+        'pnlHeader
+        '
+        Me.pnlHeader.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(64, Byte), Integer))
+        Me.pnlHeader.Controls.Add(Me.lblVersion)
+        Me.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top
+        Me.pnlHeader.Location = New System.Drawing.Point(200, 0)
+        Me.pnlHeader.Name = "pnlHeader"
+        Me.pnlHeader.Size = New System.Drawing.Size(882, 109)
+        Me.pnlHeader.TabIndex = 2
         '
         'frmMainForm
         '
@@ -222,14 +262,15 @@ Partial Class frmMainForm
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1082, 603)
         Me.Controls.Add(Me.pnlContent)
+        Me.Controls.Add(Me.pnlHeader)
         Me.Controls.Add(Me.FlowLayoutPanel1)
         Me.Name = "frmMainForm"
         Me.Text = "Filmtopia Management System"
         Me.FlowLayoutPanel1.ResumeLayout(False)
         Me.GroupBox1.ResumeLayout(False)
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.pnlContent.ResumeLayout(False)
-        Me.pnlContent.PerformLayout()
+        Me.pnlHeader.ResumeLayout(False)
+        Me.pnlHeader.PerformLayout()
         Me.ResumeLayout(False)
 
     End Sub
@@ -249,4 +290,5 @@ Partial Class frmMainForm
     Friend WithEvents btnCustomers As Button
     Friend WithEvents btnSettings As Button
     Friend WithEvents btnLogs As Button
+    Friend WithEvents pnlHeader As Panel
 End Class

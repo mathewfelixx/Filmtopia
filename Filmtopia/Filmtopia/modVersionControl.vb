@@ -54,10 +54,14 @@ Module modVersionControl
     End Sub
 
     'subroutine that will contain all the different lblVersions from different forms.
+
     Public Sub UpdateAllVersionLabels()
         frmLogin.lblVersion.Text = GetVersion()
         frmMainFormOLD.lblVersion.Text = GetVersion()
         frmVersionControlUTIL.lblVersion.Text = GetVersion()
+        frmMainForm.lblVersion.Text = GetVersion()
+
     End Sub
+
 
 End Module
