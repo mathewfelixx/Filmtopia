@@ -25,7 +25,7 @@
     End Sub
 
     Private Sub btnMainStaff_Click(sender As Object, e As EventArgs) Handles btnMainStaff.Click
-        frmMainFormStaff.Show()
+        frmMainForm.Show()
 
     End Sub
 End Class

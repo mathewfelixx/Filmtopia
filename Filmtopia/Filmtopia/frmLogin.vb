@@ -1,12 +1,12 @@
 ﻿Imports System.Data.OleDb
 
 Public Class frmLogin
-
+    Public globalusername As String
     Dim attempts As Integer = 0
 
     Private Sub btnLogin_Click(sender As Object, e As EventArgs) Handles btnLogin.Click
         Dim retrievedPassword As String = GetUNPW(txtUsername.Text)
-
+        globalusername = txtUsername.Text
         If retrievedPassword = "" Or retrievedPassword = "Empty" Then
             Exit Sub
         End If
@@ -17,7 +17,7 @@ Public Class frmLogin
             WriteLog("AUTH", "User '" & txtUsername.Text & "' logged in successfully")
             ClearLoginFields()
             Me.Hide()
-            frmMainFormOLD.ShowDialog()
+            frmMainForm.Show()
         Else
             attempts += 1
             txtPassword.Text = ""
@@ -72,6 +72,7 @@ Public Class frmLogin
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
         Application.Exit()
     End Sub
+
 
     Private Sub frmLogin_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup()

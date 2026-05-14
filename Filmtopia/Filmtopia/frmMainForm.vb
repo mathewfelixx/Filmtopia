@@ -24,7 +24,7 @@
     End Sub
 
     Private Sub btnFilms_Click(sender As Object, e As EventArgs) Handles btnFilms.Click
-
+        LoadView(New ucFilms())
     End Sub
 
     Private Sub btnScreens_Click(sender As Object, e As EventArgs) Handles btnScreens.Click
@@ -47,13 +47,17 @@
         ConfigureAccessLevel()
     End Sub
     Private Sub ConfigureAccessLevel()
+
         If UserAccessLevel = 2 Then
-            GroupBox1.Text = "Filmtopia Manager"
+            GroupBox1.Text = "Filmtopia " & frmLogin.globalusername
             btnFilms.Visible = True
             btnReports.Visible = True
         Else
-            GroupBox1.Text = "Filmtopia Staff"
+            GroupBox1.Text = "Filmtopia " & frmLogin.globalusername
             btnFilms.Visible = False
+            btnScreens.Visible = False
+            btnFood.Visible = False
+            btnLogs.Visible = False
             btnReports.Visible = False
         End If
     End Sub

@@ -78,7 +78,7 @@ Partial Class frmTesting
         Me.TableLayoutPanel1.Controls.Add(Me.btnSettings, 2, 0)
         Me.TableLayoutPanel1.Controls.Add(Me.btnLogs, 2, 1)
         Me.TableLayoutPanel1.Location = New System.Drawing.Point(3, 4)
-        Me.TableLayoutPanel1.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.TableLayoutPanel1.Margin = New System.Windows.Forms.Padding(4)
         Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
         Me.TableLayoutPanel1.RowCount = 2
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
@@ -94,13 +94,13 @@ Partial Class frmTesting
         Me.btnMainStaff.Name = "btnMainStaff"
         Me.btnMainStaff.Size = New System.Drawing.Size(265, 218)
         Me.btnMainStaff.TabIndex = 4
-        Me.btnMainStaff.Text = "MainStaff"
+        Me.btnMainStaff.Text = "MainNew"
         Me.btnMainStaff.UseVisualStyleBackColor = True
         '
         'btnSettings
         '
         Me.btnSettings.Location = New System.Drawing.Point(546, 4)
-        Me.btnSettings.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.btnSettings.Margin = New System.Windows.Forms.Padding(4)
         Me.btnSettings.Name = "btnSettings"
         Me.btnSettings.Size = New System.Drawing.Size(246, 214)
         Me.btnSettings.TabIndex = 5
@@ -110,7 +110,7 @@ Partial Class frmTesting
         'btnLogs
         '
         Me.btnLogs.Location = New System.Drawing.Point(546, 226)
-        Me.btnLogs.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.btnLogs.Margin = New System.Windows.Forms.Padding(4)
         Me.btnLogs.Name = "btnLogs"
         Me.btnLogs.Size = New System.Drawing.Size(246, 214)
         Me.btnLogs.TabIndex = 6

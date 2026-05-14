@@ -194,6 +194,12 @@
     <Compile Include="ucBookings.vb">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="ucFilms.Designer.vb">
+      <DependentUpon>ucFilms.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ucFilms.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="ucScreenings.Designer.vb">
       <DependentUpon>ucScreenings.vb</DependentUpon>
     </Compile>
@@ -240,6 +246,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ucBookings.resx">
       <DependentUpon>ucBookings.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ucFilms.resx">
+      <DependentUpon>ucFilms.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ucScreenings.resx">
       <DependentUpon>ucScreenings.vb</DependentUpon>
