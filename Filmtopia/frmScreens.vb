@@ -111,6 +111,26 @@ Public Class frmScreens
         Return saved
     End Function
 
+    Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
+        If selectedScreenID = 0 Then
+            MessageBox.Show("Please pick a screen from the list first.", "No Screen Picked", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        ElseIf DetailsAreValid(selectedScreenID) Then
+            Dim newName As String = txtName.Text.Trim()
+            If newName = selectedScreenName Then
+                MessageBox.Show("That is already the screen's name.", "Nothing to Change", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Else
+                Dim SQLCmd As New OleDbCommand("UPDATE tblScreen SET ScreenName = @ScreenName WHERE ScreenID = @ScreenID")
+                SQLCmd.Parameters.AddWithValue("@ScreenName", newName)
+                SQLCmd.Parameters.AddWithValue("@ScreenID", selectedScreenID)
+                If RunCommand(SQLCmd) Then
+                    WriteLog(LogScreen, "Renamed screen " & selectedScreenName & " to " & newName & " (screen number " & selectedScreenID & ")")
+                    LoadScreens()
+                    ClearFields()
+                End If
+            End If
+        End If
+    End Sub
+
     Private Sub frmScreens_Shown(sender As Object, e As EventArgs) Handles MyBase.Shown
         dgvScreens.ClearSelection()
     End Sub
