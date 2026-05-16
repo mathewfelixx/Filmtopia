@@ -37,6 +37,11 @@
         frmFilms.BringToFront()
     End Sub
 
+    Private Sub btnScreenings_Click(sender As Object, e As EventArgs) Handles btnScreenings.Click
+        frmScreenings.Show()
+        frmScreenings.BringToFront()
+    End Sub
+
     Private Sub btnScreens_Click(sender As Object, e As EventArgs) Handles btnScreens.Click
         frmScreens.Show()
         frmScreens.BringToFront()
@@ -62,6 +67,7 @@
 
     Private Sub CloseOtherForms()
         frmFilms.Close()
+        frmScreenings.Close()
         frmScreens.Close()
         frmLogs.Close()
     End Sub
