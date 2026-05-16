@@ -54,6 +54,27 @@ Module modMain
         Return success
     End Function
 
+    Public Function RunCommands(commands() As OleDbCommand) As Boolean
+        Dim success As Boolean = False
+        If DbConnect() Then
+            Dim trans As OleDbTransaction = cn.BeginTransaction()
+            Try
+                For i As Integer = 0 To commands.Length - 1
+                    commands(i).Connection = cn
+                    commands(i).Transaction = trans
+                    commands(i).ExecuteNonQuery()
+                Next
+                trans.Commit()
+                success = True
+            Catch ex As Exception
+                trans.Rollback()
+                MessageBox.Show("This could not be saved to the database. " & ex.Message, "Save Failed", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+            cn.Close()
+        End If
+        Return success
+    End Function
+
     Public Function Encode(plainText As String) As String
         Return Convert.ToBase64String(Encoding.UTF8.GetBytes(plainText))
     End Function

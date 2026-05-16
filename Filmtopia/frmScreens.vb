@@ -131,6 +131,23 @@ Public Class frmScreens
         End If
     End Sub
 
+    Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
+        If selectedScreenID = 0 Then
+            MessageBox.Show("Please pick a screen from the list first.", "No Screen Picked", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        ElseIf MessageBox.Show("Delete " & selectedScreenName & " and all of its seats? This cannot be undone.", "Delete Screen", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) = DialogResult.Yes Then
+            Dim deleteSeats As New OleDbCommand("DELETE FROM tblSeat WHERE ScreenID = @ScreenID")
+            deleteSeats.Parameters.AddWithValue("@ScreenID", selectedScreenID)
+            Dim deleteScreen As New OleDbCommand("DELETE FROM tblScreen WHERE ScreenID = @ScreenID")
+            deleteScreen.Parameters.AddWithValue("@ScreenID", selectedScreenID)
+            Dim commands() As OleDbCommand = {deleteSeats, deleteScreen}
+            If RunCommands(commands) Then
+                WriteLog(LogScreen, "Deleted screen " & selectedScreenName & " and its seats (screen number " & selectedScreenID & ")")
+                LoadScreens()
+                ClearFields()
+            End If
+        End If
+    End Sub
+
     Private Sub frmScreens_Shown(sender As Object, e As EventArgs) Handles MyBase.Shown
         dgvScreens.ClearSelection()
     End Sub
