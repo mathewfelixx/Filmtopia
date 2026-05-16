@@ -167,6 +167,10 @@ Public Class frmScreens
         End If
     End Sub
 
+    Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
+        ClearFields()
+    End Sub
+
     Private Sub ClearFields()
         selectedScreenID = 0
         selectedScreenName = ""
