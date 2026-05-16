@@ -80,6 +80,13 @@
       <DependentUpon>frmScreens.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmScreenings.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmScreenings.Designer.vb">
+      <DependentUpon>frmScreenings.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="modLogs.vb" />
     <Compile Include="modMain.vb" />
     <Compile Include="frmFilms.vb">
