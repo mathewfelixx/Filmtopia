@@ -50,4 +50,69 @@ Public Class frmScreenings
             dgvScreenings.Columns("TicketPrice").DefaultCellStyle.Format = "C2"
         End If
     End Sub
+
+    Private Function DetailsAreValid() As Boolean
+        Dim valid As Boolean = False
+        Dim price As Decimal
+
+        If cboFilm.SelectedIndex = -1 Then
+            MessageBox.Show("Please choose a film.", "Missing Details", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            cboFilm.Focus()
+
+        ElseIf cboScreen.SelectedIndex = -1 Then
+            MessageBox.Show("Please choose a screen.", "Missing Details", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            cboScreen.Focus()
+
+        ElseIf Not IsValidTime(txtTime.Text.Trim()) Then
+            MessageBox.Show("The time must be in HH:MM format, for example 19:30.", "Invalid Time", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtTime.Focus()
+
+        ElseIf Not Decimal.TryParse(txtTicketPrice.Text.Trim(), price) Then
+            MessageBox.Show("The ticket price must be a number, for example 8.50.", "Invalid Ticket Price", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtTicketPrice.Focus()
+
+        Else
+            valid = True
+        End If
+
+        Return valid
+    End Function
+
+    Private Function IsValidTime(timeText As String) As Boolean
+        Dim valid As Boolean = False
+        If timeText Like "##:##" Then
+            Dim hours As Integer = CInt(timeText.Substring(0, 2))
+            Dim minutes As Integer = CInt(timeText.Substring(3, 2))
+            If hours <= 23 And minutes <= 59 Then
+                valid = True
+            End If
+        End If
+        Return valid
+    End Function
+
+    Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
+        If DetailsAreValid() Then
+            Dim SQLCmd As New OleDbCommand("INSERT INTO tblScreening (FilmID, ScreenID, ScreeningDate, ScreeningTime, TicketPrice) " &
+                                           "VALUES (@FilmID, @ScreenID, @ScreeningDate, @ScreeningTime, @TicketPrice)")
+            SQLCmd.Parameters.AddWithValue("@FilmID", cboFilm.SelectedValue)
+            SQLCmd.Parameters.AddWithValue("@ScreenID", cboScreen.SelectedValue)
+            SQLCmd.Parameters.AddWithValue("@ScreeningDate", dtpDate.Value.Date)
+            SQLCmd.Parameters.AddWithValue("@ScreeningTime", txtTime.Text.Trim())
+            SQLCmd.Parameters.AddWithValue("@TicketPrice", CDec(txtTicketPrice.Text.Trim()))
+            If RunCommand(SQLCmd) Then
+                WriteLog(LogScreening, "Added screening of " & cboFilm.Text & " in " & cboScreen.Text & " on " & dtpDate.Value.ToString("dd/MM/yyyy") & " at " & txtTime.Text.Trim())
+                LoadScreenings()
+                ClearFields()
+            End If
+        End If
+    End Sub
+
+    Private Sub ClearFields()
+        cboFilm.SelectedIndex = -1
+        cboScreen.SelectedIndex = -1
+        dtpDate.Value = Date.Today
+        txtTime.Text = ""
+        txtTicketPrice.Text = ""
+        cboFilm.Focus()
+    End Sub
 End Class
