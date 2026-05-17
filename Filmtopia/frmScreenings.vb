@@ -2,7 +2,31 @@
 
 Public Class frmScreenings
     Private Sub frmScreenings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        LoadFilmList()
+        LoadScreenList()
         LoadScreenings()
+    End Sub
+
+    Private Sub LoadFilmList()
+        Dim SQLCmd As New OleDbCommand("SELECT FilmID, FilmTitle FROM tblFilm ORDER BY FilmTitle")
+        Dim dt As New DataTable
+        If FillTable(SQLCmd, dt) Then
+            cboFilm.DisplayMember = "FilmTitle"
+            cboFilm.ValueMember = "FilmID"
+            cboFilm.DataSource = dt
+            cboFilm.SelectedIndex = -1
+        End If
+    End Sub
+
+    Private Sub LoadScreenList()
+        Dim SQLCmd As New OleDbCommand("SELECT ScreenID, ScreenName FROM tblScreen ORDER BY ScreenName")
+        Dim dt As New DataTable
+        If FillTable(SQLCmd, dt) Then
+            cboScreen.DisplayMember = "ScreenName"
+            cboScreen.ValueMember = "ScreenID"
+            cboScreen.DataSource = dt
+            cboScreen.SelectedIndex = -1
+        End If
     End Sub
 
     Private Sub LoadScreenings()
