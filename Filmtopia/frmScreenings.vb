@@ -1,6 +1,8 @@
 ﻿Imports System.Data.OleDb
 
 Public Class frmScreenings
+    Private selectedScreeningID As Long = 0
+
     Private Sub frmScreenings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadFilmList()
         LoadScreenList()
@@ -107,7 +109,29 @@ Public Class frmScreenings
         End If
     End Sub
 
+    Private Sub frmScreenings_Shown(sender As Object, e As EventArgs) Handles MyBase.Shown
+        dgvScreenings.ClearSelection()
+    End Sub
+
+    Private Sub dgvScreenings_DataBindingComplete(sender As Object, e As DataGridViewBindingCompleteEventArgs) Handles dgvScreenings.DataBindingComplete
+        dgvScreenings.ClearSelection()
+    End Sub
+
+    Private Sub dgvScreenings_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvScreenings.CellClick
+        If e.RowIndex >= 0 Then
+            Dim row As DataGridViewRow = dgvScreenings.Rows(e.RowIndex)
+            selectedScreeningID = row.Cells("ScreeningID").Value
+            cboFilm.SelectedValue = row.Cells("FilmID").Value
+            cboScreen.SelectedValue = row.Cells("ScreenID").Value
+            dtpDate.Value = row.Cells("ScreeningDate").Value
+            txtTime.Text = row.Cells("ScreeningTime").Value
+            txtTicketPrice.Text = CDec(row.Cells("TicketPrice").Value).ToString("0.00")
+        End If
+    End Sub
+
     Private Sub ClearFields()
+        selectedScreeningID = 0
+        dgvScreenings.ClearSelection()
         cboFilm.SelectedIndex = -1
         cboScreen.SelectedIndex = -1
         dtpDate.Value = Date.Today
