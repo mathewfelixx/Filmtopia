@@ -109,6 +109,30 @@ Public Class frmScreenings
         End If
     End Sub
 
+    Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
+        If selectedScreeningID = 0 Then
+            MessageBox.Show("Please pick a screening from the list first.", "No Screening Picked", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        ElseIf DetailsAreValid() Then
+            UpdateScreening()
+        End If
+    End Sub
+
+    Private Sub UpdateScreening()
+        Dim SQLCmd As New OleDbCommand("UPDATE tblScreening SET FilmID = @FilmID, ScreenID = @ScreenID, ScreeningDate = @ScreeningDate, ScreeningTime = @ScreeningTime, TicketPrice = @TicketPrice " &
+                                       "WHERE ScreeningID = @ScreeningID")
+        SQLCmd.Parameters.AddWithValue("@FilmID", cboFilm.SelectedValue)
+        SQLCmd.Parameters.AddWithValue("@ScreenID", cboScreen.SelectedValue)
+        SQLCmd.Parameters.AddWithValue("@ScreeningDate", dtpDate.Value.Date)
+        SQLCmd.Parameters.AddWithValue("@ScreeningTime", txtTime.Text.Trim())
+        SQLCmd.Parameters.AddWithValue("@TicketPrice", CDec(txtTicketPrice.Text.Trim()))
+        SQLCmd.Parameters.AddWithValue("@ScreeningID", selectedScreeningID)
+        If RunCommand(SQLCmd) Then
+            WriteLog(LogScreening, "Updated screening number " & selectedScreeningID & " to " & cboFilm.Text & " in " & cboScreen.Text & " on " & dtpDate.Value.ToString("dd/MM/yyyy") & " at " & txtTime.Text.Trim())
+            LoadScreenings()
+            ClearFields()
+        End If
+    End Sub
+
     Private Sub frmScreenings_Shown(sender As Object, e As EventArgs) Handles MyBase.Shown
         dgvScreenings.ClearSelection()
     End Sub
