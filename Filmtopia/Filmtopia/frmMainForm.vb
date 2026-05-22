@@ -1,5 +1,5 @@
 ﻿Public Class frmMainForm
-    Private Sub LoadView(view As UserControl)
+    Public Sub LoadView(view As UserControl)
         pnlContent.Controls.Clear()
         view.Dock = DockStyle.Fill
         pnlContent.Controls.Add(view)
