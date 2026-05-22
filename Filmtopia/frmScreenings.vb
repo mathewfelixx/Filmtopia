@@ -2,8 +2,14 @@
 
 Public Class frmScreenings
     Private selectedScreeningID As Long = 0
+    Private selectedScreeningDetails As String = ""
 
     Private Sub frmScreenings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        If UserAccessLevel = AccessManager Then
+            btnDelete.Visible = True
+        Else
+            btnDelete.Visible = False
+        End If
         LoadFilmList()
         LoadScreenList()
         LoadScreenings()
@@ -133,6 +139,20 @@ Public Class frmScreenings
         End If
     End Sub
 
+    Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
+        If selectedScreeningID = 0 Then
+            MessageBox.Show("Please pick a screening from the list first.", "No Screening Picked", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        ElseIf MessageBox.Show("Delete the screening of " & selectedScreeningDetails & "? This cannot be undone.", "Delete Screening", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) = DialogResult.Yes Then
+            Dim SQLCmd As New OleDbCommand("DELETE FROM tblScreening WHERE ScreeningID = @ScreeningID")
+            SQLCmd.Parameters.AddWithValue("@ScreeningID", selectedScreeningID)
+            If RunCommand(SQLCmd) Then
+                WriteLog(LogScreening, "Deleted the screening of " & selectedScreeningDetails & " (screening number " & selectedScreeningID & ")")
+                LoadScreenings()
+                ClearFields()
+            End If
+        End If
+    End Sub
+
     Private Sub frmScreenings_Shown(sender As Object, e As EventArgs) Handles MyBase.Shown
         dgvScreenings.ClearSelection()
     End Sub
@@ -145,6 +165,7 @@ Public Class frmScreenings
         If e.RowIndex >= 0 Then
             Dim row As DataGridViewRow = dgvScreenings.Rows(e.RowIndex)
             selectedScreeningID = row.Cells("ScreeningID").Value
+            selectedScreeningDetails = row.Cells("FilmTitle").Value & " in " & row.Cells("ScreenName").Value & " on " & CDate(row.Cells("ScreeningDate").Value).ToString("dd/MM/yyyy") & " at " & row.Cells("ScreeningTime").Value
             cboFilm.SelectedValue = row.Cells("FilmID").Value
             cboScreen.SelectedValue = row.Cells("ScreenID").Value
             dtpDate.Value = row.Cells("ScreeningDate").Value
@@ -155,6 +176,7 @@ Public Class frmScreenings
 
     Private Sub ClearFields()
         selectedScreeningID = 0
+        selectedScreeningDetails = ""
         dgvScreenings.ClearSelection()
         cboFilm.SelectedIndex = -1
         cboScreen.SelectedIndex = -1
