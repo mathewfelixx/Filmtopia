@@ -57,4 +57,3 @@ C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILM
 C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.ucScreenings.resources
 C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmMainForm.resources
 C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.ucFilms.resources
-C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.test.resources

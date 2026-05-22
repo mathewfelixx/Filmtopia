@@ -18,11 +18,13 @@
 
     Private Sub btnBookings_Click(sender As Object, e As EventArgs) Handles btnBookings.Click
         SetAllButtonsTransp()
+        btnBookings.BackColor = Color.FromArgb(173, 20, 87)
         LoadView(New ucBookings())
     End Sub
 
     Private Sub btnScreenings_Click(sender As Object, e As EventArgs) Handles btnScreenings.Click
         SetAllButtonsTransp()
+        btnScreenings.BackColor = Color.FromArgb(173, 20, 87)
         LoadView(New ucScreenings())
     End Sub
     Private Sub btnLogout_Click(sender As Object, e As EventArgs) Handles btnLogout.Click
@@ -34,6 +36,7 @@
 
     Private Sub btnCustomers_Click(sender As Object, e As EventArgs) Handles btnCustomers.Click
         SetAllButtonsTransp()
+        btnCustomers.BackColor = Color.FromArgb(173, 20, 87)
     End Sub
 
     Private Sub btnFilms_Click(sender As Object, e As EventArgs) Handles btnFilms.Click
@@ -44,23 +47,22 @@
 
     Private Sub btnScreens_Click(sender As Object, e As EventArgs) Handles btnScreens.Click
         SetAllButtonsTransp()
-
+        btnScreens.BackColor = Color.FromArgb(173, 20, 87)
     End Sub
 
     Private Sub btnFood_Click(sender As Object, e As EventArgs) Handles btnFood.Click
         SetAllButtonsTransp()
-
+        btnFood.BackColor = Color.FromArgb(173, 20, 87)
     End Sub
 
     Private Sub btnLogs_Click(sender As Object, e As EventArgs) Handles btnLogs.Click
-        btnLogs.BackColor = Color.FromArgb(173, 20, 87)
         SetAllButtonsTransp()
-
+        btnLogs.BackColor = Color.FromArgb(173, 20, 87)
     End Sub
 
     Private Sub btnSettings_Click(sender As Object, e As EventArgs) Handles btnSettings.Click
         SetAllButtonsTransp()
-
+        btnSettings.BackColor = Color.FromArgb(173, 20, 87)
     End Sub
     Private Sub frmMainForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         SetAllButtonsTransp()
