@@ -64,6 +64,12 @@ Public Class frmFilms
         Return matches > 0
     End Function
 
+    Private Function ScreeningCount(filmID As Long) As Integer
+        Dim SQLCmd As New OleDbCommand("SELECT COUNT(*) FROM tblScreening WHERE FilmID = @FilmID")
+        SQLCmd.Parameters.AddWithValue("@FilmID", filmID)
+        Return GetValue(SQLCmd)
+    End Function
+
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
         If DetailsAreValid(0) Then
             Dim SQLCmd As New OleDbCommand("INSERT INTO tblFilm (FilmTitle, FilmAgeRating, FilmDuration, FilmDescription) " &
@@ -102,13 +108,18 @@ Public Class frmFilms
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
         If selectedFilmID = 0 Then
             MessageBox.Show("Please pick a film from the list first.", "No Film Picked", MessageBoxButtons.OK, MessageBoxIcon.Information)
-        ElseIf MessageBox.Show("Delete " & selectedFilmTitle & "? This cannot be undone.", "Delete Film", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) = DialogResult.Yes Then
-            Dim SQLCmd As New OleDbCommand("DELETE FROM tblFilm WHERE FilmID = @FilmID")
-            SQLCmd.Parameters.AddWithValue("@FilmID", selectedFilmID)
-            If RunCommand(SQLCmd) Then
-                WriteLog(LogFilm, "Deleted film " & selectedFilmTitle & " (film number " & selectedFilmID & ")")
-                LoadFilms()
-                ClearFields()
+        Else
+            Dim screenings As Integer = ScreeningCount(selectedFilmID)
+            If screenings > 0 Then
+                MessageBox.Show(selectedFilmTitle & " cannot be deleted because it has " & screenings & " screening(s). Delete its screenings first.", "Film Has Screenings", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            ElseIf MessageBox.Show("Delete " & selectedFilmTitle & "? This cannot be undone.", "Delete Film", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) = DialogResult.Yes Then
+                Dim SQLCmd As New OleDbCommand("DELETE FROM tblFilm WHERE FilmID = @FilmID")
+                SQLCmd.Parameters.AddWithValue("@FilmID", selectedFilmID)
+                If RunCommand(SQLCmd) Then
+                    WriteLog(LogFilm, "Deleted film " & selectedFilmTitle & " (film number " & selectedFilmID & ")")
+                    LoadFilms()
+                    ClearFields()
+                End If
             End If
         End If
     End Sub
