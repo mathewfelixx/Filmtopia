@@ -58,6 +58,12 @@ Public Class frmScreens
         Return matches > 0
     End Function
 
+    Private Function ScreeningCount(screenID As Long) As Integer
+        Dim SQLCmd As New OleDbCommand("SELECT COUNT(*) FROM tblScreening WHERE ScreenID = @ScreenID")
+        SQLCmd.Parameters.AddWithValue("@ScreenID", screenID)
+        Return GetValue(SQLCmd)
+    End Function
+
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
         If DetailsAreValid(0) Then
             Dim screenName As String = txtName.Text.Trim()
@@ -134,16 +140,21 @@ Public Class frmScreens
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
         If selectedScreenID = 0 Then
             MessageBox.Show("Please pick a screen from the list first.", "No Screen Picked", MessageBoxButtons.OK, MessageBoxIcon.Information)
-        ElseIf MessageBox.Show("Delete " & selectedScreenName & " and all of its seats? This cannot be undone.", "Delete Screen", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) = DialogResult.Yes Then
-            Dim deleteSeats As New OleDbCommand("DELETE FROM tblSeat WHERE ScreenID = @ScreenID")
-            deleteSeats.Parameters.AddWithValue("@ScreenID", selectedScreenID)
-            Dim deleteScreen As New OleDbCommand("DELETE FROM tblScreen WHERE ScreenID = @ScreenID")
-            deleteScreen.Parameters.AddWithValue("@ScreenID", selectedScreenID)
-            Dim commands() As OleDbCommand = {deleteSeats, deleteScreen}
-            If RunCommands(commands) Then
-                WriteLog(LogScreen, "Deleted screen " & selectedScreenName & " and its seats (screen number " & selectedScreenID & ")")
-                LoadScreens()
-                ClearFields()
+        Else
+            Dim screenings As Integer = ScreeningCount(selectedScreenID)
+            If screenings > 0 Then
+                MessageBox.Show(selectedScreenName & " cannot be deleted because it has " & screenings & " screening(s). Delete its screenings first.", "Screen Has Screenings", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            ElseIf MessageBox.Show("Delete " & selectedScreenName & " and all of its seats? This cannot be undone.", "Delete Screen", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) = DialogResult.Yes Then
+                Dim deleteSeats As New OleDbCommand("DELETE FROM tblSeat WHERE ScreenID = @ScreenID")
+                deleteSeats.Parameters.AddWithValue("@ScreenID", selectedScreenID)
+                Dim deleteScreen As New OleDbCommand("DELETE FROM tblScreen WHERE ScreenID = @ScreenID")
+                deleteScreen.Parameters.AddWithValue("@ScreenID", selectedScreenID)
+                Dim commands() As OleDbCommand = {deleteSeats, deleteScreen}
+                If RunCommands(commands) Then
+                    WriteLog(LogScreen, "Deleted screen " & selectedScreenName & " and its seats (screen number " & selectedScreenID & ")")
+                    LoadScreens()
+                    ClearFields()
+                End If
             End If
         End If
     End Sub
