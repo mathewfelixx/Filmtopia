@@ -4,6 +4,10 @@ Public Class frmScreenings
     Private selectedScreeningID As Long = 0
     Private selectedScreeningDetails As String = ""
 
+    Private otherStarts(-1) As Integer
+    Private otherEnds(-1) As Integer
+    Private otherNames(-1) As String
+
     Private Sub frmScreenings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         If UserAccessLevel = AccessManager Then
             btnDelete.Visible = True
@@ -98,19 +102,77 @@ Public Class frmScreenings
         Return valid
     End Function
 
+    Private Function GetScreeningLength() As Integer
+        Dim SQLCmd As New OleDbCommand("SELECT FilmDuration FROM tblFilm WHERE FilmID = @FilmID")
+        SQLCmd.Parameters.AddWithValue("@FilmID", cboFilm.SelectedValue)
+        Return GetValue(SQLCmd)
+    End Function
+
+    Private Sub LoadOtherScreenings(screeningDate As Date, screeningBeingChanged As Long)
+        Dim SQLCmd As New OleDbCommand("SELECT ScreeningDate, ScreeningTime, FilmTitle, FilmDuration " &
+                                       "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
+                                       "WHERE ScreenID = @ScreenID AND ScreeningDate >= @DayBefore AND ScreeningDate <= @DayAfter " &
+                                       "AND ScreeningID <> @ScreeningID")
+        SQLCmd.Parameters.AddWithValue("@ScreenID", cboScreen.SelectedValue)
+        SQLCmd.Parameters.AddWithValue("@DayBefore", screeningDate.AddDays(-1))
+        SQLCmd.Parameters.AddWithValue("@DayAfter", screeningDate.AddDays(1))
+        SQLCmd.Parameters.AddWithValue("@ScreeningID", screeningBeingChanged)
+        Dim dt As New DataTable
+        FillTable(SQLCmd, dt)
+
+        ReDim otherStarts(dt.Rows.Count - 1)
+        ReDim otherEnds(dt.Rows.Count - 1)
+        ReDim otherNames(dt.Rows.Count - 1)
+        For i As Integer = 0 To dt.Rows.Count - 1
+            Dim otherDate As Date = dt.Rows(i)("ScreeningDate")
+            Dim otherTime As String = dt.Rows(i)("ScreeningTime")
+            Dim daysAway As Integer = DateDiff(DateInterval.Day, screeningDate, otherDate)
+
+            otherStarts(i) = daysAway * MinutesInADay + TimeToMinutes(otherTime)
+            otherEnds(i) = otherStarts(i) + dt.Rows(i)("FilmDuration")
+            otherNames(i) = dt.Rows(i)("FilmTitle") & " on " & otherDate.ToString("dd/MM/yyyy") & " at " & otherTime & ", which has " & cboScreen.Text & " until " & MinutesToTime(otherEnds(i))
+        Next
+    End Sub
+
+    Private Function FindClash(startTime As Integer, screeningLength As Integer) As String
+        Dim clash As String = ""
+        Dim endTime As Integer = startTime + screeningLength
+        For i As Integer = 0 To otherStarts.Length - 1
+            If clash = "" And startTime < otherEnds(i) And endTime > otherStarts(i) Then
+                clash = otherNames(i)
+            End If
+        Next
+        Return clash
+    End Function
+
+    Private Function ScreenIsFree(screeningBeingChanged As Long) As Boolean
+        LoadOtherScreenings(dtpDate.Value.Date, screeningBeingChanged)
+        Dim clash As String = FindClash(TimeToMinutes(txtTime.Text.Trim()), GetScreeningLength())
+
+        Dim free As Boolean = True
+        If clash <> "" Then
+            MessageBox.Show("This screening would overlap the screening of " & clash & ".", "Screen Busy", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtTime.Focus()
+            free = False
+        End If
+        Return free
+    End Function
+
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
         If DetailsAreValid() Then
-            Dim SQLCmd As New OleDbCommand("INSERT INTO tblScreening (FilmID, ScreenID, ScreeningDate, ScreeningTime, TicketPrice) " &
-                                           "VALUES (@FilmID, @ScreenID, @ScreeningDate, @ScreeningTime, @TicketPrice)")
-            SQLCmd.Parameters.AddWithValue("@FilmID", cboFilm.SelectedValue)
-            SQLCmd.Parameters.AddWithValue("@ScreenID", cboScreen.SelectedValue)
-            SQLCmd.Parameters.AddWithValue("@ScreeningDate", dtpDate.Value.Date)
-            SQLCmd.Parameters.AddWithValue("@ScreeningTime", txtTime.Text.Trim())
-            SQLCmd.Parameters.AddWithValue("@TicketPrice", CDec(txtTicketPrice.Text.Trim()))
-            If RunCommand(SQLCmd) Then
-                WriteLog(LogScreening, "Added screening of " & cboFilm.Text & " in " & cboScreen.Text & " on " & dtpDate.Value.ToString("dd/MM/yyyy") & " at " & txtTime.Text.Trim())
-                LoadScreenings()
-                ClearFields()
+            If ScreenIsFree(0) Then
+                Dim SQLCmd As New OleDbCommand("INSERT INTO tblScreening (FilmID, ScreenID, ScreeningDate, ScreeningTime, TicketPrice) " &
+                                               "VALUES (@FilmID, @ScreenID, @ScreeningDate, @ScreeningTime, @TicketPrice)")
+                SQLCmd.Parameters.AddWithValue("@FilmID", cboFilm.SelectedValue)
+                SQLCmd.Parameters.AddWithValue("@ScreenID", cboScreen.SelectedValue)
+                SQLCmd.Parameters.AddWithValue("@ScreeningDate", dtpDate.Value.Date)
+                SQLCmd.Parameters.AddWithValue("@ScreeningTime", txtTime.Text.Trim())
+                SQLCmd.Parameters.AddWithValue("@TicketPrice", CDec(txtTicketPrice.Text.Trim()))
+                If RunCommand(SQLCmd) Then
+                    WriteLog(LogScreening, "Added screening of " & cboFilm.Text & " in " & cboScreen.Text & " on " & dtpDate.Value.ToString("dd/MM/yyyy") & " at " & txtTime.Text.Trim())
+                    LoadScreenings()
+                    ClearFields()
+                End If
             End If
         End If
     End Sub
