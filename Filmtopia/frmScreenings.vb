@@ -181,7 +181,9 @@ Public Class frmScreenings
         If selectedScreeningID = 0 Then
             MessageBox.Show("Please pick a screening from the list first.", "No Screening Picked", MessageBoxButtons.OK, MessageBoxIcon.Information)
         ElseIf DetailsAreValid() Then
-            UpdateScreening()
+            If ScreenIsFree(selectedScreeningID) Then
+                UpdateScreening()
+            End If
         End If
     End Sub
 
