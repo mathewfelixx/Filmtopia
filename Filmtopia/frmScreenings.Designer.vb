@@ -31,6 +31,7 @@ Partial Class frmScreenings
         Me.dtpDate = New System.Windows.Forms.DateTimePicker()
         Me.lblTime = New System.Windows.Forms.Label()
         Me.txtTime = New System.Windows.Forms.TextBox()
+        Me.btnSuggestTime = New System.Windows.Forms.Button()
         Me.lblTicketPrice = New System.Windows.Forms.Label()
         Me.txtTicketPrice = New System.Windows.Forms.TextBox()
         Me.btnAdd = New System.Windows.Forms.Button()
@@ -124,13 +125,22 @@ Partial Class frmScreenings
         Me.txtTime.Size = New System.Drawing.Size(132, 22)
         Me.txtTime.TabIndex = 8
         '
+        'btnSuggestTime
+        '
+        Me.btnSuggestTime.Location = New System.Drawing.Point(310, 510)
+        Me.btnSuggestTime.Name = "btnSuggestTime"
+        Me.btnSuggestTime.Size = New System.Drawing.Size(120, 28)
+        Me.btnSuggestTime.TabIndex = 9
+        Me.btnSuggestTime.Text = "Suggest Time"
+        Me.btnSuggestTime.UseVisualStyleBackColor = True
+        '
         'lblTicketPrice
         '
         Me.lblTicketPrice.AutoSize = True
         Me.lblTicketPrice.Location = New System.Drawing.Point(16, 554)
         Me.lblTicketPrice.Name = "lblTicketPrice"
         Me.lblTicketPrice.Size = New System.Drawing.Size(98, 16)
-        Me.lblTicketPrice.TabIndex = 9
+        Me.lblTicketPrice.TabIndex = 10
         Me.lblTicketPrice.Text = "Ticket Price (£)"
         '
         'txtTicketPrice
@@ -138,14 +148,14 @@ Partial Class frmScreenings
         Me.txtTicketPrice.Location = New System.Drawing.Point(160, 550)
         Me.txtTicketPrice.Name = "txtTicketPrice"
         Me.txtTicketPrice.Size = New System.Drawing.Size(132, 22)
-        Me.txtTicketPrice.TabIndex = 10
+        Me.txtTicketPrice.TabIndex = 11
         '
         'btnAdd
         '
         Me.btnAdd.Location = New System.Drawing.Point(728, 402)
         Me.btnAdd.Name = "btnAdd"
         Me.btnAdd.Size = New System.Drawing.Size(120, 37)
-        Me.btnAdd.TabIndex = 11
+        Me.btnAdd.TabIndex = 12
         Me.btnAdd.Text = "Add"
         Me.btnAdd.UseVisualStyleBackColor = True
         '
@@ -154,7 +164,7 @@ Partial Class frmScreenings
         Me.btnUpdate.Location = New System.Drawing.Point(856, 402)
         Me.btnUpdate.Name = "btnUpdate"
         Me.btnUpdate.Size = New System.Drawing.Size(120, 37)
-        Me.btnUpdate.TabIndex = 12
+        Me.btnUpdate.TabIndex = 13
         Me.btnUpdate.Text = "Update"
         Me.btnUpdate.UseVisualStyleBackColor = True
         '
@@ -163,7 +173,7 @@ Partial Class frmScreenings
         Me.btnDelete.Location = New System.Drawing.Point(728, 447)
         Me.btnDelete.Name = "btnDelete"
         Me.btnDelete.Size = New System.Drawing.Size(120, 37)
-        Me.btnDelete.TabIndex = 13
+        Me.btnDelete.TabIndex = 14
         Me.btnDelete.Text = "Delete"
         Me.btnDelete.UseVisualStyleBackColor = True
         '
@@ -172,7 +182,7 @@ Partial Class frmScreenings
         Me.btnClear.Location = New System.Drawing.Point(856, 447)
         Me.btnClear.Name = "btnClear"
         Me.btnClear.Size = New System.Drawing.Size(120, 37)
-        Me.btnClear.TabIndex = 14
+        Me.btnClear.TabIndex = 15
         Me.btnClear.Text = "Clear"
         Me.btnClear.UseVisualStyleBackColor = True
         '
@@ -187,6 +197,7 @@ Partial Class frmScreenings
         Me.Controls.Add(Me.btnAdd)
         Me.Controls.Add(Me.txtTicketPrice)
         Me.Controls.Add(Me.lblTicketPrice)
+        Me.Controls.Add(Me.btnSuggestTime)
         Me.Controls.Add(Me.txtTime)
         Me.Controls.Add(Me.lblTime)
         Me.Controls.Add(Me.dtpDate)
@@ -216,6 +227,7 @@ Partial Class frmScreenings
     Friend WithEvents dtpDate As System.Windows.Forms.DateTimePicker
     Friend WithEvents lblTime As System.Windows.Forms.Label
     Friend WithEvents txtTime As System.Windows.Forms.TextBox
+    Friend WithEvents btnSuggestTime As System.Windows.Forms.Button
     Friend WithEvents lblTicketPrice As System.Windows.Forms.Label
     Friend WithEvents txtTicketPrice As System.Windows.Forms.TextBox
     Friend WithEvents btnAdd As System.Windows.Forms.Button
