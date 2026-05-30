@@ -158,6 +158,35 @@ Public Class frmScreenings
         Return free
     End Function
 
+    Private Sub btnSuggestTime_Click(sender As Object, e As EventArgs) Handles btnSuggestTime.Click
+        If cboFilm.SelectedIndex = -1 Then
+            MessageBox.Show("Please choose a film first.", "Missing Details", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            cboFilm.Focus()
+        ElseIf cboScreen.SelectedIndex = -1 Then
+            MessageBox.Show("Please choose a screen first.", "Missing Details", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            cboScreen.Focus()
+        Else
+            LoadOtherScreenings(dtpDate.Value.Date, selectedScreeningID)
+            Dim screeningLength As Integer = GetScreeningLength()
+            Dim startTime As Integer = RoundUpTime(TimeToMinutes(OpeningTime))
+            Dim found As Boolean = False
+
+            While Not found And startTime + screeningLength <= TimeToMinutes(ClosingTime)
+                If FindClash(startTime, screeningLength) = "" Then
+                    found = True
+                Else
+                    startTime = startTime + RoundingMinutes
+                End If
+            End While
+
+            If found Then
+                txtTime.Text = MinutesToTime(startTime)
+            Else
+                MessageBox.Show(cboFilm.Text & " does not fit in " & cboScreen.Text & " on " & dtpDate.Value.ToString("dd/MM/yyyy") & " before closing at " & ClosingTime & ".", "No Time Free", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            End If
+        End If
+    End Sub
+
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
         If DetailsAreValid() Then
             If ScreenIsFree(0) Then
