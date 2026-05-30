@@ -38,6 +38,10 @@ Partial Class frmScreenings
         Me.btnUpdate = New System.Windows.Forms.Button()
         Me.btnDelete = New System.Windows.Forms.Button()
         Me.btnClear = New System.Windows.Forms.Button()
+        Me.lblUntil = New System.Windows.Forms.Label()
+        Me.dtpUntil = New System.Windows.Forms.DateTimePicker()
+        Me.btnScheduleRun = New System.Windows.Forms.Button()
+        Me.btnFillDay = New System.Windows.Forms.Button()
         CType(Me.dgvScreenings, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -186,11 +190,49 @@ Partial Class frmScreenings
         Me.btnClear.Text = "Clear"
         Me.btnClear.UseVisualStyleBackColor = True
         '
+        'lblUntil
+        '
+        Me.lblUntil.AutoSize = True
+        Me.lblUntil.Location = New System.Drawing.Point(436, 480)
+        Me.lblUntil.Name = "lblUntil"
+        Me.lblUntil.Size = New System.Drawing.Size(35, 16)
+        Me.lblUntil.TabIndex = 16
+        Me.lblUntil.Text = "Until"
+        '
+        'dtpUntil
+        '
+        Me.dtpUntil.Location = New System.Drawing.Point(484, 476)
+        Me.dtpUntil.Name = "dtpUntil"
+        Me.dtpUntil.Size = New System.Drawing.Size(220, 22)
+        Me.dtpUntil.TabIndex = 17
+        '
+        'btnScheduleRun
+        '
+        Me.btnScheduleRun.Location = New System.Drawing.Point(728, 500)
+        Me.btnScheduleRun.Name = "btnScheduleRun"
+        Me.btnScheduleRun.Size = New System.Drawing.Size(120, 37)
+        Me.btnScheduleRun.TabIndex = 18
+        Me.btnScheduleRun.Text = "Schedule Run"
+        Me.btnScheduleRun.UseVisualStyleBackColor = True
+        '
+        'btnFillDay
+        '
+        Me.btnFillDay.Location = New System.Drawing.Point(856, 500)
+        Me.btnFillDay.Name = "btnFillDay"
+        Me.btnFillDay.Size = New System.Drawing.Size(120, 37)
+        Me.btnFillDay.TabIndex = 19
+        Me.btnFillDay.Text = "Fill Day"
+        Me.btnFillDay.UseVisualStyleBackColor = True
+        '
         'frmScreenings
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1067, 605)
+        Me.Controls.Add(Me.btnFillDay)
+        Me.Controls.Add(Me.btnScheduleRun)
+        Me.Controls.Add(Me.dtpUntil)
+        Me.Controls.Add(Me.lblUntil)
         Me.Controls.Add(Me.btnClear)
         Me.Controls.Add(Me.btnDelete)
         Me.Controls.Add(Me.btnUpdate)
@@ -234,4 +276,8 @@ Partial Class frmScreenings
     Friend WithEvents btnUpdate As System.Windows.Forms.Button
     Friend WithEvents btnDelete As System.Windows.Forms.Button
     Friend WithEvents btnClear As System.Windows.Forms.Button
+    Friend WithEvents lblUntil As System.Windows.Forms.Label
+    Friend WithEvents dtpUntil As System.Windows.Forms.DateTimePicker
+    Friend WithEvents btnScheduleRun As System.Windows.Forms.Button
+    Friend WithEvents btnFillDay As System.Windows.Forms.Button
 End Class
