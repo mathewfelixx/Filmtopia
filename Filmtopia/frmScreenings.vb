@@ -158,6 +158,20 @@ Public Class frmScreenings
         Return free
     End Function
 
+    Private Function SaveScreenings(screeningDates() As Date, screeningTimes() As String) As Boolean
+        Dim commands(screeningDates.Length - 1) As OleDbCommand
+        For i As Integer = 0 To screeningDates.Length - 1
+            commands(i) = New OleDbCommand("INSERT INTO tblScreening (FilmID, ScreenID, ScreeningDate, ScreeningTime, TicketPrice) " &
+                                           "VALUES (@FilmID, @ScreenID, @ScreeningDate, @ScreeningTime, @TicketPrice)")
+            commands(i).Parameters.AddWithValue("@FilmID", cboFilm.SelectedValue)
+            commands(i).Parameters.AddWithValue("@ScreenID", cboScreen.SelectedValue)
+            commands(i).Parameters.AddWithValue("@ScreeningDate", screeningDates(i))
+            commands(i).Parameters.AddWithValue("@ScreeningTime", screeningTimes(i))
+            commands(i).Parameters.AddWithValue("@TicketPrice", CDec(txtTicketPrice.Text.Trim()))
+        Next
+        Return RunCommands(commands)
+    End Function
+
     Private Sub btnSuggestTime_Click(sender As Object, e As EventArgs) Handles btnSuggestTime.Click
         If cboFilm.SelectedIndex = -1 Then
             MessageBox.Show("Please choose a film first.", "Missing Details", MessageBoxButtons.OK, MessageBoxIcon.Warning)
