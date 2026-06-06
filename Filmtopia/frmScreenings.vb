@@ -220,6 +220,61 @@ Public Class frmScreenings
         End If
     End Sub
 
+    Private Sub btnScheduleRun_Click(sender As Object, e As EventArgs) Handles btnScheduleRun.Click
+        If DetailsAreValid() Then
+            Dim dayCount As Integer = DateDiff(DateInterval.Day, dtpDate.Value.Date, dtpUntil.Value.Date) + 1
+            If dtpUntil.Value.Date < dtpDate.Value.Date Then
+                MessageBox.Show("The until date cannot be before the first date.", "Invalid Dates", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                dtpUntil.Focus()
+            Else
+                ScheduleRun(dayCount)
+            End If
+        End If
+    End Sub
+
+    Private Sub ScheduleRun(dayCount As Integer)
+        Dim firstDate As Date = dtpDate.Value.Date
+        Dim lastDate As Date = dtpUntil.Value.Date
+        Dim screeningTime As String = txtTime.Text.Trim()
+        Dim screeningLength As Integer = GetScreeningLength()
+        Dim runDates(-1) As Date
+        Dim runTimes(-1) As String
+        Dim runCount As Integer = 0
+        Dim plannedDays As String = ""
+        Dim skippedDays As String = ""
+
+        For dayNumber As Integer = 0 To dayCount - 1
+            Dim screeningDate As Date = firstDate.AddDays(dayNumber)
+            LoadOtherScreenings(screeningDate, 0)
+            Dim clash As String = FindClash(TimeToMinutes(screeningTime), screeningLength)
+            If clash = "" Then
+                ReDim Preserve runDates(runCount)
+                ReDim Preserve runTimes(runCount)
+                runDates(runCount) = screeningDate
+                runTimes(runCount) = screeningTime
+                runCount = runCount + 1
+                plannedDays = plannedDays & screeningDate.ToString("dd/MM/yyyy") & " at " & screeningTime & vbCrLf
+            Else
+                skippedDays = skippedDays & screeningDate.ToString("dd/MM/yyyy") & " (" & clash & ")" & vbCrLf
+            End If
+        Next
+
+        Dim question As String = "Add these " & runCount & " screening(s) of " & cboFilm.Text & " in " & cboScreen.Text & "?" & vbCrLf & vbCrLf & plannedDays
+        If skippedDays <> "" Then
+            question = question & vbCrLf & "These days will be skipped because the screen is busy:" & vbCrLf & skippedDays
+        End If
+
+        If runCount = 0 Then
+            MessageBox.Show("The screen is busy at " & screeningTime & " on every one of those days, so nothing can be added." & vbCrLf & vbCrLf & skippedDays, "Screen Busy", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        ElseIf MessageBox.Show(question, "Schedule Run", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+            If SaveScreenings(runDates, runTimes) Then
+                WriteLog(LogScreening, "Scheduled " & runCount & " screening(s) of " & cboFilm.Text & " in " & cboScreen.Text & " at " & screeningTime & " between " & firstDate.ToString("dd/MM/yyyy") & " and " & lastDate.ToString("dd/MM/yyyy"))
+                LoadScreenings()
+                ClearFields()
+            End If
+        End If
+    End Sub
+
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
         If selectedScreeningID = 0 Then
             MessageBox.Show("Please pick a screening from the list first.", "No Screening Picked", MessageBoxButtons.OK, MessageBoxIcon.Information)
@@ -292,6 +347,7 @@ Public Class frmScreenings
         cboFilm.SelectedIndex = -1
         cboScreen.SelectedIndex = -1
         dtpDate.Value = Date.Today
+        dtpUntil.Value = Date.Today
         txtTime.Text = ""
         txtTicketPrice.Text = ""
         cboFilm.Focus()
