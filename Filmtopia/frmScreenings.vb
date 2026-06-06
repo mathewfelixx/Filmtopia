@@ -63,7 +63,7 @@ Public Class frmScreenings
         End If
     End Sub
 
-    Private Function DetailsAreValid() As Boolean
+    Private Function DetailsAreValid(timeNeeded As Boolean) As Boolean
         Dim valid As Boolean = False
         Dim price As Decimal
 
@@ -75,7 +75,7 @@ Public Class frmScreenings
             MessageBox.Show("Please choose a screen.", "Missing Details", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             cboScreen.Focus()
 
-        ElseIf Not IsValidTime(txtTime.Text.Trim()) Then
+        ElseIf timeNeeded And Not IsValidTime(txtTime.Text.Trim()) Then
             MessageBox.Show("The time must be in HH:MM format, for example 19:30.", "Invalid Time", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtTime.Focus()
 
@@ -201,8 +201,51 @@ Public Class frmScreenings
         End If
     End Sub
 
+    Private Sub btnFillDay_Click(sender As Object, e As EventArgs) Handles btnFillDay.Click
+        If DetailsAreValid(False) Then
+            FillDay()
+        End If
+    End Sub
+
+    Private Sub FillDay()
+        Dim screeningDate As Date = dtpDate.Value.Date
+        Dim screeningLength As Integer = GetScreeningLength()
+        Dim fillDates(-1) As Date
+        Dim fillTimes(-1) As String
+        Dim fillCount As Integer = 0
+        Dim plannedTimes As String = ""
+
+        LoadOtherScreenings(screeningDate, 0)
+        Dim startTime As Integer = RoundUpTime(TimeToMinutes(OpeningTime))
+        While startTime + screeningLength <= TimeToMinutes(ClosingTime)
+            If FindClash(startTime, screeningLength) = "" Then
+                ReDim Preserve fillDates(fillCount)
+                ReDim Preserve fillTimes(fillCount)
+                fillDates(fillCount) = screeningDate
+                fillTimes(fillCount) = MinutesToTime(startTime)
+                fillCount = fillCount + 1
+                plannedTimes = plannedTimes & MinutesToTime(startTime) & " (screen free at " & MinutesToTime(startTime + screeningLength) & ")" & vbCrLf
+                startTime = RoundUpTime(startTime + screeningLength)
+            Else
+                startTime = startTime + RoundingMinutes
+            End If
+        End While
+
+        Dim question As String = "Add these " & fillCount & " screening(s) of " & cboFilm.Text & " in " & cboScreen.Text & " on " & screeningDate.ToString("dd/MM/yyyy") & "?" & vbCrLf & vbCrLf & plannedTimes
+
+        If fillCount = 0 Then
+            MessageBox.Show(cboFilm.Text & " does not fit in " & cboScreen.Text & " on " & screeningDate.ToString("dd/MM/yyyy") & " before closing at " & ClosingTime & ".", "No Time Free", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        ElseIf MessageBox.Show(question, "Fill Day", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+            If SaveScreenings(fillDates, fillTimes) Then
+                WriteLog(LogScreening, "Filled " & cboScreen.Text & " on " & screeningDate.ToString("dd/MM/yyyy") & " with " & fillCount & " screening(s) of " & cboFilm.Text)
+                LoadScreenings()
+                ClearFields()
+            End If
+        End If
+    End Sub
+
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
-        If DetailsAreValid() Then
+        If DetailsAreValid(True) Then
             If ScreenIsFree(0) Then
                 Dim SQLCmd As New OleDbCommand("INSERT INTO tblScreening (FilmID, ScreenID, ScreeningDate, ScreeningTime, TicketPrice) " &
                                                "VALUES (@FilmID, @ScreenID, @ScreeningDate, @ScreeningTime, @TicketPrice)")
@@ -221,7 +264,7 @@ Public Class frmScreenings
     End Sub
 
     Private Sub btnScheduleRun_Click(sender As Object, e As EventArgs) Handles btnScheduleRun.Click
-        If DetailsAreValid() Then
+        If DetailsAreValid(True) Then
             Dim dayCount As Integer = DateDiff(DateInterval.Day, dtpDate.Value.Date, dtpUntil.Value.Date) + 1
             If dtpUntil.Value.Date < dtpDate.Value.Date Then
                 MessageBox.Show("The until date cannot be before the first date.", "Invalid Dates", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -278,7 +321,7 @@ Public Class frmScreenings
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
         If selectedScreeningID = 0 Then
             MessageBox.Show("Please pick a screening from the list first.", "No Screening Picked", MessageBoxButtons.OK, MessageBoxIcon.Information)
-        ElseIf DetailsAreValid() Then
+        ElseIf DetailsAreValid(True) Then
             If ScreenIsFree(selectedScreeningID) Then
                 UpdateScreening()
             End If
