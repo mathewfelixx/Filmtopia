@@ -26,6 +26,7 @@ Partial Class frmMainMenu
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.btnFilms = New System.Windows.Forms.Button()
         Me.btnScreenings = New System.Windows.Forms.Button()
+        Me.btnBookings = New System.Windows.Forms.Button()
         Me.btnScreens = New System.Windows.Forms.Button()
         Me.btnLogs = New System.Windows.Forms.Button()
         Me.btnLogout = New System.Windows.Forms.Button()
@@ -41,6 +42,7 @@ Partial Class frmMainMenu
         Me.flpSidebar.Controls.Add(Me.GroupBox1)
         Me.flpSidebar.Controls.Add(Me.btnFilms)
         Me.flpSidebar.Controls.Add(Me.btnScreenings)
+        Me.flpSidebar.Controls.Add(Me.btnBookings)
         Me.flpSidebar.Controls.Add(Me.btnScreens)
         Me.flpSidebar.Controls.Add(Me.btnLogs)
         Me.flpSidebar.Controls.Add(Me.btnLogout)
@@ -90,15 +92,28 @@ Partial Class frmMainMenu
         Me.btnScreenings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnScreenings.UseVisualStyleBackColor = False
         '
+        'btnBookings
+        '
+        Me.btnBookings.BackColor = System.Drawing.Color.Transparent
+        Me.btnBookings.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnBookings.Location = New System.Drawing.Point(3, 165)
+        Me.btnBookings.Name = "btnBookings"
+        Me.btnBookings.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
+        Me.btnBookings.Size = New System.Drawing.Size(194, 32)
+        Me.btnBookings.TabIndex = 3
+        Me.btnBookings.Text = "Bookings"
+        Me.btnBookings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnBookings.UseVisualStyleBackColor = False
+        '
         'btnScreens
         '
         Me.btnScreens.BackColor = System.Drawing.Color.Transparent
         Me.btnScreens.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnScreens.Location = New System.Drawing.Point(3, 165)
+        Me.btnScreens.Location = New System.Drawing.Point(3, 203)
         Me.btnScreens.Name = "btnScreens"
         Me.btnScreens.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
         Me.btnScreens.Size = New System.Drawing.Size(194, 32)
-        Me.btnScreens.TabIndex = 3
+        Me.btnScreens.TabIndex = 4
         Me.btnScreens.Text = "Screens"
         Me.btnScreens.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnScreens.UseVisualStyleBackColor = False
@@ -107,11 +122,11 @@ Partial Class frmMainMenu
         '
         Me.btnLogs.BackColor = System.Drawing.Color.Transparent
         Me.btnLogs.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnLogs.Location = New System.Drawing.Point(3, 203)
+        Me.btnLogs.Location = New System.Drawing.Point(3, 241)
         Me.btnLogs.Name = "btnLogs"
         Me.btnLogs.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
         Me.btnLogs.Size = New System.Drawing.Size(194, 32)
-        Me.btnLogs.TabIndex = 4
+        Me.btnLogs.TabIndex = 5
         Me.btnLogs.Text = "Logs"
         Me.btnLogs.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnLogs.UseVisualStyleBackColor = False
@@ -123,11 +138,11 @@ Partial Class frmMainMenu
         Me.btnLogout.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.btnLogout.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnLogout.ForeColor = System.Drawing.Color.White
-        Me.btnLogout.Location = New System.Drawing.Point(3, 241)
+        Me.btnLogout.Location = New System.Drawing.Point(3, 279)
         Me.btnLogout.Name = "btnLogout"
         Me.btnLogout.Padding = New System.Windows.Forms.Padding(5, 0, 0, 0)
         Me.btnLogout.Size = New System.Drawing.Size(194, 34)
-        Me.btnLogout.TabIndex = 5
+        Me.btnLogout.TabIndex = 6
         Me.btnLogout.Text = "Log out"
         Me.btnLogout.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnLogout.UseVisualStyleBackColor = False
@@ -174,6 +189,7 @@ Partial Class frmMainMenu
     Friend WithEvents GroupBox1 As System.Windows.Forms.GroupBox
     Friend WithEvents btnFilms As System.Windows.Forms.Button
     Friend WithEvents btnScreenings As System.Windows.Forms.Button
+    Friend WithEvents btnBookings As System.Windows.Forms.Button
     Friend WithEvents btnScreens As System.Windows.Forms.Button
     Friend WithEvents btnLogs As System.Windows.Forms.Button
     Friend WithEvents btnLogout As System.Windows.Forms.Button

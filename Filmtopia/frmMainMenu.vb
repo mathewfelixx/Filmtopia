@@ -42,6 +42,11 @@
         frmScreenings.BringToFront()
     End Sub
 
+    Private Sub btnBookings_Click(sender As Object, e As EventArgs) Handles btnBookings.Click
+        frmBookings.Show()
+        frmBookings.BringToFront()
+    End Sub
+
     Private Sub btnScreens_Click(sender As Object, e As EventArgs) Handles btnScreens.Click
         frmScreens.Show()
         frmScreens.BringToFront()
@@ -68,6 +73,7 @@
     Private Sub CloseOtherForms()
         frmFilms.Close()
         frmScreenings.Close()
+        frmBookings.Close()
         frmScreens.Close()
         frmLogs.Close()
     End Sub
