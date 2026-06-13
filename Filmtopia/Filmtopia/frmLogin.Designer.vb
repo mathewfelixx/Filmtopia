@@ -35,7 +35,7 @@ Partial Class frmLogin
         '
         'pnlHeader
         '
-        Me.pnlHeader.BackColor = System.Drawing.Color.FromArgb(CType(CType(173, Byte), Integer), CType(CType(20, Byte), Integer), CType(CType(87, Byte), Integer))
+        Me.pnlHeader.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(64, Byte), Integer))
         Me.pnlHeader.Controls.Add(Me.lblTitle)
         Me.pnlHeader.Controls.Add(Me.lblSubtitle)
         Me.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top
@@ -134,7 +134,7 @@ Partial Class frmLogin
         '
         'btnLogin
         '
-        Me.btnLogin.BackColor = System.Drawing.Color.FromArgb(CType(CType(173, Byte), Integer), CType(CType(20, Byte), Integer), CType(CType(87, Byte), Integer))
+        Me.btnLogin.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(64, Byte), Integer))
         Me.btnLogin.Cursor = System.Windows.Forms.Cursors.Hand
         Me.btnLogin.FlatAppearance.BorderSize = 0
         Me.btnLogin.FlatStyle = System.Windows.Forms.FlatStyle.Flat

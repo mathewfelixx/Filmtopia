@@ -112,12 +112,6 @@
     <Compile Include="frmMainForm.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmMainFormOLD.Designer.vb">
-      <DependentUpon>frmMainFormOLD.vb</DependentUpon>
-    </Compile>
-    <Compile Include="frmMainFormOLD.vb">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="frmStartup.Designer.vb">
       <DependentUpon>frmStartup.vb</DependentUpon>
     </Compile>
@@ -139,7 +133,6 @@
     <Compile Include="modLogs.vb" />
     <Compile Include="modMain.vb" />
     <Compile Include="modSettings.vb" />
-    <Compile Include="modUtilities.vb" />
     <Compile Include="modVersionControl.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
@@ -157,12 +150,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="ucFilms.Designer.vb">
-      <DependentUpon>ucFilms.vb</DependentUpon>
-    </Compile>
-    <Compile Include="ucFilms.vb">
-      <SubType>UserControl</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="frmLogin.resx">
@@ -173,9 +160,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmMainForm.resx">
       <DependentUpon>frmMainForm.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="frmMainFormOLD.resx">
-      <DependentUpon>frmMainFormOLD.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmStartup.resx">
       <DependentUpon>frmStartup.vb</DependentUpon>
@@ -191,9 +175,6 @@
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ucFilms.resx">
-      <DependentUpon>ucFilms.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
