@@ -39,7 +39,7 @@ Public Class frmMainForm
     Private Sub btnScreens_Click(sender As Object, e As EventArgs) Handles btnScreens.Click
         SetAllButtonsTransp()
         btnScreens.BackColor = Color.FromArgb(173, 20, 87)
-        MessageBox.Show("Screens coming soon")
+        frmScreens.Show()
     End Sub
 
     Private Sub btnFood_Click(sender As Object, e As EventArgs) Handles btnFood.Click
