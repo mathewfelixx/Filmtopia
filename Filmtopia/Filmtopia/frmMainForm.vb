@@ -27,7 +27,7 @@ Public Class frmMainForm
     Private Sub btnCustomers_Click(sender As Object, e As EventArgs) Handles btnCustomers.Click
         SetAllButtonsTransp()
         btnCustomers.BackColor = Color.FromArgb(173, 20, 87)
-        MessageBox.Show("Customers coming soon")
+        frmCustomers.Show()
     End Sub
 
     Private Sub btnFilms_Click(sender As Object, e As EventArgs) Handles btnFilms.Click

@@ -60,6 +60,7 @@ Module modVersionControl
         frmMainForm.lblVersion.Text = GetVersion()
         frmFilms.lblVersion.Text = GetVersion()
         frmScreens.lblVersion.Text = GetVersion()
+        frmCustomers.lblVersion.Text = GetVersion()
 
     End Sub
 
