@@ -23,6 +23,12 @@ Public Class frmFilms
             dgvFilms.DataSource = dt
             cn.Close()
         End If
+
+        'let the description column stretch out and wrap so its all readable
+        dgvFilms.Columns("FilmDescription").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+        dgvFilms.DefaultCellStyle.WrapMode = DataGridViewTriState.True
+        dgvFilms.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells
+
         WriteLog("FILM", "Film list loaded")
     End Sub
 
