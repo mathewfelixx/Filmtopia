@@ -2,6 +2,7 @@ Imports System.Data.OleDb
 
 Public Class frmCustomers
 
+    'tracks the CustomerID of the row currently selected in the grid, 0 means nothing selected
     Private selectedCustomerID As Long = 0
 
     Private Sub frmCustomers_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -9,6 +10,7 @@ Public Class frmCustomers
         LoadCustomers()
     End Sub
 
+    'loads all customers from tblCustomer into the grid
     Private Sub LoadCustomers()
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -21,11 +23,13 @@ Public Class frmCustomers
             cn.Close()
         End If
 
+        'let the email column stretch out and wrap so its all readable
         dgvCustomers.Columns("CustomerEmail").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
         dgvCustomers.DefaultCellStyle.WrapMode = DataGridViewTriState.True
         dgvCustomers.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells
     End Sub
 
+    'adds a new customer using the values typed into the textboxes
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
         If txtForename.Text = "" Or txtSurname.Text = "" Then
             MessageBox.Show("Enter a forename and surname")
@@ -48,6 +52,7 @@ Public Class frmCustomers
         ClearFields()
     End Sub
 
+    'updates the currently selected customer with the values in the textboxes
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
         If selectedCustomerID = 0 Then
             MessageBox.Show("Select a customer in the grid first")
@@ -71,6 +76,7 @@ Public Class frmCustomers
         ClearFields()
     End Sub
 
+    'deletes the currently selected customer
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
         If selectedCustomerID = 0 Then
             MessageBox.Show("Select a customer in the grid first")
@@ -94,6 +100,7 @@ Public Class frmCustomers
         ClearFields()
     End Sub
 
+    'clears the textboxes and the selection
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         ClearFields()
     End Sub
@@ -107,6 +114,7 @@ Public Class frmCustomers
         dgvCustomers.ClearSelection()
     End Sub
 
+    'when a row is clicked, load its values into the textboxes for editing
     Private Sub dgvCustomers_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvCustomers.CellClick
         If e.RowIndex < 0 Then Exit Sub
 
