@@ -44,7 +44,7 @@ Partial Class frmTesting
         Me.btnMainStaff.Name = "btnMainStaff"
         Me.btnMainStaff.Size = New System.Drawing.Size(180, 30)
         Me.btnMainStaff.TabIndex = 1
-        Me.btnMainStaff.Text = "Open Main Menu (Manager)"
+        Me.btnMainStaff.Text = "Open Main Menu Staff"
         Me.btnMainStaff.UseVisualStyleBackColor = True
         '
         'btnMainAdmin
@@ -53,7 +53,7 @@ Partial Class frmTesting
         Me.btnMainAdmin.Name = "btnMainAdmin"
         Me.btnMainAdmin.Size = New System.Drawing.Size(180, 30)
         Me.btnMainAdmin.TabIndex = 2
-        Me.btnMainAdmin.Text = "Open Main Menu (Staff)"
+        Me.btnMainAdmin.Text = "Open Main Menu Admin"
         Me.btnMainAdmin.UseVisualStyleBackColor = True
         '
         'btnOpenLogs
