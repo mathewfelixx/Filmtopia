@@ -8,6 +8,7 @@ Public Class frmCustomers
     Private Sub frmCustomers_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup()
         LoadCustomers()
+        WriteLog("CUSTOMER", "Customers form opened")
     End Sub
 
     'loads all customers from tblCustomer into the grid
@@ -27,6 +28,8 @@ Public Class frmCustomers
         dgvCustomers.Columns("CustomerEmail").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
         dgvCustomers.DefaultCellStyle.WrapMode = DataGridViewTriState.True
         dgvCustomers.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells
+
+        WriteLog("CUSTOMER", "Customer list loaded")
     End Sub
 
     'adds a new customer using the values typed into the textboxes
@@ -48,6 +51,7 @@ Public Class frmCustomers
             cn.Close()
         End If
 
+        WriteLog("CUSTOMER", "Customer added: " & txtForename.Text & " " & txtSurname.Text)
         LoadCustomers()
         ClearFields()
     End Sub
@@ -72,6 +76,7 @@ Public Class frmCustomers
             cn.Close()
         End If
 
+        WriteLog("CUSTOMER", "Customer updated: " & txtForename.Text & " " & txtSurname.Text)
         LoadCustomers()
         ClearFields()
     End Sub
@@ -96,6 +101,7 @@ Public Class frmCustomers
             cn.Close()
         End If
 
+        WriteLog("CUSTOMER", "Customer deleted: " & txtForename.Text & " " & txtSurname.Text)
         LoadCustomers()
         ClearFields()
     End Sub
@@ -103,6 +109,7 @@ Public Class frmCustomers
     'clears the textboxes and the selection
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         ClearFields()
+        WriteLog("CUSTOMER", "Customer fields cleared")
     End Sub
 
     Private Sub ClearFields()
@@ -124,6 +131,7 @@ Public Class frmCustomers
         txtSurname.Text = row.Cells("CustomerSurname").Value.ToString()
         txtEmail.Text = row.Cells("CustomerEmail").Value.ToString()
         txtPhone.Text = row.Cells("CustomerPhone").Value.ToString()
+        WriteLog("CUSTOMER", "Customer selected: " & txtForename.Text & " " & txtSurname.Text)
     End Sub
 
 End Class
