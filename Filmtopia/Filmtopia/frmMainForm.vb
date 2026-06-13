@@ -33,7 +33,7 @@ Public Class frmMainForm
     Private Sub btnFilms_Click(sender As Object, e As EventArgs) Handles btnFilms.Click
         SetAllButtonsTransp()
         btnFilms.BackColor = Color.FromArgb(173, 20, 87)
-        MessageBox.Show("Films coming soon")
+        frmFilms.Show()
     End Sub
 
     Private Sub btnScreens_Click(sender As Object, e As EventArgs) Handles btnScreens.Click

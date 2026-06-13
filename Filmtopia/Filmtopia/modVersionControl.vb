@@ -2,10 +2,9 @@
 
 
 
-
+'##############################################################
 'this is a finished feature (theres nothing much more to add)
-
-
+'##############################################################
 
 
 
@@ -59,6 +58,7 @@ Module modVersionControl
         frmLogin.lblVersion.Text = GetVersion()
         frmVersionControlUTIL.lblVersion.Text = GetVersion()
         frmMainForm.lblVersion.Text = GetVersion()
+        frmFilms.lblVersion.Text = GetVersion()
 
     End Sub
 
