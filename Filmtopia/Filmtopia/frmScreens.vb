@@ -2,6 +2,7 @@ Imports System.Data.OleDb
 
 Public Class frmScreens
 
+    'tracks the ScreenID of the row currently selected in the grid, 0 means nothing selected
     Private selectedScreenID As Long = 0
 
     Private Sub frmScreens_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -9,6 +10,7 @@ Public Class frmScreens
         LoadScreens()
     End Sub
 
+    'loads all screens from tblScreen into the grid
     Private Sub LoadScreens()
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -21,11 +23,13 @@ Public Class frmScreens
             cn.Close()
         End If
 
+        'let the name column stretch out and wrap so its all readable
         dgvScreens.Columns("ScreenName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
         dgvScreens.DefaultCellStyle.WrapMode = DataGridViewTriState.True
         dgvScreens.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells
     End Sub
 
+    'adds a new screen using the values typed into the textboxes
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
         If txtName.Text = "" Then
             MessageBox.Show("Enter a screen name")
@@ -46,6 +50,7 @@ Public Class frmScreens
         ClearFields()
     End Sub
 
+    'updates the currently selected screen with the values in the textboxes
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
         If selectedScreenID = 0 Then
             MessageBox.Show("Select a screen in the grid first")
@@ -67,6 +72,7 @@ Public Class frmScreens
         ClearFields()
     End Sub
 
+    'deletes the currently selected screen
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
         If selectedScreenID = 0 Then
             MessageBox.Show("Select a screen in the grid first")
@@ -90,6 +96,7 @@ Public Class frmScreens
         ClearFields()
     End Sub
 
+    'clears the textboxes and the selection
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         ClearFields()
     End Sub
@@ -101,6 +108,7 @@ Public Class frmScreens
         dgvScreens.ClearSelection()
     End Sub
 
+    'when a row is clicked, load its values into the textboxes for editing
     Private Sub dgvScreens_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvScreens.CellClick
         If e.RowIndex < 0 Then Exit Sub
 
