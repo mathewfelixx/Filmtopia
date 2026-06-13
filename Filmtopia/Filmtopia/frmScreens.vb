@@ -8,6 +8,7 @@ Public Class frmScreens
     Private Sub frmScreens_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup()
         LoadScreens()
+        WriteLog("SCREEN", "Screens form opened")
     End Sub
 
     'loads all screens from tblScreen into the grid
@@ -27,6 +28,8 @@ Public Class frmScreens
         dgvScreens.Columns("ScreenName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
         dgvScreens.DefaultCellStyle.WrapMode = DataGridViewTriState.True
         dgvScreens.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells
+
+        WriteLog("SCREEN", "Screen list loaded")
     End Sub
 
     'adds a new screen using the values typed into the textboxes
@@ -46,6 +49,7 @@ Public Class frmScreens
             cn.Close()
         End If
 
+        WriteLog("SCREEN", "Screen added: " & txtName.Text)
         LoadScreens()
         ClearFields()
     End Sub
@@ -68,6 +72,7 @@ Public Class frmScreens
             cn.Close()
         End If
 
+        WriteLog("SCREEN", "Screen updated: " & txtName.Text)
         LoadScreens()
         ClearFields()
     End Sub
@@ -92,6 +97,7 @@ Public Class frmScreens
             cn.Close()
         End If
 
+        WriteLog("SCREEN", "Screen deleted: " & txtName.Text)
         LoadScreens()
         ClearFields()
     End Sub
@@ -99,6 +105,7 @@ Public Class frmScreens
     'clears the textboxes and the selection
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         ClearFields()
+        WriteLog("SCREEN", "Screen fields cleared")
     End Sub
 
     Private Sub ClearFields()
@@ -116,6 +123,7 @@ Public Class frmScreens
         selectedScreenID = CLng(row.Cells("ScreenID").Value)
         txtName.Text = row.Cells("ScreenName").Value.ToString()
         txtCapacity.Text = row.Cells("ScreenCapacity").Value.ToString()
+        WriteLog("SCREEN", "Screen selected: " & txtName.Text)
     End Sub
 
 End Class
