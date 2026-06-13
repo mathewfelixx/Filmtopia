@@ -118,12 +118,6 @@
     <Compile Include="frmMainFormOLD.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmMainFormStaff.Designer.vb">
-      <DependentUpon>frmMainFormStaff.vb</DependentUpon>
-    </Compile>
-    <Compile Include="frmMainFormStaff.vb">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="frmStartup.Designer.vb">
       <DependentUpon>frmStartup.vb</DependentUpon>
     </Compile>
@@ -182,9 +176,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmMainFormOLD.resx">
       <DependentUpon>frmMainFormOLD.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="frmMainFormStaff.resx">
-      <DependentUpon>frmMainFormStaff.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmStartup.resx">
       <DependentUpon>frmStartup.vb</DependentUpon>
