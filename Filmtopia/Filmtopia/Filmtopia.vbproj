@@ -136,12 +136,6 @@
     <Compile Include="frmMFilms.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSettings.Designer.vb">
-      <DependentUpon>frmSettings.vb</DependentUpon>
-    </Compile>
-    <Compile Include="frmSettings.vb">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="frmStartup.Designer.vb">
       <DependentUpon>frmStartup.vb</DependentUpon>
     </Compile>
@@ -162,7 +156,6 @@
     </Compile>
     <Compile Include="modLogs.vb" />
     <Compile Include="modMain.vb" />
-    <Compile Include="modMessageBox.vb" />
     <Compile Include="modSettings.vb" />
     <Compile Include="modUtilities.vb" />
     <Compile Include="modVersionControl.vb" />
@@ -182,28 +175,10 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="ucAddFilms.Designer.vb">
-      <DependentUpon>ucAddFilms.vb</DependentUpon>
-    </Compile>
-    <Compile Include="ucAddFilms.vb">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="ucBookings.Designer.vb">
-      <DependentUpon>ucBookings.vb</DependentUpon>
-    </Compile>
-    <Compile Include="ucBookings.vb">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="ucFilms.Designer.vb">
       <DependentUpon>ucFilms.vb</DependentUpon>
     </Compile>
     <Compile Include="ucFilms.vb">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="ucScreenings.Designer.vb">
-      <DependentUpon>ucScreenings.vb</DependentUpon>
-    </Compile>
-    <Compile Include="ucScreenings.vb">
       <SubType>UserControl</SubType>
     </Compile>
   </ItemGroup>
@@ -244,17 +219,8 @@
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="ucAddFilms.resx">
-      <DependentUpon>ucAddFilms.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ucBookings.resx">
-      <DependentUpon>ucBookings.vb</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="ucFilms.resx">
       <DependentUpon>ucFilms.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ucScreenings.resx">
-      <DependentUpon>ucScreenings.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
