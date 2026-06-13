@@ -20,6 +20,10 @@ Public Class frmScreens
             dgvScreens.DataSource = dt
             cn.Close()
         End If
+
+        dgvScreens.Columns("ScreenName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+        dgvScreens.DefaultCellStyle.WrapMode = DataGridViewTriState.True
+        dgvScreens.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells
     End Sub
 
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
