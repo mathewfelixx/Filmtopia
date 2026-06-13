@@ -57,7 +57,6 @@ Module modVersionControl
 
     Public Sub UpdateAllVersionLabels()
         frmLogin.lblVersion.Text = GetVersion()
-        frmMainFormOLD.lblVersion.Text = GetVersion()
         frmVersionControlUTIL.lblVersion.Text = GetVersion()
         frmMainForm.lblVersion.Text = GetVersion()
 

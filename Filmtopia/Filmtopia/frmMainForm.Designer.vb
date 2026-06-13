@@ -37,6 +37,8 @@ Partial Class frmMainForm
         Me.btnSettings = New System.Windows.Forms.Button()
         Me.btnLogout = New System.Windows.Forms.Button()
         Me.pnlContent = New System.Windows.Forms.Panel()
+        Me.lblWelcome = New System.Windows.Forms.Label()
+        Me.lblInstructions = New System.Windows.Forms.Label()
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.pnlHeader = New System.Windows.Forms.Panel()
         Me.FlowLayoutPanel1.SuspendLayout()
@@ -229,11 +231,34 @@ Partial Class frmMainForm
         '
         'pnlContent
         '
+        Me.pnlContent.Controls.Add(Me.lblWelcome)
+        Me.pnlContent.Controls.Add(Me.lblInstructions)
         Me.pnlContent.Dock = System.Windows.Forms.DockStyle.Fill
         Me.pnlContent.Location = New System.Drawing.Point(200, 109)
         Me.pnlContent.Name = "pnlContent"
         Me.pnlContent.Size = New System.Drawing.Size(882, 494)
         Me.pnlContent.TabIndex = 1
+        '
+        'lblWelcome
+        '
+        Me.lblWelcome.AutoSize = True
+        Me.lblWelcome.Font = New System.Drawing.Font("Microsoft Sans Serif", 18.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblWelcome.ForeColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(64, Byte), Integer))
+        Me.lblWelcome.Location = New System.Drawing.Point(40, 40)
+        Me.lblWelcome.Name = "lblWelcome"
+        Me.lblWelcome.Size = New System.Drawing.Size(300, 32)
+        Me.lblWelcome.TabIndex = 0
+        Me.lblWelcome.Text = "Welcome!"
+        '
+        'lblInstructions
+        '
+        Me.lblInstructions.AutoSize = True
+        Me.lblInstructions.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblInstructions.Location = New System.Drawing.Point(40, 90)
+        Me.lblInstructions.Name = "lblInstructions"
+        Me.lblInstructions.Size = New System.Drawing.Size(400, 180)
+        Me.lblInstructions.TabIndex = 1
+        Me.lblInstructions.Text = "Use the buttons on the left to get around the system:" & Global.Microsoft.VisualBasic.ControlChars.CrLf & Global.Microsoft.VisualBasic.ControlChars.CrLf & "- Bookings: make and manage customer bookings" & Global.Microsoft.VisualBasic.ControlChars.CrLf & "- Screenings: see what films are showing and when" & Global.Microsoft.VisualBasic.ControlChars.CrLf & "- Customers: look up customer details" & Global.Microsoft.VisualBasic.ControlChars.CrLf & "- Films: add and edit films (managers only)" & Global.Microsoft.VisualBasic.ControlChars.CrLf & "- Screens: set up screens and seating (managers only)" & Global.Microsoft.VisualBasic.ControlChars.CrLf & "- Food: manage food and drink items (managers only)" & Global.Microsoft.VisualBasic.ControlChars.CrLf & "- Reports: view sales reports (managers only)" & Global.Microsoft.VisualBasic.ControlChars.CrLf & "- Logs: view a history of actions taken in the system (managers only)" & Global.Microsoft.VisualBasic.ControlChars.CrLf & Global.Microsoft.VisualBasic.ControlChars.CrLf & "Use the Log out button at the bottom when you are finished."
         '
         'lblVersion
         '
@@ -281,6 +306,8 @@ Partial Class frmMainForm
     Friend WithEvents btnBookings As Button
     Friend WithEvents btnScreenings As Button
     Friend WithEvents pnlContent As Panel
+    Friend WithEvents lblWelcome As Label
+    Friend WithEvents lblInstructions As Label
     Friend WithEvents btnFilms As Button
     Friend WithEvents btnReports As Button
     Friend WithEvents btnScreens As Button

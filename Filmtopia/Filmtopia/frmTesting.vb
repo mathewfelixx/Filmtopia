@@ -1,41 +1,33 @@
-﻿Public Class frmTesting
-    Private Sub Button1_Click(sender As Object, e As EventArgs) 
-        frmVersionControlUTIL.Show()
-
-    End Sub
-
-    Private Sub Button2_Click(sender As Object, e As EventArgs) 
+'this form is just for jumping straight to other forms while testing, not part of the real app
+Public Class frmTesting
+    Private Sub btnOpenLogin_Click(sender As Object, e As EventArgs) Handles btnOpenLogin.Click
         frmLogin.Show()
         Me.Hide()
     End Sub
 
-    Private Sub Button3_Click(sender As Object, e As EventArgs) 
-        frmMainFormOLD.Show()
+    Private Sub btnMainStaff_Click(sender As Object, e As EventArgs) Handles btnMainStaff.Click
+        frmLogin.globalusername = "Staff"
+        UserAccessLevel = 2
+        frmMainForm.Show()
         Me.Hide()
     End Sub
 
-    Private Sub Button3_Click_1(sender As Object, e As EventArgs) 
-        frmSettings.Show()
-        'Me.Hide()
-
+    Private Sub btnMainAdmin_Click(sender As Object, e As EventArgs) Handles btnMainAdmin.Click
+        frmLogin.globalusername = "Admin"
+        UserAccessLevel = 1
+        frmMainForm.Show()
+        Me.Hide()
     End Sub
 
-    Private Sub Button4_Click(sender As Object, e As EventArgs) 
+    Private Sub btnOpenLogs_Click(sender As Object, e As EventArgs) Handles btnOpenLogs.Click
         frmLogs.Show()
     End Sub
 
-    Private Sub btnMainStaff_Click(sender As Object, e As EventArgs) 
-        frmMainForm.Show()
-
+    Private Sub btnOpenVersionControl_Click(sender As Object, e As EventArgs) Handles btnOpenVersionControl.Click
+        frmVersionControlUTIL.Show()
     End Sub
 
-    Private Sub frmTesting_Load(sender As Object, e As EventArgs)
-
-    End Sub
-
-    Private Sub Button1_Click_1(sender As Object, e As EventArgs) 
-        frmLogin.globalusername = "Admin"
-        UserAccessLevel = 2
-        frmMainForm.Show()
+    Private Sub frmTesting_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        CommonFormStartup()
     End Sub
 End Class
