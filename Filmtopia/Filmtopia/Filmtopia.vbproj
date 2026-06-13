@@ -182,6 +182,12 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="ucAddFilms.Designer.vb">
+      <DependentUpon>ucAddFilms.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ucAddFilms.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="ucBookings.Designer.vb">
       <DependentUpon>ucBookings.vb</DependentUpon>
     </Compile>
@@ -237,6 +243,9 @@
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ucAddFilms.resx">
+      <DependentUpon>ucAddFilms.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ucBookings.resx">
       <DependentUpon>ucBookings.vb</DependentUpon>
