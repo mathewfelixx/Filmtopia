@@ -23,8 +23,15 @@ Partial Class frmBookingSearch
         Me.btnShowAll = New System.Windows.Forms.Button()
         Me.dgvBookings = New System.Windows.Forms.DataGridView()
         Me.btnCancelBooking = New System.Windows.Forms.Button()
+        Me.lblRegisterTitle = New System.Windows.Forms.Label()
+        Me.lblRegisterScreening = New System.Windows.Forms.Label()
+        Me.cboRegisterScreening = New System.Windows.Forms.ComboBox()
+        Me.btnLoadRegister = New System.Windows.Forms.Button()
+        Me.btnExportRegister = New System.Windows.Forms.Button()
+        Me.dgvRegister = New System.Windows.Forms.DataGridView()
         Me.lblVersion = New System.Windows.Forms.Label()
         CType(Me.dgvBookings, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.dgvRegister, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'lblSearch
@@ -88,11 +95,75 @@ Partial Class frmBookingSearch
         Me.btnCancelBooking.Text = "Cancel Booking"
         Me.btnCancelBooking.UseVisualStyleBackColor = True
         '
+        'lblRegisterTitle
+        '
+        Me.lblRegisterTitle.AutoSize = True
+        Me.lblRegisterTitle.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
+        Me.lblRegisterTitle.Location = New System.Drawing.Point(16, 444)
+        Me.lblRegisterTitle.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblRegisterTitle.Name = "lblRegisterTitle"
+        Me.lblRegisterTitle.Size = New System.Drawing.Size(155, 23)
+        Me.lblRegisterTitle.TabIndex = 7
+        Me.lblRegisterTitle.Text = "Screening Register"
+        '
+        'lblRegisterScreening
+        '
+        Me.lblRegisterScreening.AutoSize = True
+        Me.lblRegisterScreening.Location = New System.Drawing.Point(16, 480)
+        Me.lblRegisterScreening.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblRegisterScreening.Name = "lblRegisterScreening"
+        Me.lblRegisterScreening.Size = New System.Drawing.Size(68, 16)
+        Me.lblRegisterScreening.TabIndex = 8
+        Me.lblRegisterScreening.Text = "Screening"
+        '
+        'cboRegisterScreening
+        '
+        Me.cboRegisterScreening.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboRegisterScreening.FormattingEnabled = True
+        Me.cboRegisterScreening.Location = New System.Drawing.Point(110, 476)
+        Me.cboRegisterScreening.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboRegisterScreening.Name = "cboRegisterScreening"
+        Me.cboRegisterScreening.Size = New System.Drawing.Size(500, 24)
+        Me.cboRegisterScreening.TabIndex = 9
+        '
+        'btnLoadRegister
+        '
+        Me.btnLoadRegister.Location = New System.Drawing.Point(630, 474)
+        Me.btnLoadRegister.Margin = New System.Windows.Forms.Padding(4)
+        Me.btnLoadRegister.Name = "btnLoadRegister"
+        Me.btnLoadRegister.Size = New System.Drawing.Size(140, 30)
+        Me.btnLoadRegister.TabIndex = 10
+        Me.btnLoadRegister.Text = "Load Register"
+        Me.btnLoadRegister.UseVisualStyleBackColor = True
+        '
+        'btnExportRegister
+        '
+        Me.btnExportRegister.Location = New System.Drawing.Point(780, 474)
+        Me.btnExportRegister.Margin = New System.Windows.Forms.Padding(4)
+        Me.btnExportRegister.Name = "btnExportRegister"
+        Me.btnExportRegister.Size = New System.Drawing.Size(140, 30)
+        Me.btnExportRegister.TabIndex = 11
+        Me.btnExportRegister.Text = "Export CSV"
+        Me.btnExportRegister.UseVisualStyleBackColor = True
+        '
+        'dgvRegister
+        '
+        Me.dgvRegister.AllowUserToAddRows = False
+        Me.dgvRegister.AllowUserToDeleteRows = False
+        Me.dgvRegister.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dgvRegister.Location = New System.Drawing.Point(16, 514)
+        Me.dgvRegister.Margin = New System.Windows.Forms.Padding(4)
+        Me.dgvRegister.Name = "dgvRegister"
+        Me.dgvRegister.ReadOnly = True
+        Me.dgvRegister.RowHeadersWidth = 51
+        Me.dgvRegister.Size = New System.Drawing.Size(1106, 180)
+        Me.dgvRegister.TabIndex = 12
+        '
         'lblVersion
         '
         Me.lblVersion.AutoSize = True
         Me.lblVersion.ForeColor = System.Drawing.Color.Gray
-        Me.lblVersion.Location = New System.Drawing.Point(836, 402)
+        Me.lblVersion.Location = New System.Drawing.Point(16, 706)
         Me.lblVersion.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblVersion.Name = "lblVersion"
         Me.lblVersion.Size = New System.Drawing.Size(271, 16)
@@ -103,8 +174,14 @@ Partial Class frmBookingSearch
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1135, 440)
+        Me.ClientSize = New System.Drawing.Size(1135, 730)
         Me.Controls.Add(Me.lblVersion)
+        Me.Controls.Add(Me.dgvRegister)
+        Me.Controls.Add(Me.btnExportRegister)
+        Me.Controls.Add(Me.btnLoadRegister)
+        Me.Controls.Add(Me.cboRegisterScreening)
+        Me.Controls.Add(Me.lblRegisterScreening)
+        Me.Controls.Add(Me.lblRegisterTitle)
         Me.Controls.Add(Me.btnCancelBooking)
         Me.Controls.Add(Me.dgvBookings)
         Me.Controls.Add(Me.btnShowAll)
@@ -115,6 +192,7 @@ Partial Class frmBookingSearch
         Me.Name = "frmBookingSearch"
         Me.Text = "Booking Search"
         CType(Me.dgvBookings, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.dgvRegister, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -126,5 +204,11 @@ Partial Class frmBookingSearch
     Friend WithEvents btnShowAll As Button
     Friend WithEvents dgvBookings As DataGridView
     Friend WithEvents btnCancelBooking As Button
+    Friend WithEvents lblRegisterTitle As Label
+    Friend WithEvents lblRegisterScreening As Label
+    Friend WithEvents cboRegisterScreening As ComboBox
+    Friend WithEvents btnLoadRegister As Button
+    Friend WithEvents btnExportRegister As Button
+    Friend WithEvents dgvRegister As DataGridView
     Friend WithEvents lblVersion As Label
 End Class
