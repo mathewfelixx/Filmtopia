@@ -28,6 +28,16 @@ Partial Class frmBookings
         Me.lblKeyAvailable = New System.Windows.Forms.Label()
         Me.lblKeyChosen = New System.Windows.Forms.Label()
         Me.lblKeyBooked = New System.Windows.Forms.Label()
+        Me.lblCustomerName = New System.Windows.Forms.Label()
+        Me.txtCustomerName = New System.Windows.Forms.TextBox()
+        Me.lblSeatsCaption = New System.Windows.Forms.Label()
+        Me.lblChosenSeats = New System.Windows.Forms.Label()
+        Me.lblTicketsCaption = New System.Windows.Forms.Label()
+        Me.lblTickets = New System.Windows.Forms.Label()
+        Me.lblTotalCaption = New System.Windows.Forms.Label()
+        Me.lblTotal = New System.Windows.Forms.Label()
+        Me.btnClearBooking = New System.Windows.Forms.Button()
+        Me.btnBook = New System.Windows.Forms.Button()
         CType(Me.dgvScreenings, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -100,11 +110,109 @@ Partial Class frmBookings
         Me.lblKeyBooked.Text = "Booked"
         Me.lblKeyBooked.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
+        'lblCustomerName
+        '
+        Me.lblCustomerName.AutoSize = True
+        Me.lblCustomerName.Location = New System.Drawing.Point(16, 332)
+        Me.lblCustomerName.Name = "lblCustomerName"
+        Me.lblCustomerName.Size = New System.Drawing.Size(103, 16)
+        Me.lblCustomerName.TabIndex = 6
+        Me.lblCustomerName.Text = "Customer Name"
+        '
+        'txtCustomerName
+        '
+        Me.txtCustomerName.Location = New System.Drawing.Point(160, 328)
+        Me.txtCustomerName.Name = "txtCustomerName"
+        Me.txtCustomerName.Size = New System.Drawing.Size(300, 22)
+        Me.txtCustomerName.TabIndex = 7
+        '
+        'lblSeatsCaption
+        '
+        Me.lblSeatsCaption.AutoSize = True
+        Me.lblSeatsCaption.Location = New System.Drawing.Point(16, 369)
+        Me.lblSeatsCaption.Name = "lblSeatsCaption"
+        Me.lblSeatsCaption.Size = New System.Drawing.Size(42, 16)
+        Me.lblSeatsCaption.TabIndex = 8
+        Me.lblSeatsCaption.Text = "Seats"
+        '
+        'lblChosenSeats
+        '
+        Me.lblChosenSeats.Location = New System.Drawing.Point(160, 369)
+        Me.lblChosenSeats.Name = "lblChosenSeats"
+        Me.lblChosenSeats.Size = New System.Drawing.Size(416, 36)
+        Me.lblChosenSeats.TabIndex = 9
+        Me.lblChosenSeats.Text = "None"
+        '
+        'lblTicketsCaption
+        '
+        Me.lblTicketsCaption.AutoSize = True
+        Me.lblTicketsCaption.Location = New System.Drawing.Point(16, 412)
+        Me.lblTicketsCaption.Name = "lblTicketsCaption"
+        Me.lblTicketsCaption.Size = New System.Drawing.Size(52, 16)
+        Me.lblTicketsCaption.TabIndex = 10
+        Me.lblTicketsCaption.Text = "Tickets"
+        '
+        'lblTickets
+        '
+        Me.lblTickets.AutoSize = True
+        Me.lblTickets.Location = New System.Drawing.Point(160, 412)
+        Me.lblTickets.Name = "lblTickets"
+        Me.lblTickets.Size = New System.Drawing.Size(14, 16)
+        Me.lblTickets.TabIndex = 11
+        Me.lblTickets.Text = "0"
+        '
+        'lblTotalCaption
+        '
+        Me.lblTotalCaption.AutoSize = True
+        Me.lblTotalCaption.Location = New System.Drawing.Point(16, 445)
+        Me.lblTotalCaption.Name = "lblTotalCaption"
+        Me.lblTotalCaption.Size = New System.Drawing.Size(38, 16)
+        Me.lblTotalCaption.TabIndex = 12
+        Me.lblTotalCaption.Text = "Total"
+        '
+        'lblTotal
+        '
+        Me.lblTotal.AutoSize = True
+        Me.lblTotal.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblTotal.Location = New System.Drawing.Point(160, 443)
+        Me.lblTotal.Name = "lblTotal"
+        Me.lblTotal.Size = New System.Drawing.Size(48, 20)
+        Me.lblTotal.TabIndex = 13
+        Me.lblTotal.Text = "£0.00"
+        '
+        'btnClearBooking
+        '
+        Me.btnClearBooking.Location = New System.Drawing.Point(976, 668)
+        Me.btnClearBooking.Name = "btnClearBooking"
+        Me.btnClearBooking.Size = New System.Drawing.Size(120, 37)
+        Me.btnClearBooking.TabIndex = 14
+        Me.btnClearBooking.Text = "Clear"
+        Me.btnClearBooking.UseVisualStyleBackColor = True
+        '
+        'btnBook
+        '
+        Me.btnBook.Location = New System.Drawing.Point(1104, 668)
+        Me.btnBook.Name = "btnBook"
+        Me.btnBook.Size = New System.Drawing.Size(120, 37)
+        Me.btnBook.TabIndex = 15
+        Me.btnBook.Text = "Book"
+        Me.btnBook.UseVisualStyleBackColor = True
+        '
         'frmBookings
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1240, 720)
+        Me.Controls.Add(Me.btnBook)
+        Me.Controls.Add(Me.btnClearBooking)
+        Me.Controls.Add(Me.lblTotal)
+        Me.Controls.Add(Me.lblTotalCaption)
+        Me.Controls.Add(Me.lblTickets)
+        Me.Controls.Add(Me.lblTicketsCaption)
+        Me.Controls.Add(Me.lblChosenSeats)
+        Me.Controls.Add(Me.lblSeatsCaption)
+        Me.Controls.Add(Me.txtCustomerName)
+        Me.Controls.Add(Me.lblCustomerName)
         Me.Controls.Add(Me.lblKeyBooked)
         Me.Controls.Add(Me.lblKeyChosen)
         Me.Controls.Add(Me.lblKeyAvailable)
@@ -128,4 +236,14 @@ Partial Class frmBookings
     Friend WithEvents lblKeyAvailable As System.Windows.Forms.Label
     Friend WithEvents lblKeyChosen As System.Windows.Forms.Label
     Friend WithEvents lblKeyBooked As System.Windows.Forms.Label
+    Friend WithEvents lblCustomerName As System.Windows.Forms.Label
+    Friend WithEvents txtCustomerName As System.Windows.Forms.TextBox
+    Friend WithEvents lblSeatsCaption As System.Windows.Forms.Label
+    Friend WithEvents lblChosenSeats As System.Windows.Forms.Label
+    Friend WithEvents lblTicketsCaption As System.Windows.Forms.Label
+    Friend WithEvents lblTickets As System.Windows.Forms.Label
+    Friend WithEvents lblTotalCaption As System.Windows.Forms.Label
+    Friend WithEvents lblTotal As System.Windows.Forms.Label
+    Friend WithEvents btnClearBooking As System.Windows.Forms.Button
+    Friend WithEvents btnBook As System.Windows.Forms.Button
 End Class
