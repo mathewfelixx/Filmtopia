@@ -45,7 +45,7 @@ Public Class frmMainForm
     Private Sub btnFood_Click(sender As Object, e As EventArgs) Handles btnFood.Click
         SetAllButtonsTransp()
         btnFood.BackColor = Color.FromArgb(173, 20, 87)
-        MessageBox.Show("Food coming soon")
+        frmFoodItems.Show()
     End Sub
 
     Private Sub btnReports_Click(sender As Object, e As EventArgs) Handles btnReports.Click
