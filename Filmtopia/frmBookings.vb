@@ -132,4 +132,74 @@ Public Class frmBookings
         lblTickets.Text = tickets
         lblTotal.Text = total.ToString("C2")
     End Sub
+
+    Private Sub btnBook_Click(sender As Object, e As EventArgs) Handles btnBook.Click
+        Dim customerName As String = txtCustomerName.Text.Trim()
+        Dim tickets As Integer = 0
+        For i As Integer = 0 To seatChosen.Length - 1
+            If seatChosen(i) Then
+                tickets = tickets + 1
+            End If
+        Next
+
+        If selectedScreeningID = 0 Then
+            MessageBox.Show("Please pick a screening first.", "Missing Details", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        ElseIf customerName = "" Then
+            MessageBox.Show("Please enter the customer's name.", "Missing Details", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtCustomerName.Focus()
+        ElseIf tickets = 0 Then
+            MessageBox.Show("Please choose at least one seat.", "Missing Details", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        Else
+            Dim details As String = tickets & " ticket(s) (" & lblChosenSeats.Text & ") for " & lblSeatMap.Text
+            Dim bookingID As Long = SaveBooking(customerName)
+            If bookingID <> 0 Then
+                WriteLog(LogBooking, "Booking number " & bookingID & " for " & customerName & ": " & details & ", total " & lblTotal.Text)
+                MessageBox.Show("Booking number " & bookingID & " saved for " & customerName & ": " & details & ", total " & lblTotal.Text & ".", "Booking Saved", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                txtCustomerName.Text = ""
+                LoadSeats()
+            End If
+        End If
+    End Sub
+
+    Private Function SaveBooking(customerName As String) As Long
+        Dim bookingID As Long = 0
+
+        If DbConnect() Then
+            Dim trans As OleDbTransaction = cn.BeginTransaction()
+            Try
+                Dim SQLCmd As New OleDbCommand
+                SQLCmd.Connection = cn
+                SQLCmd.Transaction = trans
+
+                SQLCmd.CommandText = "INSERT INTO tblBooking (ScreeningID, CustomerName, BookingDateTime) VALUES (@ScreeningID, @CustomerName, Now())"
+                SQLCmd.Parameters.AddWithValue("@ScreeningID", selectedScreeningID)
+                SQLCmd.Parameters.AddWithValue("@CustomerName", customerName)
+                SQLCmd.ExecuteNonQuery()
+
+                SQLCmd.Parameters.Clear()
+                SQLCmd.CommandText = "SELECT @@IDENTITY"
+                bookingID = SQLCmd.ExecuteScalar()
+
+                SQLCmd.CommandText = "INSERT INTO tblBookingSeat (BookingID, SeatID, SeatPricePaid) VALUES (@BookingID, @SeatID, @SeatPricePaid)"
+                For i As Integer = 0 To seatIDs.Length - 1
+                    If seatChosen(i) Then
+                        SQLCmd.Parameters.Clear()
+                        SQLCmd.Parameters.AddWithValue("@BookingID", bookingID)
+                        SQLCmd.Parameters.AddWithValue("@SeatID", seatIDs(i))
+                        SQLCmd.Parameters.AddWithValue("@SeatPricePaid", selectedTicketPrice)
+                        SQLCmd.ExecuteNonQuery()
+                    End If
+                Next
+
+                trans.Commit()
+            Catch ex As Exception
+                trans.Rollback()
+                bookingID = 0
+                MessageBox.Show("The booking could not be saved, so nothing was booked. " & ex.Message, "Booking Failed", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+            cn.Close()
+        End If
+
+        Return bookingID
+    End Function
 End Class
