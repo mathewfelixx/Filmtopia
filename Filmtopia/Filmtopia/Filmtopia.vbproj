@@ -142,6 +142,12 @@
     <Compile Include="frmScreenings.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmFoodOrder.Designer.vb">
+      <DependentUpon>frmFoodOrder.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmFoodOrder.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmMainForm.Designer.vb">
       <DependentUpon>frmMainForm.vb</DependentUpon>
     </Compile>
@@ -211,6 +217,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmScreenings.resx">
       <DependentUpon>frmScreenings.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmFoodOrder.resx">
+      <DependentUpon>frmFoodOrder.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmMainForm.resx">
       <DependentUpon>frmMainForm.vb</DependentUpon>

@@ -8,6 +8,8 @@ Public Class frmBookings
     Private currentScreenID As Long = 0
     'ticket price for the picked screening, used to work out the total
     Private currentTicketPrice As Double = 0
+    'the booking id of the booking just created, used to open food ordering
+    Private lastBookingID As Long = 0
 
     'the three seat colours, made with FromArgb so the colour checks match properly
     Private availableColour As Color = Color.FromArgb(220, 220, 220)
@@ -69,6 +71,53 @@ Public Class frmBookings
         currentScreeningID = CLng(cboScreening.SelectedValue)
         LoadScreeningDetails()
         BuildSeatMap()
+    End Sub
+
+    'when a customer is picked, show their existing bookings in the small grid
+    Private Sub cboCustomer_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboCustomer.SelectedIndexChanged
+        lastBookingID = 0
+        btnOrderFood.Enabled = False
+
+        If cboCustomer.SelectedIndex = -1 Then
+            dgvCustomerBookings.DataSource = Nothing
+            Exit Sub
+        End If
+
+        If Not IsNumeric(cboCustomer.SelectedValue) Then
+            Exit Sub
+        End If
+
+        LoadCustomerBookings(CLng(cboCustomer.SelectedValue))
+    End Sub
+
+    'loads every booking made by this customer into the small grid
+    Private Sub LoadCustomerBookings(customerID As Long)
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT tblBooking.BookingID, FilmTitle & ' (' & ScreeningDate & ')' AS Info FROM (tblBooking INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID WHERE tblBooking.CustomerID = @CustomerID"
+            SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(customerID))
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            Dim dt As New DataTable
+            da.Fill(dt)
+            dgvCustomerBookings.DataSource = dt
+            cn.Close()
+        End If
+
+        'keep the small grid tidy, one line per booking
+        If dgvCustomerBookings.Columns.Count > 0 Then
+            dgvCustomerBookings.Columns("BookingID").Width = 40
+            dgvCustomerBookings.Columns("Info").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+        End If
+    End Sub
+
+    'when a booking is picked from the customer's list, allow food to be ordered for it
+    Private Sub dgvCustomerBookings_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvCustomerBookings.CellClick
+        If e.RowIndex < 0 Then Exit Sub
+
+        Dim row As DataGridViewRow = dgvCustomerBookings.Rows(e.RowIndex)
+        lastBookingID = CLng(row.Cells("BookingID").Value)
+        btnOrderFood.Enabled = True
     End Sub
 
     'gets the screen and ticket price for the picked screening
@@ -227,8 +276,24 @@ Public Class frmBookings
 
         WriteLog("BOOKING", "Booking " & newBookingID & " created with " & seatCount & " seats")
         MessageBox.Show("Booking created")
+
+        'remember this booking so food can be ordered for it
+        lastBookingID = newBookingID
+        btnOrderFood.Enabled = True
+
         BuildSeatMap()
-        cboCustomer.SelectedIndex = -1
+        LoadCustomerBookings(CLng(cboCustomer.SelectedValue))
+    End Sub
+
+    'opens the food ordering form for the booking just created
+    Private Sub btnOrderFood_Click(sender As Object, e As EventArgs) Handles btnOrderFood.Click
+        If lastBookingID = 0 Then
+            MessageBox.Show("Create a booking first")
+            Exit Sub
+        End If
+
+        frmFoodOrder.currentBookingID = lastBookingID
+        frmFoodOrder.ShowDialog()
     End Sub
 
     'inserts a tblBookingSeat row for each selected seat on the map

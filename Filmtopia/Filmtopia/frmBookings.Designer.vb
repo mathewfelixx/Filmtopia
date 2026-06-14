@@ -32,7 +32,11 @@ Partial Class frmBookings
         Me.lblTotal = New System.Windows.Forms.Label()
         Me.btnCreateBooking = New System.Windows.Forms.Button()
         Me.btnClear = New System.Windows.Forms.Button()
+        Me.btnOrderFood = New System.Windows.Forms.Button()
+        Me.lblCustomerBookings = New System.Windows.Forms.Label()
+        Me.dgvCustomerBookings = New System.Windows.Forms.DataGridView()
         Me.lblVersion = New System.Windows.Forms.Label()
+        CType(Me.dgvCustomerBookings, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'lblScreening
@@ -186,6 +190,42 @@ Partial Class frmBookings
         Me.btnClear.Text = "Clear Selection"
         Me.btnClear.UseVisualStyleBackColor = True
         '
+        'btnOrderFood
+        '
+        Me.btnOrderFood.Enabled = False
+        Me.btnOrderFood.Location = New System.Drawing.Point(745, 357)
+        Me.btnOrderFood.Margin = New System.Windows.Forms.Padding(4)
+        Me.btnOrderFood.Name = "btnOrderFood"
+        Me.btnOrderFood.Size = New System.Drawing.Size(170, 37)
+        Me.btnOrderFood.TabIndex = 16
+        Me.btnOrderFood.Text = "Order Food"
+        Me.btnOrderFood.UseVisualStyleBackColor = True
+        '
+        'lblCustomerBookings
+        '
+        Me.lblCustomerBookings.AutoSize = True
+        Me.lblCustomerBookings.Location = New System.Drawing.Point(745, 402)
+        Me.lblCustomerBookings.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblCustomerBookings.Name = "lblCustomerBookings"
+        Me.lblCustomerBookings.Size = New System.Drawing.Size(122, 16)
+        Me.lblCustomerBookings.TabIndex = 17
+        Me.lblCustomerBookings.Text = "Customer's Bookings"
+        '
+        'dgvCustomerBookings
+        '
+        Me.dgvCustomerBookings.AllowUserToAddRows = False
+        Me.dgvCustomerBookings.AllowUserToDeleteRows = False
+        Me.dgvCustomerBookings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dgvCustomerBookings.Font = New System.Drawing.Font("Segoe UI", 7.5!)
+        Me.dgvCustomerBookings.Location = New System.Drawing.Point(745, 422)
+        Me.dgvCustomerBookings.Margin = New System.Windows.Forms.Padding(4)
+        Me.dgvCustomerBookings.Name = "dgvCustomerBookings"
+        Me.dgvCustomerBookings.ReadOnly = True
+        Me.dgvCustomerBookings.RowHeadersVisible = False
+        Me.dgvCustomerBookings.RowTemplate.Height = 22
+        Me.dgvCustomerBookings.Size = New System.Drawing.Size(170, 150)
+        Me.dgvCustomerBookings.TabIndex = 18
+        '
         'lblVersion
         '
         Me.lblVersion.AutoSize = True
@@ -203,6 +243,9 @@ Partial Class frmBookings
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1013, 625)
         Me.Controls.Add(Me.lblVersion)
+        Me.Controls.Add(Me.dgvCustomerBookings)
+        Me.Controls.Add(Me.lblCustomerBookings)
+        Me.Controls.Add(Me.btnOrderFood)
         Me.Controls.Add(Me.btnClear)
         Me.Controls.Add(Me.btnCreateBooking)
         Me.Controls.Add(Me.lblTotal)
@@ -221,6 +264,7 @@ Partial Class frmBookings
         Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Name = "frmBookings"
         Me.Text = "Bookings"
+        CType(Me.dgvCustomerBookings, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -241,5 +285,8 @@ Partial Class frmBookings
     Friend WithEvents lblTotal As Label
     Friend WithEvents btnCreateBooking As Button
     Friend WithEvents btnClear As Button
+    Friend WithEvents btnOrderFood As Button
+    Friend WithEvents lblCustomerBookings As Label
+    Friend WithEvents dgvCustomerBookings As DataGridView
     Friend WithEvents lblVersion As Label
 End Class

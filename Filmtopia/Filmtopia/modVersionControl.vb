@@ -64,6 +64,7 @@ Module modVersionControl
         frmFoodItems.lblVersion.Text = GetVersion()
         frmBookings.lblVersion.Text = GetVersion()
         frmScreenings.lblVersion.Text = GetVersion()
+        frmFoodOrder.lblVersion.Text = GetVersion()
 
     End Sub
 
