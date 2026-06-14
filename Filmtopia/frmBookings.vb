@@ -6,7 +6,10 @@ Public Class frmBookings
 
     Private selectedScreeningID As Long = 0
     Private selectedScreenID As Long = 0
+    Private selectedTicketPrice As Decimal = 0
     Private seatIDs(-1) As Long
+    Private seatNames(-1) As String
+    Private seatChosen(-1) As Boolean
 
     Private Sub frmBookings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadScreenings()
@@ -58,6 +61,7 @@ Public Class frmBookings
             Dim row As DataGridViewRow = dgvScreenings.Rows(e.RowIndex)
             selectedScreeningID = row.Cells("ScreeningID").Value
             selectedScreenID = row.Cells("ScreenID").Value
+            selectedTicketPrice = row.Cells("TicketPrice").Value
             lblSeatMap.Text = row.Cells("FilmTitle").Value & " in " & row.Cells("ScreenName").Value & " on " & CDate(row.Cells("ScreeningDate").Value).ToString("dd/MM/yyyy") & " at " & row.Cells("ScreeningTime").Value
             LoadSeats()
         End If
@@ -67,14 +71,17 @@ Public Class frmBookings
         Dim dt As DataTable = GetSeats(selectedScreenID)
         pnlSeats.Controls.Clear()
         ReDim seatIDs(dt.Rows.Count - 1)
+        ReDim seatNames(dt.Rows.Count - 1)
+        ReDim seatChosen(dt.Rows.Count - 1)
 
         For i As Integer = 0 To dt.Rows.Count - 1
             Dim seatRow As String = dt.Rows(i)("SeatRow")
             Dim seatNumber As Integer = dt.Rows(i)("SeatNumber")
             seatIDs(i) = dt.Rows(i)("SeatID")
+            seatNames(i) = seatRow & seatNumber
 
             Dim seatButton As New Button
-            seatButton.Text = seatRow & seatNumber
+            seatButton.Text = seatNames(i)
             seatButton.Size = New Size(SeatSize, SeatSize)
             seatButton.Left = SeatGap + (seatNumber - 1) * (SeatSize + SeatGap)
             seatButton.Top = SeatGap + (Asc(seatRow) - Asc("A")) * (SeatSize + SeatGap)
@@ -82,7 +89,47 @@ Public Class frmBookings
             seatButton.FlatStyle = FlatStyle.Flat
             seatButton.Font = New Font(seatButton.Font.FontFamily, 7)
             seatButton.Tag = i
+            AddHandler seatButton.Click, AddressOf SeatClicked
             pnlSeats.Controls.Add(seatButton)
         Next
+        UpdateSummary()
+    End Sub
+
+    Private Sub SeatClicked(sender As Object, e As EventArgs)
+        Dim seatButton As Button = sender
+        Dim seatIndex As Integer = seatButton.Tag
+
+        If seatChosen(seatIndex) Then
+            seatChosen(seatIndex) = False
+            seatButton.BackColor = FreeSeatColour
+        Else
+            seatChosen(seatIndex) = True
+            seatButton.BackColor = ChosenSeatColour
+        End If
+        UpdateSummary()
+    End Sub
+
+    Private Sub UpdateSummary()
+        Dim seatList As String = ""
+        Dim tickets As Integer = 0
+        Dim total As Decimal = 0
+
+        For i As Integer = 0 To seatIDs.Length - 1
+            If seatChosen(i) Then
+                If seatList <> "" Then
+                    seatList = seatList & ", "
+                End If
+                seatList = seatList & seatNames(i)
+                tickets = tickets + 1
+                total = total + selectedTicketPrice
+            End If
+        Next
+
+        If seatList = "" Then
+            seatList = "None"
+        End If
+        lblChosenSeats.Text = seatList
+        lblTickets.Text = tickets
+        lblTotal.Text = total.ToString("C2")
     End Sub
 End Class

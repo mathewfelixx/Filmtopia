@@ -2,6 +2,7 @@
 
 Module modBookings
     Public ReadOnly FreeSeatColour As Color = Color.FromArgb(220, 220, 220)
+    Public ReadOnly ChosenSeatColour As Color = Color.Fuchsia
 
     Public Function GetSeats(screenID As Long) As DataTable
         Dim SQLCmd As New OleDbCommand("SELECT SeatID, SeatRow, SeatNumber FROM tblSeat WHERE ScreenID = @ScreenID ORDER BY SeatRow, SeatNumber")
