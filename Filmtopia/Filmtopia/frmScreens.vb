@@ -39,6 +39,8 @@ Public Class frmScreens
             Exit Sub
         End If
 
+        If Not CapacityIsValid() Then Exit Sub
+
         Dim newScreenID As Long = 0
 
         If DbConnect() Then
@@ -68,6 +70,8 @@ Public Class frmScreens
             MessageBox.Show("Select a screen in the grid first")
             Exit Sub
         End If
+
+        If Not CapacityIsValid() Then Exit Sub
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -116,6 +120,18 @@ Public Class frmScreens
         LoadScreens()
         ClearFields()
     End Sub
+
+    'checks the capacity box is a whole multiple of 10, since seats are generated in rows of 10
+    Private Function CapacityIsValid() As Boolean
+        Dim capacity As Integer = Val(txtCapacity.Text)
+
+        If capacity <= 0 Or capacity Mod 10 <> 0 Then
+            MessageBox.Show("Screen capacity must be a multiple of 10 (e.g. 10, 20, 30...)")
+            Return False
+        End If
+
+        Return True
+    End Function
 
     'clears the textboxes and the selection
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
