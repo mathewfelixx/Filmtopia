@@ -136,6 +136,12 @@
     <Compile Include="frmBookings.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmScreenings.Designer.vb">
+      <DependentUpon>frmScreenings.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmScreenings.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmMainForm.Designer.vb">
       <DependentUpon>frmMainForm.vb</DependentUpon>
     </Compile>
@@ -202,6 +208,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmBookings.resx">
       <DependentUpon>frmBookings.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmScreenings.resx">
+      <DependentUpon>frmScreenings.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmMainForm.resx">
       <DependentUpon>frmMainForm.vb</DependentUpon>

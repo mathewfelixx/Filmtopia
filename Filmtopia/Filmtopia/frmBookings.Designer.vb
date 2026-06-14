@@ -50,7 +50,7 @@ Partial Class frmBookings
         Me.cboScreening.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cboScreening.FormattingEnabled = True
         Me.cboScreening.Location = New System.Drawing.Point(110, 14)
-        Me.cboScreening.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.cboScreening.Margin = New System.Windows.Forms.Padding(4)
         Me.cboScreening.Name = "cboScreening"
         Me.cboScreening.Size = New System.Drawing.Size(430, 24)
         Me.cboScreening.TabIndex = 1
@@ -61,7 +61,7 @@ Partial Class frmBookings
         Me.lblCustomer.Location = New System.Drawing.Point(16, 54)
         Me.lblCustomer.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblCustomer.Name = "lblCustomer"
-        Me.lblCustomer.Size = New System.Drawing.Size(67, 16)
+        Me.lblCustomer.Size = New System.Drawing.Size(64, 16)
         Me.lblCustomer.TabIndex = 2
         Me.lblCustomer.Text = "Customer"
         '
@@ -70,7 +70,7 @@ Partial Class frmBookings
         Me.cboCustomer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cboCustomer.FormattingEnabled = True
         Me.cboCustomer.Location = New System.Drawing.Point(110, 50)
-        Me.cboCustomer.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.cboCustomer.Margin = New System.Windows.Forms.Padding(4)
         Me.cboCustomer.Name = "cboCustomer"
         Me.cboCustomer.Size = New System.Drawing.Size(300, 24)
         Me.cboCustomer.TabIndex = 3
@@ -90,7 +90,7 @@ Partial Class frmBookings
         Me.pnlSeatMap.AutoScroll = True
         Me.pnlSeatMap.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.pnlSeatMap.Location = New System.Drawing.Point(16, 120)
-        Me.pnlSeatMap.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.pnlSeatMap.Margin = New System.Windows.Forms.Padding(4)
         Me.pnlSeatMap.Name = "pnlSeatMap"
         Me.pnlSeatMap.Size = New System.Drawing.Size(710, 430)
         Me.pnlSeatMap.TabIndex = 5
@@ -111,7 +111,7 @@ Partial Class frmBookings
         Me.lblLegendAvailable.Location = New System.Drawing.Point(772, 125)
         Me.lblLegendAvailable.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblLegendAvailable.Name = "lblLegendAvailable"
-        Me.lblLegendAvailable.Size = New System.Drawing.Size(66, 16)
+        Me.lblLegendAvailable.Size = New System.Drawing.Size(64, 16)
         Me.lblLegendAvailable.TabIndex = 7
         Me.lblLegendAvailable.Text = "Available"
         '
@@ -131,7 +131,7 @@ Partial Class frmBookings
         Me.lblLegendSelected.Location = New System.Drawing.Point(772, 150)
         Me.lblLegendSelected.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblLegendSelected.Name = "lblLegendSelected"
-        Me.lblLegendSelected.Size = New System.Drawing.Size(63, 16)
+        Me.lblLegendSelected.Size = New System.Drawing.Size(61, 16)
         Me.lblLegendSelected.TabIndex = 9
         Me.lblLegendSelected.Text = "Selected"
         '
@@ -151,7 +151,7 @@ Partial Class frmBookings
         Me.lblLegendTaken.Location = New System.Drawing.Point(772, 175)
         Me.lblLegendTaken.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblLegendTaken.Name = "lblLegendTaken"
-        Me.lblLegendTaken.Size = New System.Drawing.Size(48, 16)
+        Me.lblLegendTaken.Size = New System.Drawing.Size(46, 16)
         Me.lblLegendTaken.TabIndex = 11
         Me.lblLegendTaken.Text = "Taken"
         '
@@ -162,14 +162,14 @@ Partial Class frmBookings
         Me.lblTotal.Location = New System.Drawing.Point(742, 215)
         Me.lblTotal.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblTotal.Name = "lblTotal"
-        Me.lblTotal.Size = New System.Drawing.Size(176, 19)
+        Me.lblTotal.Size = New System.Drawing.Size(134, 23)
         Me.lblTotal.TabIndex = 12
         Me.lblTotal.Text = "0 seats selected"
         '
         'btnCreateBooking
         '
         Me.btnCreateBooking.Location = New System.Drawing.Point(745, 260)
-        Me.btnCreateBooking.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.btnCreateBooking.Margin = New System.Windows.Forms.Padding(4)
         Me.btnCreateBooking.Name = "btnCreateBooking"
         Me.btnCreateBooking.Size = New System.Drawing.Size(170, 40)
         Me.btnCreateBooking.TabIndex = 13
@@ -179,7 +179,7 @@ Partial Class frmBookings
         'btnClear
         '
         Me.btnClear.Location = New System.Drawing.Point(745, 310)
-        Me.btnClear.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.btnClear.Margin = New System.Windows.Forms.Padding(4)
         Me.btnClear.Name = "btnClear"
         Me.btnClear.Size = New System.Drawing.Size(170, 37)
         Me.btnClear.TabIndex = 14
@@ -201,7 +201,7 @@ Partial Class frmBookings
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(945, 625)
+        Me.ClientSize = New System.Drawing.Size(1013, 625)
         Me.Controls.Add(Me.lblVersion)
         Me.Controls.Add(Me.btnClear)
         Me.Controls.Add(Me.btnCreateBooking)
@@ -218,7 +218,7 @@ Partial Class frmBookings
         Me.Controls.Add(Me.lblCustomer)
         Me.Controls.Add(Me.cboScreening)
         Me.Controls.Add(Me.lblScreening)
-        Me.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Name = "frmBookings"
         Me.Text = "Bookings"
         Me.ResumeLayout(False)

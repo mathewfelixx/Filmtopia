@@ -21,7 +21,7 @@ Public Class frmMainForm
     Private Sub btnScreenings_Click(sender As Object, e As EventArgs) Handles btnScreenings.Click
         SetAllButtonsTransp()
         btnScreenings.BackColor = Color.FromArgb(173, 20, 87)
-        MessageBox.Show("Screenings coming soon")
+        frmScreenings.Show()
     End Sub
 
     Private Sub btnCustomers_Click(sender As Object, e As EventArgs) Handles btnCustomers.Click
