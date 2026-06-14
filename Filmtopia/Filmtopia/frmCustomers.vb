@@ -71,7 +71,7 @@ Public Class frmCustomers
             SQLCmd.Parameters.AddWithValue("@CustomerSurname", txtSurname.Text)
             SQLCmd.Parameters.AddWithValue("@CustomerEmail", txtEmail.Text)
             SQLCmd.Parameters.AddWithValue("@CustomerPhone", txtPhone.Text)
-            SQLCmd.Parameters.AddWithValue("@CustomerID", selectedCustomerID)
+            SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(selectedCustomerID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If
@@ -96,7 +96,7 @@ Public Class frmCustomers
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "DELETE FROM tblCustomer WHERE CustomerID = @CustomerID"
-            SQLCmd.Parameters.AddWithValue("@CustomerID", selectedCustomerID)
+            SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(selectedCustomerID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If

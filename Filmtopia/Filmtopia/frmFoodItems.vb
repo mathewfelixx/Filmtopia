@@ -69,7 +69,7 @@ Public Class frmFoodItems
             SQLCmd.Parameters.AddWithValue("@FoodItemName", txtName.Text)
             SQLCmd.Parameters.AddWithValue("@FoodItemPrice", Val(txtPrice.Text))
             SQLCmd.Parameters.AddWithValue("@FoodItemCategory", txtCategory.Text)
-            SQLCmd.Parameters.AddWithValue("@FoodItemID", selectedFoodItemID)
+            SQLCmd.Parameters.AddWithValue("@FoodItemID", CInt(selectedFoodItemID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If
@@ -94,7 +94,7 @@ Public Class frmFoodItems
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "DELETE FROM tblFoodItem WHERE FoodItemID = @FoodItemID"
-            SQLCmd.Parameters.AddWithValue("@FoodItemID", selectedFoodItemID)
+            SQLCmd.Parameters.AddWithValue("@FoodItemID", CInt(selectedFoodItemID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If

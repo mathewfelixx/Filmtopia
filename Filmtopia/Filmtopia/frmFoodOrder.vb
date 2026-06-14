@@ -21,6 +21,7 @@ Public Class frmFoodOrder
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
+            'join booking to customer (name), then to screening, then to film (title)
             SQLCmd.CommandText = "SELECT CustomerForename & ' ' & CustomerSurname AS CustomerName, FilmTitle, ScreeningDate, ScreeningTime FROM ((tblBooking INNER JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID WHERE tblBooking.BookingID = @BookingID"
             SQLCmd.Parameters.AddWithValue("@BookingID", CInt(currentBookingID))
             Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
@@ -65,6 +66,7 @@ Public Class frmFoodOrder
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
+            'join order item to food item so we can show the name and price
             SQLCmd.CommandText = "SELECT tblOrderItem.OrderItemID, FoodItemName, FoodItemPrice, Quantity, FoodItemPrice * Quantity AS Subtotal FROM tblOrderItem INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID WHERE BookingID = @BookingID"
             SQLCmd.Parameters.AddWithValue("@BookingID", CInt(currentBookingID))
             Dim da As New OleDbDataAdapter(SQLCmd)

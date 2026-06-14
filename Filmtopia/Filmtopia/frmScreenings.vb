@@ -52,6 +52,7 @@ Public Class frmScreenings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
+            'join screening to film (for the title) and to screen (for the name)
             SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, FilmTitle, ScreenName, ScreeningDate, ScreeningTime, TicketPrice, tblScreening.FilmID, tblScreening.ScreenID FROM (tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID) INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID"
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable

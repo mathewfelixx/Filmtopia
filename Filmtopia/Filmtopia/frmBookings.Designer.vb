@@ -121,7 +121,7 @@ Partial Class frmBookings
         '
         'lblSwatchSelected
         '
-        Me.lblSwatchSelected.BackColor = System.Drawing.Color.FromArgb(CType(CType(173, Byte), Integer), CType(CType(20, Byte), Integer), CType(CType(87, Byte), Integer))
+        Me.lblSwatchSelected.BackColor = System.Drawing.Color.Fuchsia
         Me.lblSwatchSelected.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.lblSwatchSelected.Location = New System.Drawing.Point(663, 149)
         Me.lblSwatchSelected.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
@@ -141,7 +141,7 @@ Partial Class frmBookings
         '
         'lblSwatchTaken
         '
-        Me.lblSwatchTaken.BackColor = System.Drawing.Color.FromArgb(CType(CType(150, Byte), Integer), CType(CType(40, Byte), Integer), CType(CType(40, Byte), Integer))
+        Me.lblSwatchTaken.BackColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(255, Byte), Integer))
         Me.lblSwatchTaken.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.lblSwatchTaken.Location = New System.Drawing.Point(663, 174)
         Me.lblSwatchTaken.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)

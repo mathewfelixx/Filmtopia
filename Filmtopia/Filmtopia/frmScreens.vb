@@ -79,7 +79,7 @@ Public Class frmScreens
             SQLCmd.CommandText = "UPDATE tblScreen SET ScreenName = @ScreenName, ScreenCapacity = @ScreenCapacity WHERE ScreenID = @ScreenID"
             SQLCmd.Parameters.AddWithValue("@ScreenName", txtName.Text)
             SQLCmd.Parameters.AddWithValue("@ScreenCapacity", Val(txtCapacity.Text))
-            SQLCmd.Parameters.AddWithValue("@ScreenID", selectedScreenID)
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If
@@ -111,7 +111,7 @@ Public Class frmScreens
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "DELETE FROM tblScreen WHERE ScreenID = @ScreenID"
-            SQLCmd.Parameters.AddWithValue("@ScreenID", selectedScreenID)
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If
@@ -154,7 +154,7 @@ Public Class frmScreens
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "INSERT INTO tblSeat (ScreenID, SeatRow, SeatNumber) VALUES (@ScreenID, @SeatRow, @SeatNumber)"
-            SQLCmd.Parameters.AddWithValue("@ScreenID", screenID)
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
             SQLCmd.Parameters.AddWithValue("@SeatRow", "")
             SQLCmd.Parameters.AddWithValue("@SeatNumber", 0)
 
@@ -179,7 +179,7 @@ Public Class frmScreens
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "DELETE FROM tblSeat WHERE ScreenID = @ScreenID"
-            SQLCmd.Parameters.AddWithValue("@ScreenID", screenID)
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If

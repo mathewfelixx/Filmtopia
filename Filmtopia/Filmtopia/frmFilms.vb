@@ -71,7 +71,7 @@ Public Class frmFilms
             SQLCmd.Parameters.AddWithValue("@FilmAgeRating", txtAgeRating.Text)
             SQLCmd.Parameters.AddWithValue("@FilmDuration", Val(txtDuration.Text))
             SQLCmd.Parameters.AddWithValue("@FilmDescription", txtDescription.Text)
-            SQLCmd.Parameters.AddWithValue("@FilmID", selectedFilmID)
+            SQLCmd.Parameters.AddWithValue("@FilmID", CInt(selectedFilmID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If
@@ -96,7 +96,7 @@ Public Class frmFilms
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "DELETE FROM tblFilm WHERE FilmID = @FilmID"
-            SQLCmd.Parameters.AddWithValue("@FilmID", selectedFilmID)
+            SQLCmd.Parameters.AddWithValue("@FilmID", CInt(selectedFilmID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If

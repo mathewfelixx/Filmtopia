@@ -13,8 +13,8 @@ Public Class frmBookings
 
     'the three seat colours, made with FromArgb so the colour checks match properly
     Private availableColour As Color = Color.FromArgb(220, 220, 220)
-    Private selectedColour As Color = Color.FromArgb(173, 20, 87)
-    Private takenColour As Color = Color.FromArgb(150, 40, 40)
+    Private selectedColour As Color = Color.Fuchsia
+    Private takenColour As Color = Color.FromArgb(255, 192, 255)
 
     Private Sub frmBookings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup()
@@ -28,6 +28,7 @@ Public Class frmBookings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
+            'join screening to film so the combo can show the film title alongside the date and time
             SQLCmd.CommandText = "SELECT ScreeningID, FilmTitle & ' - ' & ScreeningDate & ' ' & ScreeningTime AS Info FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID"
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
@@ -95,6 +96,7 @@ Public Class frmBookings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
+            'join booking to screening, then to film, so we can show the film title and date
             SQLCmd.CommandText = "SELECT tblBooking.BookingID, FilmTitle & ' (' & ScreeningDate & ')' AS Info FROM (tblBooking INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID WHERE tblBooking.CustomerID = @CustomerID"
             SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(customerID))
             Dim da As New OleDbDataAdapter(SQLCmd)
@@ -126,7 +128,7 @@ Public Class frmBookings
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "SELECT ScreenID, TicketPrice FROM tblScreening WHERE ScreeningID = @ScreeningID"
-            SQLCmd.Parameters.AddWithValue("@ScreeningID", currentScreeningID)
+            SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
             Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
             If rs.Read() Then
                 currentScreenID = CLng(rs("ScreenID"))
@@ -150,14 +152,14 @@ Public Class frmBookings
 
             'all the seats that belong to this screen
             SQLCmd.CommandText = "SELECT SeatID, SeatRow, SeatNumber FROM tblSeat WHERE ScreenID = @ScreenID ORDER BY SeatRow, SeatNumber"
-            SQLCmd.Parameters.AddWithValue("@ScreenID", currentScreenID)
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(currentScreenID))
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dtSeats)
 
-            'the seats already booked for this screening
+            'the seats already booked for this screening - join bookingseat to booking so we can filter by screening
             SQLCmd.CommandText = "SELECT tblBookingSeat.SeatID FROM tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID WHERE tblBooking.ScreeningID = @ScreeningID"
             SQLCmd.Parameters.Clear()
-            SQLCmd.Parameters.AddWithValue("@ScreeningID", currentScreeningID)
+            SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
             Dim da2 As New OleDbDataAdapter(SQLCmd)
             da2.Fill(dtTaken)
 
@@ -259,8 +261,8 @@ Public Class frmBookings
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "INSERT INTO tblBooking (CustomerID, ScreeningID, BookingDate, TotalCost) VALUES (@CustomerID, @ScreeningID, @BookingDate, @TotalCost)"
-            SQLCmd.Parameters.AddWithValue("@CustomerID", CLng(cboCustomer.SelectedValue))
-            SQLCmd.Parameters.AddWithValue("@ScreeningID", currentScreeningID)
+            SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(cboCustomer.SelectedValue))
+            SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
             SQLCmd.Parameters.AddWithValue("@BookingDate", Date.Now.Date)
             SQLCmd.Parameters.AddWithValue("@TotalCost", totalCost)
             SQLCmd.ExecuteNonQuery()
@@ -307,8 +309,8 @@ Public Class frmBookings
                     If b.BackColor = selectedColour Then
                         SQLCmd.CommandText = "INSERT INTO tblBookingSeat (BookingID, SeatID) VALUES (@BookingID, @SeatID)"
                         SQLCmd.Parameters.Clear()
-                        SQLCmd.Parameters.AddWithValue("@BookingID", bookingID)
-                        SQLCmd.Parameters.AddWithValue("@SeatID", CLng(b.Tag))
+                        SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
+                        SQLCmd.Parameters.AddWithValue("@SeatID", CInt(b.Tag))
                         SQLCmd.ExecuteNonQuery()
                     End If
                 End If
@@ -323,8 +325,9 @@ Public Class frmBookings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
+            'join bookingseat to booking again so we can filter by screening
             SQLCmd.CommandText = "SELECT tblBookingSeat.SeatID FROM tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID WHERE tblBooking.ScreeningID = @ScreeningID"
-            SQLCmd.Parameters.AddWithValue("@ScreeningID", currentScreeningID)
+            SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dtTaken)
             cn.Close()

@@ -39,6 +39,7 @@ Public Class frmSalesReport
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
+            'join booking to screening, then to film (for the title), and group by film to total up revenue
             SQLCmd.CommandText = "SELECT FilmTitle, COUNT(tblBooking.BookingID) AS Bookings, SUM(TotalCost) AS TicketRevenue FROM (tblBooking INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID WHERE tblBooking.BookingDate BETWEEN @FromDate AND @ToDate GROUP BY FilmTitle"
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
             SQLCmd.Parameters.AddWithValue("@ToDate", toDate)
@@ -71,6 +72,7 @@ Public Class frmSalesReport
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
+            'join order item to food item (for the price), then to booking (for the date), and total it up
             SQLCmd.CommandText = "SELECT SUM(FoodItemPrice * Quantity) FROM (tblOrderItem INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID) INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID WHERE tblBooking.BookingDate BETWEEN @FromDate AND @ToDate"
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
             SQLCmd.Parameters.AddWithValue("@ToDate", toDate)
