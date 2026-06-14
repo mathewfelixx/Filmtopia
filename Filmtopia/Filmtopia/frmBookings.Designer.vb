@@ -76,7 +76,7 @@ Partial Class frmBookings
         Me.cboCustomer.Location = New System.Drawing.Point(110, 50)
         Me.cboCustomer.Margin = New System.Windows.Forms.Padding(4)
         Me.cboCustomer.Name = "cboCustomer"
-        Me.cboCustomer.Size = New System.Drawing.Size(300, 24)
+        Me.cboCustomer.Size = New System.Drawing.Size(259, 24)
         Me.cboCustomer.TabIndex = 3
         '
         'lblScreen
@@ -84,7 +84,7 @@ Partial Class frmBookings
         Me.lblScreen.Location = New System.Drawing.Point(16, 92)
         Me.lblScreen.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblScreen.Name = "lblScreen"
-        Me.lblScreen.Size = New System.Drawing.Size(710, 20)
+        Me.lblScreen.Size = New System.Drawing.Size(632, 20)
         Me.lblScreen.TabIndex = 4
         Me.lblScreen.Text = "----------------------------------  SCREEN  ----------------------------------"
         Me.lblScreen.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
@@ -96,14 +96,14 @@ Partial Class frmBookings
         Me.pnlSeatMap.Location = New System.Drawing.Point(16, 120)
         Me.pnlSeatMap.Margin = New System.Windows.Forms.Padding(4)
         Me.pnlSeatMap.Name = "pnlSeatMap"
-        Me.pnlSeatMap.Size = New System.Drawing.Size(710, 430)
+        Me.pnlSeatMap.Size = New System.Drawing.Size(632, 452)
         Me.pnlSeatMap.TabIndex = 5
         '
         'lblSwatchAvailable
         '
         Me.lblSwatchAvailable.BackColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer))
         Me.lblSwatchAvailable.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.lblSwatchAvailable.Location = New System.Drawing.Point(745, 124)
+        Me.lblSwatchAvailable.Location = New System.Drawing.Point(663, 124)
         Me.lblSwatchAvailable.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblSwatchAvailable.Name = "lblSwatchAvailable"
         Me.lblSwatchAvailable.Size = New System.Drawing.Size(18, 18)
@@ -112,7 +112,7 @@ Partial Class frmBookings
         'lblLegendAvailable
         '
         Me.lblLegendAvailable.AutoSize = True
-        Me.lblLegendAvailable.Location = New System.Drawing.Point(772, 125)
+        Me.lblLegendAvailable.Location = New System.Drawing.Point(690, 125)
         Me.lblLegendAvailable.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblLegendAvailable.Name = "lblLegendAvailable"
         Me.lblLegendAvailable.Size = New System.Drawing.Size(64, 16)
@@ -123,7 +123,7 @@ Partial Class frmBookings
         '
         Me.lblSwatchSelected.BackColor = System.Drawing.Color.FromArgb(CType(CType(173, Byte), Integer), CType(CType(20, Byte), Integer), CType(CType(87, Byte), Integer))
         Me.lblSwatchSelected.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.lblSwatchSelected.Location = New System.Drawing.Point(745, 149)
+        Me.lblSwatchSelected.Location = New System.Drawing.Point(663, 149)
         Me.lblSwatchSelected.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblSwatchSelected.Name = "lblSwatchSelected"
         Me.lblSwatchSelected.Size = New System.Drawing.Size(18, 18)
@@ -132,7 +132,7 @@ Partial Class frmBookings
         'lblLegendSelected
         '
         Me.lblLegendSelected.AutoSize = True
-        Me.lblLegendSelected.Location = New System.Drawing.Point(772, 150)
+        Me.lblLegendSelected.Location = New System.Drawing.Point(690, 150)
         Me.lblLegendSelected.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblLegendSelected.Name = "lblLegendSelected"
         Me.lblLegendSelected.Size = New System.Drawing.Size(61, 16)
@@ -143,7 +143,7 @@ Partial Class frmBookings
         '
         Me.lblSwatchTaken.BackColor = System.Drawing.Color.FromArgb(CType(CType(150, Byte), Integer), CType(CType(40, Byte), Integer), CType(CType(40, Byte), Integer))
         Me.lblSwatchTaken.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.lblSwatchTaken.Location = New System.Drawing.Point(745, 174)
+        Me.lblSwatchTaken.Location = New System.Drawing.Point(663, 174)
         Me.lblSwatchTaken.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblSwatchTaken.Name = "lblSwatchTaken"
         Me.lblSwatchTaken.Size = New System.Drawing.Size(18, 18)
@@ -152,7 +152,7 @@ Partial Class frmBookings
         'lblLegendTaken
         '
         Me.lblLegendTaken.AutoSize = True
-        Me.lblLegendTaken.Location = New System.Drawing.Point(772, 175)
+        Me.lblLegendTaken.Location = New System.Drawing.Point(690, 175)
         Me.lblLegendTaken.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblLegendTaken.Name = "lblLegendTaken"
         Me.lblLegendTaken.Size = New System.Drawing.Size(46, 16)
@@ -163,7 +163,7 @@ Partial Class frmBookings
         '
         Me.lblTotal.AutoSize = True
         Me.lblTotal.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
-        Me.lblTotal.Location = New System.Drawing.Point(742, 215)
+        Me.lblTotal.Location = New System.Drawing.Point(660, 215)
         Me.lblTotal.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblTotal.Name = "lblTotal"
         Me.lblTotal.Size = New System.Drawing.Size(134, 23)
@@ -172,20 +172,20 @@ Partial Class frmBookings
         '
         'btnCreateBooking
         '
-        Me.btnCreateBooking.Location = New System.Drawing.Point(745, 260)
+        Me.btnCreateBooking.Location = New System.Drawing.Point(663, 260)
         Me.btnCreateBooking.Margin = New System.Windows.Forms.Padding(4)
         Me.btnCreateBooking.Name = "btnCreateBooking"
-        Me.btnCreateBooking.Size = New System.Drawing.Size(170, 40)
+        Me.btnCreateBooking.Size = New System.Drawing.Size(334, 40)
         Me.btnCreateBooking.TabIndex = 13
         Me.btnCreateBooking.Text = "Create Booking"
         Me.btnCreateBooking.UseVisualStyleBackColor = True
         '
         'btnClear
         '
-        Me.btnClear.Location = New System.Drawing.Point(745, 310)
+        Me.btnClear.Location = New System.Drawing.Point(663, 310)
         Me.btnClear.Margin = New System.Windows.Forms.Padding(4)
         Me.btnClear.Name = "btnClear"
-        Me.btnClear.Size = New System.Drawing.Size(170, 37)
+        Me.btnClear.Size = New System.Drawing.Size(334, 37)
         Me.btnClear.TabIndex = 14
         Me.btnClear.Text = "Clear Selection"
         Me.btnClear.UseVisualStyleBackColor = True
@@ -193,10 +193,10 @@ Partial Class frmBookings
         'btnOrderFood
         '
         Me.btnOrderFood.Enabled = False
-        Me.btnOrderFood.Location = New System.Drawing.Point(745, 357)
+        Me.btnOrderFood.Location = New System.Drawing.Point(663, 357)
         Me.btnOrderFood.Margin = New System.Windows.Forms.Padding(4)
         Me.btnOrderFood.Name = "btnOrderFood"
-        Me.btnOrderFood.Size = New System.Drawing.Size(170, 37)
+        Me.btnOrderFood.Size = New System.Drawing.Size(334, 37)
         Me.btnOrderFood.TabIndex = 16
         Me.btnOrderFood.Text = "Order Food"
         Me.btnOrderFood.UseVisualStyleBackColor = True
@@ -204,10 +204,10 @@ Partial Class frmBookings
         'lblCustomerBookings
         '
         Me.lblCustomerBookings.AutoSize = True
-        Me.lblCustomerBookings.Location = New System.Drawing.Point(745, 402)
+        Me.lblCustomerBookings.Location = New System.Drawing.Point(663, 402)
         Me.lblCustomerBookings.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblCustomerBookings.Name = "lblCustomerBookings"
-        Me.lblCustomerBookings.Size = New System.Drawing.Size(122, 16)
+        Me.lblCustomerBookings.Size = New System.Drawing.Size(134, 16)
         Me.lblCustomerBookings.TabIndex = 17
         Me.lblCustomerBookings.Text = "Customer's Bookings"
         '
@@ -217,13 +217,13 @@ Partial Class frmBookings
         Me.dgvCustomerBookings.AllowUserToDeleteRows = False
         Me.dgvCustomerBookings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvCustomerBookings.Font = New System.Drawing.Font("Segoe UI", 7.5!)
-        Me.dgvCustomerBookings.Location = New System.Drawing.Point(745, 422)
+        Me.dgvCustomerBookings.Location = New System.Drawing.Point(663, 422)
         Me.dgvCustomerBookings.Margin = New System.Windows.Forms.Padding(4)
         Me.dgvCustomerBookings.Name = "dgvCustomerBookings"
         Me.dgvCustomerBookings.ReadOnly = True
         Me.dgvCustomerBookings.RowHeadersVisible = False
-        Me.dgvCustomerBookings.RowTemplate.Height = 22
-        Me.dgvCustomerBookings.Size = New System.Drawing.Size(170, 150)
+        Me.dgvCustomerBookings.RowHeadersWidth = 51
+        Me.dgvCustomerBookings.Size = New System.Drawing.Size(337, 150)
         Me.dgvCustomerBookings.TabIndex = 18
         '
         'lblVersion

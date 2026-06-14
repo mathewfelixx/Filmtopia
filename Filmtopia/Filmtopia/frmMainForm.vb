@@ -51,7 +51,7 @@ Public Class frmMainForm
     Private Sub btnReports_Click(sender As Object, e As EventArgs) Handles btnReports.Click
         SetAllButtonsTransp()
         btnReports.BackColor = Color.FromArgb(173, 20, 87)
-        MessageBox.Show("Reports coming soon")
+        frmSalesReport.Show()
     End Sub
 
     Private Sub btnLogs_Click(sender As Object, e As EventArgs) Handles btnLogs.Click
