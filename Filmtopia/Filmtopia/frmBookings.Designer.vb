@@ -21,6 +21,7 @@ Partial Class frmBookings
         Me.cboScreening = New System.Windows.Forms.ComboBox()
         Me.lblCustomer = New System.Windows.Forms.Label()
         Me.cboCustomer = New System.Windows.Forms.ComboBox()
+        Me.chkWalkIn = New System.Windows.Forms.CheckBox()
         Me.lblScreen = New System.Windows.Forms.Label()
         Me.pnlSeatMap = New System.Windows.Forms.Panel()
         Me.lblSwatchAvailable = New System.Windows.Forms.Label()
@@ -32,6 +33,7 @@ Partial Class frmBookings
         Me.lblTotal = New System.Windows.Forms.Label()
         Me.btnCreateBooking = New System.Windows.Forms.Button()
         Me.btnClear = New System.Windows.Forms.Button()
+        Me.btnFoodOnly = New System.Windows.Forms.Button()
         Me.btnOrderFood = New System.Windows.Forms.Button()
         Me.lblCustomerBookings = New System.Windows.Forms.Label()
         Me.dgvCustomerBookings = New System.Windows.Forms.DataGridView()
@@ -78,6 +80,17 @@ Partial Class frmBookings
         Me.cboCustomer.Name = "cboCustomer"
         Me.cboCustomer.Size = New System.Drawing.Size(259, 24)
         Me.cboCustomer.TabIndex = 3
+        '
+        'chkWalkIn
+        '
+        Me.chkWalkIn.AutoSize = True
+        Me.chkWalkIn.Location = New System.Drawing.Point(380, 53)
+        Me.chkWalkIn.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.chkWalkIn.Name = "chkWalkIn"
+        Me.chkWalkIn.Size = New System.Drawing.Size(160, 20)
+        Me.chkWalkIn.TabIndex = 19
+        Me.chkWalkIn.Text = "Walk-in (no details)"
+        Me.chkWalkIn.UseVisualStyleBackColor = True
         '
         'lblScreen
         '
@@ -190,10 +203,20 @@ Partial Class frmBookings
         Me.btnClear.Text = "Clear Selection"
         Me.btnClear.UseVisualStyleBackColor = True
         '
+        'btnFoodOnly
+        '
+        Me.btnFoodOnly.Location = New System.Drawing.Point(663, 357)
+        Me.btnFoodOnly.Margin = New System.Windows.Forms.Padding(4)
+        Me.btnFoodOnly.Name = "btnFoodOnly"
+        Me.btnFoodOnly.Size = New System.Drawing.Size(334, 37)
+        Me.btnFoodOnly.TabIndex = 20
+        Me.btnFoodOnly.Text = "Sell Food Only (No Seat)"
+        Me.btnFoodOnly.UseVisualStyleBackColor = True
+        '
         'btnOrderFood
         '
         Me.btnOrderFood.Enabled = False
-        Me.btnOrderFood.Location = New System.Drawing.Point(663, 357)
+        Me.btnOrderFood.Location = New System.Drawing.Point(663, 404)
         Me.btnOrderFood.Margin = New System.Windows.Forms.Padding(4)
         Me.btnOrderFood.Name = "btnOrderFood"
         Me.btnOrderFood.Size = New System.Drawing.Size(334, 37)
@@ -204,7 +227,7 @@ Partial Class frmBookings
         'lblCustomerBookings
         '
         Me.lblCustomerBookings.AutoSize = True
-        Me.lblCustomerBookings.Location = New System.Drawing.Point(663, 402)
+        Me.lblCustomerBookings.Location = New System.Drawing.Point(663, 449)
         Me.lblCustomerBookings.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblCustomerBookings.Name = "lblCustomerBookings"
         Me.lblCustomerBookings.Size = New System.Drawing.Size(134, 16)
@@ -217,20 +240,20 @@ Partial Class frmBookings
         Me.dgvCustomerBookings.AllowUserToDeleteRows = False
         Me.dgvCustomerBookings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvCustomerBookings.Font = New System.Drawing.Font("Segoe UI", 7.5!)
-        Me.dgvCustomerBookings.Location = New System.Drawing.Point(663, 422)
+        Me.dgvCustomerBookings.Location = New System.Drawing.Point(663, 469)
         Me.dgvCustomerBookings.Margin = New System.Windows.Forms.Padding(4)
         Me.dgvCustomerBookings.Name = "dgvCustomerBookings"
         Me.dgvCustomerBookings.ReadOnly = True
         Me.dgvCustomerBookings.RowHeadersVisible = False
         Me.dgvCustomerBookings.RowHeadersWidth = 51
-        Me.dgvCustomerBookings.Size = New System.Drawing.Size(337, 150)
+        Me.dgvCustomerBookings.Size = New System.Drawing.Size(337, 110)
         Me.dgvCustomerBookings.TabIndex = 18
         '
         'lblVersion
         '
         Me.lblVersion.AutoSize = True
         Me.lblVersion.ForeColor = System.Drawing.Color.Gray
-        Me.lblVersion.Location = New System.Drawing.Point(660, 590)
+        Me.lblVersion.Location = New System.Drawing.Point(660, 598)
         Me.lblVersion.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblVersion.Name = "lblVersion"
         Me.lblVersion.Size = New System.Drawing.Size(271, 16)
@@ -246,6 +269,7 @@ Partial Class frmBookings
         Me.Controls.Add(Me.dgvCustomerBookings)
         Me.Controls.Add(Me.lblCustomerBookings)
         Me.Controls.Add(Me.btnOrderFood)
+        Me.Controls.Add(Me.btnFoodOnly)
         Me.Controls.Add(Me.btnClear)
         Me.Controls.Add(Me.btnCreateBooking)
         Me.Controls.Add(Me.lblTotal)
@@ -257,6 +281,7 @@ Partial Class frmBookings
         Me.Controls.Add(Me.lblSwatchAvailable)
         Me.Controls.Add(Me.pnlSeatMap)
         Me.Controls.Add(Me.lblScreen)
+        Me.Controls.Add(Me.chkWalkIn)
         Me.Controls.Add(Me.cboCustomer)
         Me.Controls.Add(Me.lblCustomer)
         Me.Controls.Add(Me.cboScreening)
@@ -274,6 +299,7 @@ Partial Class frmBookings
     Friend WithEvents cboScreening As ComboBox
     Friend WithEvents lblCustomer As Label
     Friend WithEvents cboCustomer As ComboBox
+    Friend WithEvents chkWalkIn As CheckBox
     Friend WithEvents lblScreen As Label
     Friend WithEvents pnlSeatMap As Panel
     Friend WithEvents lblSwatchAvailable As Label
@@ -286,6 +312,7 @@ Partial Class frmBookings
     Friend WithEvents btnCreateBooking As Button
     Friend WithEvents btnClear As Button
     Friend WithEvents btnOrderFood As Button
+    Friend WithEvents btnFoodOnly As Button
     Friend WithEvents lblCustomerBookings As Label
     Friend WithEvents dgvCustomerBookings As DataGridView
     Friend WithEvents lblVersion As Label

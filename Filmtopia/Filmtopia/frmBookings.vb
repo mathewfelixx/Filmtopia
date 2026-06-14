@@ -122,6 +122,41 @@ Public Class frmBookings
         btnOrderFood.Enabled = True
     End Sub
 
+    'when walk-in is ticked, the customer combo isnt needed so grey it out
+    Private Sub chkWalkIn_CheckedChanged(sender As Object, e As EventArgs) Handles chkWalkIn.CheckedChanged
+        cboCustomer.Enabled = Not chkWalkIn.Checked
+
+        If chkWalkIn.Checked Then
+            cboCustomer.SelectedIndex = -1
+            dgvCustomerBookings.DataSource = Nothing
+            lastBookingID = 0
+            btnOrderFood.Enabled = False
+        End If
+    End Sub
+
+    'makes a quick customer record for someone who walks in without giving their details
+    Private Function CreateWalkInCustomer() As Long
+        Dim newCustomerID As Long = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "INSERT INTO tblCustomer (CustomerForename, CustomerSurname, CustomerEmail, CustomerPhone) VALUES (@CustomerForename, @CustomerSurname, @CustomerEmail, @CustomerPhone)"
+            SQLCmd.Parameters.AddWithValue("@CustomerForename", "Walk-in")
+            SQLCmd.Parameters.AddWithValue("@CustomerSurname", "Customer")
+            SQLCmd.Parameters.AddWithValue("@CustomerEmail", "")
+            SQLCmd.Parameters.AddWithValue("@CustomerPhone", "")
+            SQLCmd.ExecuteNonQuery()
+
+            SQLCmd.CommandText = "SELECT @@IDENTITY"
+            SQLCmd.Parameters.Clear()
+            newCustomerID = CLng(SQLCmd.ExecuteScalar())
+            cn.Close()
+        End If
+
+        Return newCustomerID
+    End Function
+
     'gets the screen and ticket price for the picked screening
     Private Sub LoadScreeningDetails()
         If DbConnect() Then
@@ -236,8 +271,8 @@ Public Class frmBookings
             MessageBox.Show("Pick a screening first")
             Exit Sub
         End If
-        If cboCustomer.SelectedIndex = -1 Then
-            MessageBox.Show("Pick a customer first")
+        If Not chkWalkIn.Checked And cboCustomer.SelectedIndex = -1 Then
+            MessageBox.Show("Pick a customer first, or tick Walk-in")
             Exit Sub
         End If
 
@@ -257,11 +292,19 @@ Public Class frmBookings
         Dim newBookingID As Long = 0
         Dim totalCost As Double = seatCount * currentTicketPrice
 
+        'if its a walk-in, make a quick customer record so the booking still has someone to belong to
+        Dim bookingCustomerID As Long
+        If chkWalkIn.Checked Then
+            bookingCustomerID = CreateWalkInCustomer()
+        Else
+            bookingCustomerID = CLng(cboCustomer.SelectedValue)
+        End If
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "INSERT INTO tblBooking (CustomerID, ScreeningID, BookingDate, TotalCost) VALUES (@CustomerID, @ScreeningID, @BookingDate, @TotalCost)"
-            SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(cboCustomer.SelectedValue))
+            SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(bookingCustomerID))
             SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
             SQLCmd.Parameters.AddWithValue("@BookingDate", Date.Now.Date)
             SQLCmd.Parameters.AddWithValue("@TotalCost", totalCost)
@@ -284,7 +327,43 @@ Public Class frmBookings
         btnOrderFood.Enabled = True
 
         BuildSeatMap()
-        LoadCustomerBookings(CLng(cboCustomer.SelectedValue))
+
+        'walk-ins dont have a customer picked in the combo, so theres no list to refresh
+        If Not chkWalkIn.Checked Then
+            LoadCustomerBookings(CLng(cboCustomer.SelectedValue))
+        End If
+    End Sub
+
+    'makes a zero-seat booking for someone who just wants to buy food, then opens food ordering for it
+    Private Sub btnFoodOnly_Click(sender As Object, e As EventArgs) Handles btnFoodOnly.Click
+        If currentScreeningID = 0 Then
+            MessageBox.Show("Pick a screening first")
+            Exit Sub
+        End If
+
+        Dim newCustomerID As Long = CreateWalkInCustomer()
+        Dim newBookingID As Long = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "INSERT INTO tblBooking (CustomerID, ScreeningID, BookingDate, TotalCost) VALUES (@CustomerID, @ScreeningID, @BookingDate, @TotalCost)"
+            SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(newCustomerID))
+            SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
+            SQLCmd.Parameters.AddWithValue("@BookingDate", Date.Now.Date)
+            SQLCmd.Parameters.AddWithValue("@TotalCost", 0)
+            SQLCmd.ExecuteNonQuery()
+
+            SQLCmd.CommandText = "SELECT @@IDENTITY"
+            SQLCmd.Parameters.Clear()
+            newBookingID = CLng(SQLCmd.ExecuteScalar())
+            cn.Close()
+        End If
+
+        WriteLog("BOOKING", "Food-only booking " & newBookingID & " created with no seats")
+
+        frmFoodOrder.currentBookingID = newBookingID
+        frmFoodOrder.ShowDialog()
     End Sub
 
     'opens the food ordering form for the booking just created
