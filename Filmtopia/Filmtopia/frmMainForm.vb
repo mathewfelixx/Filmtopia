@@ -15,7 +15,7 @@ Public Class frmMainForm
     Private Sub btnBookings_Click(sender As Object, e As EventArgs) Handles btnBookings.Click
         SetAllButtonsTransp()
         btnBookings.BackColor = Color.FromArgb(173, 20, 87)
-        MessageBox.Show("Bookings coming soon")
+        frmBookings.Show()
     End Sub
 
     Private Sub btnScreenings_Click(sender As Object, e As EventArgs) Handles btnScreenings.Click
