@@ -39,6 +39,8 @@ Public Class frmScreens
             Exit Sub
         End If
 
+        Dim newScreenID As Long = 0
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
@@ -46,8 +48,14 @@ Public Class frmScreens
             SQLCmd.Parameters.AddWithValue("@ScreenName", txtName.Text)
             SQLCmd.Parameters.AddWithValue("@ScreenCapacity", Val(txtCapacity.Text))
             SQLCmd.ExecuteNonQuery()
+
+            'grab the ID just given to the new screen so we can generate its seats
+            SQLCmd.CommandText = "SELECT @@IDENTITY"
+            newScreenID = CLng(SQLCmd.ExecuteScalar())
             cn.Close()
         End If
+
+        GenerateSeats(newScreenID, Val(txtCapacity.Text))
 
         WriteLog("SCREEN", "Screen added: " & txtName.Text)
         LoadScreens()
@@ -72,6 +80,10 @@ Public Class frmScreens
             cn.Close()
         End If
 
+        'capacity may have changed so wipe the old seats and generate fresh ones
+        DeleteSeats(selectedScreenID)
+        GenerateSeats(selectedScreenID, Val(txtCapacity.Text))
+
         WriteLog("SCREEN", "Screen updated: " & txtName.Text)
         LoadScreens()
         ClearFields()
@@ -87,6 +99,9 @@ Public Class frmScreens
         If MessageBox.Show("Delete this screen?", "Confirm", MessageBoxButtons.YesNo) = DialogResult.No Then
             Exit Sub
         End If
+
+        'remove the seats that belong to this screen first
+        DeleteSeats(selectedScreenID)
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -113,6 +128,45 @@ Public Class frmScreens
         txtName.Text = ""
         txtCapacity.Text = ""
         dgvScreens.ClearSelection()
+    End Sub
+
+    'makes a row of 10 seats for every 10 seats of capacity, rows go A, B, C...
+    Private Sub GenerateSeats(screenID As Long, capacity As Integer)
+        Dim numRows As Integer = capacity \ 10
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "INSERT INTO tblSeat (ScreenID, SeatRow, SeatNumber) VALUES (@ScreenID, @SeatRow, @SeatNumber)"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", screenID)
+            SQLCmd.Parameters.AddWithValue("@SeatRow", "")
+            SQLCmd.Parameters.AddWithValue("@SeatNumber", 0)
+
+            For rowIndex As Integer = 0 To numRows - 1
+                Dim rowLetter As String = Chr(65 + rowIndex)
+                For seatNum As Integer = 1 To 10
+                    SQLCmd.Parameters("@SeatRow").Value = rowLetter
+                    SQLCmd.Parameters("@SeatNumber").Value = seatNum
+                    SQLCmd.ExecuteNonQuery()
+                Next
+            Next
+
+            cn.Close()
+        End If
+
+        WriteLog("SCREEN", "Seats generated for ScreenID " & screenID)
+    End Sub
+
+    'removes every seat that belongs to a screen
+    Private Sub DeleteSeats(screenID As Long)
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "DELETE FROM tblSeat WHERE ScreenID = @ScreenID"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", screenID)
+            SQLCmd.ExecuteNonQuery()
+            cn.Close()
+        End If
     End Sub
 
     'when a row is clicked, load its values into the textboxes for editing
