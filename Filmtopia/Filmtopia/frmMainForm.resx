@@ -528,4 +528,19 @@
         JgAAAABJRU5ErkJggg==
 </value>
   </data>
+  <data name="lblInstructions.Text" xml:space="preserve">
+    <value>Use the buttons on the left to get around the system:
+
+- Bookings: make and manage customer bookings
+- Find Booking: search for a booking and cancel it
+- Screenings: see what films are showing and when
+- Customers: look up customer details
+- Films: add and edit films (managers only)
+- Screens: set up screens and seating (managers only)
+- Food: manage food and drink items (managers only)
+- Reports: view sales reports (managers only)
+- Logs: view a history of actions taken in the system (managers only)
+
+Use the Log out button at the bottom when you are finished.</value>
+  </data>
 </root>

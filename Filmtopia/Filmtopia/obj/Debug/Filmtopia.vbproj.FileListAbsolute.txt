@@ -63,3 +63,4 @@ C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILM
 C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmScreenings.resources
 C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmFoodOrder.resources
 C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmSalesReport.resources
+C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Debug\Filmtopia.frmBookingSearch.resources

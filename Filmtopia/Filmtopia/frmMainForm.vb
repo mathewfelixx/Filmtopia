@@ -2,6 +2,7 @@ Public Class frmMainForm
     'turns all the nav buttons back to transparent so only the active one is highlighted
     Private Sub SetAllButtonsTransp()
         btnBookings.BackColor = Color.Transparent
+        btnFindBooking.BackColor = Color.Transparent
         btnScreenings.BackColor = Color.Transparent
         btnCustomers.BackColor = Color.Transparent
         btnFilms.BackColor = Color.Transparent
@@ -16,6 +17,12 @@ Public Class frmMainForm
         SetAllButtonsTransp()
         btnBookings.BackColor = Color.FromArgb(173, 20, 87)
         frmBookings.Show()
+    End Sub
+
+    Private Sub btnFindBooking_Click(sender As Object, e As EventArgs) Handles btnFindBooking.Click
+        SetAllButtonsTransp()
+        btnFindBooking.BackColor = Color.FromArgb(173, 20, 87)
+        frmBookingSearch.Show()
     End Sub
 
     Private Sub btnScreenings_Click(sender As Object, e As EventArgs) Handles btnScreenings.Click
@@ -73,10 +80,23 @@ Public Class frmMainForm
         frmLogin.Show()
     End Sub
 
+    'works out a greeting based on the current time of day
+    Private Function GetGreeting() As String
+        Dim hour As Integer = Date.Now.Hour
+
+        If hour < 12 Then
+            Return "Good morning"
+        ElseIf hour < 18 Then
+            Return "Good afternoon"
+        Else
+            Return "Good evening"
+        End If
+    End Function
+
     'shows or hides the management buttons depending on who is logged in
     Private Sub ConfigureAccessLevel()
         GroupBox1.Text = "Filmtopia " & frmLogin.globalusername
-        lblWelcome.Text = "Welcome, " & frmLogin.globalusername & "!"
+        lblWelcome.Text = GetGreeting() & ", " & frmLogin.globalusername & "!"
 
         If UserAccessLevel = 1 Then
             btnFilms.Visible = True

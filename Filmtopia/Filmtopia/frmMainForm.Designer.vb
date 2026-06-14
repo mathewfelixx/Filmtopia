@@ -27,6 +27,7 @@ Partial Class frmMainForm
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.PictureBox1 = New System.Windows.Forms.PictureBox()
         Me.btnBookings = New System.Windows.Forms.Button()
+        Me.btnFindBooking = New System.Windows.Forms.Button()
         Me.btnScreenings = New System.Windows.Forms.Button()
         Me.btnCustomers = New System.Windows.Forms.Button()
         Me.btnFilms = New System.Windows.Forms.Button()
@@ -44,6 +45,7 @@ Partial Class frmMainForm
         Me.FlowLayoutPanel1.SuspendLayout()
         Me.GroupBox1.SuspendLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.pnlContent.SuspendLayout()
         Me.pnlHeader.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -52,6 +54,7 @@ Partial Class frmMainForm
         Me.FlowLayoutPanel1.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(64, Byte), Integer))
         Me.FlowLayoutPanel1.Controls.Add(Me.GroupBox1)
         Me.FlowLayoutPanel1.Controls.Add(Me.btnBookings)
+        Me.FlowLayoutPanel1.Controls.Add(Me.btnFindBooking)
         Me.FlowLayoutPanel1.Controls.Add(Me.btnScreenings)
         Me.FlowLayoutPanel1.Controls.Add(Me.btnCustomers)
         Me.FlowLayoutPanel1.Controls.Add(Me.btnFilms)
@@ -101,20 +104,33 @@ Partial Class frmMainForm
         Me.btnBookings.Location = New System.Drawing.Point(3, 186)
         Me.btnBookings.Name = "btnBookings"
         Me.btnBookings.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
-        Me.btnBookings.Size = New System.Drawing.Size(194, 36)
+        Me.btnBookings.Size = New System.Drawing.Size(194, 32)
         Me.btnBookings.TabIndex = 1
         Me.btnBookings.Text = "Bookings"
         Me.btnBookings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnBookings.UseVisualStyleBackColor = False
         '
+        'btnFindBooking
+        '
+        Me.btnFindBooking.BackColor = System.Drawing.Color.Transparent
+        Me.btnFindBooking.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnFindBooking.Location = New System.Drawing.Point(3, 224)
+        Me.btnFindBooking.Name = "btnFindBooking"
+        Me.btnFindBooking.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
+        Me.btnFindBooking.Size = New System.Drawing.Size(194, 32)
+        Me.btnFindBooking.TabIndex = 10
+        Me.btnFindBooking.Text = "Find Booking"
+        Me.btnFindBooking.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnFindBooking.UseVisualStyleBackColor = False
+        '
         'btnScreenings
         '
         Me.btnScreenings.BackColor = System.Drawing.Color.Transparent
         Me.btnScreenings.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnScreenings.Location = New System.Drawing.Point(3, 228)
+        Me.btnScreenings.Location = New System.Drawing.Point(3, 262)
         Me.btnScreenings.Name = "btnScreenings"
         Me.btnScreenings.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
-        Me.btnScreenings.Size = New System.Drawing.Size(194, 36)
+        Me.btnScreenings.Size = New System.Drawing.Size(194, 32)
         Me.btnScreenings.TabIndex = 2
         Me.btnScreenings.Text = "Screenings"
         Me.btnScreenings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -124,10 +140,10 @@ Partial Class frmMainForm
         '
         Me.btnCustomers.BackColor = System.Drawing.Color.Transparent
         Me.btnCustomers.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnCustomers.Location = New System.Drawing.Point(3, 270)
+        Me.btnCustomers.Location = New System.Drawing.Point(3, 300)
         Me.btnCustomers.Name = "btnCustomers"
         Me.btnCustomers.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
-        Me.btnCustomers.Size = New System.Drawing.Size(194, 36)
+        Me.btnCustomers.Size = New System.Drawing.Size(194, 32)
         Me.btnCustomers.TabIndex = 7
         Me.btnCustomers.Text = "Customers"
         Me.btnCustomers.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -137,10 +153,10 @@ Partial Class frmMainForm
         '
         Me.btnFilms.BackColor = System.Drawing.Color.FromArgb(CType(CType(173, Byte), Integer), CType(CType(20, Byte), Integer), CType(CType(87, Byte), Integer))
         Me.btnFilms.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnFilms.Location = New System.Drawing.Point(3, 312)
+        Me.btnFilms.Location = New System.Drawing.Point(3, 338)
         Me.btnFilms.Name = "btnFilms"
         Me.btnFilms.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
-        Me.btnFilms.Size = New System.Drawing.Size(194, 36)
+        Me.btnFilms.Size = New System.Drawing.Size(194, 32)
         Me.btnFilms.TabIndex = 3
         Me.btnFilms.Text = "Films"
         Me.btnFilms.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -150,10 +166,10 @@ Partial Class frmMainForm
         '
         Me.btnScreens.BackColor = System.Drawing.Color.Transparent
         Me.btnScreens.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnScreens.Location = New System.Drawing.Point(3, 354)
+        Me.btnScreens.Location = New System.Drawing.Point(3, 376)
         Me.btnScreens.Name = "btnScreens"
         Me.btnScreens.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
-        Me.btnScreens.Size = New System.Drawing.Size(194, 36)
+        Me.btnScreens.Size = New System.Drawing.Size(194, 32)
         Me.btnScreens.TabIndex = 5
         Me.btnScreens.Text = "Screens"
         Me.btnScreens.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -163,10 +179,10 @@ Partial Class frmMainForm
         '
         Me.btnFood.BackColor = System.Drawing.Color.Transparent
         Me.btnFood.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnFood.Location = New System.Drawing.Point(3, 396)
+        Me.btnFood.Location = New System.Drawing.Point(3, 414)
         Me.btnFood.Name = "btnFood"
         Me.btnFood.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
-        Me.btnFood.Size = New System.Drawing.Size(194, 36)
+        Me.btnFood.Size = New System.Drawing.Size(194, 32)
         Me.btnFood.TabIndex = 6
         Me.btnFood.Text = "Food"
         Me.btnFood.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -176,10 +192,10 @@ Partial Class frmMainForm
         '
         Me.btnReports.BackColor = System.Drawing.Color.Transparent
         Me.btnReports.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnReports.Location = New System.Drawing.Point(3, 438)
+        Me.btnReports.Location = New System.Drawing.Point(3, 452)
         Me.btnReports.Name = "btnReports"
         Me.btnReports.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
-        Me.btnReports.Size = New System.Drawing.Size(194, 36)
+        Me.btnReports.Size = New System.Drawing.Size(194, 32)
         Me.btnReports.TabIndex = 4
         Me.btnReports.Text = "Reports"
         Me.btnReports.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -189,10 +205,10 @@ Partial Class frmMainForm
         '
         Me.btnLogs.BackColor = System.Drawing.Color.Transparent
         Me.btnLogs.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnLogs.Location = New System.Drawing.Point(3, 480)
+        Me.btnLogs.Location = New System.Drawing.Point(3, 490)
         Me.btnLogs.Name = "btnLogs"
         Me.btnLogs.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
-        Me.btnLogs.Size = New System.Drawing.Size(194, 36)
+        Me.btnLogs.Size = New System.Drawing.Size(194, 32)
         Me.btnLogs.TabIndex = 9
         Me.btnLogs.Text = "Logs"
         Me.btnLogs.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -202,10 +218,10 @@ Partial Class frmMainForm
         '
         Me.btnSettings.BackColor = System.Drawing.Color.Transparent
         Me.btnSettings.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnSettings.Location = New System.Drawing.Point(3, 522)
+        Me.btnSettings.Location = New System.Drawing.Point(3, 528)
         Me.btnSettings.Name = "btnSettings"
         Me.btnSettings.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
-        Me.btnSettings.Size = New System.Drawing.Size(194, 36)
+        Me.btnSettings.Size = New System.Drawing.Size(194, 32)
         Me.btnSettings.TabIndex = 8
         Me.btnSettings.Text = "Settings"
         Me.btnSettings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -219,7 +235,7 @@ Partial Class frmMainForm
         Me.btnLogout.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.btnLogout.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnLogout.ForeColor = System.Drawing.Color.White
-        Me.btnLogout.Location = New System.Drawing.Point(3, 563)
+        Me.btnLogout.Location = New System.Drawing.Point(3, 565)
         Me.btnLogout.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.btnLogout.Name = "btnLogout"
         Me.btnLogout.Padding = New System.Windows.Forms.Padding(5, 0, 0, 0)
@@ -246,7 +262,7 @@ Partial Class frmMainForm
         Me.lblWelcome.ForeColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(64, Byte), Integer))
         Me.lblWelcome.Location = New System.Drawing.Point(40, 40)
         Me.lblWelcome.Name = "lblWelcome"
-        Me.lblWelcome.Size = New System.Drawing.Size(300, 32)
+        Me.lblWelcome.Size = New System.Drawing.Size(154, 36)
         Me.lblWelcome.TabIndex = 0
         Me.lblWelcome.Text = "Welcome!"
         '
@@ -256,9 +272,9 @@ Partial Class frmMainForm
         Me.lblInstructions.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.lblInstructions.Location = New System.Drawing.Point(40, 90)
         Me.lblInstructions.Name = "lblInstructions"
-        Me.lblInstructions.Size = New System.Drawing.Size(400, 180)
+        Me.lblInstructions.Size = New System.Drawing.Size(523, 240)
         Me.lblInstructions.TabIndex = 1
-        Me.lblInstructions.Text = "Use the buttons on the left to get around the system:" & Global.Microsoft.VisualBasic.ControlChars.CrLf & Global.Microsoft.VisualBasic.ControlChars.CrLf & "- Bookings: make and manage customer bookings" & Global.Microsoft.VisualBasic.ControlChars.CrLf & "- Screenings: see what films are showing and when" & Global.Microsoft.VisualBasic.ControlChars.CrLf & "- Customers: look up customer details" & Global.Microsoft.VisualBasic.ControlChars.CrLf & "- Films: add and edit films (managers only)" & Global.Microsoft.VisualBasic.ControlChars.CrLf & "- Screens: set up screens and seating (managers only)" & Global.Microsoft.VisualBasic.ControlChars.CrLf & "- Food: manage food and drink items (managers only)" & Global.Microsoft.VisualBasic.ControlChars.CrLf & "- Reports: view sales reports (managers only)" & Global.Microsoft.VisualBasic.ControlChars.CrLf & "- Logs: view a history of actions taken in the system (managers only)" & Global.Microsoft.VisualBasic.ControlChars.CrLf & Global.Microsoft.VisualBasic.ControlChars.CrLf & "Use the Log out button at the bottom when you are finished."
+        Me.lblInstructions.Text = resources.GetString("lblInstructions.Text")
         '
         'lblVersion
         '
@@ -294,6 +310,8 @@ Partial Class frmMainForm
         Me.FlowLayoutPanel1.ResumeLayout(False)
         Me.GroupBox1.ResumeLayout(False)
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.pnlContent.ResumeLayout(False)
+        Me.pnlContent.PerformLayout()
         Me.pnlHeader.ResumeLayout(False)
         Me.pnlHeader.PerformLayout()
         Me.ResumeLayout(False)
@@ -304,6 +322,7 @@ Partial Class frmMainForm
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents PictureBox1 As PictureBox
     Friend WithEvents btnBookings As Button
+    Friend WithEvents btnFindBooking As Button
     Friend WithEvents btnScreenings As Button
     Friend WithEvents pnlContent As Panel
     Friend WithEvents lblWelcome As Label
