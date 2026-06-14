@@ -12,3 +12,16 @@ C:\Users\mathe\OneDrive - Holy Cross College\COMPUTER SCIENCE\NEA\FILMTOPIA\FILM
 C:\Users\mathe\OneDrive - Holy Cross College\COMPUTER SCIENCE\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Release\Filmtopia.exe
 C:\Users\mathe\OneDrive - Holy Cross College\COMPUTER SCIENCE\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Release\Filmtopia.xml
 C:\Users\mathe\OneDrive - Holy Cross College\COMPUTER SCIENCE\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Release\Filmtopia.pdb
+C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Release\Filmtopia.exe.config
+C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Release\Filmtopia.frmFilms.resources
+C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Release\Filmtopia.frmCustomers.resources
+C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Release\Filmtopia.frmLogs.resources
+C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Release\Filmtopia.frmScreens.resources
+C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Release\Filmtopia.frmFoodItems.resources
+C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Release\Filmtopia.frmBookings.resources
+C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Release\Filmtopia.frmScreenings.resources
+C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Release\Filmtopia.frmFoodOrder.resources
+C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Release\Filmtopia.frmSalesReport.resources
+C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Release\Filmtopia.frmBookingSearch.resources
+C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Release\Filmtopia.frmTesting.resources
+C:\Users\mathe\OneDrive - Holy Cross College\Computer Science\NEA\FILMTOPIA\FILMTOPIA\Filmtopia\Filmtopia\obj\Release\Filmtopia.frmVersionControlUTIL.resources

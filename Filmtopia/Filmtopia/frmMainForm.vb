@@ -95,16 +95,18 @@ Public Class frmMainForm
 
     'shows or hides the management buttons depending on who is logged in
     Private Sub ConfigureAccessLevel()
-        GroupBox1.Text = "Filmtopia " & frmLogin.globalusername
+
         lblWelcome.Text = GetGreeting() & ", " & frmLogin.globalusername & "!"
 
         If UserAccessLevel = 1 Then
+            GroupBox1.Text = "Filmtopia Admin"
             btnFilms.Visible = True
             btnScreens.Visible = True
             btnFood.Visible = True
             btnReports.Visible = True
             btnLogs.Visible = True
         Else
+            GroupBox1.Text = "Filmtopia Staff"
             btnFilms.Visible = False
             btnScreens.Visible = False
             btnFood.Visible = False
