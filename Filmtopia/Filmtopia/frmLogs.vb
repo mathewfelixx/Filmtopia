@@ -14,7 +14,9 @@ Public Class frmLogs
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT LogID, LogDateTime, LogType, LogMessage FROM tblLogs ORDER BY LogDateTime DESC"
+            SQLCmd.CommandText = "SELECT LogID, LogDateTime, LogType, LogMessage " &
+                                 "FROM tblLogs " &
+                                 "ORDER BY LogDateTime DESC"
             Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
             dgvLogs.Rows.Clear()
             dgvLogs.Columns.Clear()

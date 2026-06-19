@@ -16,7 +16,8 @@ Public Class frmFoodItems
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT FoodItemID, FoodItemName, FoodItemPrice, FoodItemCategory FROM tblFoodItem"
+            SQLCmd.CommandText = "SELECT FoodItemID, FoodItemName, FoodItemPrice, FoodItemCategory " &
+                                 "FROM tblFoodItem"
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
@@ -42,7 +43,8 @@ Public Class frmFoodItems
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "INSERT INTO tblFoodItem (FoodItemName, FoodItemPrice, FoodItemCategory) VALUES (@FoodItemName, @FoodItemPrice, @FoodItemCategory)"
+            SQLCmd.CommandText = "INSERT INTO tblFoodItem (FoodItemName, FoodItemPrice, FoodItemCategory) " &
+                                 "VALUES (@FoodItemName, @FoodItemPrice, @FoodItemCategory)"
             SQLCmd.Parameters.AddWithValue("@FoodItemName", txtName.Text)
             SQLCmd.Parameters.AddWithValue("@FoodItemPrice", Val(txtPrice.Text))
             SQLCmd.Parameters.AddWithValue("@FoodItemCategory", txtCategory.Text)
@@ -65,7 +67,9 @@ Public Class frmFoodItems
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "UPDATE tblFoodItem SET FoodItemName = @FoodItemName, FoodItemPrice = @FoodItemPrice, FoodItemCategory = @FoodItemCategory WHERE FoodItemID = @FoodItemID"
+            SQLCmd.CommandText = "UPDATE tblFoodItem " &
+                                 "SET FoodItemName = @FoodItemName, FoodItemPrice = @FoodItemPrice, FoodItemCategory = @FoodItemCategory " &
+                                 "WHERE FoodItemID = @FoodItemID"
             SQLCmd.Parameters.AddWithValue("@FoodItemName", txtName.Text)
             SQLCmd.Parameters.AddWithValue("@FoodItemPrice", Val(txtPrice.Text))
             SQLCmd.Parameters.AddWithValue("@FoodItemCategory", txtCategory.Text)
@@ -93,7 +97,8 @@ Public Class frmFoodItems
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "DELETE FROM tblFoodItem WHERE FoodItemID = @FoodItemID"
+            SQLCmd.CommandText = "DELETE FROM tblFoodItem " &
+                                 "WHERE FoodItemID = @FoodItemID"
             SQLCmd.Parameters.AddWithValue("@FoodItemID", CInt(selectedFoodItemID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()

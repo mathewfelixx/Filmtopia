@@ -22,7 +22,11 @@ Public Class frmFoodOrder
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             'join booking to customer (name), then to screening, then to film (title)
-            SQLCmd.CommandText = "SELECT CustomerForename & ' ' & CustomerSurname AS CustomerName, FilmTitle, ScreeningDate, ScreeningTime FROM ((tblBooking INNER JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID WHERE tblBooking.BookingID = @BookingID"
+            SQLCmd.CommandText = "SELECT CustomerForename & ' ' & CustomerSurname AS CustomerName, FilmTitle, ScreeningDate, ScreeningTime " &
+                                 "FROM ((tblBooking INNER JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
+                                 "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
+                                 "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
+                                 "WHERE tblBooking.BookingID = @BookingID"
             SQLCmd.Parameters.AddWithValue("@BookingID", CInt(currentBookingID))
             Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
             If rs.Read() Then
@@ -38,7 +42,8 @@ Public Class frmFoodOrder
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT FoodItemID, FoodItemName, FoodItemPrice FROM tblFoodItem"
+            SQLCmd.CommandText = "SELECT FoodItemID, FoodItemName, FoodItemPrice " &
+                                 "FROM tblFoodItem"
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
@@ -67,7 +72,9 @@ Public Class frmFoodOrder
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             'join order item to food item so we can show the name and price
-            SQLCmd.CommandText = "SELECT tblOrderItem.OrderItemID, FoodItemName, FoodItemPrice, Quantity, FoodItemPrice * Quantity AS Subtotal FROM tblOrderItem INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID WHERE BookingID = @BookingID"
+            SQLCmd.CommandText = "SELECT tblOrderItem.OrderItemID, FoodItemName, FoodItemPrice, Quantity, FoodItemPrice * Quantity AS Subtotal " &
+                                 "FROM tblOrderItem INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID " &
+                                 "WHERE BookingID = @BookingID"
             SQLCmd.Parameters.AddWithValue("@BookingID", CInt(currentBookingID))
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
@@ -103,7 +110,8 @@ Public Class frmFoodOrder
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "INSERT INTO tblOrderItem (BookingID, FoodItemID, Quantity) VALUES (@BookingID, @FoodItemID, @Quantity)"
+            SQLCmd.CommandText = "INSERT INTO tblOrderItem (BookingID, FoodItemID, Quantity) " &
+                                 "VALUES (@BookingID, @FoodItemID, @Quantity)"
             SQLCmd.Parameters.AddWithValue("@BookingID", CInt(currentBookingID))
             SQLCmd.Parameters.AddWithValue("@FoodItemID", CInt(cboFoodItem.SelectedValue))
             SQLCmd.Parameters.AddWithValue("@Quantity", quantity)
@@ -134,7 +142,8 @@ Public Class frmFoodOrder
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "DELETE FROM tblOrderItem WHERE OrderItemID = @OrderItemID"
+            SQLCmd.CommandText = "DELETE FROM tblOrderItem " &
+                                 "WHERE OrderItemID = @OrderItemID"
             SQLCmd.Parameters.AddWithValue("@OrderItemID", selectedOrderItemID)
             SQLCmd.ExecuteNonQuery()
             cn.Close()

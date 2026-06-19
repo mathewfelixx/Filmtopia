@@ -29,7 +29,8 @@ Module modVersionControl
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT Version FROM tblVersionControl"
+            SQLCmd.CommandText = "SELECT Version " &
+                                 "FROM tblVersionControl"
             Dim result = SQLCmd.ExecuteScalar()
             If result IsNot Nothing Then
                 appversion = CStr(result)
@@ -45,7 +46,8 @@ Module modVersionControl
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "UPDATE tblVersionControl SET Version = @Version"
+            SQLCmd.CommandText = "UPDATE tblVersionControl " &
+                                 "SET Version = @Version"
             SQLCmd.Parameters.AddWithValue("@Version", appversion)
             SQLCmd.ExecuteNonQuery()
             cn.Close()

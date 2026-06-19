@@ -18,7 +18,8 @@ Public Class frmScreenings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT FilmID, FilmTitle FROM tblFilm"
+            SQLCmd.CommandText = "SELECT FilmID, FilmTitle " &
+                                 "FROM tblFilm"
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
@@ -35,7 +36,8 @@ Public Class frmScreenings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT ScreenID, ScreenName FROM tblScreen"
+            SQLCmd.CommandText = "SELECT ScreenID, ScreenName " &
+                                 "FROM tblScreen"
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
@@ -53,7 +55,9 @@ Public Class frmScreenings
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             'join screening to film (for the title) and to screen (for the name)
-            SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, FilmTitle, ScreenName, ScreeningDate, ScreeningTime, TicketPrice, tblScreening.FilmID, tblScreening.ScreenID FROM (tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID) INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID"
+            SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, FilmTitle, ScreenName, ScreeningDate, ScreeningTime, TicketPrice, tblScreening.FilmID, tblScreening.ScreenID " &
+                                 "FROM (tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID) " &
+                                 "INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID"
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
@@ -88,7 +92,8 @@ Public Class frmScreenings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "INSERT INTO tblScreening (FilmID, ScreenID, ScreeningDate, ScreeningTime, TicketPrice) VALUES (@FilmID, @ScreenID, @ScreeningDate, @ScreeningTime, @TicketPrice)"
+            SQLCmd.CommandText = "INSERT INTO tblScreening (FilmID, ScreenID, ScreeningDate, ScreeningTime, TicketPrice) " &
+                                 "VALUES (@FilmID, @ScreenID, @ScreeningDate, @ScreeningTime, @TicketPrice)"
             SQLCmd.Parameters.AddWithValue("@FilmID", CInt(cboFilm.SelectedValue))
             SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(cboScreen.SelectedValue))
             SQLCmd.Parameters.AddWithValue("@ScreeningDate", dtpScreeningDate.Value.Date)
@@ -118,7 +123,9 @@ Public Class frmScreenings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "UPDATE tblScreening SET FilmID = @FilmID, ScreenID = @ScreenID, ScreeningDate = @ScreeningDate, ScreeningTime = @ScreeningTime, TicketPrice = @TicketPrice WHERE ScreeningID = @ScreeningID"
+            SQLCmd.CommandText = "UPDATE tblScreening " &
+                                 "SET FilmID = @FilmID, ScreenID = @ScreenID, ScreeningDate = @ScreeningDate, ScreeningTime = @ScreeningTime, TicketPrice = @TicketPrice " &
+                                 "WHERE ScreeningID = @ScreeningID"
             SQLCmd.Parameters.AddWithValue("@FilmID", CInt(cboFilm.SelectedValue))
             SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(cboScreen.SelectedValue))
             SQLCmd.Parameters.AddWithValue("@ScreeningDate", dtpScreeningDate.Value.Date)
@@ -148,7 +155,8 @@ Public Class frmScreenings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "DELETE FROM tblScreening WHERE ScreeningID = @ScreeningID"
+            SQLCmd.CommandText = "DELETE FROM tblScreening " &
+                                 "WHERE ScreeningID = @ScreeningID"
             SQLCmd.Parameters.AddWithValue("@ScreeningID", selectedScreeningID)
             SQLCmd.ExecuteNonQuery()
             cn.Close()

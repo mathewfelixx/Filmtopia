@@ -39,7 +39,9 @@ Public Class frmLogin
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT Password, AccessLevel FROM tblLogin WHERE Username = @Username"
+            SQLCmd.CommandText = "SELECT Password, AccessLevel " &
+                                 "FROM tblLogin " &
+                                 "WHERE Username = @Username"
             SQLCmd.Parameters.AddWithValue("@Username", username)
 
             Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()

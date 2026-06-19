@@ -16,7 +16,8 @@ Public Class frmFilms
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT FilmID, FilmTitle, FilmAgeRating, FilmDuration, FilmDescription FROM tblFilm"
+            SQLCmd.CommandText = "SELECT FilmID, FilmTitle, FilmAgeRating, FilmDuration, FilmDescription " &
+                                 "FROM tblFilm"
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
@@ -42,7 +43,8 @@ Public Class frmFilms
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "INSERT INTO tblFilm (FilmTitle, FilmAgeRating, FilmDuration, FilmDescription) VALUES (@FilmTitle, @FilmAgeRating, @FilmDuration, @FilmDescription)"
+            SQLCmd.CommandText = "INSERT INTO tblFilm (FilmTitle, FilmAgeRating, FilmDuration, FilmDescription) " &
+                                 "VALUES (@FilmTitle, @FilmAgeRating, @FilmDuration, @FilmDescription)"
             SQLCmd.Parameters.AddWithValue("@FilmTitle", txtTitle.Text)
             SQLCmd.Parameters.AddWithValue("@FilmAgeRating", txtAgeRating.Text)
             SQLCmd.Parameters.AddWithValue("@FilmDuration", Val(txtDuration.Text))
@@ -66,7 +68,9 @@ Public Class frmFilms
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "UPDATE tblFilm SET FilmTitle = @FilmTitle, FilmAgeRating = @FilmAgeRating, FilmDuration = @FilmDuration, FilmDescription = @FilmDescription WHERE FilmID = @FilmID"
+            SQLCmd.CommandText = "UPDATE tblFilm " &
+                                 "SET FilmTitle = @FilmTitle, FilmAgeRating = @FilmAgeRating, FilmDuration = @FilmDuration, FilmDescription = @FilmDescription " &
+                                 "WHERE FilmID = @FilmID"
             SQLCmd.Parameters.AddWithValue("@FilmTitle", txtTitle.Text)
             SQLCmd.Parameters.AddWithValue("@FilmAgeRating", txtAgeRating.Text)
             SQLCmd.Parameters.AddWithValue("@FilmDuration", Val(txtDuration.Text))
@@ -95,7 +99,8 @@ Public Class frmFilms
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "DELETE FROM tblFilm WHERE FilmID = @FilmID"
+            SQLCmd.CommandText = "DELETE FROM tblFilm " &
+                                 "WHERE FilmID = @FilmID"
             SQLCmd.Parameters.AddWithValue("@FilmID", CInt(selectedFilmID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()

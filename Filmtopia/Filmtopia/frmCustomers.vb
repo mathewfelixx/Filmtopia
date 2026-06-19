@@ -16,7 +16,8 @@ Public Class frmCustomers
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT CustomerID, CustomerForename, CustomerSurname, CustomerEmail, CustomerPhone FROM tblCustomer"
+            SQLCmd.CommandText = "SELECT CustomerID, CustomerForename, CustomerSurname, CustomerEmail, CustomerPhone " &
+                                 "FROM tblCustomer"
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
@@ -42,7 +43,8 @@ Public Class frmCustomers
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "INSERT INTO tblCustomer (CustomerForename, CustomerSurname, CustomerEmail, CustomerPhone) VALUES (@CustomerForename, @CustomerSurname, @CustomerEmail, @CustomerPhone)"
+            SQLCmd.CommandText = "INSERT INTO tblCustomer (CustomerForename, CustomerSurname, CustomerEmail, CustomerPhone) " &
+                                 "VALUES (@CustomerForename, @CustomerSurname, @CustomerEmail, @CustomerPhone)"
             SQLCmd.Parameters.AddWithValue("@CustomerForename", txtForename.Text)
             SQLCmd.Parameters.AddWithValue("@CustomerSurname", txtSurname.Text)
             SQLCmd.Parameters.AddWithValue("@CustomerEmail", txtEmail.Text)
@@ -66,7 +68,9 @@ Public Class frmCustomers
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "UPDATE tblCustomer SET CustomerForename = @CustomerForename, CustomerSurname = @CustomerSurname, CustomerEmail = @CustomerEmail, CustomerPhone = @CustomerPhone WHERE CustomerID = @CustomerID"
+            SQLCmd.CommandText = "UPDATE tblCustomer " &
+                                 "SET CustomerForename = @CustomerForename, CustomerSurname = @CustomerSurname, CustomerEmail = @CustomerEmail, CustomerPhone = @CustomerPhone " &
+                                 "WHERE CustomerID = @CustomerID"
             SQLCmd.Parameters.AddWithValue("@CustomerForename", txtForename.Text)
             SQLCmd.Parameters.AddWithValue("@CustomerSurname", txtSurname.Text)
             SQLCmd.Parameters.AddWithValue("@CustomerEmail", txtEmail.Text)
@@ -95,7 +99,8 @@ Public Class frmCustomers
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "DELETE FROM tblCustomer WHERE CustomerID = @CustomerID"
+            SQLCmd.CommandText = "DELETE FROM tblCustomer " &
+                                 "WHERE CustomerID = @CustomerID"
             SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(selectedCustomerID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()

@@ -16,7 +16,8 @@ Public Class frmScreens
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT ScreenID, ScreenName, ScreenCapacity FROM tblScreen"
+            SQLCmd.CommandText = "SELECT ScreenID, ScreenName, ScreenCapacity " &
+                                 "FROM tblScreen"
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
@@ -46,7 +47,8 @@ Public Class frmScreens
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "INSERT INTO tblScreen (ScreenName, ScreenCapacity) VALUES (@ScreenName, @ScreenCapacity)"
+            SQLCmd.CommandText = "INSERT INTO tblScreen (ScreenName, ScreenCapacity) " &
+                                 "VALUES (@ScreenName, @ScreenCapacity)"
             SQLCmd.Parameters.AddWithValue("@ScreenName", txtName.Text)
             SQLCmd.Parameters.AddWithValue("@ScreenCapacity", Val(txtCapacity.Text))
             SQLCmd.ExecuteNonQuery()
@@ -76,7 +78,9 @@ Public Class frmScreens
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "UPDATE tblScreen SET ScreenName = @ScreenName, ScreenCapacity = @ScreenCapacity WHERE ScreenID = @ScreenID"
+            SQLCmd.CommandText = "UPDATE tblScreen " &
+                                 "SET ScreenName = @ScreenName, ScreenCapacity = @ScreenCapacity " &
+                                 "WHERE ScreenID = @ScreenID"
             SQLCmd.Parameters.AddWithValue("@ScreenName", txtName.Text)
             SQLCmd.Parameters.AddWithValue("@ScreenCapacity", Val(txtCapacity.Text))
             SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
@@ -110,7 +114,8 @@ Public Class frmScreens
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "DELETE FROM tblScreen WHERE ScreenID = @ScreenID"
+            SQLCmd.CommandText = "DELETE FROM tblScreen " &
+                                 "WHERE ScreenID = @ScreenID"
             SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
@@ -153,7 +158,8 @@ Public Class frmScreens
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "INSERT INTO tblSeat (ScreenID, SeatRow, SeatNumber) VALUES (@ScreenID, @SeatRow, @SeatNumber)"
+            SQLCmd.CommandText = "INSERT INTO tblSeat (ScreenID, SeatRow, SeatNumber) " &
+                                 "VALUES (@ScreenID, @SeatRow, @SeatNumber)"
             SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
             SQLCmd.Parameters.AddWithValue("@SeatRow", "")
             SQLCmd.Parameters.AddWithValue("@SeatNumber", 0)
@@ -178,7 +184,8 @@ Public Class frmScreens
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "DELETE FROM tblSeat WHERE ScreenID = @ScreenID"
+            SQLCmd.CommandText = "DELETE FROM tblSeat " &
+                                 "WHERE ScreenID = @ScreenID"
             SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()

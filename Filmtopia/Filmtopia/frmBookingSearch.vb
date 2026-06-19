@@ -19,7 +19,8 @@ Public Class frmBookingSearch
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT ScreeningID, FilmTitle & ' - ' & ScreeningDate & ' ' & ScreeningTime AS Info FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID"
+            SQLCmd.CommandText = "SELECT ScreeningID, FilmTitle & ' - ' & ScreeningDate & ' ' & ScreeningTime AS Info " &
+                                 "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID"
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)
             cn.Close()
@@ -52,7 +53,10 @@ Public Class frmBookingSearch
             SQLCmd.Connection = cn
 
             'join booking to customer (for the name), then to screening, then to film (for the title)
-            Dim baseQuery As String = "SELECT tblBooking.BookingID, CustomerForename & ' ' & CustomerSurname AS CustomerName, FilmTitle, ScreeningDate, ScreeningTime, TotalCost FROM ((tblBooking INNER JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID"
+            Dim baseQuery As String = "SELECT tblBooking.BookingID, CustomerForename & ' ' & CustomerSurname AS CustomerName, FilmTitle, ScreeningDate, ScreeningTime, TotalCost " &
+                                      "FROM ((tblBooking INNER JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
+                                      "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
+                                      "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID"
 
             If searchText = "" Then
                 SQLCmd.CommandText = baseQuery
@@ -103,18 +107,21 @@ Public Class frmBookingSearch
             SQLCmd.Connection = cn
 
             'remove the seats held for this booking
-            SQLCmd.CommandText = "DELETE FROM tblBookingSeat WHERE BookingID = @BookingID"
+            SQLCmd.CommandText = "DELETE FROM tblBookingSeat " &
+                                 "WHERE BookingID = @BookingID"
             SQLCmd.Parameters.AddWithValue("@BookingID", selectedBookingID)
             SQLCmd.ExecuteNonQuery()
 
             'remove any food and drink ordered for this booking
-            SQLCmd.CommandText = "DELETE FROM tblOrderItem WHERE BookingID = @BookingID"
+            SQLCmd.CommandText = "DELETE FROM tblOrderItem " &
+                                 "WHERE BookingID = @BookingID"
             SQLCmd.Parameters.Clear()
             SQLCmd.Parameters.AddWithValue("@BookingID", selectedBookingID)
             SQLCmd.ExecuteNonQuery()
 
             'finally remove the booking itself
-            SQLCmd.CommandText = "DELETE FROM tblBooking WHERE BookingID = @BookingID"
+            SQLCmd.CommandText = "DELETE FROM tblBooking " &
+                                 "WHERE BookingID = @BookingID"
             SQLCmd.Parameters.Clear()
             SQLCmd.Parameters.AddWithValue("@BookingID", selectedBookingID)
             SQLCmd.ExecuteNonQuery()
@@ -141,7 +148,14 @@ Public Class frmBookingSearch
             SQLCmd.Connection = cn
             'join booking to customer (name), to bookingseat and seat (seat number), and to a sub-table
             'that counts how many seats belong to each booking (tickets)
-            SQLCmd.CommandText = "SELECT CustomerForename & ' ' & CustomerSurname AS CustomerName, tblSeat.SeatRow & tblSeat.SeatNumber AS SeatNumber, BookingCounts.Tickets FROM (((tblBooking INNER JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) INNER JOIN tblBookingSeat ON tblBooking.BookingID = tblBookingSeat.BookingID) INNER JOIN tblSeat ON tblBookingSeat.SeatID = tblSeat.SeatID) INNER JOIN (SELECT BookingID, COUNT(*) AS Tickets FROM tblBookingSeat GROUP BY BookingID) AS BookingCounts ON tblBooking.BookingID = BookingCounts.BookingID WHERE tblBooking.ScreeningID = @ScreeningID ORDER BY 1"
+            SQLCmd.CommandText = "SELECT CustomerForename & ' ' & CustomerSurname AS CustomerName, tblSeat.SeatRow & tblSeat.SeatNumber AS SeatNumber, BookingCounts.Tickets " &
+                                 "FROM (((tblBooking INNER JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
+                                 "INNER JOIN tblBookingSeat ON tblBooking.BookingID = tblBookingSeat.BookingID) " &
+                                 "INNER JOIN tblSeat ON tblBookingSeat.SeatID = tblSeat.SeatID) " &
+                                 "INNER JOIN (SELECT BookingID, COUNT(*) AS Tickets FROM tblBookingSeat GROUP BY BookingID) AS BookingCounts " &
+                                 "ON tblBooking.BookingID = BookingCounts.BookingID " &
+                                 "WHERE tblBooking.ScreeningID = @ScreeningID " &
+                                 "ORDER BY 1"
             SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(cboRegisterScreening.SelectedValue))
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)

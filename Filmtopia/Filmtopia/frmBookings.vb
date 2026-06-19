@@ -29,7 +29,8 @@ Public Class frmBookings
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             'join screening to film so the combo can show the film title alongside the date and time
-            SQLCmd.CommandText = "SELECT ScreeningID, FilmTitle & ' - ' & ScreeningDate & ' ' & ScreeningTime AS Info FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID"
+            SQLCmd.CommandText = "SELECT ScreeningID, FilmTitle & ' - ' & ScreeningDate & ' ' & ScreeningTime AS Info " &
+                                 "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID"
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
@@ -46,7 +47,8 @@ Public Class frmBookings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT CustomerID, CustomerForename & ' ' & CustomerSurname AS CustomerName FROM tblCustomer"
+            SQLCmd.CommandText = "SELECT CustomerID, CustomerForename & ' ' & CustomerSurname AS CustomerName " &
+                                 "FROM tblCustomer"
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
@@ -97,7 +99,10 @@ Public Class frmBookings
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             'join booking to screening, then to film, so we can show the film title and date
-            SQLCmd.CommandText = "SELECT tblBooking.BookingID, FilmTitle & ' (' & ScreeningDate & ')' AS Info FROM (tblBooking INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID WHERE tblBooking.CustomerID = @CustomerID"
+            SQLCmd.CommandText = "SELECT tblBooking.BookingID, FilmTitle & ' (' & ScreeningDate & ')' AS Info " &
+                                 "FROM (tblBooking INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
+                                 "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
+                                 "WHERE tblBooking.CustomerID = @CustomerID"
             SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(customerID))
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
@@ -141,7 +146,8 @@ Public Class frmBookings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "INSERT INTO tblCustomer (CustomerForename, CustomerSurname, CustomerEmail, CustomerPhone) VALUES (@CustomerForename, @CustomerSurname, @CustomerEmail, @CustomerPhone)"
+            SQLCmd.CommandText = "INSERT INTO tblCustomer (CustomerForename, CustomerSurname, CustomerEmail, CustomerPhone) " &
+                                 "VALUES (@CustomerForename, @CustomerSurname, @CustomerEmail, @CustomerPhone)"
             SQLCmd.Parameters.AddWithValue("@CustomerForename", "Walk-in")
             SQLCmd.Parameters.AddWithValue("@CustomerSurname", "Customer")
             SQLCmd.Parameters.AddWithValue("@CustomerEmail", "")
@@ -162,7 +168,9 @@ Public Class frmBookings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT ScreenID, TicketPrice FROM tblScreening WHERE ScreeningID = @ScreeningID"
+            SQLCmd.CommandText = "SELECT ScreenID, TicketPrice " &
+                                 "FROM tblScreening " &
+                                 "WHERE ScreeningID = @ScreeningID"
             SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
             Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
             If rs.Read() Then
@@ -186,13 +194,18 @@ Public Class frmBookings
             SQLCmd.Connection = cn
 
             'all the seats that belong to this screen
-            SQLCmd.CommandText = "SELECT SeatID, SeatRow, SeatNumber FROM tblSeat WHERE ScreenID = @ScreenID ORDER BY SeatRow, SeatNumber"
+            SQLCmd.CommandText = "SELECT SeatID, SeatRow, SeatNumber " &
+                                 "FROM tblSeat " &
+                                 "WHERE ScreenID = @ScreenID " &
+                                 "ORDER BY SeatRow, SeatNumber"
             SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(currentScreenID))
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dtSeats)
 
             'the seats already booked for this screening - join bookingseat to booking so we can filter by screening
-            SQLCmd.CommandText = "SELECT tblBookingSeat.SeatID FROM tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID WHERE tblBooking.ScreeningID = @ScreeningID"
+            SQLCmd.CommandText = "SELECT tblBookingSeat.SeatID " &
+                                 "FROM tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID " &
+                                 "WHERE tblBooking.ScreeningID = @ScreeningID"
             SQLCmd.Parameters.Clear()
             SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
             Dim da2 As New OleDbDataAdapter(SQLCmd)
@@ -303,7 +316,8 @@ Public Class frmBookings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "INSERT INTO tblBooking (CustomerID, ScreeningID, BookingDate, TotalCost) VALUES (@CustomerID, @ScreeningID, @BookingDate, @TotalCost)"
+            SQLCmd.CommandText = "INSERT INTO tblBooking (CustomerID, ScreeningID, BookingDate, TotalCost) " &
+                                 "VALUES (@CustomerID, @ScreeningID, @BookingDate, @TotalCost)"
             SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(bookingCustomerID))
             SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
             SQLCmd.Parameters.AddWithValue("@BookingDate", Date.Now.Date)
@@ -347,7 +361,8 @@ Public Class frmBookings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "INSERT INTO tblBooking (CustomerID, ScreeningID, BookingDate, TotalCost) VALUES (@CustomerID, @ScreeningID, @BookingDate, @TotalCost)"
+            SQLCmd.CommandText = "INSERT INTO tblBooking (CustomerID, ScreeningID, BookingDate, TotalCost) " &
+                                 "VALUES (@CustomerID, @ScreeningID, @BookingDate, @TotalCost)"
             SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(newCustomerID))
             SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
             SQLCmd.Parameters.AddWithValue("@BookingDate", Date.Now.Date)
@@ -386,7 +401,8 @@ Public Class frmBookings
                 If TypeOf ctrl Is Button Then
                     Dim b As Button = CType(ctrl, Button)
                     If b.BackColor = selectedColour Then
-                        SQLCmd.CommandText = "INSERT INTO tblBookingSeat (BookingID, SeatID) VALUES (@BookingID, @SeatID)"
+                        SQLCmd.CommandText = "INSERT INTO tblBookingSeat (BookingID, SeatID) " &
+                                             "VALUES (@BookingID, @SeatID)"
                         SQLCmd.Parameters.Clear()
                         SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
                         SQLCmd.Parameters.AddWithValue("@SeatID", CInt(b.Tag))
@@ -405,7 +421,9 @@ Public Class frmBookings
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             'join bookingseat to booking again so we can filter by screening
-            SQLCmd.CommandText = "SELECT tblBookingSeat.SeatID FROM tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID WHERE tblBooking.ScreeningID = @ScreeningID"
+            SQLCmd.CommandText = "SELECT tblBookingSeat.SeatID " &
+                                 "FROM tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID " &
+                                 "WHERE tblBooking.ScreeningID = @ScreeningID"
             SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dtTaken)
