@@ -141,6 +141,18 @@ Public Class frmBookings
         lblTotal.Text = total.ToString("C2")
     End Sub
 
+    Private Sub btnClearBooking_Click(sender As Object, e As EventArgs) Handles btnClearBooking.Click
+        ClearBooking()
+    End Sub
+
+    Private Sub ClearBooking()
+        txtCustomerName.Text = ""
+        If selectedScreeningID <> 0 Then
+            LoadSeats()
+        End If
+        txtCustomerName.Focus()
+    End Sub
+
     Private Sub btnBook_Click(sender As Object, e As EventArgs) Handles btnBook.Click
         Dim customerName As String = txtCustomerName.Text.Trim()
         Dim tickets As Integer = 0
@@ -163,8 +175,7 @@ Public Class frmBookings
             If bookingID <> 0 Then
                 WriteLog(LogBooking, "Booking number " & bookingID & " for " & customerName & ": " & details & ", total " & lblTotal.Text)
                 MessageBox.Show("Booking number " & bookingID & " saved for " & customerName & ": " & details & ", total " & lblTotal.Text & ".", "Booking Saved", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                txtCustomerName.Text = ""
-                LoadSeats()
+                ClearBooking()
             End If
         End If
     End Sub
