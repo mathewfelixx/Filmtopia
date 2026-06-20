@@ -10,6 +10,7 @@ Public Class frmBookings
     Private seatIDs(-1) As Long
     Private seatNames(-1) As String
     Private seatChosen(-1) As Boolean
+    Private seatBooked(-1) As Boolean
 
     Private Sub frmBookings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadScreenings()
@@ -69,23 +70,30 @@ Public Class frmBookings
 
     Private Sub LoadSeats()
         Dim dt As DataTable = GetSeats(selectedScreenID)
+        Dim dtBooked As DataTable = GetBookedSeats(selectedScreeningID)
         pnlSeats.Controls.Clear()
         ReDim seatIDs(dt.Rows.Count - 1)
         ReDim seatNames(dt.Rows.Count - 1)
         ReDim seatChosen(dt.Rows.Count - 1)
+        ReDim seatBooked(dt.Rows.Count - 1)
 
         For i As Integer = 0 To dt.Rows.Count - 1
             Dim seatRow As String = dt.Rows(i)("SeatRow")
             Dim seatNumber As Integer = dt.Rows(i)("SeatNumber")
             seatIDs(i) = dt.Rows(i)("SeatID")
             seatNames(i) = seatRow & seatNumber
+            seatBooked(i) = IsBooked(seatIDs(i), dtBooked)
 
             Dim seatButton As New Button
             seatButton.Text = seatNames(i)
             seatButton.Size = New Size(SeatSize, SeatSize)
             seatButton.Left = SeatGap + (seatNumber - 1) * (SeatSize + SeatGap)
             seatButton.Top = SeatGap + (Asc(seatRow) - Asc("A")) * (SeatSize + SeatGap)
-            seatButton.BackColor = FreeSeatColour
+            If seatBooked(i) Then
+                seatButton.BackColor = BookedSeatColour
+            Else
+                seatButton.BackColor = FreeSeatColour
+            End If
             seatButton.FlatStyle = FlatStyle.Flat
             seatButton.Font = New Font(seatButton.Font.FontFamily, 7)
             seatButton.Tag = i
