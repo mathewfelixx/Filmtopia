@@ -307,6 +307,7 @@ Partial Class frmMainForm
         Me.Controls.Add(Me.FlowLayoutPanel1)
         Me.Name = "frmMainForm"
         Me.Text = "Filmtopia Management System"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.FlowLayoutPanel1.ResumeLayout(False)
         Me.GroupBox1.ResumeLayout(False)
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()

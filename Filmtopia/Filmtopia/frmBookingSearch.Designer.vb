@@ -1,4 +1,4 @@
-<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class frmBookingSearch
     Inherits System.Windows.Forms.Form
 
@@ -191,6 +191,7 @@ Partial Class frmBookingSearch
         Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Name = "frmBookingSearch"
         Me.Text = "Booking Search"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         CType(Me.dgvBookings, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.dgvRegister, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)

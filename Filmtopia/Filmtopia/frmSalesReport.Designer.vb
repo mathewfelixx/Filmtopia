@@ -1,4 +1,4 @@
-<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class frmSalesReport
     Inherits System.Windows.Forms.Form
 
@@ -151,6 +151,7 @@ Partial Class frmSalesReport
         Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Name = "frmSalesReport"
         Me.Text = "Sales Report"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         CType(Me.dgvSalesByFilm, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()

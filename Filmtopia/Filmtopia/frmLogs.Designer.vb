@@ -45,6 +45,7 @@ Partial Class frmLogs
         Me.Controls.Add(Me.dgvLogs)
         Me.Name = "frmLogs"
         Me.Text = "Logs"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         CType(Me.dgvLogs, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 

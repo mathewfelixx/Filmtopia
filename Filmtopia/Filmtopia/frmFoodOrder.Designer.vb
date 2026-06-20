@@ -1,4 +1,4 @@
-<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class frmFoodOrder
     Inherits System.Windows.Forms.Form
 
@@ -177,6 +177,7 @@ Partial Class frmFoodOrder
         Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Name = "frmFoodOrder"
         Me.Text = "Food Order"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         CType(Me.dgvOrderItems, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()

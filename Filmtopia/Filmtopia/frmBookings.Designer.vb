@@ -1,4 +1,4 @@
-<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class frmBookings
     Inherits System.Windows.Forms.Form
 
@@ -268,6 +268,7 @@ Partial Class frmBookings
         Me.Controls.Add(Me.lblScreening)
         Me.Name = "frmBookings"
         Me.Text = "Bookings"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         CType(Me.dgvCustomerBookings, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()

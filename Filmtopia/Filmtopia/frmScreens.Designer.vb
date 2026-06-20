@@ -1,4 +1,4 @@
-<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class frmScreens
     Inherits System.Windows.Forms.Form
 
@@ -136,6 +136,7 @@ Partial Class frmScreens
         Me.Controls.Add(Me.dgvScreens)
         Me.Name = "frmScreens"
         Me.Text = "Screens"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         CType(Me.dgvScreens, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()

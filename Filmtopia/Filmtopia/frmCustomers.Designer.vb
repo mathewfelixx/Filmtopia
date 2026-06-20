@@ -1,4 +1,4 @@
-<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class frmCustomers
     Inherits System.Windows.Forms.Form
 
@@ -176,6 +176,7 @@ Partial Class frmCustomers
         Me.Controls.Add(Me.dgvCustomers)
         Me.Name = "frmCustomers"
         Me.Text = "Customers"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         CType(Me.dgvCustomers, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
