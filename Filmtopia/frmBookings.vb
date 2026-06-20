@@ -107,7 +107,9 @@ Public Class frmBookings
         Dim seatButton As Button = sender
         Dim seatIndex As Integer = seatButton.Tag
 
-        If seatChosen(seatIndex) Then
+        If seatBooked(seatIndex) Then
+            MessageBox.Show("Seat " & seatNames(seatIndex) & " is already booked for this screening, so it cannot be chosen.", "Seat Taken", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        ElseIf seatChosen(seatIndex) Then
             seatChosen(seatIndex) = False
             seatButton.BackColor = FreeSeatColour
         Else
