@@ -173,14 +173,30 @@ Public Class frmBookings
             MessageBox.Show("Please choose at least one seat.", "Missing Details", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         Else
             Dim details As String = tickets & " ticket(s) (" & lblChosenSeats.Text & ") for " & lblSeatMap.Text
-            Dim bookingID As Long = SaveBooking(customerName)
-            If bookingID <> 0 Then
-                WriteLog(LogBooking, "Booking number " & bookingID & " for " & customerName & ": " & details & ", total " & lblTotal.Text)
-                MessageBox.Show("Booking number " & bookingID & " saved for " & customerName & ": " & details & ", total " & lblTotal.Text & ".", "Booking Saved", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                ClearBooking()
+            If SeatsAreFree() Then
+                Dim bookingID As Long = SaveBooking(customerName)
+                If bookingID <> 0 Then
+                    WriteLog(LogBooking, "Booking number " & bookingID & " for " & customerName & ": " & details & ", total " & lblTotal.Text)
+                    MessageBox.Show("Booking number " & bookingID & " saved for " & customerName & ": " & details & ", total " & lblTotal.Text & ".", "Booking Saved", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    ClearBooking()
+                End If
+            Else
+                MessageBox.Show("Sorry, one or more of those seats were just booked by someone else, so nothing was booked. The seat map has been updated to show them as booked; please choose again.", "Seat Taken", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                LoadSeats()
             End If
         End If
     End Sub
+
+    Private Function SeatsAreFree() As Boolean
+        Dim free As Boolean = True
+        Dim dtBooked As DataTable = GetBookedSeats(selectedScreeningID)
+        For i As Integer = 0 To seatIDs.Length - 1
+            If seatChosen(i) And IsBooked(seatIDs(i), dtBooked) Then
+                free = False
+            End If
+        Next
+        Return free
+    End Function
 
     Private Function SaveBooking(customerName As String) As Long
         Dim bookingID As Long = 0
