@@ -150,6 +150,8 @@ Partial Class frmSalesReport
         Me.Controls.Add(Me.lblFrom)
         Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Name = "frmSalesReport"
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
+        Me.MaximizeBox = False
         Me.Text = "Sales Report"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         CType(Me.dgvSalesByFilm, System.ComponentModel.ISupportInitialize).EndInit()

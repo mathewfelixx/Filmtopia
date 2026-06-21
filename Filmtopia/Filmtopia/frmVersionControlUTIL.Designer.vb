@@ -78,6 +78,8 @@ Partial Class frmVersionControlUTIL
         Me.Controls.Add(Me.txtVersionControl)
         Me.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
         Me.Name = "frmVersionControlUTIL"
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
+        Me.MaximizeBox = False
         Me.Text = "frmVersionControlUTIL"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.ResumeLayout(False)

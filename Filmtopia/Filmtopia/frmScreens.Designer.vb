@@ -135,6 +135,8 @@ Partial Class frmScreens
         Me.Controls.Add(Me.lblName)
         Me.Controls.Add(Me.dgvScreens)
         Me.Name = "frmScreens"
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
+        Me.MaximizeBox = False
         Me.Text = "Screens"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         CType(Me.dgvScreens, System.ComponentModel.ISupportInitialize).EndInit()

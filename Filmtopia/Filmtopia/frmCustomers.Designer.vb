@@ -175,6 +175,8 @@ Partial Class frmCustomers
         Me.Controls.Add(Me.lblForename)
         Me.Controls.Add(Me.dgvCustomers)
         Me.Name = "frmCustomers"
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
+        Me.MaximizeBox = False
         Me.Text = "Customers"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         CType(Me.dgvCustomers, System.ComponentModel.ISupportInitialize).EndInit()

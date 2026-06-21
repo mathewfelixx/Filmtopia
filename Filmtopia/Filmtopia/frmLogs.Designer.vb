@@ -44,6 +44,8 @@ Partial Class frmLogs
         Me.Controls.Add(Me.btnRefresh)
         Me.Controls.Add(Me.dgvLogs)
         Me.Name = "frmLogs"
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
+        Me.MaximizeBox = False
         Me.Text = "Logs"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         CType(Me.dgvLogs, System.ComponentModel.ISupportInitialize).EndInit()

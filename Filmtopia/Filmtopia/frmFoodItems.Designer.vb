@@ -169,6 +169,8 @@ Partial Class frmFoodItems
         Me.Controls.Add(Me.dgvFoodItems)
         Me.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.Name = "frmFoodItems"
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
+        Me.MaximizeBox = False
         Me.Text = "Food Items"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         CType(Me.dgvFoodItems, System.ComponentModel.ISupportInitialize).EndInit()

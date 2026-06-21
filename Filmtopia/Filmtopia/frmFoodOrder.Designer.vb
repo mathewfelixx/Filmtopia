@@ -176,6 +176,8 @@ Partial Class frmFoodOrder
         Me.Controls.Add(Me.lblBookingInfo)
         Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Name = "frmFoodOrder"
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
+        Me.MaximizeBox = False
         Me.Text = "Food Order"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         CType(Me.dgvOrderItems, System.ComponentModel.ISupportInitialize).EndInit()

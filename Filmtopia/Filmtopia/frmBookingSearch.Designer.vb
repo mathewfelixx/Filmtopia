@@ -190,6 +190,8 @@ Partial Class frmBookingSearch
         Me.Controls.Add(Me.lblSearch)
         Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Name = "frmBookingSearch"
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
+        Me.MaximizeBox = False
         Me.Text = "Booking Search"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         CType(Me.dgvBookings, System.ComponentModel.ISupportInitialize).EndInit()

@@ -218,6 +218,8 @@ Partial Class frmScreenings
         Me.Controls.Add(Me.dgvScreenings)
         Me.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.Name = "frmScreenings"
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
+        Me.MaximizeBox = False
         Me.Text = "Screenings"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         CType(Me.dgvScreenings, System.ComponentModel.ISupportInitialize).EndInit()

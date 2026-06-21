@@ -267,6 +267,8 @@ Partial Class frmBookings
         Me.Controls.Add(Me.cboScreening)
         Me.Controls.Add(Me.lblScreening)
         Me.Name = "frmBookings"
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
+        Me.MaximizeBox = False
         Me.Text = "Bookings"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         CType(Me.dgvCustomerBookings, System.ComponentModel.ISupportInitialize).EndInit()
