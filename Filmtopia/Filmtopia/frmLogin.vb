@@ -11,6 +11,12 @@ Public Class frmLogin
             Exit Sub
         End If
 
+        'length check on username
+        If txtUsername.Text.Length > 255 Then
+            MessageBox.Show("Username is too long.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
         Dim retrievedPassword As String = GetUNPW(txtUsername.Text)
         globalusername = txtUsername.Text
         If retrievedPassword = "" Or retrievedPassword = "Empty" Then
