@@ -5,6 +5,12 @@ Public Class frmLogin
     Dim attempts As Integer = 0
 
     Private Sub btnLogin_Click(sender As Object, e As EventArgs) Handles btnLogin.Click
+        'presence check before hitting the database
+        If txtUsername.Text = "" Or txtPassword.Text = "" Then
+            MessageBox.Show("Please enter a username and password.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
         Dim retrievedPassword As String = GetUNPW(txtUsername.Text)
         globalusername = txtUsername.Text
         If retrievedPassword = "" Or retrievedPassword = "Empty" Then
