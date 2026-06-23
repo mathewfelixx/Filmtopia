@@ -28,6 +28,7 @@ Public Class frmLogin
                 WriteLog("AUTH", "User '" & txtUsername.Text & "' failed password authentication.")
                 Application.Exit()
             Else
+                WriteLog("AUTH", "User '" & txtUsername.Text & "' failed login attempt " & attempts & " of 3.")
                 MessageBox.Show("Incorrect password. Attempt " & attempts & " of 3.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             End If
         End If
