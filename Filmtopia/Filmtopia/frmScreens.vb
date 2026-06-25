@@ -1,4 +1,4 @@
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 
 Public Class frmScreens
 
@@ -73,6 +73,10 @@ Public Class frmScreens
             Exit Sub
         End If
 
+                If txtName.Text = "" Then
+            MessageBox.Show("Enter a screen name")
+            Exit Sub
+        End If
         If Not CapacityIsValid() Then Exit Sub
 
         If DbConnect() Then
