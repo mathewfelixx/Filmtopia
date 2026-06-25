@@ -1,4 +1,4 @@
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 
 Public Class frmCustomers
 
@@ -35,8 +35,20 @@ Public Class frmCustomers
 
     'adds a new customer using the values typed into the textboxes
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
-        If txtForename.Text = "" Or txtSurname.Text = "" Then
-            MessageBox.Show("Enter a forename and surname")
+        If txtForename.Text = "" Then
+            MessageBox.Show("Enter a forename")
+            Exit Sub
+        End If
+        If txtSurname.Text = "" Then
+            MessageBox.Show("Enter a surname")
+            Exit Sub
+        End If
+        If txtEmail.Text = "" Then
+            MessageBox.Show("Enter an email address")
+            Exit Sub
+        End If
+        If txtPhone.Text = "" Then
+            MessageBox.Show("Enter a phone number")
             Exit Sub
         End If
 
@@ -64,6 +76,22 @@ Public Class frmCustomers
             MessageBox.Show("Select a customer in the grid first")
             Exit Sub
         End If
+        If txtForename.Text = "" Then
+            MessageBox.Show("Enter a forename")
+            Exit Sub
+        End If
+        If txtSurname.Text = "" Then
+            MessageBox.Show("Enter a surname")
+            Exit Sub
+        End If
+        If txtEmail.Text = "" Then
+            MessageBox.Show("Enter an email address")
+            Exit Sub
+        End If
+        If txtPhone.Text = "" Then
+            MessageBox.Show("Enter a phone number")
+            Exit Sub
+        End If
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -89,6 +117,22 @@ Public Class frmCustomers
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
         If selectedCustomerID = 0 Then
             MessageBox.Show("Select a customer in the grid first")
+            Exit Sub
+        End If
+        If txtForename.Text = "" Then
+            MessageBox.Show("Enter a forename")
+            Exit Sub
+        End If
+        If txtSurname.Text = "" Then
+            MessageBox.Show("Enter a surname")
+            Exit Sub
+        End If
+        If txtEmail.Text = "" Then
+            MessageBox.Show("Enter an email address")
+            Exit Sub
+        End If
+        If txtPhone.Text = "" Then
+            MessageBox.Show("Enter a phone number")
             Exit Sub
         End If
 
