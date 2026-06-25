@@ -1,4 +1,4 @@
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 
 Public Class frmFilms
 
@@ -39,6 +39,18 @@ Public Class frmFilms
             MessageBox.Show("Enter a film title")
             Exit Sub
         End If
+        If txtAgeRating.Text = "" Then
+            MessageBox.Show("Enter an age rating")
+            Exit Sub
+        End If
+        If txtDuration.Text = "" Then
+            MessageBox.Show("Enter a duration")
+            Exit Sub
+        End If
+        If txtDescription.Text = "" Then
+            MessageBox.Show("Enter a description")
+            Exit Sub
+        End If
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -62,6 +74,22 @@ Public Class frmFilms
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
         If selectedFilmID = 0 Then
             MessageBox.Show("Select a film in the grid first")
+            Exit Sub
+        End If
+        If txtTitle.Text = "" Then
+            MessageBox.Show("Enter a film title")
+            Exit Sub
+        End If
+        If txtAgeRating.Text = "" Then
+            MessageBox.Show("Enter an age rating")
+            Exit Sub
+        End If
+        If txtDuration.Text = "" Then
+            MessageBox.Show("Enter a duration")
+            Exit Sub
+        End If
+        If txtDescription.Text = "" Then
+            MessageBox.Show("Enter a description")
             Exit Sub
         End If
 
