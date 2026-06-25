@@ -51,10 +51,6 @@ Public Class frmFilms
             MessageBox.Show("Duration cannot be negative")
             Exit Sub
         End If
-        If txtDescription.Text = "" Then
-            MessageBox.Show("Enter a description")
-            Exit Sub
-        End If
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -94,10 +90,6 @@ Public Class frmFilms
         End If
         If Val(txtDuration.Text) < 0 Then
             MessageBox.Show("Duration cannot be negative")
-            Exit Sub
-        End If
-        If txtDescription.Text = "" Then
-            MessageBox.Show("Enter a description")
             Exit Sub
         End If
 
