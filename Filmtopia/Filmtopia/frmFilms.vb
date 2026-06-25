@@ -47,6 +47,10 @@ Public Class frmFilms
             MessageBox.Show("Enter a duration")
             Exit Sub
         End If
+        If Val(txtDuration.Text) < 0 Then
+            MessageBox.Show("Duration cannot be negative")
+            Exit Sub
+        End If
         If txtDescription.Text = "" Then
             MessageBox.Show("Enter a description")
             Exit Sub
@@ -86,6 +90,10 @@ Public Class frmFilms
         End If
         If txtDuration.Text = "" Then
             MessageBox.Show("Enter a duration")
+            Exit Sub
+        End If
+        If Val(txtDuration.Text) < 0 Then
+            MessageBox.Show("Duration cannot be negative")
             Exit Sub
         End If
         If txtDescription.Text = "" Then
