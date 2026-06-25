@@ -1,4 +1,4 @@
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 
 Public Class frmScreenings
 
@@ -83,9 +83,12 @@ Public Class frmScreenings
             MessageBox.Show("Pick a film and a screen")
             Exit Sub
         End If
-
         If txtScreeningTime.Text = "" Then
             MessageBox.Show("Enter a screening time (HH:MM)")
+            Exit Sub
+        End If
+        If txtTicketPrice.Text = "" Then
+            MessageBox.Show("Enter a ticket price")
             Exit Sub
         End If
 
@@ -114,9 +117,16 @@ Public Class frmScreenings
             MessageBox.Show("Select a screening in the grid first")
             Exit Sub
         End If
-
         If cboFilm.SelectedIndex = -1 Or cboScreen.SelectedIndex = -1 Then
             MessageBox.Show("Pick a film and a screen")
+            Exit Sub
+        End If
+        If txtScreeningTime.Text = "" Then
+            MessageBox.Show("Enter a screening time (HH:MM)")
+            Exit Sub
+        End If
+        If txtTicketPrice.Text = "" Then
+            MessageBox.Show("Enter a ticket price")
             Exit Sub
         End If
 
