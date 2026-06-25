@@ -47,6 +47,10 @@ Public Class frmCustomers
             MessageBox.Show("Enter an email address")
             Exit Sub
         End If
+        If Not txtEmail.Text.Contains("@") Or Not txtEmail.Text.Contains(".") Then
+            MessageBox.Show("Enter a valid email address")
+            Exit Sub
+        End If
         If txtPhone.Text = "" Then
             MessageBox.Show("Enter a phone number")
             Exit Sub
@@ -88,6 +92,10 @@ Public Class frmCustomers
             MessageBox.Show("Enter an email address")
             Exit Sub
         End If
+        If Not txtEmail.Text.Contains("@") Or Not txtEmail.Text.Contains(".") Then
+            MessageBox.Show("Enter a valid email address")
+            Exit Sub
+        End If
         If txtPhone.Text = "" Then
             MessageBox.Show("Enter a phone number")
             Exit Sub
@@ -117,22 +125,6 @@ Public Class frmCustomers
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
         If selectedCustomerID = 0 Then
             MessageBox.Show("Select a customer in the grid first")
-            Exit Sub
-        End If
-        If txtForename.Text = "" Then
-            MessageBox.Show("Enter a forename")
-            Exit Sub
-        End If
-        If txtSurname.Text = "" Then
-            MessageBox.Show("Enter a surname")
-            Exit Sub
-        End If
-        If txtEmail.Text = "" Then
-            MessageBox.Show("Enter an email address")
-            Exit Sub
-        End If
-        If txtPhone.Text = "" Then
-            MessageBox.Show("Enter a phone number")
             Exit Sub
         End If
 
