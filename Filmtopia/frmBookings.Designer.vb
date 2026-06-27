@@ -38,7 +38,14 @@ Partial Class frmBookings
         Me.lblTotal = New System.Windows.Forms.Label()
         Me.btnClearBooking = New System.Windows.Forms.Button()
         Me.btnBook = New System.Windows.Forms.Button()
+        Me.lblFoodMenu = New System.Windows.Forms.Label()
+        Me.dgvFood = New System.Windows.Forms.DataGridView()
+        Me.btnAddFood = New System.Windows.Forms.Button()
+        Me.btnRemoveFood = New System.Windows.Forms.Button()
+        Me.lblOrder = New System.Windows.Forms.Label()
+        Me.lstOrder = New System.Windows.Forms.ListBox()
         CType(Me.dgvScreenings, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.dgvFood, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'dgvScreenings
@@ -198,11 +205,79 @@ Partial Class frmBookings
         Me.btnBook.Text = "Book"
         Me.btnBook.UseVisualStyleBackColor = True
         '
+        'lblFoodMenu
+        '
+        Me.lblFoodMenu.AutoSize = True
+        Me.lblFoodMenu.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblFoodMenu.Location = New System.Drawing.Point(16, 490)
+        Me.lblFoodMenu.Name = "lblFoodMenu"
+        Me.lblFoodMenu.Size = New System.Drawing.Size(128, 20)
+        Me.lblFoodMenu.TabIndex = 16
+        Me.lblFoodMenu.Text = "Food and Drink"
+        '
+        'dgvFood
+        '
+        Me.dgvFood.AllowUserToAddRows = False
+        Me.dgvFood.AllowUserToDeleteRows = False
+        Me.dgvFood.AllowUserToResizeRows = False
+        Me.dgvFood.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
+        Me.dgvFood.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dgvFood.Location = New System.Drawing.Point(16, 516)
+        Me.dgvFood.MultiSelect = False
+        Me.dgvFood.Name = "dgvFood"
+        Me.dgvFood.ReadOnly = True
+        Me.dgvFood.RowHeadersVisible = False
+        Me.dgvFood.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
+        Me.dgvFood.Size = New System.Drawing.Size(400, 180)
+        Me.dgvFood.TabIndex = 17
+        '
+        'btnAddFood
+        '
+        Me.btnAddFood.Location = New System.Drawing.Point(428, 516)
+        Me.btnAddFood.Name = "btnAddFood"
+        Me.btnAddFood.Size = New System.Drawing.Size(120, 37)
+        Me.btnAddFood.TabIndex = 18
+        Me.btnAddFood.Text = "Add Food"
+        Me.btnAddFood.UseVisualStyleBackColor = True
+        '
+        'btnRemoveFood
+        '
+        Me.btnRemoveFood.Location = New System.Drawing.Point(428, 561)
+        Me.btnRemoveFood.Name = "btnRemoveFood"
+        Me.btnRemoveFood.Size = New System.Drawing.Size(120, 37)
+        Me.btnRemoveFood.TabIndex = 19
+        Me.btnRemoveFood.Text = "Remove Food"
+        Me.btnRemoveFood.UseVisualStyleBackColor = True
+        '
+        'lblOrder
+        '
+        Me.lblOrder.AutoSize = True
+        Me.lblOrder.Location = New System.Drawing.Point(560, 494)
+        Me.lblOrder.Name = "lblOrder"
+        Me.lblOrder.Size = New System.Drawing.Size(42, 16)
+        Me.lblOrder.TabIndex = 20
+        Me.lblOrder.Text = "Order"
+        '
+        'lstOrder
+        '
+        Me.lstOrder.FormattingEnabled = True
+        Me.lstOrder.ItemHeight = 16
+        Me.lstOrder.Location = New System.Drawing.Point(560, 516)
+        Me.lstOrder.Name = "lstOrder"
+        Me.lstOrder.Size = New System.Drawing.Size(340, 180)
+        Me.lstOrder.TabIndex = 21
+        '
         'frmBookings
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1240, 720)
+        Me.Controls.Add(Me.lstOrder)
+        Me.Controls.Add(Me.lblOrder)
+        Me.Controls.Add(Me.btnRemoveFood)
+        Me.Controls.Add(Me.btnAddFood)
+        Me.Controls.Add(Me.dgvFood)
+        Me.Controls.Add(Me.lblFoodMenu)
         Me.Controls.Add(Me.btnBook)
         Me.Controls.Add(Me.btnClearBooking)
         Me.Controls.Add(Me.lblTotal)
@@ -225,6 +300,7 @@ Partial Class frmBookings
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Filmtopia - Bookings"
         CType(Me.dgvScreenings, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.dgvFood, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -246,4 +322,10 @@ Partial Class frmBookings
     Friend WithEvents lblTotal As System.Windows.Forms.Label
     Friend WithEvents btnClearBooking As System.Windows.Forms.Button
     Friend WithEvents btnBook As System.Windows.Forms.Button
+    Friend WithEvents lblFoodMenu As System.Windows.Forms.Label
+    Friend WithEvents dgvFood As System.Windows.Forms.DataGridView
+    Friend WithEvents btnAddFood As System.Windows.Forms.Button
+    Friend WithEvents btnRemoveFood As System.Windows.Forms.Button
+    Friend WithEvents lblOrder As System.Windows.Forms.Label
+    Friend WithEvents lstOrder As System.Windows.Forms.ListBox
 End Class
