@@ -12,8 +12,14 @@ Public Class frmBookings
     Private seatChosen(-1) As Boolean
     Private seatBooked(-1) As Boolean
 
+    Private orderFoodIDs(-1) As Long
+    Private orderNames(-1) As String
+    Private orderPrices(-1) As Decimal
+    Private orderQuantities(-1) As Integer
+
     Private Sub frmBookings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadScreenings()
+        LoadFoodMenu()
     End Sub
 
     Private Sub LoadScreenings()
@@ -49,12 +55,30 @@ Public Class frmBookings
         End If
     End Sub
 
+    Private Sub LoadFoodMenu()
+        Dim SQLCmd As New OleDbCommand("SELECT FoodItemID, FoodCategory, FoodName, FoodPrice FROM tblFoodItem ORDER BY FoodCategory, FoodName")
+        Dim dt As New DataTable
+        If FillTable(SQLCmd, dt) Then
+            dgvFood.DataSource = dt
+            dgvFood.Columns("FoodItemID").Visible = False
+            dgvFood.Columns("FoodCategory").HeaderText = "Category"
+            dgvFood.Columns("FoodName").HeaderText = "Item"
+            dgvFood.Columns("FoodPrice").HeaderText = "Price"
+            dgvFood.Columns("FoodName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            dgvFood.Columns("FoodPrice").DefaultCellStyle.Format = "C2"
+        End If
+    End Sub
+
     Private Sub frmBookings_Shown(sender As Object, e As EventArgs) Handles MyBase.Shown
         dgvScreenings.ClearSelection()
     End Sub
 
     Private Sub dgvScreenings_DataBindingComplete(sender As Object, e As DataGridViewBindingCompleteEventArgs) Handles dgvScreenings.DataBindingComplete
         dgvScreenings.ClearSelection()
+    End Sub
+
+    Private Sub dgvFood_DataBindingComplete(sender As Object, e As DataGridViewBindingCompleteEventArgs) Handles dgvFood.DataBindingComplete
+        dgvFood.ClearSelection()
     End Sub
 
     Private Sub dgvScreenings_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvScreenings.CellClick
@@ -119,6 +143,65 @@ Public Class frmBookings
         UpdateSummary()
     End Sub
 
+    Private Sub btnAddFood_Click(sender As Object, e As EventArgs) Handles btnAddFood.Click
+        If dgvFood.SelectedRows.Count = 0 Then
+            MessageBox.Show("Please pick an item from the menu first.", "No Item Picked", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        Else
+            Dim item As DataGridViewRow = dgvFood.SelectedRows(0)
+            Dim foodItemID As Long = item.Cells("FoodItemID").Value
+
+            Dim alreadyInOrder As Boolean = False
+            For i As Integer = 0 To orderFoodIDs.Length - 1
+                If orderFoodIDs(i) = foodItemID Then
+                    orderQuantities(i) = orderQuantities(i) + 1
+                    alreadyInOrder = True
+                End If
+            Next
+
+            If Not alreadyInOrder Then
+                Dim newIndex As Integer = orderFoodIDs.Length
+                ReDim Preserve orderFoodIDs(newIndex)
+                ReDim Preserve orderNames(newIndex)
+                ReDim Preserve orderPrices(newIndex)
+                ReDim Preserve orderQuantities(newIndex)
+                orderFoodIDs(newIndex) = foodItemID
+                orderNames(newIndex) = item.Cells("FoodName").Value
+                orderPrices(newIndex) = item.Cells("FoodPrice").Value
+                orderQuantities(newIndex) = 1
+            End If
+
+            UpdateSummary()
+        End If
+    End Sub
+
+    Private Sub btnRemoveFood_Click(sender As Object, e As EventArgs) Handles btnRemoveFood.Click
+        Dim lineIndex As Integer = lstOrder.SelectedIndex
+
+        If lineIndex = -1 Then
+            MessageBox.Show("Please pick an item in the order first.", "No Item Picked", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        Else
+            orderQuantities(lineIndex) = orderQuantities(lineIndex) - 1
+            If orderQuantities(lineIndex) = 0 Then
+                RemoveOrderLine(lineIndex)
+            End If
+            UpdateSummary()
+        End If
+    End Sub
+
+    Private Sub RemoveOrderLine(lineIndex As Integer)
+        Dim lastIndex As Integer = orderFoodIDs.Length - 1
+        For i As Integer = lineIndex To lastIndex - 1
+            orderFoodIDs(i) = orderFoodIDs(i + 1)
+            orderNames(i) = orderNames(i + 1)
+            orderPrices(i) = orderPrices(i + 1)
+            orderQuantities(i) = orderQuantities(i + 1)
+        Next
+        ReDim Preserve orderFoodIDs(lastIndex - 1)
+        ReDim Preserve orderNames(lastIndex - 1)
+        ReDim Preserve orderPrices(lastIndex - 1)
+        ReDim Preserve orderQuantities(lastIndex - 1)
+    End Sub
+
     Private Sub UpdateSummary()
         Dim seatList As String = ""
         Dim tickets As Integer = 0
@@ -135,6 +218,13 @@ Public Class frmBookings
             End If
         Next
 
+        lstOrder.Items.Clear()
+        For i As Integer = 0 To orderFoodIDs.Length - 1
+            Dim lineTotal As Decimal = orderPrices(i) * orderQuantities(i)
+            lstOrder.Items.Add(orderQuantities(i) & " x " & orderNames(i) & "   " & lineTotal.ToString("C2"))
+            total = total + lineTotal
+        Next
+
         If seatList = "" Then
             seatList = "None"
         End If
@@ -149,9 +239,14 @@ Public Class frmBookings
 
     Private Sub ClearBooking()
         txtCustomerName.Text = ""
+        ReDim orderFoodIDs(-1)
+        ReDim orderNames(-1)
+        ReDim orderPrices(-1)
+        ReDim orderQuantities(-1)
         If selectedScreeningID <> 0 Then
             LoadSeats()
         End If
+        UpdateSummary()
         txtCustomerName.Focus()
     End Sub
 
