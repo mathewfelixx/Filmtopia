@@ -259,17 +259,24 @@ Public Class frmBookings
             End If
         Next
 
-        If selectedScreeningID = 0 Then
-            MessageBox.Show("Please pick a screening first.", "Missing Details", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-        ElseIf customerName = "" Then
+        If customerName = "" Then
             MessageBox.Show("Please enter the customer's name.", "Missing Details", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtCustomerName.Focus()
-        ElseIf tickets = 0 Then
-            MessageBox.Show("Please choose at least one seat.", "Missing Details", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        ElseIf tickets = 0 And orderFoodIDs.Length = 0 Then
+            MessageBox.Show("Please choose at least one seat or add some food.", "Missing Details", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         Else
-            Dim details As String = tickets & " ticket(s) (" & lblChosenSeats.Text & ") for " & lblSeatMap.Text
+            Dim screeningID As Long
+            Dim details As String
+            If tickets = 0 Then
+                screeningID = 0
+                details = "food only"
+            Else
+                screeningID = selectedScreeningID
+                details = tickets & " ticket(s) (" & lblChosenSeats.Text & ") for " & lblSeatMap.Text
+            End If
+
             If SeatsAreFree() Then
-                Dim bookingID As Long = SaveBooking(customerName)
+                Dim bookingID As Long = SaveBooking(screeningID, customerName)
                 If bookingID <> 0 Then
                     WriteLog(LogBooking, "Booking number " & bookingID & " for " & customerName & ": " & details & ", total " & lblTotal.Text)
                     MessageBox.Show("Booking number " & bookingID & " saved for " & customerName & ": " & details & ", total " & lblTotal.Text & ".", "Booking Saved", MessageBoxButtons.OK, MessageBoxIcon.Information)
@@ -293,7 +300,7 @@ Public Class frmBookings
         Return free
     End Function
 
-    Private Function SaveBooking(customerName As String) As Long
+    Private Function SaveBooking(screeningID As Long, customerName As String) As Long
         Dim bookingID As Long = 0
 
         If DbConnect() Then
@@ -304,7 +311,11 @@ Public Class frmBookings
                 SQLCmd.Transaction = trans
 
                 SQLCmd.CommandText = "INSERT INTO tblBooking (ScreeningID, CustomerName, BookingDateTime) VALUES (@ScreeningID, @CustomerName, Now())"
-                SQLCmd.Parameters.AddWithValue("@ScreeningID", selectedScreeningID)
+                If screeningID = 0 Then
+                    SQLCmd.Parameters.AddWithValue("@ScreeningID", DBNull.Value)
+                Else
+                    SQLCmd.Parameters.AddWithValue("@ScreeningID", screeningID)
+                End If
                 SQLCmd.Parameters.AddWithValue("@CustomerName", customerName)
                 SQLCmd.ExecuteNonQuery()
 
