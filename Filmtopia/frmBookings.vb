@@ -323,6 +323,16 @@ Public Class frmBookings
                     End If
                 Next
 
+                SQLCmd.CommandText = "INSERT INTO tblOrderItem (BookingID, FoodItemID, Quantity, ItemPricePaid) VALUES (@BookingID, @FoodItemID, @Quantity, @ItemPricePaid)"
+                For i As Integer = 0 To orderFoodIDs.Length - 1
+                    SQLCmd.Parameters.Clear()
+                    SQLCmd.Parameters.AddWithValue("@BookingID", bookingID)
+                    SQLCmd.Parameters.AddWithValue("@FoodItemID", orderFoodIDs(i))
+                    SQLCmd.Parameters.AddWithValue("@Quantity", orderQuantities(i))
+                    SQLCmd.Parameters.AddWithValue("@ItemPricePaid", orderPrices(i))
+                    SQLCmd.ExecuteNonQuery()
+                Next
+
                 trans.Commit()
             Catch ex As Exception
                 trans.Rollback()
