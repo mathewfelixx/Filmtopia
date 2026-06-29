@@ -347,16 +347,27 @@ Public Class frmScreenings
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
         If selectedScreeningID = 0 Then
             MessageBox.Show("Please pick a screening from the list first.", "No Screening Picked", MessageBoxButtons.OK, MessageBoxIcon.Information)
-        ElseIf MessageBox.Show("Delete the screening of " & selectedScreeningDetails & "? This cannot be undone.", "Delete Screening", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) = DialogResult.Yes Then
-            Dim SQLCmd As New OleDbCommand("DELETE FROM tblScreening WHERE ScreeningID = @ScreeningID")
-            SQLCmd.Parameters.AddWithValue("@ScreeningID", selectedScreeningID)
-            If RunCommand(SQLCmd) Then
-                WriteLog(LogScreening, "Deleted the screening of " & selectedScreeningDetails & " (screening number " & selectedScreeningID & ")")
-                LoadScreenings()
-                ClearFields()
+        Else
+            Dim bookings As Integer = BookingCount(selectedScreeningID)
+            If bookings > 0 Then
+                MessageBox.Show("The screening of " & selectedScreeningDetails & " cannot be deleted because it has " & bookings & " booking(s).", "Screening Has Bookings", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            ElseIf MessageBox.Show("Delete the screening of " & selectedScreeningDetails & "? This cannot be undone.", "Delete Screening", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) = DialogResult.Yes Then
+                Dim SQLCmd As New OleDbCommand("DELETE FROM tblScreening WHERE ScreeningID = @ScreeningID")
+                SQLCmd.Parameters.AddWithValue("@ScreeningID", selectedScreeningID)
+                If RunCommand(SQLCmd) Then
+                    WriteLog(LogScreening, "Deleted the screening of " & selectedScreeningDetails & " (screening number " & selectedScreeningID & ")")
+                    LoadScreenings()
+                    ClearFields()
+                End If
             End If
         End If
     End Sub
+
+    Private Function BookingCount(screeningID As Long) As Integer
+        Dim SQLCmd As New OleDbCommand("SELECT COUNT(*) FROM tblBooking WHERE ScreeningID = @ScreeningID")
+        SQLCmd.Parameters.AddWithValue("@ScreeningID", screeningID)
+        Return GetValue(SQLCmd)
+    End Function
 
     Private Sub frmScreenings_Shown(sender As Object, e As EventArgs) Handles MyBase.Shown
         dgvScreenings.ClearSelection()
