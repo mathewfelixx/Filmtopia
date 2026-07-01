@@ -125,6 +125,10 @@ Public Class frmScreenings
             MessageBox.Show("Enter a ticket price")
             Exit Sub
         End If
+        If Not IsNumeric(txtTicketPrice.Text) Then
+            MessageBox.Show("Ticket price must be a number")
+            Exit Sub
+        End If
         If Val(txtTicketPrice.Text) <= 0 Then
             MessageBox.Show("Ticket price must be greater than 0")
             Exit Sub
@@ -169,6 +173,10 @@ Public Class frmScreenings
         End If
         If txtTicketPrice.Text = "" Then
             MessageBox.Show("Enter a ticket price")
+            Exit Sub
+        End If
+        If Not IsNumeric(txtTicketPrice.Text) Then
+            MessageBox.Show("Ticket price must be a number")
             Exit Sub
         End If
         If Val(txtTicketPrice.Text) <= 0 Then
