@@ -83,6 +83,10 @@ Public Class frmScreenings
             MessageBox.Show("Pick a film and a screen")
             Exit Sub
         End If
+        If dtpScreeningDate.Value.Date < Date.Now.Date Then
+            MessageBox.Show("Screening date cant be in the past")
+            Exit Sub
+        End If
         If txtScreeningTime.Text = "" Then
             MessageBox.Show("Enter a screening time (HH:MM)")
             Exit Sub
