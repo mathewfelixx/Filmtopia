@@ -47,6 +47,11 @@
         frmBookings.BringToFront()
     End Sub
 
+    Private Sub btnFindBooking_Click(sender As Object, e As EventArgs) Handles btnFindBooking.Click
+        frmBookingSearch.Show()
+        frmBookingSearch.BringToFront()
+    End Sub
+
     Private Sub btnScreens_Click(sender As Object, e As EventArgs) Handles btnScreens.Click
         frmScreens.Show()
         frmScreens.BringToFront()
@@ -74,6 +79,7 @@
         frmFilms.Close()
         frmScreenings.Close()
         frmBookings.Close()
+        frmBookingSearch.Close()
         frmScreens.Close()
         frmLogs.Close()
     End Sub
