@@ -39,6 +39,14 @@ Public Class frmFoodItems
             MessageBox.Show("Enter a food item name")
             Exit Sub
         End If
+        If txtPrice.Text = "" Then
+            MessageBox.Show("Enter a price")
+            Exit Sub
+        End If
+        If txtCategory.Text = "" Then
+            MessageBox.Show("Enter a category")
+            Exit Sub
+        End If
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -61,6 +69,18 @@ Public Class frmFoodItems
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
         If selectedFoodItemID = 0 Then
             MessageBox.Show("Select a food item in the grid first")
+            Exit Sub
+        End If
+        If txtName.Text = "" Then
+            MessageBox.Show("Enter a food item name")
+            Exit Sub
+        End If
+        If txtPrice.Text = "" Then
+            MessageBox.Show("Enter a price")
+            Exit Sub
+        End If
+        If txtCategory.Text = "" Then
+            MessageBox.Show("Enter a category")
             Exit Sub
         End If
 
