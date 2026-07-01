@@ -55,6 +55,10 @@ Public Class frmCustomers
             MessageBox.Show("Enter a phone number")
             Exit Sub
         End If
+        If txtPhone.Text.Length < 10 Or txtPhone.Text.Length > 11 Then
+            MessageBox.Show("Phone number must be 10 or 11 digits long")
+            Exit Sub
+        End If
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -98,6 +102,10 @@ Public Class frmCustomers
         End If
         If txtPhone.Text = "" Then
             MessageBox.Show("Enter a phone number")
+            Exit Sub
+        End If
+        If txtPhone.Text.Length < 10 Or txtPhone.Text.Length > 11 Then
+            MessageBox.Show("Phone number must be 10 or 11 digits long")
             Exit Sub
         End If
 
