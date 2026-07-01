@@ -11,6 +11,16 @@ Public Class frmCustomers
         WriteLog("CUSTOMER", "Customers form opened")
     End Sub
 
+    'checks a phone number is made up of digits only, no spaces or dashes
+    Private Function IsDigitsOnly(phoneText As String) As Boolean
+        For Each ch As Char In phoneText
+            If Not Char.IsDigit(ch) Then
+                Return False
+            End If
+        Next
+        Return True
+    End Function
+
     'loads all customers from tblCustomer into the grid
     Private Sub LoadCustomers()
         If DbConnect() Then
@@ -57,6 +67,10 @@ Public Class frmCustomers
         End If
         If txtPhone.Text.Length < 10 Or txtPhone.Text.Length > 11 Then
             MessageBox.Show("Phone number must be 10 or 11 digits long")
+            Exit Sub
+        End If
+        If Not IsDigitsOnly(txtPhone.Text) Then
+            MessageBox.Show("Phone number must contain digits only")
             Exit Sub
         End If
 
@@ -106,6 +120,10 @@ Public Class frmCustomers
         End If
         If txtPhone.Text.Length < 10 Or txtPhone.Text.Length > 11 Then
             MessageBox.Show("Phone number must be 10 or 11 digits long")
+            Exit Sub
+        End If
+        If Not IsDigitsOnly(txtPhone.Text) Then
+            MessageBox.Show("Phone number must contain digits only")
             Exit Sub
         End If
 
