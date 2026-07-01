@@ -125,6 +125,10 @@ Public Class frmScreenings
             MessageBox.Show("Enter a ticket price")
             Exit Sub
         End If
+        If Val(txtTicketPrice.Text) <= 0 Then
+            MessageBox.Show("Ticket price must be greater than 0")
+            Exit Sub
+        End If
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -165,6 +169,10 @@ Public Class frmScreenings
         End If
         If txtTicketPrice.Text = "" Then
             MessageBox.Show("Enter a ticket price")
+            Exit Sub
+        End If
+        If Val(txtTicketPrice.Text) <= 0 Then
+            MessageBox.Show("Ticket price must be greater than 0")
             Exit Sub
         End If
 
