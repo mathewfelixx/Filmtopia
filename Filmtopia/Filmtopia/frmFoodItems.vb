@@ -47,6 +47,10 @@ Public Class frmFoodItems
             MessageBox.Show("Price must be a number")
             Exit Sub
         End If
+        If Val(txtPrice.Text) <= 0 Then
+            MessageBox.Show("Price must be greater than 0")
+            Exit Sub
+        End If
         If txtCategory.Text = "" Then
             MessageBox.Show("Enter a category")
             Exit Sub
@@ -85,6 +89,10 @@ Public Class frmFoodItems
         End If
         If Not IsNumeric(txtPrice.Text) Then
             MessageBox.Show("Price must be a number")
+            Exit Sub
+        End If
+        If Val(txtPrice.Text) <= 0 Then
+            MessageBox.Show("Price must be greater than 0")
             Exit Sub
         End If
         If txtCategory.Text = "" Then
