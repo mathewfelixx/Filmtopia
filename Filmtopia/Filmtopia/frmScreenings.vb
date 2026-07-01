@@ -77,6 +77,32 @@ Public Class frmScreenings
         WriteLog("SCREENING", "Screening list loaded")
     End Sub
 
+    'checks the screening time is in HH:MM format, e.g. 14:30
+    Private Function IsValidScreeningTime(timeText As String) As Boolean
+        If timeText.Length <> 5 Then
+            Return False
+        End If
+        If timeText.Chars(2) <> ":" Then
+            Return False
+        End If
+
+        Dim hourPart As String = timeText.Substring(0, 2)
+        Dim minutePart As String = timeText.Substring(3, 2)
+
+        If Not IsNumeric(hourPart) Or Not IsNumeric(minutePart) Then
+            Return False
+        End If
+
+        Dim hour As Integer = CInt(hourPart)
+        Dim minute As Integer = CInt(minutePart)
+
+        If hour < 0 Or hour > 23 Or minute < 0 Or minute > 59 Then
+            Return False
+        End If
+
+        Return True
+    End Function
+
     'adds a new screening using the values picked and typed in
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
         If cboFilm.SelectedIndex = -1 Or cboScreen.SelectedIndex = -1 Then
@@ -89,6 +115,10 @@ Public Class frmScreenings
         End If
         If txtScreeningTime.Text = "" Then
             MessageBox.Show("Enter a screening time (HH:MM)")
+            Exit Sub
+        End If
+        If Not IsValidScreeningTime(txtScreeningTime.Text) Then
+            MessageBox.Show("Screening time must be in HH:MM format, e.g. 14:30")
             Exit Sub
         End If
         If txtTicketPrice.Text = "" Then
@@ -127,6 +157,10 @@ Public Class frmScreenings
         End If
         If txtScreeningTime.Text = "" Then
             MessageBox.Show("Enter a screening time (HH:MM)")
+            Exit Sub
+        End If
+        If Not IsValidScreeningTime(txtScreeningTime.Text) Then
+            MessageBox.Show("Screening time must be in HH:MM format, e.g. 14:30")
             Exit Sub
         End If
         If txtTicketPrice.Text = "" Then
