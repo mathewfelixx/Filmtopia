@@ -22,9 +22,47 @@ Partial Class frmBookingSearch
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        Me.lblSearch = New System.Windows.Forms.Label()
+        Me.txtSearch = New System.Windows.Forms.TextBox()
+        Me.btnSearch = New System.Windows.Forms.Button()
+        Me.btnShowAll = New System.Windows.Forms.Button()
         Me.dgvBookings = New System.Windows.Forms.DataGridView()
         CType(Me.dgvBookings, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
+        '
+        'lblSearch
+        '
+        Me.lblSearch.AutoSize = True
+        Me.lblSearch.Location = New System.Drawing.Point(16, 22)
+        Me.lblSearch.Name = "lblSearch"
+        Me.lblSearch.Size = New System.Drawing.Size(212, 16)
+        Me.lblSearch.TabIndex = 0
+        Me.lblSearch.Text = "Customer name or booking number"
+        '
+        'txtSearch
+        '
+        Me.txtSearch.Location = New System.Drawing.Point(270, 18)
+        Me.txtSearch.Name = "txtSearch"
+        Me.txtSearch.Size = New System.Drawing.Size(300, 22)
+        Me.txtSearch.TabIndex = 1
+        '
+        'btnSearch
+        '
+        Me.btnSearch.Location = New System.Drawing.Point(585, 11)
+        Me.btnSearch.Name = "btnSearch"
+        Me.btnSearch.Size = New System.Drawing.Size(120, 37)
+        Me.btnSearch.TabIndex = 2
+        Me.btnSearch.Text = "Search"
+        Me.btnSearch.UseVisualStyleBackColor = True
+        '
+        'btnShowAll
+        '
+        Me.btnShowAll.Location = New System.Drawing.Point(713, 11)
+        Me.btnShowAll.Name = "btnShowAll"
+        Me.btnShowAll.Size = New System.Drawing.Size(120, 37)
+        Me.btnShowAll.TabIndex = 4
+        Me.btnShowAll.Text = "Show All"
+        Me.btnShowAll.UseVisualStyleBackColor = True
         '
         'dgvBookings
         '
@@ -40,14 +78,19 @@ Partial Class frmBookingSearch
         Me.dgvBookings.RowHeadersVisible = False
         Me.dgvBookings.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvBookings.Size = New System.Drawing.Size(1048, 320)
-        Me.dgvBookings.TabIndex = 3
+        Me.dgvBookings.TabIndex = 5
         '
         'frmBookingSearch
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
+        Me.AcceptButton = Me.btnSearch
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1080, 620)
         Me.Controls.Add(Me.dgvBookings)
+        Me.Controls.Add(Me.btnShowAll)
+        Me.Controls.Add(Me.btnSearch)
+        Me.Controls.Add(Me.txtSearch)
+        Me.Controls.Add(Me.lblSearch)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.MaximizeBox = False
         Me.Name = "frmBookingSearch"
@@ -55,8 +98,13 @@ Partial Class frmBookingSearch
         Me.Text = "Filmtopia - Find Booking"
         CType(Me.dgvBookings, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
 
+    Friend WithEvents lblSearch As System.Windows.Forms.Label
+    Friend WithEvents txtSearch As System.Windows.Forms.TextBox
+    Friend WithEvents btnSearch As System.Windows.Forms.Button
+    Friend WithEvents btnShowAll As System.Windows.Forms.Button
     Friend WithEvents dgvBookings As System.Windows.Forms.DataGridView
 End Class
