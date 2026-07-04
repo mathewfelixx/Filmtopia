@@ -27,6 +27,8 @@ Partial Class frmBookingSearch
         Me.btnSearch = New System.Windows.Forms.Button()
         Me.btnShowAll = New System.Windows.Forms.Button()
         Me.dgvBookings = New System.Windows.Forms.DataGridView()
+        Me.lblDetails = New System.Windows.Forms.Label()
+        Me.lstDetails = New System.Windows.Forms.ListBox()
         CType(Me.dgvBookings, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -80,12 +82,33 @@ Partial Class frmBookingSearch
         Me.dgvBookings.Size = New System.Drawing.Size(1048, 320)
         Me.dgvBookings.TabIndex = 5
         '
+        'lblDetails
+        '
+        Me.lblDetails.AutoSize = True
+        Me.lblDetails.Location = New System.Drawing.Point(16, 395)
+        Me.lblDetails.Name = "lblDetails"
+        Me.lblDetails.Size = New System.Drawing.Size(105, 16)
+        Me.lblDetails.TabIndex = 6
+        Me.lblDetails.Text = "Booking details"
+        '
+        'lstDetails
+        '
+        Me.lstDetails.FormattingEnabled = True
+        Me.lstDetails.ItemHeight = 16
+        Me.lstDetails.Location = New System.Drawing.Point(16, 418)
+        Me.lstDetails.Name = "lstDetails"
+        Me.lstDetails.SelectionMode = System.Windows.Forms.SelectionMode.None
+        Me.lstDetails.Size = New System.Drawing.Size(640, 180)
+        Me.lstDetails.TabIndex = 7
+        '
         'frmBookingSearch
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AcceptButton = Me.btnSearch
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1080, 620)
+        Me.Controls.Add(Me.lstDetails)
+        Me.Controls.Add(Me.lblDetails)
         Me.Controls.Add(Me.dgvBookings)
         Me.Controls.Add(Me.btnShowAll)
         Me.Controls.Add(Me.btnSearch)
@@ -107,4 +130,6 @@ Partial Class frmBookingSearch
     Friend WithEvents btnSearch As System.Windows.Forms.Button
     Friend WithEvents btnShowAll As System.Windows.Forms.Button
     Friend WithEvents dgvBookings As System.Windows.Forms.DataGridView
+    Friend WithEvents lblDetails As System.Windows.Forms.Label
+    Friend WithEvents lstDetails As System.Windows.Forms.ListBox
 End Class
