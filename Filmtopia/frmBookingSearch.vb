@@ -2,6 +2,7 @@
 
 Public Class frmBookingSearch
     Private selectedBookingID As Long = 0
+    Private selectedCustomerName As String = ""
 
     Private Sub frmBookingSearch_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadBookings("")
@@ -52,6 +53,7 @@ Public Class frmBookingSearch
         If e.RowIndex >= 0 Then
             Dim row As DataGridViewRow = dgvBookings.Rows(e.RowIndex)
             selectedBookingID = row.Cells("BookingID").Value
+            selectedCustomerName = row.Cells("CustomerName").Value
             ShowDetails(row)
         End If
     End Sub
@@ -59,7 +61,7 @@ Public Class frmBookingSearch
     Private Sub ShowDetails(row As DataGridViewRow)
         Dim booked As Date = row.Cells("BookingDateTime").Value
         lstDetails.Items.Clear()
-        lstDetails.Items.Add("Booking number " & selectedBookingID & " for " & row.Cells("CustomerName").Value)
+        lstDetails.Items.Add("Booking number " & selectedBookingID & " for " & selectedCustomerName)
         lstDetails.Items.Add("Booked on " & booked.ToString("dd/MM/yyyy") & " at " & booked.ToString("HH:mm"))
 
         Dim SQLCmd As New OleDbCommand("SELECT FilmTitle, ScreenName, ScreeningDate, ScreeningTime " &
@@ -109,5 +111,22 @@ Public Class frmBookingSearch
         End If
 
         lstDetails.Items.Add("Total: " & total.ToString("C2"))
+    End Sub
+
+    Private Sub btnCancelBooking_Click(sender As Object, e As EventArgs) Handles btnCancelBooking.Click
+        If selectedBookingID = 0 Then
+            MessageBox.Show("Please pick a booking from the list first.", "No Booking Picked", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        ElseIf MessageBox.Show("Cancel booking number " & selectedBookingID & " for " & selectedCustomerName & "? Any seats on it will go back on sale. This cannot be undone.", "Cancel Booking", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) = DialogResult.Yes Then
+            Dim cancelBooking As New OleDbCommand("UPDATE tblBooking SET BookingCancelled = True WHERE BookingID = @BookingID")
+            cancelBooking.Parameters.AddWithValue("@BookingID", selectedBookingID)
+            Dim freeSeats As New OleDbCommand("DELETE FROM tblBookingSeat WHERE BookingID = @BookingID")
+            freeSeats.Parameters.AddWithValue("@BookingID", selectedBookingID)
+            Dim commands() As OleDbCommand = {cancelBooking, freeSeats}
+            If RunCommands(commands) Then
+                WriteLog(LogBooking, "Cancelled booking number " & selectedBookingID & " for " & selectedCustomerName & ", its seats are back on sale")
+                MessageBox.Show("Booking number " & selectedBookingID & " for " & selectedCustomerName & " has been cancelled and any seats on it are back on sale.", "Booking Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                LoadBookings(txtSearch.Text.Trim())
+            End If
+        End If
     End Sub
 End Class

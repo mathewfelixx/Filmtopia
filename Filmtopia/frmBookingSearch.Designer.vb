@@ -29,6 +29,7 @@ Partial Class frmBookingSearch
         Me.dgvBookings = New System.Windows.Forms.DataGridView()
         Me.lblDetails = New System.Windows.Forms.Label()
         Me.lstDetails = New System.Windows.Forms.ListBox()
+        Me.btnCancelBooking = New System.Windows.Forms.Button()
         CType(Me.dgvBookings, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -101,12 +102,22 @@ Partial Class frmBookingSearch
         Me.lstDetails.Size = New System.Drawing.Size(640, 180)
         Me.lstDetails.TabIndex = 7
         '
+        'btnCancelBooking
+        '
+        Me.btnCancelBooking.Location = New System.Drawing.Point(680, 418)
+        Me.btnCancelBooking.Name = "btnCancelBooking"
+        Me.btnCancelBooking.Size = New System.Drawing.Size(200, 37)
+        Me.btnCancelBooking.TabIndex = 8
+        Me.btnCancelBooking.Text = "Cancel Booking"
+        Me.btnCancelBooking.UseVisualStyleBackColor = True
+        '
         'frmBookingSearch
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AcceptButton = Me.btnSearch
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1080, 620)
+        Me.Controls.Add(Me.btnCancelBooking)
         Me.Controls.Add(Me.lstDetails)
         Me.Controls.Add(Me.lblDetails)
         Me.Controls.Add(Me.dgvBookings)
@@ -132,4 +143,5 @@ Partial Class frmBookingSearch
     Friend WithEvents dgvBookings As System.Windows.Forms.DataGridView
     Friend WithEvents lblDetails As System.Windows.Forms.Label
     Friend WithEvents lstDetails As System.Windows.Forms.ListBox
+    Friend WithEvents btnCancelBooking As System.Windows.Forms.Button
 End Class
