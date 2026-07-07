@@ -28,7 +28,7 @@ Public Class frmBookingSearch
         Long.TryParse(searchText, bookingNumber)
 
         Dim SQLCmd As New OleDbCommand("SELECT BookingID, CustomerName, BookingDateTime FROM tblBooking " &
-                                       "WHERE InStr(CustomerName, @SearchText) > 0 OR BookingID = @BookingID " &
+                                       "WHERE BookingCancelled = False AND (InStr(CustomerName, @SearchText) > 0 OR BookingID = @BookingID) " &
                                        "ORDER BY BookingID DESC")
         SQLCmd.Parameters.AddWithValue("@SearchText", searchText)
         SQLCmd.Parameters.AddWithValue("@BookingID", bookingNumber)
