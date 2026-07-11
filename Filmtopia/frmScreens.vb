@@ -199,6 +199,22 @@ Public Class frmScreens
         End If
     End Sub
 
+    Private Sub btnBackInService_Click(sender As Object, e As EventArgs) Handles btnBackInService.Click
+        If selectedScreenID = 0 Then
+            MessageBox.Show("Please pick a screen from the list first.", "No Screen Picked", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        ElseIf Not selectedOutOfService Then
+            MessageBox.Show(selectedScreenName & " is already in service.", "Already in Service", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        Else
+            Dim SQLCmd As New OleDbCommand("UPDATE tblScreen SET ScreenOutOfService = False, ScreenOutReason = NULL WHERE ScreenID = @ScreenID")
+            SQLCmd.Parameters.AddWithValue("@ScreenID", selectedScreenID)
+            If RunCommand(SQLCmd) Then
+                WriteLog(LogScreen, "Put screen " & selectedScreenName & " back in service (screen number " & selectedScreenID & ")")
+                LoadScreens()
+                ClearFields()
+            End If
+        End If
+    End Sub
+
     Private Sub frmScreens_Shown(sender As Object, e As EventArgs) Handles MyBase.Shown
         dgvScreens.ClearSelection()
     End Sub

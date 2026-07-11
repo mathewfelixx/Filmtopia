@@ -34,6 +34,7 @@ Partial Class frmScreens
         Me.lblReason = New System.Windows.Forms.Label()
         Me.txtReason = New System.Windows.Forms.TextBox()
         Me.btnOutOfService = New System.Windows.Forms.Button()
+        Me.btnBackInService = New System.Windows.Forms.Button()
         CType(Me.dgvScreens, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -146,11 +147,21 @@ Partial Class frmScreens
         Me.btnOutOfService.Text = "Out of Service"
         Me.btnOutOfService.UseVisualStyleBackColor = True
         '
+        'btnBackInService
+        '
+        Me.btnBackInService.Location = New System.Drawing.Point(728, 492)
+        Me.btnBackInService.Name = "btnBackInService"
+        Me.btnBackInService.Size = New System.Drawing.Size(120, 37)
+        Me.btnBackInService.TabIndex = 12
+        Me.btnBackInService.Text = "Back in Service"
+        Me.btnBackInService.UseVisualStyleBackColor = True
+        '
         'frmScreens
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(912, 545)
+        Me.Controls.Add(Me.btnBackInService)
         Me.Controls.Add(Me.btnOutOfService)
         Me.Controls.Add(Me.txtReason)
         Me.Controls.Add(Me.lblReason)
@@ -186,4 +197,5 @@ Partial Class frmScreens
     Friend WithEvents lblReason As System.Windows.Forms.Label
     Friend WithEvents txtReason As System.Windows.Forms.TextBox
     Friend WithEvents btnOutOfService As System.Windows.Forms.Button
+    Friend WithEvents btnBackInService As System.Windows.Forms.Button
 End Class
