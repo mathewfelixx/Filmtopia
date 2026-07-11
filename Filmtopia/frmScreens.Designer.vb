@@ -31,6 +31,9 @@ Partial Class frmScreens
         Me.btnUpdate = New System.Windows.Forms.Button()
         Me.btnDelete = New System.Windows.Forms.Button()
         Me.btnClear = New System.Windows.Forms.Button()
+        Me.lblReason = New System.Windows.Forms.Label()
+        Me.txtReason = New System.Windows.Forms.TextBox()
+        Me.btnOutOfService = New System.Windows.Forms.Button()
         CType(Me.dgvScreens, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -118,11 +121,39 @@ Partial Class frmScreens
         Me.btnClear.Text = "Clear"
         Me.btnClear.UseVisualStyleBackColor = True
         '
+        'lblReason
+        '
+        Me.lblReason.AutoSize = True
+        Me.lblReason.Location = New System.Drawing.Point(16, 496)
+        Me.lblReason.Name = "lblReason"
+        Me.lblReason.Size = New System.Drawing.Size(55, 16)
+        Me.lblReason.TabIndex = 9
+        Me.lblReason.Text = "Reason"
+        '
+        'txtReason
+        '
+        Me.txtReason.Location = New System.Drawing.Point(160, 492)
+        Me.txtReason.Name = "txtReason"
+        Me.txtReason.Size = New System.Drawing.Size(332, 22)
+        Me.txtReason.TabIndex = 10
+        '
+        'btnOutOfService
+        '
+        Me.btnOutOfService.Location = New System.Drawing.Point(600, 492)
+        Me.btnOutOfService.Name = "btnOutOfService"
+        Me.btnOutOfService.Size = New System.Drawing.Size(120, 37)
+        Me.btnOutOfService.TabIndex = 11
+        Me.btnOutOfService.Text = "Out of Service"
+        Me.btnOutOfService.UseVisualStyleBackColor = True
+        '
         'frmScreens
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(912, 505)
+        Me.ClientSize = New System.Drawing.Size(912, 545)
+        Me.Controls.Add(Me.btnOutOfService)
+        Me.Controls.Add(Me.txtReason)
+        Me.Controls.Add(Me.lblReason)
         Me.Controls.Add(Me.btnClear)
         Me.Controls.Add(Me.btnDelete)
         Me.Controls.Add(Me.btnUpdate)
@@ -152,4 +183,7 @@ Partial Class frmScreens
     Friend WithEvents btnUpdate As System.Windows.Forms.Button
     Friend WithEvents btnDelete As System.Windows.Forms.Button
     Friend WithEvents btnClear As System.Windows.Forms.Button
+    Friend WithEvents lblReason As System.Windows.Forms.Label
+    Friend WithEvents txtReason As System.Windows.Forms.TextBox
+    Friend WithEvents btnOutOfService As System.Windows.Forms.Button
 End Class

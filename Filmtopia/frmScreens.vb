@@ -5,13 +5,14 @@ Public Class frmScreens
 
     Private selectedScreenID As Long = 0
     Private selectedScreenName As String = ""
+    Private selectedOutOfService As Boolean = False
 
     Private Sub frmScreens_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadScreens()
     End Sub
 
     Private Sub LoadScreens()
-        Dim SQLCmd As New OleDbCommand("SELECT ScreenID, ScreenName, ScreenCapacity " &
+        Dim SQLCmd As New OleDbCommand("SELECT ScreenID, ScreenName, ScreenCapacity, ScreenOutOfService, ScreenOutReason " &
                                        "FROM tblScreen ORDER BY ScreenName")
         Dim dt As New DataTable
         If FillTable(SQLCmd, dt) Then
@@ -19,7 +20,10 @@ Public Class frmScreens
             dgvScreens.Columns("ScreenID").Visible = False
             dgvScreens.Columns("ScreenName").HeaderText = "Name"
             dgvScreens.Columns("ScreenCapacity").HeaderText = "Seats"
+            dgvScreens.Columns("ScreenOutOfService").HeaderText = "Out of Service"
+            dgvScreens.Columns("ScreenOutReason").HeaderText = "Reason"
             dgvScreens.Columns("ScreenName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            dgvScreens.Columns("ScreenOutReason").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
         End If
     End Sub
 
@@ -61,6 +65,15 @@ Public Class frmScreens
     Private Function ScreeningCount(screenID As Long) As Integer
         Dim SQLCmd As New OleDbCommand("SELECT COUNT(*) FROM tblScreening WHERE ScreenID = @ScreenID")
         SQLCmd.Parameters.AddWithValue("@ScreenID", screenID)
+        Return GetValue(SQLCmd)
+    End Function
+
+    Private Function FutureTicketCount(screenID As Long) As Integer
+        Dim SQLCmd As New OleDbCommand("SELECT COUNT(*) FROM (tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID) " &
+                                       "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID " &
+                                       "WHERE ScreenID = @ScreenID AND ScreeningDate >= @Today")
+        SQLCmd.Parameters.AddWithValue("@ScreenID", screenID)
+        SQLCmd.Parameters.AddWithValue("@Today", Date.Today)
         Return GetValue(SQLCmd)
     End Function
 
@@ -159,6 +172,33 @@ Public Class frmScreens
         End If
     End Sub
 
+    Private Sub btnOutOfService_Click(sender As Object, e As EventArgs) Handles btnOutOfService.Click
+        Dim reason As String = txtReason.Text.Trim()
+
+        If selectedScreenID = 0 Then
+            MessageBox.Show("Please pick a screen from the list first.", "No Screen Picked", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        ElseIf selectedOutOfService Then
+            MessageBox.Show(selectedScreenName & " is already out of service.", "Already Out of Service", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        ElseIf reason = "" Then
+            MessageBox.Show("Please enter the reason " & selectedScreenName & " is being taken out of service.", "Missing Details", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtReason.Focus()
+        Else
+            Dim tickets As Integer = FutureTicketCount(selectedScreenID)
+            If tickets > 0 Then
+                MessageBox.Show(selectedScreenName & " cannot be taken out of service because " & tickets & " ticket(s) have been sold for its screenings from today onwards. Those bookings must be cancelled first.", "Tickets Sold", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            ElseIf MessageBox.Show("Take " & selectedScreenName & " out of service? No new screenings or bookings can be made in it until it is back in service.", "Out of Service", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) = DialogResult.Yes Then
+                Dim SQLCmd As New OleDbCommand("UPDATE tblScreen SET ScreenOutOfService = True, ScreenOutReason = @ScreenOutReason WHERE ScreenID = @ScreenID")
+                SQLCmd.Parameters.AddWithValue("@ScreenOutReason", reason)
+                SQLCmd.Parameters.AddWithValue("@ScreenID", selectedScreenID)
+                If RunCommand(SQLCmd) Then
+                    WriteLog(LogScreen, "Took screen " & selectedScreenName & " out of service (screen number " & selectedScreenID & "), reason " & reason)
+                    LoadScreens()
+                    ClearFields()
+                End If
+            End If
+        End If
+    End Sub
+
     Private Sub frmScreens_Shown(sender As Object, e As EventArgs) Handles MyBase.Shown
         dgvScreens.ClearSelection()
     End Sub
@@ -172,9 +212,11 @@ Public Class frmScreens
             Dim row As DataGridViewRow = dgvScreens.Rows(e.RowIndex)
             selectedScreenID = row.Cells("ScreenID").Value
             selectedScreenName = row.Cells("ScreenName").Value
+            selectedOutOfService = row.Cells("ScreenOutOfService").Value
             txtName.Text = row.Cells("ScreenName").Value
             txtSeats.Text = row.Cells("ScreenCapacity").Value
             txtSeats.ReadOnly = True
+            txtReason.Text = row.Cells("ScreenOutReason").Value.ToString()
         End If
     End Sub
 
@@ -185,9 +227,11 @@ Public Class frmScreens
     Private Sub ClearFields()
         selectedScreenID = 0
         selectedScreenName = ""
+        selectedOutOfService = False
         dgvScreens.ClearSelection()
         txtName.Text = ""
         txtSeats.Text = ""
+        txtReason.Text = ""
         txtSeats.ReadOnly = False
         txtName.Focus()
     End Sub
