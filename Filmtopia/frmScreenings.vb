@@ -31,7 +31,7 @@ Public Class frmScreenings
     End Sub
 
     Private Sub LoadScreenList()
-        Dim SQLCmd As New OleDbCommand("SELECT ScreenID, ScreenName FROM tblScreen ORDER BY ScreenName")
+        Dim SQLCmd As New OleDbCommand("SELECT ScreenID, ScreenName FROM tblScreen WHERE ScreenOutOfService = False ORDER BY ScreenName")
         Dim dt As New DataTable
         If FillTable(SQLCmd, dt) Then
             cboScreen.DisplayMember = "ScreenName"

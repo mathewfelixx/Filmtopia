@@ -26,7 +26,7 @@ Public Class frmBookings
         Dim SQLCmd As New OleDbCommand("SELECT ScreeningID, tblScreening.ScreenID, FilmDuration, FilmTitle, ScreenName, ScreeningDate, ScreeningTime, TicketPrice " &
                                        "FROM (tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID) " &
                                        "INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID " &
-                                       "WHERE ScreeningDate >= @Today " &
+                                       "WHERE ScreeningDate >= @Today AND ScreenOutOfService = False " &
                                        "ORDER BY ScreeningDate, ScreeningTime, ScreenName")
         SQLCmd.Parameters.AddWithValue("@Today", Date.Today)
         Dim dt As New DataTable
