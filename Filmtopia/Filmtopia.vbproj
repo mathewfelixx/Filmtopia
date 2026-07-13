@@ -101,6 +101,13 @@
       <DependentUpon>frmBookingSearch.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmFoodItems.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmFoodItems.Designer.vb">
+      <DependentUpon>frmFoodItems.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="modBookings.vb" />
     <Compile Include="modScreenings.vb" />
     <Compile Include="modLogs.vb" />
