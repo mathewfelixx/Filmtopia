@@ -6,6 +6,7 @@ Module modLogs
     Public Const LogScreen As String = "SCREEN"
     Public Const LogScreening As String = "SCREENING"
     Public Const LogBooking As String = "BOOKING"
+    Public Const LogFood As String = "FOOD"
 
     Public Sub WriteLog(logType As String, message As String)
         Dim SQLCmd As New OleDbCommand("INSERT INTO tblLogs (LogDateTime, LoginID, LogType, LogMessage) VALUES (Now(), @LoginID, @LogType, @LogMessage)")

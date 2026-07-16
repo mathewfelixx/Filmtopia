@@ -23,6 +23,8 @@ Partial Class frmFoodItems
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.dgvFood = New System.Windows.Forms.DataGridView()
+        Me.btnWithdraw = New System.Windows.Forms.Button()
+        Me.btnPutBack = New System.Windows.Forms.Button()
         CType(Me.dgvFood, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -42,11 +44,31 @@ Partial Class frmFoodItems
         Me.dgvFood.Size = New System.Drawing.Size(668, 380)
         Me.dgvFood.TabIndex = 0
         '
+        'btnWithdraw
+        '
+        Me.btnWithdraw.Location = New System.Drawing.Point(16, 410)
+        Me.btnWithdraw.Name = "btnWithdraw"
+        Me.btnWithdraw.Size = New System.Drawing.Size(180, 37)
+        Me.btnWithdraw.TabIndex = 1
+        Me.btnWithdraw.Text = "Withdraw from Sale"
+        Me.btnWithdraw.UseVisualStyleBackColor = True
+        '
+        'btnPutBack
+        '
+        Me.btnPutBack.Location = New System.Drawing.Point(204, 410)
+        Me.btnPutBack.Name = "btnPutBack"
+        Me.btnPutBack.Size = New System.Drawing.Size(180, 37)
+        Me.btnPutBack.TabIndex = 2
+        Me.btnPutBack.Text = "Put Back on Sale"
+        Me.btnPutBack.UseVisualStyleBackColor = True
+        '
         'frmFoodItems
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(700, 465)
+        Me.Controls.Add(Me.btnPutBack)
+        Me.Controls.Add(Me.btnWithdraw)
         Me.Controls.Add(Me.dgvFood)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.MaximizeBox = False
@@ -59,4 +81,6 @@ Partial Class frmFoodItems
     End Sub
 
     Friend WithEvents dgvFood As System.Windows.Forms.DataGridView
+    Friend WithEvents btnWithdraw As System.Windows.Forms.Button
+    Friend WithEvents btnPutBack As System.Windows.Forms.Button
 End Class
