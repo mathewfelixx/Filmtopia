@@ -56,7 +56,7 @@ Public Class frmBookings
     End Sub
 
     Private Sub LoadFoodMenu()
-        Dim SQLCmd As New OleDbCommand("SELECT FoodItemID, FoodCategory, FoodName, FoodPrice FROM tblFoodItem ORDER BY FoodCategory, FoodName")
+        Dim SQLCmd As New OleDbCommand("SELECT FoodItemID, FoodCategory, FoodName, FoodPrice FROM tblFoodItem WHERE FoodWithdrawn = False ORDER BY FoodCategory, FoodName")
         Dim dt As New DataTable
         If FillTable(SQLCmd, dt) Then
             dgvFood.DataSource = dt
