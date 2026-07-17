@@ -1,0 +1,50 @@
+﻿Imports System.Data.OleDb
+
+Public Class frmSalesReport
+    Private Sub frmSalesReport_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        dtpFrom.Value = New Date(Date.Today.Year, Date.Today.Month, 1)
+        dtpTo.Value = Date.Today
+        ShowReport()
+    End Sub
+
+    Private Sub btnShowReport_Click(sender As Object, e As EventArgs) Handles btnShowReport.Click
+        ShowReport()
+    End Sub
+
+    Private Sub ShowReport()
+        Dim fromDate As Date = dtpFrom.Value.Date
+        Dim dayAfterTo As Date = dtpTo.Value.Date.AddDays(1)
+
+        Dim SQLCmd As New OleDbCommand("SELECT FilmTitle, COUNT(*) AS Tickets, SUM(SeatPricePaid) AS TicketRevenue " &
+                                       "FROM ((tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID) " &
+                                       "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
+                                       "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
+                                       "WHERE BookingCancelled = False AND BookingDateTime >= @FromDate AND BookingDateTime < @DayAfterTo " &
+                                       "GROUP BY FilmTitle " &
+                                       "ORDER BY SUM(SeatPricePaid) DESC, FilmTitle")
+        SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
+        SQLCmd.Parameters.AddWithValue("@DayAfterTo", dayAfterTo)
+        Dim dt As New DataTable
+        If FillTable(SQLCmd, dt) Then
+            dgvReport.DataSource = dt
+            dgvReport.Columns("FilmTitle").HeaderText = "Film"
+            dgvReport.Columns("TicketRevenue").HeaderText = "Ticket Revenue"
+            dgvReport.Columns("FilmTitle").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            dgvReport.Columns("TicketRevenue").DefaultCellStyle.Format = "C2"
+
+            Dim tickets As Integer = 0
+            Dim ticketRevenue As Decimal = 0
+            For Each film As DataRow In dt.Rows
+                tickets = tickets + film("Tickets")
+                ticketRevenue = ticketRevenue + film("TicketRevenue")
+            Next
+
+            lblTickets.Text = "Tickets sold: " & tickets
+            lblTicketRevenue.Text = "Ticket revenue: " & ticketRevenue.ToString("C2")
+        End If
+    End Sub
+
+    Private Sub dgvReport_DataBindingComplete(sender As Object, e As DataGridViewBindingCompleteEventArgs) Handles dgvReport.DataBindingComplete
+        dgvReport.ClearSelection()
+    End Sub
+End Class
