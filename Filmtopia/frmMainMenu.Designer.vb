@@ -30,6 +30,7 @@ Partial Class frmMainMenu
         Me.btnFindBooking = New System.Windows.Forms.Button()
         Me.btnScreens = New System.Windows.Forms.Button()
         Me.btnFoodMenu = New System.Windows.Forms.Button()
+        Me.btnSalesReport = New System.Windows.Forms.Button()
         Me.btnLogs = New System.Windows.Forms.Button()
         Me.btnLogout = New System.Windows.Forms.Button()
         Me.pnlContent = New System.Windows.Forms.Panel()
@@ -48,6 +49,7 @@ Partial Class frmMainMenu
         Me.flpSidebar.Controls.Add(Me.btnFindBooking)
         Me.flpSidebar.Controls.Add(Me.btnScreens)
         Me.flpSidebar.Controls.Add(Me.btnFoodMenu)
+        Me.flpSidebar.Controls.Add(Me.btnSalesReport)
         Me.flpSidebar.Controls.Add(Me.btnLogs)
         Me.flpSidebar.Controls.Add(Me.btnLogout)
         Me.flpSidebar.Dock = System.Windows.Forms.DockStyle.Left
@@ -148,15 +150,28 @@ Partial Class frmMainMenu
         Me.btnFoodMenu.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnFoodMenu.UseVisualStyleBackColor = False
         '
+        'btnSalesReport
+        '
+        Me.btnSalesReport.BackColor = System.Drawing.Color.Transparent
+        Me.btnSalesReport.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnSalesReport.Location = New System.Drawing.Point(3, 317)
+        Me.btnSalesReport.Name = "btnSalesReport"
+        Me.btnSalesReport.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
+        Me.btnSalesReport.Size = New System.Drawing.Size(194, 32)
+        Me.btnSalesReport.TabIndex = 7
+        Me.btnSalesReport.Text = "Sales Report"
+        Me.btnSalesReport.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnSalesReport.UseVisualStyleBackColor = False
+        '
         'btnLogs
         '
         Me.btnLogs.BackColor = System.Drawing.Color.Transparent
         Me.btnLogs.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnLogs.Location = New System.Drawing.Point(3, 317)
+        Me.btnLogs.Location = New System.Drawing.Point(3, 355)
         Me.btnLogs.Name = "btnLogs"
         Me.btnLogs.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
         Me.btnLogs.Size = New System.Drawing.Size(194, 32)
-        Me.btnLogs.TabIndex = 7
+        Me.btnLogs.TabIndex = 8
         Me.btnLogs.Text = "Logs"
         Me.btnLogs.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnLogs.UseVisualStyleBackColor = False
@@ -168,11 +183,11 @@ Partial Class frmMainMenu
         Me.btnLogout.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.btnLogout.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnLogout.ForeColor = System.Drawing.Color.White
-        Me.btnLogout.Location = New System.Drawing.Point(3, 355)
+        Me.btnLogout.Location = New System.Drawing.Point(3, 393)
         Me.btnLogout.Name = "btnLogout"
         Me.btnLogout.Padding = New System.Windows.Forms.Padding(5, 0, 0, 0)
         Me.btnLogout.Size = New System.Drawing.Size(194, 34)
-        Me.btnLogout.TabIndex = 8
+        Me.btnLogout.TabIndex = 9
         Me.btnLogout.Text = "Log out"
         Me.btnLogout.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnLogout.UseVisualStyleBackColor = False
@@ -223,6 +238,7 @@ Partial Class frmMainMenu
     Friend WithEvents btnFindBooking As System.Windows.Forms.Button
     Friend WithEvents btnScreens As System.Windows.Forms.Button
     Friend WithEvents btnFoodMenu As System.Windows.Forms.Button
+    Friend WithEvents btnSalesReport As System.Windows.Forms.Button
     Friend WithEvents btnLogs As System.Windows.Forms.Button
     Friend WithEvents btnLogout As System.Windows.Forms.Button
     Friend WithEvents pnlContent As System.Windows.Forms.Panel

@@ -12,6 +12,7 @@
 
         btnScreens.Visible = isManager
         btnFoodMenu.Visible = isManager
+        btnSalesReport.Visible = isManager
         btnLogs.Visible = isManager
 
         If isManager Then
@@ -63,6 +64,11 @@
         frmFoodItems.BringToFront()
     End Sub
 
+    Private Sub btnSalesReport_Click(sender As Object, e As EventArgs) Handles btnSalesReport.Click
+        frmSalesReport.Show()
+        frmSalesReport.BringToFront()
+    End Sub
+
     Private Sub btnLogs_Click(sender As Object, e As EventArgs) Handles btnLogs.Click
         frmLogs.Show()
         frmLogs.BringToFront()
@@ -88,6 +94,7 @@
         frmBookingSearch.Close()
         frmScreens.Close()
         frmFoodItems.Close()
+        frmSalesReport.Close()
         frmLogs.Close()
     End Sub
 End Class
