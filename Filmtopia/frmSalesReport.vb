@@ -39,10 +39,29 @@ Public Class frmSalesReport
                 ticketRevenue = ticketRevenue + film("TicketRevenue")
             Next
 
+            Dim foodRevenue As Decimal = GetFoodRevenue(fromDate, dayAfterTo)
+
             lblTickets.Text = "Tickets sold: " & tickets
             lblTicketRevenue.Text = "Ticket revenue: " & ticketRevenue.ToString("C2")
+            lblFoodRevenue.Text = "Food and drink revenue: " & foodRevenue.ToString("C2")
+            lblTotalRevenue.Text = "Total revenue: " & (ticketRevenue + foodRevenue).ToString("C2")
         End If
     End Sub
+
+    Private Function GetFoodRevenue(fromDate As Date, dayAfterTo As Date) As Decimal
+        Dim SQLCmd As New OleDbCommand("SELECT SUM(Quantity * ItemPricePaid) " &
+                                       "FROM tblOrderItem INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID " &
+                                       "WHERE BookingCancelled = False AND BookingDateTime >= @FromDate AND BookingDateTime < @DayAfterTo")
+        SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
+        SQLCmd.Parameters.AddWithValue("@DayAfterTo", dayAfterTo)
+
+        Dim revenue As Decimal = 0
+        Dim result As Object = GetValue(SQLCmd)
+        If Not IsDBNull(result) Then
+            revenue = result
+        End If
+        Return revenue
+    End Function
 
     Private Sub dgvReport_DataBindingComplete(sender As Object, e As DataGridViewBindingCompleteEventArgs) Handles dgvReport.DataBindingComplete
         dgvReport.ClearSelection()

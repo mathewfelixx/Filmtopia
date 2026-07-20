@@ -30,6 +30,8 @@ Partial Class frmSalesReport
         Me.dgvReport = New System.Windows.Forms.DataGridView()
         Me.lblTickets = New System.Windows.Forms.Label()
         Me.lblTicketRevenue = New System.Windows.Forms.Label()
+        Me.lblFoodRevenue = New System.Windows.Forms.Label()
+        Me.lblTotalRevenue = New System.Windows.Forms.Label()
         CType(Me.dgvReport, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -110,12 +112,33 @@ Partial Class frmSalesReport
         Me.lblTicketRevenue.TabIndex = 7
         Me.lblTicketRevenue.Text = "Ticket revenue"
         '
+        'lblFoodRevenue
+        '
+        Me.lblFoodRevenue.AutoSize = True
+        Me.lblFoodRevenue.Location = New System.Drawing.Point(16, 465)
+        Me.lblFoodRevenue.Name = "lblFoodRevenue"
+        Me.lblFoodRevenue.Size = New System.Drawing.Size(150, 16)
+        Me.lblFoodRevenue.TabIndex = 8
+        Me.lblFoodRevenue.Text = "Food and drink revenue"
+        '
+        'lblTotalRevenue
+        '
+        Me.lblTotalRevenue.AutoSize = True
+        Me.lblTotalRevenue.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.8!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblTotalRevenue.Location = New System.Drawing.Point(16, 495)
+        Me.lblTotalRevenue.Name = "lblTotalRevenue"
+        Me.lblTotalRevenue.Size = New System.Drawing.Size(150, 16)
+        Me.lblTotalRevenue.TabIndex = 9
+        Me.lblTotalRevenue.Text = "Total revenue"
+        '
         'frmSalesReport
         '
         Me.AcceptButton = Me.btnShowReport
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(900, 530)
+        Me.Controls.Add(Me.lblTotalRevenue)
+        Me.Controls.Add(Me.lblFoodRevenue)
         Me.Controls.Add(Me.lblTicketRevenue)
         Me.Controls.Add(Me.lblTickets)
         Me.Controls.Add(Me.dgvReport)
@@ -143,4 +166,6 @@ Partial Class frmSalesReport
     Friend WithEvents dgvReport As System.Windows.Forms.DataGridView
     Friend WithEvents lblTickets As System.Windows.Forms.Label
     Friend WithEvents lblTicketRevenue As System.Windows.Forms.Label
+    Friend WithEvents lblFoodRevenue As System.Windows.Forms.Label
+    Friend WithEvents lblTotalRevenue As System.Windows.Forms.Label
 End Class
