@@ -39,7 +39,7 @@ Partial Class frmFoodOrder
         Me.lblBookingInfo.Location = New System.Drawing.Point(16, 16)
         Me.lblBookingInfo.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblBookingInfo.Name = "lblBookingInfo"
-        Me.lblBookingInfo.Size = New System.Drawing.Size(124, 23)
+        Me.lblBookingInfo.Size = New System.Drawing.Size(135, 23)
         Me.lblBookingInfo.TabIndex = 0
         Me.lblBookingInfo.Text = "Booking details"
         '
@@ -69,7 +69,7 @@ Partial Class frmFoodOrder
         Me.lblPrice.Location = New System.Drawing.Point(420, 56)
         Me.lblPrice.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblPrice.Name = "lblPrice"
-        Me.lblPrice.Size = New System.Drawing.Size(14, 16)
+        Me.lblPrice.Size = New System.Drawing.Size(10, 16)
         Me.lblPrice.TabIndex = 3
         Me.lblPrice.Text = " "
         '
@@ -79,7 +79,7 @@ Partial Class frmFoodOrder
         Me.lblQuantity.Location = New System.Drawing.Point(16, 92)
         Me.lblQuantity.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblQuantity.Name = "lblQuantity"
-        Me.lblQuantity.Size = New System.Drawing.Size(60, 16)
+        Me.lblQuantity.Size = New System.Drawing.Size(55, 16)
         Me.lblQuantity.TabIndex = 4
         Me.lblQuantity.Text = "Quantity"
         '
@@ -112,7 +112,7 @@ Partial Class frmFoodOrder
         Me.dgvOrderItems.Name = "dgvOrderItems"
         Me.dgvOrderItems.ReadOnly = True
         Me.dgvOrderItems.RowHeadersWidth = 51
-        Me.dgvOrderItems.Size = New System.Drawing.Size(560, 250)
+        Me.dgvOrderItems.Size = New System.Drawing.Size(687, 250)
         Me.dgvOrderItems.TabIndex = 7
         '
         'btnRemoveItem
@@ -129,16 +129,16 @@ Partial Class frmFoodOrder
         '
         Me.lblTotal.AutoSize = True
         Me.lblTotal.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
-        Me.lblTotal.Location = New System.Drawing.Point(380, 410)
+        Me.lblTotal.Location = New System.Drawing.Point(507, 399)
         Me.lblTotal.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblTotal.Name = "lblTotal"
-        Me.lblTotal.Size = New System.Drawing.Size(82, 23)
+        Me.lblTotal.Size = New System.Drawing.Size(104, 23)
         Me.lblTotal.TabIndex = 9
         Me.lblTotal.Text = "Total: £0.00"
         '
         'btnClose
         '
-        Me.btnClose.Location = New System.Drawing.Point(460, 450)
+        Me.btnClose.Location = New System.Drawing.Point(587, 439)
         Me.btnClose.Margin = New System.Windows.Forms.Padding(4)
         Me.btnClose.Name = "btnClose"
         Me.btnClose.Size = New System.Drawing.Size(116, 37)
@@ -161,7 +161,7 @@ Partial Class frmFoodOrder
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(594, 500)
+        Me.ClientSize = New System.Drawing.Size(716, 500)
         Me.Controls.Add(Me.lblVersion)
         Me.Controls.Add(Me.btnClose)
         Me.Controls.Add(Me.lblTotal)
@@ -174,12 +174,12 @@ Partial Class frmFoodOrder
         Me.Controls.Add(Me.cboFoodItem)
         Me.Controls.Add(Me.lblFoodItem)
         Me.Controls.Add(Me.lblBookingInfo)
-        Me.Margin = New System.Windows.Forms.Padding(4)
-        Me.Name = "frmFoodOrder"
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
+        Me.Margin = New System.Windows.Forms.Padding(4)
         Me.MaximizeBox = False
-        Me.Text = "Food Order"
+        Me.Name = "frmFoodOrder"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
+        Me.Text = "Food Order"
         CType(Me.dgvOrderItems, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
