@@ -272,7 +272,7 @@ Partial Class frmMainForm
         Me.lblInstructions.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.lblInstructions.Location = New System.Drawing.Point(40, 90)
         Me.lblInstructions.Name = "lblInstructions"
-        Me.lblInstructions.Size = New System.Drawing.Size(523, 240)
+        Me.lblInstructions.Size = New System.Drawing.Size(523, 260)
         Me.lblInstructions.TabIndex = 1
         Me.lblInstructions.Text = resources.GetString("lblInstructions.Text")
         '
@@ -306,8 +306,8 @@ Partial Class frmMainForm
         Me.Controls.Add(Me.pnlHeader)
         Me.Controls.Add(Me.FlowLayoutPanel1)
         Me.Name = "frmMainForm"
-        Me.Text = "Filmtopia Management System"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
+        Me.Text = "Filmtopia Management System"
         Me.FlowLayoutPanel1.ResumeLayout(False)
         Me.GroupBox1.ResumeLayout(False)
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
