@@ -8,7 +8,12 @@ Public Class frmSalesReport
     End Sub
 
     Private Sub btnShowReport_Click(sender As Object, e As EventArgs) Handles btnShowReport.Click
-        ShowReport()
+        If dtpTo.Value.Date < dtpFrom.Value.Date Then
+            MessageBox.Show("The To date cannot be before the From date.", "Invalid Dates", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            dtpTo.Focus()
+        Else
+            ShowReport()
+        End If
     End Sub
 
     Private Sub ShowReport()
