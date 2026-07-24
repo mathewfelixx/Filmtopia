@@ -9,11 +9,6 @@ Public Class frmScreenings
     Private otherNames(-1) As String
 
     Private Sub frmScreenings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        If UserAccessLevel = AccessManager Then
-            btnDelete.Visible = True
-        Else
-            btnDelete.Visible = False
-        End If
         LoadFilmList()
         LoadScreenList()
         LoadScreenings()

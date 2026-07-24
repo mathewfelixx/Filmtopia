@@ -10,6 +10,8 @@
             isManager = True
         End If
 
+        btnFilms.Visible = isManager
+        btnScreenings.Visible = isManager
         btnScreens.Visible = isManager
         btnFoodMenu.Visible = isManager
         btnSalesReport.Visible = isManager

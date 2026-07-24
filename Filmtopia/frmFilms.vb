@@ -5,11 +5,6 @@ Public Class frmFilms
     Private selectedFilmTitle As String = ""
 
     Private Sub frmFilms_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        If UserAccessLevel = AccessManager Then
-            btnDelete.Visible = True
-        Else
-            btnDelete.Visible = False
-        End If
         LoadFilms()
     End Sub
 
