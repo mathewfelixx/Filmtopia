@@ -11,13 +11,25 @@ Public Class frmBookings
     'the booking id of the booking just created, used to open food ordering
     Private lastBookingID As Long = 0
 
-    'the three seat colours, made with FromArgb so the colour checks match properly
-    Private availableColour As Color = Color.FromArgb(220, 220, 220)
-    Private selectedColour As Color = Color.Fuchsia
-    Private takenColour As Color = Color.FromArgb(255, 192, 255)
+    'the three seat colours, these get set from the theme so they work in dark mode too
+    Private availableColour As Color
+    Private selectedColour As Color
+    Private takenColour As Color
+
+    'takes the seat colours from whichever theme is on and puts them on the little key labels
+    Private Sub ApplySeatColours()
+        availableColour = SeatAvailable
+        selectedColour = SeatSelected
+        takenColour = SeatTaken
+
+        lblSwatchAvailable.BackColor = availableColour
+        lblSwatchSelected.BackColor = selectedColour
+        lblSwatchTaken.BackColor = takenColour
+    End Sub
 
     Private Sub frmBookings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup(Me)
+        ApplySeatColours()
         LoadScreenings()
         LoadCustomers()
         WriteLog("BOOKING", "Bookings form opened")
@@ -184,6 +196,8 @@ Public Class frmBookings
 
     'draws a button for every seat in the screens layout and greys out the taken ones
     Private Sub BuildSeatMap()
+        'make sure the colours match the theme in case it was changed since the form opened
+        ApplySeatColours()
         pnlSeatMap.Controls.Clear()
 
         Dim dtSeats As New DataTable
@@ -233,10 +247,11 @@ Public Class frmBookings
             'if this seat is already taken grey it out, otherwise let it be clicked
             If dtTaken.Select("SeatID = " & seatID).Length > 0 Then
                 b.BackColor = takenColour
-                b.ForeColor = Color.White
+                b.ForeColor = SeatTakenFore
                 b.Enabled = False
             Else
                 b.BackColor = availableColour
+                b.ForeColor = SeatFore
                 AddHandler b.Click, AddressOf Seat_Click
             End If
 

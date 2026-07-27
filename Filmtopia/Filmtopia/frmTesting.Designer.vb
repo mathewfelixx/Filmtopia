@@ -27,6 +27,7 @@ Partial Class frmTesting
         Me.btnMainAdmin = New System.Windows.Forms.Button()
         Me.btnOpenLogs = New System.Windows.Forms.Button()
         Me.btnOpenVersionControl = New System.Windows.Forms.Button()
+        Me.btnMainMenuV2 = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'btnOpenLogin
@@ -74,6 +75,15 @@ Partial Class frmTesting
         Me.btnOpenVersionControl.Text = "Open Version Control"
         Me.btnOpenVersionControl.UseVisualStyleBackColor = True
         '
+        'btnMainMenuV2
+        '
+        Me.btnMainMenuV2.Location = New System.Drawing.Point(30, 240)
+        Me.btnMainMenuV2.Name = "btnMainMenuV2"
+        Me.btnMainMenuV2.Size = New System.Drawing.Size(180, 34)
+        Me.btnMainMenuV2.TabIndex = 5
+        Me.btnMainMenuV2.Text = "Open Main Menu V2"
+        Me.btnMainMenuV2.UseVisualStyleBackColor = True
+        '
         'frmTesting
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
@@ -84,6 +94,7 @@ Partial Class frmTesting
         Me.Controls.Add(Me.btnMainAdmin)
         Me.Controls.Add(Me.btnOpenLogs)
         Me.Controls.Add(Me.btnOpenVersionControl)
+        Me.Controls.Add(Me.btnMainMenuV2)
         Me.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.Name = "frmTesting"
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
@@ -99,4 +110,5 @@ Partial Class frmTesting
     Friend WithEvents btnMainAdmin As Button
     Friend WithEvents btnOpenLogs As Button
     Friend WithEvents btnOpenVersionControl As Button
+    Friend WithEvents btnMainMenuV2 As Button
 End Class
