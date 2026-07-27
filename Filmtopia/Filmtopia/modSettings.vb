@@ -190,7 +190,9 @@ Module modSettings
             If ctrl.Name = "lblScreen" Then
                 'the screen bar on the booking form is purple in both modes so it keeps white text
                 ctrl.ForeColor = PanelFore
-            ElseIf ctrl.Name = "lblVersion" Or ctrl.Name = "lblSubtitle" Then
+            ElseIf ctrl.Name = "lblVersion" Or ctrl.Name = "lblSubtitle" Or
+                   ctrl.Name = "lblGridCount" Or ctrl.Name = "lblNoRows" Or
+                   ctrl.Name.StartsWith("lblCardSub") Then
                 ctrl.ForeColor = SubtleFore
             ElseIf ctrl.Name = "lblWelcome" Or ctrl.Name.StartsWith("lblStat") Then
                 ctrl.ForeColor = AccentFore
@@ -199,13 +201,17 @@ Module modSettings
             End If
 
         ElseIf TypeOf ctrl Is Panel Then
-            'the dashboard cards sit on top of the form so they use the lighter surface colour
-            If ctrl.Name.StartsWith("pnlCard") Then
+            'the dashboard cards sit on top of the form so they use the lighter surface colour,
+            'and the little coloured strip down the side of each card is left as it is
+            If ctrl.Name.StartsWith("pnlAccent") Then
+                'left alone on purpose
+            ElseIf ctrl.Name.StartsWith("pnlCard") Then
                 ctrl.BackColor = CardBack
+                ctrl.ForeColor = TextFore
             Else
                 ctrl.BackColor = FormBack
+                ctrl.ForeColor = TextFore
             End If
-            ctrl.ForeColor = TextFore
 
         ElseIf TypeOf ctrl Is PictureBox Then
             'left alone because these hold the logo
