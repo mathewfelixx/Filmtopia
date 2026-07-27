@@ -31,11 +31,16 @@ Partial Class frmSettings
         Me.txtConfirmPW = New System.Windows.Forms.TextBox()
         Me.btnChangePassword = New System.Windows.Forms.Button()
         Me.lblPWHelp = New System.Windows.Forms.Label()
+        Me.GroupBox3 = New System.Windows.Forms.GroupBox()
+        Me.rdoLight = New System.Windows.Forms.RadioButton()
+        Me.rdoDark = New System.Windows.Forms.RadioButton()
+        Me.lblThemeNote = New System.Windows.Forms.Label()
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.btnClose = New System.Windows.Forms.Button()
         Me.FolderBrowserDialog1 = New System.Windows.Forms.FolderBrowserDialog()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
+        Me.GroupBox3.SuspendLayout()
         Me.SuspendLayout()
         '
         'lblHeading
@@ -194,22 +199,65 @@ Partial Class frmSettings
         Me.lblPWHelp.TabIndex = 7
         Me.lblPWHelp.Text = "At least 6 characters."
         '
+        'GroupBox3
+        '
+        Me.GroupBox3.Controls.Add(Me.rdoLight)
+        Me.GroupBox3.Controls.Add(Me.rdoDark)
+        Me.GroupBox3.Controls.Add(Me.lblThemeNote)
+        Me.GroupBox3.Location = New System.Drawing.Point(16, 395)
+        Me.GroupBox3.Name = "GroupBox3"
+        Me.GroupBox3.Size = New System.Drawing.Size(516, 65)
+        Me.GroupBox3.TabIndex = 3
+        Me.GroupBox3.TabStop = False
+        Me.GroupBox3.Text = "Appearance"
+        '
+        'rdoLight
+        '
+        Me.rdoLight.AutoSize = True
+        Me.rdoLight.Location = New System.Drawing.Point(15, 28)
+        Me.rdoLight.Name = "rdoLight"
+        Me.rdoLight.Size = New System.Drawing.Size(80, 17)
+        Me.rdoLight.TabIndex = 0
+        Me.rdoLight.TabStop = True
+        Me.rdoLight.Text = "Light mode"
+        Me.rdoLight.UseVisualStyleBackColor = True
+        '
+        'rdoDark
+        '
+        Me.rdoDark.AutoSize = True
+        Me.rdoDark.Location = New System.Drawing.Point(152, 28)
+        Me.rdoDark.Name = "rdoDark"
+        Me.rdoDark.Size = New System.Drawing.Size(79, 17)
+        Me.rdoDark.TabIndex = 1
+        Me.rdoDark.Text = "Dark mode"
+        Me.rdoDark.UseVisualStyleBackColor = True
+        '
+        'lblThemeNote
+        '
+        Me.lblThemeNote.AutoSize = True
+        Me.lblThemeNote.ForeColor = System.Drawing.Color.Gray
+        Me.lblThemeNote.Location = New System.Drawing.Point(290, 30)
+        Me.lblThemeNote.Name = "lblThemeNote"
+        Me.lblThemeNote.Size = New System.Drawing.Size(150, 13)
+        Me.lblThemeNote.TabIndex = 2
+        Me.lblThemeNote.Text = "The choice is remembered."
+        '
         'lblVersion
         '
         Me.lblVersion.AutoSize = True
         Me.lblVersion.ForeColor = System.Drawing.Color.Gray
-        Me.lblVersion.Location = New System.Drawing.Point(13, 400)
+        Me.lblVersion.Location = New System.Drawing.Point(13, 475)
         Me.lblVersion.Name = "lblVersion"
         Me.lblVersion.Size = New System.Drawing.Size(45, 13)
-        Me.lblVersion.TabIndex = 3
-        Me.lblVersion.Text = "lblVersion"
+        Me.lblVersion.TabIndex = 4
+        Me.lblVersion.Text = "Filmtopia Cinema Management System  v1.0"
         '
         'btnClose
         '
-        Me.btnClose.Location = New System.Drawing.Point(444, 395)
+        Me.btnClose.Location = New System.Drawing.Point(444, 470)
         Me.btnClose.Name = "btnClose"
         Me.btnClose.Size = New System.Drawing.Size(88, 26)
-        Me.btnClose.TabIndex = 4
+        Me.btnClose.TabIndex = 5
         Me.btnClose.Text = "Close"
         Me.btnClose.UseVisualStyleBackColor = True
         '
@@ -217,9 +265,10 @@ Partial Class frmSettings
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(548, 435)
+        Me.ClientSize = New System.Drawing.Size(548, 510)
         Me.Controls.Add(Me.btnClose)
         Me.Controls.Add(Me.lblVersion)
+        Me.Controls.Add(Me.GroupBox3)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)
         Me.Controls.Add(Me.lblHeading)
@@ -232,6 +281,8 @@ Partial Class frmSettings
         Me.GroupBox1.PerformLayout()
         Me.GroupBox2.ResumeLayout(False)
         Me.GroupBox2.PerformLayout()
+        Me.GroupBox3.ResumeLayout(False)
+        Me.GroupBox3.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -252,6 +303,10 @@ Partial Class frmSettings
     Friend WithEvents txtConfirmPW As TextBox
     Friend WithEvents btnChangePassword As Button
     Friend WithEvents lblPWHelp As Label
+    Friend WithEvents GroupBox3 As GroupBox
+    Friend WithEvents rdoLight As RadioButton
+    Friend WithEvents rdoDark As RadioButton
+    Friend WithEvents lblThemeNote As Label
     Friend WithEvents lblVersion As Label
     Friend WithEvents btnClose As Button
     Friend WithEvents FolderBrowserDialog1 As FolderBrowserDialog

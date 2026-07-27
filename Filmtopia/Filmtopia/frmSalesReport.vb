@@ -3,7 +3,7 @@ Imports System.Data.OleDb
 Public Class frmSalesReport
 
     Private Sub frmSalesReport_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        CommonFormStartup()
+        CommonFormStartup(Me)
 
         'default the date range to the start of this month through to today
         dtpFrom.Value = New Date(Date.Now.Year, Date.Now.Month, 1)

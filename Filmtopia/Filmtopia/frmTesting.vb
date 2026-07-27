@@ -28,6 +28,6 @@ Public Class frmTesting
     End Sub
 
     Private Sub frmTesting_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        CommonFormStartup()
+        CommonFormStartup(Me)
     End Sub
 End Class

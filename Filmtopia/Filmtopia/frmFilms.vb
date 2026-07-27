@@ -6,7 +6,7 @@ Public Class frmFilms
     Private selectedFilmID As Long = 0
 
     Private Sub frmFilms_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        CommonFormStartup()
+        CommonFormStartup(Me)
         LoadFilms()
         WriteLog("FILM", "Films form opened")
     End Sub

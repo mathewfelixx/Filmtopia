@@ -53,9 +53,10 @@ Module modMain
         Return PlainText
     End Function
 
-    Public Sub CommonFormStartup()
+    Public Sub CommonFormStartup(frm As Form)
         LoadVersion()
         UpdateAllVersionLabels()
+        ColourScheme(frm)
 
     End Sub
 End Module

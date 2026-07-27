@@ -6,7 +6,7 @@ Public Class frmFoodItems
     Private selectedFoodItemID As Long = 0
 
     Private Sub frmFoodItems_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        CommonFormStartup()
+        CommonFormStartup(Me)
         LoadFoodItems()
         WriteLog("FOOD", "Food items form opened")
     End Sub

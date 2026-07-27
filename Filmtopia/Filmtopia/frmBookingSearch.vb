@@ -6,7 +6,7 @@ Public Class frmBookingSearch
     Private selectedBookingID As Integer = 0
 
     Private Sub frmBookingSearch_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        CommonFormStartup()
+        CommonFormStartup(Me)
         LoadBookings("")
         LoadScreeningsCombo()
         WriteLog("BOOKING", "Booking search form opened")

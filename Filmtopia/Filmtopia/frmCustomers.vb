@@ -6,7 +6,7 @@ Public Class frmCustomers
     Private selectedCustomerID As Long = 0
 
     Private Sub frmCustomers_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        CommonFormStartup()
+        CommonFormStartup(Me)
         LoadCustomers()
         WriteLog("CUSTOMER", "Customers form opened")
     End Sub

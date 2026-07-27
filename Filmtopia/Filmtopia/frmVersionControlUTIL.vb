@@ -6,6 +6,6 @@
     End Sub
 
     Private Sub frmVersionControlUTIL_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        CommonFormStartup()
+        CommonFormStartup(Me)
     End Sub
 End Class

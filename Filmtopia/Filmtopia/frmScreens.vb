@@ -6,7 +6,7 @@ Public Class frmScreens
     Private selectedScreenID As Long = 0
 
     Private Sub frmScreens_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        CommonFormStartup()
+        CommonFormStartup(Me)
         LoadScreens()
         WriteLog("SCREEN", "Screens form opened")
     End Sub
