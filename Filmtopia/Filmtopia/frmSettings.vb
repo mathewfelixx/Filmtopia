@@ -27,6 +27,60 @@
         End If
     End Sub
 
+    'checks what the user typed then changes their password
+    Private Sub btnChangePassword_Click(sender As Object, e As EventArgs) Handles btnChangePassword.Click
+        'presence check on all three boxes
+        If txtCurrentPW.Text = "" Or txtNewPW.Text = "" Or txtConfirmPW.Text = "" Then
+            MessageBox.Show("Please fill in all three password boxes.", "Change Password", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        'length check so people cannot set something too short
+        If txtNewPW.Text.Length < 6 Then
+            MessageBox.Show("Your new password must be at least 6 characters.", "Change Password", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        'the two new password boxes have to match
+        If txtNewPW.Text <> txtConfirmPW.Text Then
+            MessageBox.Show("The new passwords do not match.", "Change Password", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtNewPW.Text = ""
+            txtConfirmPW.Text = ""
+            txtNewPW.Focus()
+            Exit Sub
+        End If
+
+        'no point changing it to the same thing
+        If txtNewPW.Text = txtCurrentPW.Text Then
+            MessageBox.Show("Your new password must be different from your current one.", "Change Password", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        If ChangePassword(frmLogin.globalusername, txtCurrentPW.Text, txtNewPW.Text) Then
+            MessageBox.Show("Your password has been changed.", "Change Password", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            ClearPasswordFields()
+        Else
+            txtCurrentPW.Text = ""
+            txtCurrentPW.Focus()
+        End If
+    End Sub
+
+    Private Sub ClearPasswordFields()
+        txtCurrentPW.Text = ""
+        txtNewPW.Text = ""
+        txtConfirmPW.Text = ""
+    End Sub
+
+    'only managers are allowed to take a backup of the database
+    Private Sub ConfigureAccessLevel()
+        If UserAccessLevel = 1 Then
+            GroupBox1.Enabled = True
+        Else
+            GroupBox1.Enabled = False
+            lblHelp.Text = "Only a manager can back up the database."
+        End If
+    End Sub
+
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
         Me.Close()
     End Sub
@@ -35,6 +89,8 @@
         CommonFormStartup()
         txtFolder.Text = ""
         btnCreateBackup.Enabled = False
+        ClearPasswordFields()
+        ConfigureAccessLevel()
     End Sub
 
 End Class
