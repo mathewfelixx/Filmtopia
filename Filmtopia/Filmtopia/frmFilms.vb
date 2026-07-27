@@ -175,7 +175,36 @@ Public Class frmFilms
             Return False
         End If
 
+        'the year is allowed to be left empty, because the films that were on the system before
+        'there was a year field do not have one. if something has been typed in though it still
+        'has to make sense
+        If txtYear.Text.Trim() <> "" Then
+            If Not IsNumeric(txtYear.Text) Then
+                MessageBox.Show("The year has to be a number, like 2021")
+                txtYear.Focus()
+                Return False
+            End If
+
+            'the first films were made in the 1880s, and a cinema might have next year's blockbuster
+            'on the system early, but not one from twenty years time
+            If Val(txtYear.Text) < 1888 Or Val(txtYear.Text) > Year(Date.Today) + 5 Then
+                MessageBox.Show("That year does not look right, it should be between 1888 and " & (Year(Date.Today) + 5))
+                txtYear.Focus()
+                Return False
+            End If
+        End If
+
         Return True
+    End Function
+
+    'the year box as something the database will take. an empty box has to go in as a proper null
+    'rather than a zero, otherwise every film that has not been given a year shows 0 in the grid
+    Private Function YearForDatabase() As Object
+        If txtYear.Text.Trim() = "" Then
+            Return DBNull.Value
+        End If
+
+        Return CInt(Val(txtYear.Text))
     End Function
 
     'adds a new film using the values typed into the boxes
