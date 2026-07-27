@@ -1,4 +1,4 @@
-Imports System.IO
+﻿Imports System.IO
 Imports System.Data.OleDb
 
 Module modSettings
@@ -399,9 +399,9 @@ Module modSettings
 
         'the log has to be written after the connection is closed because WriteLog opens it again
         If changed Then
-            WriteLog("AUTH", "User '" & Username & "' changed their password")
+            WriteLog("AUTH", "User '" & Username & "' changed their password", LogSecurity)
         ElseIf wrongPassword Then
-            WriteLog("AUTH", "User '" & Username & "' failed to change password, wrong current password")
+            WriteLog("AUTH", "User '" & Username & "' failed to change password, wrong current password", LogWarning)
         End If
 
         Return changed
@@ -429,7 +429,7 @@ Module modSettings
 
         Try
             File.Copy(sourceFile, backupFile)
-            WriteLog("BACKUP", "Database backed up to " & backupFile)
+            WriteLog("BACKUP", "Database backed up to " & backupFile, LogSecurity)
             Return backupFile
         Catch ex As Exception
             MessageBox.Show("Could not create the backup. " & ex.Message, "Backup Failed", MessageBoxButtons.OK, MessageBoxIcon.Error)

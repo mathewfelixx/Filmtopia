@@ -61,7 +61,7 @@ Public Class frmScreens
 
         GenerateSeats(newScreenID, Val(txtCapacity.Text))
 
-        WriteLog("SCREEN", "Screen added: " & txtName.Text)
+        WriteLog("SCREEN", "Screen added: " & txtName.Text, LogChange)
         LoadScreens()
         ClearFields()
     End Sub
@@ -96,7 +96,7 @@ Public Class frmScreens
         DeleteSeats(selectedScreenID)
         GenerateSeats(selectedScreenID, Val(txtCapacity.Text))
 
-        WriteLog("SCREEN", "Screen updated: " & txtName.Text)
+        WriteLog("SCREEN", "Screen updated: " & txtName.Text, LogChange)
         LoadScreens()
         ClearFields()
     End Sub
@@ -125,7 +125,7 @@ Public Class frmScreens
             cn.Close()
         End If
 
-        WriteLog("SCREEN", "Screen deleted: " & txtName.Text)
+        WriteLog("SCREEN", "Screen deleted: " & txtName.Text, LogChange)
         LoadScreens()
         ClearFields()
     End Sub
@@ -180,7 +180,7 @@ Public Class frmScreens
             cn.Close()
         End If
 
-        WriteLog("SCREEN", "Seats generated for ScreenID " & screenID)
+        WriteLog("SCREEN", "Seats generated for ScreenID " & screenID, LogChange)
     End Sub
 
     'removes every seat that belongs to a screen

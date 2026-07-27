@@ -1,4 +1,4 @@
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 
 Public Class frmMainMenuV2
 
@@ -166,7 +166,7 @@ Public Class frmMainMenuV2
             Exit Sub
         End If
 
-        WriteLog("AUTH", "User '" & frmLogin.globalusername & "' logged out")
+        WriteLog("AUTH", "User '" & frmLogin.globalusername & "' logged out", LogSecurity)
 
         CloseOpenedForms()
         timerClock.Stop()
@@ -195,7 +195,7 @@ Public Class frmMainMenuV2
         If answer = DialogResult.No Then
             e.Cancel = True
         Else
-            WriteLog("AUTH", "User '" & frmLogin.globalusername & "' closed the program")
+            WriteLog("AUTH", "User '" & frmLogin.globalusername & "' closed the program", LogSecurity)
             shuttingDown = True
             Application.Exit()
         End If
