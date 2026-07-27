@@ -2,6 +2,9 @@
 
 Public Class frmMainMenuV2
 
+    'counts the timer ticks so the figures can be refreshed once a minute
+    Private secondsCounter As Integer = 0
+
     'turns all the nav buttons back to see through, used when the menu first opens
     Private Sub SetAllButtonsTransp()
         btnBookings.BackColor = Color.Transparent
@@ -119,12 +122,161 @@ Public Class frmMainMenuV2
         ApplyThemeToAllForms()
     End Sub
 
-    Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
-        LoadStats()
-        LoadWhatsOn()
+    'the cards can be clicked to jump to the screen they are about, but only if that person is
+    'allowed there, which is the same as whether that sidebar button is showing
+    Private Sub OpenFromCard(frm As Form, btn As Button)
+        If btn.Visible Then
+            OpenForm(frm, btn)
+        End If
+    End Sub
 
-        If UserAccessLevel <> 1 Then
-            LoadTopFilm()
+    'the labels sit on top of the panel so they need the click handler as well as the panel
+    Private Sub Card1_Click(sender As Object, e As EventArgs) Handles pnlCard1.Click, lblCardTitle1.Click, lblStat1.Click
+        OpenFromCard(frmFilms, btnFilms)
+    End Sub
+
+    Private Sub Card2_Click(sender As Object, e As EventArgs) Handles pnlCard2.Click, lblCardTitle2.Click, lblStat2.Click
+        OpenFromCard(frmScreenings, btnScreenings)
+    End Sub
+
+    Private Sub Card3_Click(sender As Object, e As EventArgs) Handles pnlCard3.Click, lblCardTitle3.Click, lblStat3.Click
+        OpenFromCard(frmBookings, btnBookings)
+    End Sub
+
+    Private Sub Card4_Click(sender As Object, e As EventArgs) Handles pnlCard4.Click, lblCardTitle4.Click, lblStat4.Click
+        'the last card is money for a manager and snacks for staff, so it opens a different screen
+        If UserAccessLevel = 1 Then
+            OpenFromCard(frmSalesReport, btnReports)
+        Else
+            OpenFromCard(frmFoodItems, btnFood)
+        End If
+    End Sub
+
+    'makes the cards that actually go somewhere show the hand pointer
+    Private Sub SetCardCursors()
+        pnlCard2.Cursor = Cursors.Hand
+        lblCardTitle2.Cursor = Cursors.Hand
+        lblStat2.Cursor = Cursors.Hand
+        pnlCard3.Cursor = Cursors.Hand
+        lblCardTitle3.Cursor = Cursors.Hand
+        lblStat3.Cursor = Cursors.Hand
+
+        If UserAccessLevel = 1 Then
+            pnlCard1.Cursor = Cursors.Hand
+            lblCardTitle1.Cursor = Cursors.Hand
+            lblStat1.Cursor = Cursors.Hand
+            pnlCard4.Cursor = Cursors.Hand
+            lblCardTitle4.Cursor = Cursors.Hand
+            lblStat4.Cursor = Cursors.Hand
+        End If
+    End Sub
+
+    'lights a card up when the mouse is over it, but only the ones that actually go somewhere,
+    'which are the ones that were given the hand pointer
+    Private Sub HoverCard(card As Panel, mouseIsOver As Boolean)
+        If card.Cursor <> Cursors.Hand Then
+            Exit Sub
+        End If
+
+        If mouseIsOver Then
+            card.BackColor = CardHover
+        Else
+            card.BackColor = CardBack
+        End If
+    End Sub
+
+    'the labels sit on top of the card so they have to report the mouse moving too
+    Private Sub Card1_MouseEnter(sender As Object, e As EventArgs) Handles pnlCard1.MouseEnter, lblCardTitle1.MouseEnter, lblStat1.MouseEnter
+        HoverCard(pnlCard1, True)
+    End Sub
+
+    Private Sub Card1_MouseLeave(sender As Object, e As EventArgs) Handles pnlCard1.MouseLeave, lblCardTitle1.MouseLeave, lblStat1.MouseLeave
+        HoverCard(pnlCard1, False)
+    End Sub
+
+    Private Sub Card2_MouseEnter(sender As Object, e As EventArgs) Handles pnlCard2.MouseEnter, lblCardTitle2.MouseEnter, lblStat2.MouseEnter
+        HoverCard(pnlCard2, True)
+    End Sub
+
+    Private Sub Card2_MouseLeave(sender As Object, e As EventArgs) Handles pnlCard2.MouseLeave, lblCardTitle2.MouseLeave, lblStat2.MouseLeave
+        HoverCard(pnlCard2, False)
+    End Sub
+
+    Private Sub Card3_MouseEnter(sender As Object, e As EventArgs) Handles pnlCard3.MouseEnter, lblCardTitle3.MouseEnter, lblStat3.MouseEnter
+        HoverCard(pnlCard3, True)
+    End Sub
+
+    Private Sub Card3_MouseLeave(sender As Object, e As EventArgs) Handles pnlCard3.MouseLeave, lblCardTitle3.MouseLeave, lblStat3.MouseLeave
+        HoverCard(pnlCard3, False)
+    End Sub
+
+    Private Sub Card4_MouseEnter(sender As Object, e As EventArgs) Handles pnlCard4.MouseEnter, lblCardTitle4.MouseEnter, lblStat4.MouseEnter
+        HoverCard(pnlCard4, True)
+    End Sub
+
+    Private Sub Card4_MouseLeave(sender As Object, e As EventArgs) Handles pnlCard4.MouseLeave, lblCardTitle4.MouseLeave, lblStat4.MouseLeave
+        HoverCard(pnlCard4, False)
+    End Sub
+
+    'puts a little bit of help on a card and both of its labels in one go
+    Private Sub TipCard(tips As ToolTip, card As Panel, title As Label, value As Label, message As String)
+        tips.SetToolTip(card, message)
+        tips.SetToolTip(title, message)
+        tips.SetToolTip(value, message)
+    End Sub
+
+    'explains what everything on the menu means when the mouse rests on it
+    Private Sub SetToolTips()
+        Dim tips As New ToolTip
+        tips.AutoPopDelay = 8000
+        tips.InitialDelay = 500
+
+        TipCard(tips, pnlCard1, lblCardTitle1, lblStat1, "How many films are on the system. Click to manage them.")
+        TipCard(tips, pnlCard2, lblCardTitle2, lblStat2, "How many screenings are scheduled. Click to manage them.")
+
+        If UserAccessLevel = 1 Then
+            TipCard(tips, pnlCard3, lblCardTitle3, lblStat3, "How many bookings have been made. Click to make one.")
+            TipCard(tips, pnlCard4, lblCardTitle4, lblStat4, "Everything taken from ticket sales. Click for the sales report.")
+        Else
+            TipCard(tips, pnlCard3, lblCardTitle3, lblStat3, "How many seats have been sold. Click to make a booking.")
+            TipCard(tips, pnlCard4, lblCardTitle4, lblStat4, "How many food and drink items have been sold.")
+        End If
+
+        tips.SetToolTip(btnRefresh, "Update the figures now. F5 does the same.")
+        tips.SetToolTip(btnBookings, "Make a new booking and pick seats")
+        tips.SetToolTip(btnFindBooking, "Look up or cancel a booking")
+        tips.SetToolTip(btnScreenings, "See and set up what is showing")
+        tips.SetToolTip(btnCustomers, "Look up customer details")
+        tips.SetToolTip(btnFilms, "Add and edit films")
+        tips.SetToolTip(btnScreens, "Set up screens and their seating")
+        tips.SetToolTip(btnFood, "Manage food and drink items")
+        tips.SetToolTip(btnReports, "View the sales report")
+        tips.SetToolTip(btnLogs, "See a history of what has been done")
+        tips.SetToolTip(btnSettings, "Backups, password and appearance")
+        tips.SetToolTip(btnLogout, "Log out and go back to the login screen")
+    End Sub
+
+    Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
+        secondsCounter = 0
+        RefreshDashboard()
+    End Sub
+
+    'F5 refreshes the dashboard, which is what most programs use that key for
+    Private Sub frmMainMenuV2_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
+        If e.KeyCode = Keys.F5 Then
+            secondsCounter = 0
+            RefreshDashboard()
+        End If
+    End Sub
+
+    'double clicking a screening in the grid opens the booking screen already showing that screening
+    Private Sub dgvWhatsOn_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvWhatsOn.CellDoubleClick
+        If e.RowIndex >= 0 Then
+            Dim screeningID As Long = CLng(dgvWhatsOn.Rows(e.RowIndex).Cells("ScreeningID").Value)
+
+            OpenForm(frmBookings, btnBookings)
+            'has to be after the form is shown, because its combo is filled in when it loads
+            frmBookings.SelectScreening(screeningID)
         End If
     End Sub
 
@@ -234,7 +386,7 @@ Public Class frmMainMenuV2
             SQLCmd.Connection = cn
             'the bits in brackets count the booked seats for each screening as the query goes along,
             'the second one takes that away from the capacity to get how many are still free
-            SQLCmd.CommandText = "SELECT f.FilmTitle, sc.ScreenName, s.ScreeningDate, s.ScreeningTime, " &
+            SQLCmd.CommandText = "SELECT s.ScreeningID, f.FilmTitle, sc.ScreenName, s.ScreeningDate, s.ScreeningTime, " &
                                  "sc.ScreenCapacity, " &
                                  "(SELECT COUNT(*) FROM tblBookingSeat AS bs " &
                                  "INNER JOIN tblBooking AS b ON bs.BookingID = b.BookingID " &
@@ -249,11 +401,115 @@ Public Class frmMainMenuV2
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
+            AddPercentFull(dt)
+
+            'remember how far down the grid was scrolled, otherwise the once a minute refresh
+            'would jump the user back to the top while they were reading it
+            Dim scrolledTo As Integer = 0
+            If dgvWhatsOn.FirstDisplayedScrollingRowIndex > 0 Then
+                scrolledTo = dgvWhatsOn.FirstDisplayedScrollingRowIndex
+            End If
+
             dgvWhatsOn.DataSource = dt
+
+            If scrolledTo > 0 And scrolledTo < dgvWhatsOn.Rows.Count Then
+                dgvWhatsOn.FirstDisplayedScrollingRowIndex = scrolledTo
+            End If
+
             cn.Close()
 
             TidyGrid()
+            ColourOccupancy()
+            MarkUpcomingScreenings()
+            ShowGridSummary(dt)
         End If
+    End Sub
+
+    'puts screenings that are still to come in bold so they stand out from ones already shown
+    'it is done this way round because greying out the past ones made the whole grid look faded
+    Private Sub MarkUpcomingScreenings()
+        dgvWhatsOn.AlternatingRowsDefaultCellStyle.BackColor = AltRowBack
+
+        For i As Integer = 0 To dgvWhatsOn.Rows.Count - 1
+            Dim showDate As Date = CDate(dgvWhatsOn.Rows(i).Cells("ScreeningDate").Value)
+
+            If showDate >= Date.Today Then
+                dgvWhatsOn.Rows(i).DefaultCellStyle.Font = New Font("Segoe UI", 9.75!, FontStyle.Bold)
+            End If
+
+            'hovering over a row explains the numbers in words
+            Dim booked As Integer = CInt(dgvWhatsOn.Rows(i).Cells("SeatsBooked").Value)
+            Dim capacity As Integer = CInt(dgvWhatsOn.Rows(i).Cells("ScreenCapacity").Value)
+            Dim film As String = dgvWhatsOn.Rows(i).Cells("FilmTitle").Value.ToString()
+            Dim tip As String = film & " - " & booked & " of " & capacity & " seats sold, " &
+                                (capacity - booked) & " still free. Double click to make a booking."
+
+            For Each cell As DataGridViewCell In dgvWhatsOn.Rows(i).Cells
+                cell.ToolTipText = tip
+            Next
+        Next
+    End Sub
+
+    'says so plainly if there is nothing in the grid, and gives a manager a one line summary of
+    'how the whole cinema is doing next to the heading
+    Private Sub ShowGridSummary(dt As DataTable)
+        If dt.Rows.Count = 0 Then
+            lblTopFilm.Text = "There are no screenings on the system yet"
+            lblTopFilm.Visible = True
+            Exit Sub
+        End If
+
+        If UserAccessLevel = 1 Then
+            Dim totalSeats As Integer = 0
+            Dim totalBooked As Integer = 0
+
+            For i As Integer = 0 To dt.Rows.Count - 1
+                totalSeats = totalSeats + CInt(dt.Rows(i)("ScreenCapacity"))
+                totalBooked = totalBooked + CInt(dt.Rows(i)("SeatsBooked"))
+            Next
+
+            Dim overall As Integer = 0
+            If totalSeats > 0 Then
+                overall = CInt(totalBooked * 100 / totalSeats)
+            End If
+
+            lblTopFilm.Text = totalBooked & " of " & totalSeats & " seats sold across all screenings (" & overall & "%)"
+            lblTopFilm.Visible = True
+        End If
+    End Sub
+
+    'adds a column working out what percentage of each screening has been sold
+    Private Sub AddPercentFull(dt As DataTable)
+        dt.Columns.Add("PercentFull", GetType(Integer))
+
+        For i As Integer = 0 To dt.Rows.Count - 1
+            Dim capacity As Integer = CInt(dt.Rows(i)("ScreenCapacity"))
+            Dim booked As Integer = CInt(dt.Rows(i)("SeatsBooked"))
+
+            'a screen with no seats would cause a divide by zero so it is checked first
+            If capacity > 0 Then
+                dt.Rows(i)("PercentFull") = CInt(booked * 100 / capacity)
+            Else
+                dt.Rows(i)("PercentFull") = 0
+            End If
+        Next
+    End Sub
+
+    'makes a screening that is filling up stand out, red for nearly full and orange for half full
+    Private Sub ColourOccupancy()
+        For i As Integer = 0 To dgvWhatsOn.Rows.Count - 1
+            Dim cell As DataGridViewCell = dgvWhatsOn.Rows(i).Cells("PercentFull")
+            Dim percent As Integer = CInt(cell.Value)
+
+            If percent >= 80 Then
+                cell.Style.ForeColor = OccupancyHigh
+                cell.Style.SelectionForeColor = OccupancyHigh
+                cell.Style.Font = New Font("Segoe UI", 9.75!, FontStyle.Bold)
+            ElseIf percent >= 50 Then
+                cell.Style.ForeColor = OccupancyMed
+                cell.Style.SelectionForeColor = OccupancyMed
+            End If
+        Next
     End Sub
 
     'gives the grid columns proper headings and sensible widths
@@ -269,6 +525,9 @@ Public Class frmMainMenuV2
         dgvWhatsOn.Columns("ScreenCapacity").HeaderText = "Seats"
         dgvWhatsOn.Columns("SeatsBooked").HeaderText = "Booked"
         dgvWhatsOn.Columns("SeatsLeft").HeaderText = "Left"
+        dgvWhatsOn.Columns("PercentFull").HeaderText = "% Full"
+        'the ID is only there so double clicking knows which screening was picked
+        dgvWhatsOn.Columns("ScreeningID").Visible = False
 
         'a manager wants to see how many have sold, staff at the till want to know how many are
         'still going, so each of them only gets the column that is useful to them
@@ -287,6 +546,7 @@ Public Class frmMainMenuV2
         dgvWhatsOn.Columns("ScreenCapacity").Width = 90
         dgvWhatsOn.Columns("SeatsBooked").Width = 90
         dgvWhatsOn.Columns("SeatsLeft").Width = 90
+        dgvWhatsOn.Columns("PercentFull").Width = 80
 
         'just the date is wanted, not the 00:00:00 on the end of it
         dgvWhatsOn.Columns("ScreeningDate").DefaultCellStyle.Format = "dd/MM/yyyy"
@@ -305,7 +565,8 @@ Public Class frmMainMenuV2
 
         If UserAccessLevel = 1 Then
             lblSubtitle.Text = "Signed in as a manager. Here is how the cinema is doing."
-            lblWhatsOn.Text = "What is on and how full it is"
+            'kept short so the summary line next to it has room
+            lblWhatsOn.Text = "What is on"
             lblCardTitle3.Text = "Bookings taken"
             lblCardTitle4.Text = "Money taken"
             lblTopFilm.Visible = False
@@ -334,22 +595,40 @@ Public Class frmMainMenuV2
     End Sub
 
     Private Sub timerClock_Tick(sender As Object, e As EventArgs) Handles timerClock.Tick
-        lblClock.Text = Format(Now, "HH:mm:ss")
+        lblClock.Text = Format(Now, "ddd d MMM   HH:mm:ss")
+
+        'the timer ticks once a second, so counting sixty of them refreshes the figures each minute
+        secondsCounter = secondsCounter + 1
+
+        If secondsCounter >= 60 Then
+            secondsCounter = 0
+            RefreshDashboard()
+        End If
+    End Sub
+
+    'reloads everything on the dashboard
+    Private Sub RefreshDashboard()
+        LoadStats()
+        LoadWhatsOn()
+
+        If UserAccessLevel <> 1 Then
+            LoadTopFilm()
+        End If
     End Sub
 
     Private Sub frmMainMenuV2_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup(Me)
+        'lets the form see F5 before the control that has focus does
+        Me.KeyPreview = True
+        'the clock shows the date as well now so it needs starting further left to fit
+        lblClock.Location = New Point(880, 22)
         SetAllButtonsTransp()
         ConfigureAccessLevel()
-        LoadStats()
-        LoadWhatsOn()
+        SetCardCursors()
+        SetToolTips()
+        RefreshDashboard()
 
-        'only staff get the most popular film line so there is no point looking it up for a manager
-        If UserAccessLevel <> 1 Then
-            LoadTopFilm()
-        End If
-
-        lblClock.Text = Format(Now, "HH:mm:ss")
+        lblClock.Text = Format(Now, "ddd d MMM   HH:mm:ss")
         timerClock.Start()
     End Sub
 
