@@ -67,8 +67,9 @@ Partial Class frmMainMenuV2
         Me.pnlHeader.Controls.Add(Me.lblBrand)
         Me.pnlHeader.Controls.Add(Me.lblClock)
         Me.pnlHeader.Location = New System.Drawing.Point(0, 0)
+        Me.pnlHeader.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.pnlHeader.Name = "pnlHeader"
-        Me.pnlHeader.Size = New System.Drawing.Size(1120, 64)
+        Me.pnlHeader.Size = New System.Drawing.Size(1493, 79)
         Me.pnlHeader.TabIndex = 0
         '
         'lblBrand
@@ -76,9 +77,10 @@ Partial Class frmMainMenuV2
         Me.lblBrand.AutoSize = True
         Me.lblBrand.Font = New System.Drawing.Font("Segoe UI", 17.0!, System.Drawing.FontStyle.Bold)
         Me.lblBrand.ForeColor = System.Drawing.Color.White
-        Me.lblBrand.Location = New System.Drawing.Point(22, 15)
+        Me.lblBrand.Location = New System.Drawing.Point(29, 18)
+        Me.lblBrand.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblBrand.Name = "lblBrand"
-        Me.lblBrand.Size = New System.Drawing.Size(148, 31)
+        Me.lblBrand.Size = New System.Drawing.Size(169, 40)
         Me.lblBrand.TabIndex = 0
         Me.lblBrand.Text = "FILMTOPIA"
         '
@@ -87,9 +89,10 @@ Partial Class frmMainMenuV2
         Me.lblClock.AutoSize = True
         Me.lblClock.Font = New System.Drawing.Font("Segoe UI", 11.0!)
         Me.lblClock.ForeColor = System.Drawing.Color.FromArgb(CType(CType(231, Byte), Integer), CType(CType(169, Byte), Integer), CType(CType(231, Byte), Integer))
-        Me.lblClock.Location = New System.Drawing.Point(940, 22)
+        Me.lblClock.Location = New System.Drawing.Point(1253, 27)
+        Me.lblClock.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblClock.Name = "lblClock"
-        Me.lblClock.Size = New System.Drawing.Size(60, 20)
+        Me.lblClock.Size = New System.Drawing.Size(80, 25)
         Me.lblClock.TabIndex = 1
         Me.lblClock.Text = "00:00:00"
         '
@@ -98,9 +101,10 @@ Partial Class frmMainMenuV2
         Me.pnlSidebar.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(64, Byte), Integer))
         Me.pnlSidebar.Controls.Add(Me.flpNav)
         Me.pnlSidebar.Controls.Add(Me.btnLogout)
-        Me.pnlSidebar.Location = New System.Drawing.Point(0, 64)
+        Me.pnlSidebar.Location = New System.Drawing.Point(0, 79)
+        Me.pnlSidebar.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.pnlSidebar.Name = "pnlSidebar"
-        Me.pnlSidebar.Size = New System.Drawing.Size(210, 656)
+        Me.pnlSidebar.Size = New System.Drawing.Size(280, 807)
         Me.pnlSidebar.TabIndex = 1
         '
         'flpNav
@@ -117,9 +121,10 @@ Partial Class frmMainMenuV2
         Me.flpNav.Controls.Add(Me.btnLogs)
         Me.flpNav.Controls.Add(Me.btnSettings)
         Me.flpNav.FlowDirection = System.Windows.Forms.FlowDirection.TopDown
-        Me.flpNav.Location = New System.Drawing.Point(0, 14)
+        Me.flpNav.Location = New System.Drawing.Point(0, 17)
+        Me.flpNav.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.flpNav.Name = "flpNav"
-        Me.flpNav.Size = New System.Drawing.Size(210, 500)
+        Me.flpNav.Size = New System.Drawing.Size(280, 615)
         Me.flpNav.TabIndex = 0
         Me.flpNav.WrapContents = False
         '
@@ -130,10 +135,11 @@ Partial Class frmMainMenuV2
         Me.btnBookings.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnBookings.Font = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.btnBookings.ForeColor = System.Drawing.Color.White
-        Me.btnBookings.Margin = New System.Windows.Forms.Padding(16, 0, 0, 6)
+        Me.btnBookings.Location = New System.Drawing.Point(21, 0)
+        Me.btnBookings.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
         Me.btnBookings.Name = "btnBookings"
-        Me.btnBookings.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
-        Me.btnBookings.Size = New System.Drawing.Size(178, 40)
+        Me.btnBookings.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnBookings.Size = New System.Drawing.Size(237, 49)
         Me.btnBookings.TabIndex = 0
         Me.btnBookings.Text = "Bookings"
         Me.btnBookings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -146,10 +152,11 @@ Partial Class frmMainMenuV2
         Me.btnFindBooking.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnFindBooking.Font = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.btnFindBooking.ForeColor = System.Drawing.Color.White
-        Me.btnFindBooking.Margin = New System.Windows.Forms.Padding(16, 0, 0, 6)
+        Me.btnFindBooking.Location = New System.Drawing.Point(21, 56)
+        Me.btnFindBooking.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
         Me.btnFindBooking.Name = "btnFindBooking"
-        Me.btnFindBooking.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
-        Me.btnFindBooking.Size = New System.Drawing.Size(178, 40)
+        Me.btnFindBooking.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnFindBooking.Size = New System.Drawing.Size(237, 49)
         Me.btnFindBooking.TabIndex = 1
         Me.btnFindBooking.Text = "Find Booking"
         Me.btnFindBooking.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -162,10 +169,11 @@ Partial Class frmMainMenuV2
         Me.btnScreenings.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnScreenings.Font = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.btnScreenings.ForeColor = System.Drawing.Color.White
-        Me.btnScreenings.Margin = New System.Windows.Forms.Padding(16, 0, 0, 6)
+        Me.btnScreenings.Location = New System.Drawing.Point(21, 112)
+        Me.btnScreenings.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
         Me.btnScreenings.Name = "btnScreenings"
-        Me.btnScreenings.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
-        Me.btnScreenings.Size = New System.Drawing.Size(178, 40)
+        Me.btnScreenings.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnScreenings.Size = New System.Drawing.Size(237, 49)
         Me.btnScreenings.TabIndex = 2
         Me.btnScreenings.Text = "Screenings"
         Me.btnScreenings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -178,10 +186,11 @@ Partial Class frmMainMenuV2
         Me.btnCustomers.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnCustomers.Font = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.btnCustomers.ForeColor = System.Drawing.Color.White
-        Me.btnCustomers.Margin = New System.Windows.Forms.Padding(16, 0, 0, 6)
+        Me.btnCustomers.Location = New System.Drawing.Point(21, 168)
+        Me.btnCustomers.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
         Me.btnCustomers.Name = "btnCustomers"
-        Me.btnCustomers.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
-        Me.btnCustomers.Size = New System.Drawing.Size(178, 40)
+        Me.btnCustomers.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnCustomers.Size = New System.Drawing.Size(237, 49)
         Me.btnCustomers.TabIndex = 3
         Me.btnCustomers.Text = "Customers"
         Me.btnCustomers.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -194,10 +203,11 @@ Partial Class frmMainMenuV2
         Me.btnFilms.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnFilms.Font = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.btnFilms.ForeColor = System.Drawing.Color.White
-        Me.btnFilms.Margin = New System.Windows.Forms.Padding(16, 0, 0, 6)
+        Me.btnFilms.Location = New System.Drawing.Point(21, 224)
+        Me.btnFilms.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
         Me.btnFilms.Name = "btnFilms"
-        Me.btnFilms.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
-        Me.btnFilms.Size = New System.Drawing.Size(178, 40)
+        Me.btnFilms.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnFilms.Size = New System.Drawing.Size(237, 49)
         Me.btnFilms.TabIndex = 4
         Me.btnFilms.Text = "Films"
         Me.btnFilms.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -210,10 +220,11 @@ Partial Class frmMainMenuV2
         Me.btnScreens.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnScreens.Font = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.btnScreens.ForeColor = System.Drawing.Color.White
-        Me.btnScreens.Margin = New System.Windows.Forms.Padding(16, 0, 0, 6)
+        Me.btnScreens.Location = New System.Drawing.Point(21, 280)
+        Me.btnScreens.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
         Me.btnScreens.Name = "btnScreens"
-        Me.btnScreens.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
-        Me.btnScreens.Size = New System.Drawing.Size(178, 40)
+        Me.btnScreens.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnScreens.Size = New System.Drawing.Size(237, 49)
         Me.btnScreens.TabIndex = 5
         Me.btnScreens.Text = "Screens"
         Me.btnScreens.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -226,10 +237,11 @@ Partial Class frmMainMenuV2
         Me.btnFood.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnFood.Font = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.btnFood.ForeColor = System.Drawing.Color.White
-        Me.btnFood.Margin = New System.Windows.Forms.Padding(16, 0, 0, 6)
+        Me.btnFood.Location = New System.Drawing.Point(21, 336)
+        Me.btnFood.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
         Me.btnFood.Name = "btnFood"
-        Me.btnFood.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
-        Me.btnFood.Size = New System.Drawing.Size(178, 40)
+        Me.btnFood.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnFood.Size = New System.Drawing.Size(237, 49)
         Me.btnFood.TabIndex = 6
         Me.btnFood.Text = "Food and Drink"
         Me.btnFood.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -242,10 +254,11 @@ Partial Class frmMainMenuV2
         Me.btnReports.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnReports.Font = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.btnReports.ForeColor = System.Drawing.Color.White
-        Me.btnReports.Margin = New System.Windows.Forms.Padding(16, 0, 0, 6)
+        Me.btnReports.Location = New System.Drawing.Point(21, 392)
+        Me.btnReports.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
         Me.btnReports.Name = "btnReports"
-        Me.btnReports.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
-        Me.btnReports.Size = New System.Drawing.Size(178, 40)
+        Me.btnReports.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnReports.Size = New System.Drawing.Size(237, 49)
         Me.btnReports.TabIndex = 7
         Me.btnReports.Text = "Sales Report"
         Me.btnReports.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -258,10 +271,11 @@ Partial Class frmMainMenuV2
         Me.btnLogs.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnLogs.Font = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.btnLogs.ForeColor = System.Drawing.Color.White
-        Me.btnLogs.Margin = New System.Windows.Forms.Padding(16, 0, 0, 6)
+        Me.btnLogs.Location = New System.Drawing.Point(21, 448)
+        Me.btnLogs.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
         Me.btnLogs.Name = "btnLogs"
-        Me.btnLogs.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
-        Me.btnLogs.Size = New System.Drawing.Size(178, 40)
+        Me.btnLogs.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnLogs.Size = New System.Drawing.Size(237, 49)
         Me.btnLogs.TabIndex = 8
         Me.btnLogs.Text = "Logs"
         Me.btnLogs.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -274,10 +288,11 @@ Partial Class frmMainMenuV2
         Me.btnSettings.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnSettings.Font = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.btnSettings.ForeColor = System.Drawing.Color.White
-        Me.btnSettings.Margin = New System.Windows.Forms.Padding(16, 0, 0, 6)
+        Me.btnSettings.Location = New System.Drawing.Point(21, 504)
+        Me.btnSettings.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
         Me.btnSettings.Name = "btnSettings"
-        Me.btnSettings.Padding = New System.Windows.Forms.Padding(12, 0, 0, 0)
-        Me.btnSettings.Size = New System.Drawing.Size(178, 40)
+        Me.btnSettings.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnSettings.Size = New System.Drawing.Size(237, 49)
         Me.btnSettings.TabIndex = 9
         Me.btnSettings.Text = "Settings"
         Me.btnSettings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -290,9 +305,10 @@ Partial Class frmMainMenuV2
         Me.btnLogout.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnLogout.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
         Me.btnLogout.ForeColor = System.Drawing.Color.White
-        Me.btnLogout.Location = New System.Drawing.Point(16, 594)
+        Me.btnLogout.Location = New System.Drawing.Point(21, 731)
+        Me.btnLogout.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.btnLogout.Name = "btnLogout"
-        Me.btnLogout.Size = New System.Drawing.Size(178, 40)
+        Me.btnLogout.Size = New System.Drawing.Size(237, 49)
         Me.btnLogout.TabIndex = 10
         Me.btnLogout.Text = "Log out"
         Me.btnLogout.UseVisualStyleBackColor = False
@@ -301,9 +317,10 @@ Partial Class frmMainMenuV2
         '
         Me.lblWelcome.AutoSize = True
         Me.lblWelcome.Font = New System.Drawing.Font("Segoe UI", 19.0!, System.Drawing.FontStyle.Bold)
-        Me.lblWelcome.Location = New System.Drawing.Point(236, 84)
+        Me.lblWelcome.Location = New System.Drawing.Point(315, 103)
+        Me.lblWelcome.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblWelcome.Name = "lblWelcome"
-        Me.lblWelcome.Size = New System.Drawing.Size(260, 34)
+        Me.lblWelcome.Size = New System.Drawing.Size(348, 45)
         Me.lblWelcome.TabIndex = 2
         Me.lblWelcome.Text = "Good evening, Admin"
         '
@@ -311,9 +328,10 @@ Partial Class frmMainMenuV2
         '
         Me.lblSubtitle.AutoSize = True
         Me.lblSubtitle.Font = New System.Drawing.Font("Segoe UI", 9.75!)
-        Me.lblSubtitle.Location = New System.Drawing.Point(238, 122)
+        Me.lblSubtitle.Location = New System.Drawing.Point(317, 150)
+        Me.lblSubtitle.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblSubtitle.Name = "lblSubtitle"
-        Me.lblSubtitle.Size = New System.Drawing.Size(200, 17)
+        Me.lblSubtitle.Size = New System.Drawing.Size(258, 23)
         Me.lblSubtitle.TabIndex = 3
         Me.lblSubtitle.Text = "Here is how the cinema is doing."
         '
@@ -321,18 +339,20 @@ Partial Class frmMainMenuV2
         '
         Me.pnlCard1.Controls.Add(Me.lblCardTitle1)
         Me.pnlCard1.Controls.Add(Me.lblStat1)
-        Me.pnlCard1.Location = New System.Drawing.Point(240, 156)
+        Me.pnlCard1.Location = New System.Drawing.Point(320, 192)
+        Me.pnlCard1.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.pnlCard1.Name = "pnlCard1"
-        Me.pnlCard1.Size = New System.Drawing.Size(205, 96)
+        Me.pnlCard1.Size = New System.Drawing.Size(273, 118)
         Me.pnlCard1.TabIndex = 4
         '
         'lblCardTitle1
         '
         Me.lblCardTitle1.AutoSize = True
         Me.lblCardTitle1.Font = New System.Drawing.Font("Segoe UI", 9.75!)
-        Me.lblCardTitle1.Location = New System.Drawing.Point(16, 14)
+        Me.lblCardTitle1.Location = New System.Drawing.Point(21, 17)
+        Me.lblCardTitle1.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblCardTitle1.Name = "lblCardTitle1"
-        Me.lblCardTitle1.Size = New System.Drawing.Size(100, 17)
+        Me.lblCardTitle1.Size = New System.Drawing.Size(48, 23)
         Me.lblCardTitle1.TabIndex = 0
         Me.lblCardTitle1.Text = "Films"
         '
@@ -340,9 +360,10 @@ Partial Class frmMainMenuV2
         '
         Me.lblStat1.AutoSize = True
         Me.lblStat1.Font = New System.Drawing.Font("Segoe UI", 24.0!, System.Drawing.FontStyle.Bold)
-        Me.lblStat1.Location = New System.Drawing.Point(13, 36)
+        Me.lblStat1.Location = New System.Drawing.Point(17, 44)
+        Me.lblStat1.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblStat1.Name = "lblStat1"
-        Me.lblStat1.Size = New System.Drawing.Size(50, 45)
+        Me.lblStat1.Size = New System.Drawing.Size(46, 54)
         Me.lblStat1.TabIndex = 1
         Me.lblStat1.Text = "0"
         '
@@ -350,18 +371,20 @@ Partial Class frmMainMenuV2
         '
         Me.pnlCard2.Controls.Add(Me.lblCardTitle2)
         Me.pnlCard2.Controls.Add(Me.lblStat2)
-        Me.pnlCard2.Location = New System.Drawing.Point(458, 156)
+        Me.pnlCard2.Location = New System.Drawing.Point(611, 192)
+        Me.pnlCard2.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.pnlCard2.Name = "pnlCard2"
-        Me.pnlCard2.Size = New System.Drawing.Size(205, 96)
+        Me.pnlCard2.Size = New System.Drawing.Size(273, 118)
         Me.pnlCard2.TabIndex = 5
         '
         'lblCardTitle2
         '
         Me.lblCardTitle2.AutoSize = True
         Me.lblCardTitle2.Font = New System.Drawing.Font("Segoe UI", 9.75!)
-        Me.lblCardTitle2.Location = New System.Drawing.Point(16, 14)
+        Me.lblCardTitle2.Location = New System.Drawing.Point(21, 17)
+        Me.lblCardTitle2.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblCardTitle2.Name = "lblCardTitle2"
-        Me.lblCardTitle2.Size = New System.Drawing.Size(100, 17)
+        Me.lblCardTitle2.Size = New System.Drawing.Size(92, 23)
         Me.lblCardTitle2.TabIndex = 0
         Me.lblCardTitle2.Text = "Screenings"
         '
@@ -369,9 +392,10 @@ Partial Class frmMainMenuV2
         '
         Me.lblStat2.AutoSize = True
         Me.lblStat2.Font = New System.Drawing.Font("Segoe UI", 24.0!, System.Drawing.FontStyle.Bold)
-        Me.lblStat2.Location = New System.Drawing.Point(13, 36)
+        Me.lblStat2.Location = New System.Drawing.Point(17, 44)
+        Me.lblStat2.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblStat2.Name = "lblStat2"
-        Me.lblStat2.Size = New System.Drawing.Size(50, 45)
+        Me.lblStat2.Size = New System.Drawing.Size(46, 54)
         Me.lblStat2.TabIndex = 1
         Me.lblStat2.Text = "0"
         '
@@ -379,18 +403,20 @@ Partial Class frmMainMenuV2
         '
         Me.pnlCard3.Controls.Add(Me.lblCardTitle3)
         Me.pnlCard3.Controls.Add(Me.lblStat3)
-        Me.pnlCard3.Location = New System.Drawing.Point(676, 156)
+        Me.pnlCard3.Location = New System.Drawing.Point(901, 192)
+        Me.pnlCard3.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.pnlCard3.Name = "pnlCard3"
-        Me.pnlCard3.Size = New System.Drawing.Size(205, 96)
+        Me.pnlCard3.Size = New System.Drawing.Size(273, 118)
         Me.pnlCard3.TabIndex = 6
         '
         'lblCardTitle3
         '
         Me.lblCardTitle3.AutoSize = True
         Me.lblCardTitle3.Font = New System.Drawing.Font("Segoe UI", 9.75!)
-        Me.lblCardTitle3.Location = New System.Drawing.Point(16, 14)
+        Me.lblCardTitle3.Location = New System.Drawing.Point(21, 17)
+        Me.lblCardTitle3.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblCardTitle3.Name = "lblCardTitle3"
-        Me.lblCardTitle3.Size = New System.Drawing.Size(100, 17)
+        Me.lblCardTitle3.Size = New System.Drawing.Size(126, 23)
         Me.lblCardTitle3.TabIndex = 0
         Me.lblCardTitle3.Text = "Bookings taken"
         '
@@ -398,9 +424,10 @@ Partial Class frmMainMenuV2
         '
         Me.lblStat3.AutoSize = True
         Me.lblStat3.Font = New System.Drawing.Font("Segoe UI", 24.0!, System.Drawing.FontStyle.Bold)
-        Me.lblStat3.Location = New System.Drawing.Point(13, 36)
+        Me.lblStat3.Location = New System.Drawing.Point(17, 44)
+        Me.lblStat3.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblStat3.Name = "lblStat3"
-        Me.lblStat3.Size = New System.Drawing.Size(50, 45)
+        Me.lblStat3.Size = New System.Drawing.Size(46, 54)
         Me.lblStat3.TabIndex = 1
         Me.lblStat3.Text = "0"
         '
@@ -408,18 +435,20 @@ Partial Class frmMainMenuV2
         '
         Me.pnlCard4.Controls.Add(Me.lblCardTitle4)
         Me.pnlCard4.Controls.Add(Me.lblStat4)
-        Me.pnlCard4.Location = New System.Drawing.Point(894, 156)
+        Me.pnlCard4.Location = New System.Drawing.Point(1192, 192)
+        Me.pnlCard4.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.pnlCard4.Name = "pnlCard4"
-        Me.pnlCard4.Size = New System.Drawing.Size(205, 96)
+        Me.pnlCard4.Size = New System.Drawing.Size(273, 118)
         Me.pnlCard4.TabIndex = 7
         '
         'lblCardTitle4
         '
         Me.lblCardTitle4.AutoSize = True
         Me.lblCardTitle4.Font = New System.Drawing.Font("Segoe UI", 9.75!)
-        Me.lblCardTitle4.Location = New System.Drawing.Point(16, 14)
+        Me.lblCardTitle4.Location = New System.Drawing.Point(21, 17)
+        Me.lblCardTitle4.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblCardTitle4.Name = "lblCardTitle4"
-        Me.lblCardTitle4.Size = New System.Drawing.Size(100, 17)
+        Me.lblCardTitle4.Size = New System.Drawing.Size(109, 23)
         Me.lblCardTitle4.TabIndex = 0
         Me.lblCardTitle4.Text = "Money taken"
         '
@@ -427,9 +456,10 @@ Partial Class frmMainMenuV2
         '
         Me.lblStat4.AutoSize = True
         Me.lblStat4.Font = New System.Drawing.Font("Segoe UI", 24.0!, System.Drawing.FontStyle.Bold)
-        Me.lblStat4.Location = New System.Drawing.Point(13, 36)
+        Me.lblStat4.Location = New System.Drawing.Point(17, 44)
+        Me.lblStat4.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblStat4.Name = "lblStat4"
-        Me.lblStat4.Size = New System.Drawing.Size(50, 45)
+        Me.lblStat4.Size = New System.Drawing.Size(46, 54)
         Me.lblStat4.TabIndex = 1
         Me.lblStat4.Text = "0"
         '
@@ -437,9 +467,10 @@ Partial Class frmMainMenuV2
         '
         Me.lblWhatsOn.AutoSize = True
         Me.lblWhatsOn.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold)
-        Me.lblWhatsOn.Location = New System.Drawing.Point(238, 272)
+        Me.lblWhatsOn.Location = New System.Drawing.Point(317, 335)
+        Me.lblWhatsOn.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblWhatsOn.Name = "lblWhatsOn"
-        Me.lblWhatsOn.Size = New System.Drawing.Size(180, 21)
+        Me.lblWhatsOn.Size = New System.Drawing.Size(280, 28)
         Me.lblWhatsOn.TabIndex = 8
         Me.lblWhatsOn.Text = "What is on and how full it is"
         '
@@ -447,9 +478,10 @@ Partial Class frmMainMenuV2
         '
         Me.lblTopFilm.AutoSize = True
         Me.lblTopFilm.Font = New System.Drawing.Font("Segoe UI", 9.75!, System.Drawing.FontStyle.Italic)
-        Me.lblTopFilm.Location = New System.Drawing.Point(390, 276)
+        Me.lblTopFilm.Location = New System.Drawing.Point(520, 340)
+        Me.lblTopFilm.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblTopFilm.Name = "lblTopFilm"
-        Me.lblTopFilm.Size = New System.Drawing.Size(220, 17)
+        Me.lblTopFilm.Size = New System.Drawing.Size(185, 23)
         Me.lblTopFilm.TabIndex = 12
         Me.lblTopFilm.Text = "Most popular right now:"
         Me.lblTopFilm.Visible = False
@@ -461,21 +493,24 @@ Partial Class frmMainMenuV2
         Me.dgvWhatsOn.AllowUserToResizeRows = False
         Me.dgvWhatsOn.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.dgvWhatsOn.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvWhatsOn.Location = New System.Drawing.Point(240, 300)
+        Me.dgvWhatsOn.Location = New System.Drawing.Point(320, 369)
+        Me.dgvWhatsOn.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.dgvWhatsOn.Name = "dgvWhatsOn"
         Me.dgvWhatsOn.ReadOnly = True
         Me.dgvWhatsOn.RowHeadersVisible = False
+        Me.dgvWhatsOn.RowHeadersWidth = 51
         Me.dgvWhatsOn.RowTemplate.Height = 30
         Me.dgvWhatsOn.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvWhatsOn.Size = New System.Drawing.Size(859, 320)
+        Me.dgvWhatsOn.Size = New System.Drawing.Size(1145, 394)
         Me.dgvWhatsOn.TabIndex = 9
         '
         'btnRefresh
         '
         Me.btnRefresh.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.btnRefresh.Location = New System.Drawing.Point(1005, 268)
+        Me.btnRefresh.Location = New System.Drawing.Point(1340, 330)
+        Me.btnRefresh.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.btnRefresh.Name = "btnRefresh"
-        Me.btnRefresh.Size = New System.Drawing.Size(94, 28)
+        Me.btnRefresh.Size = New System.Drawing.Size(125, 34)
         Me.btnRefresh.TabIndex = 10
         Me.btnRefresh.Text = "Refresh"
         Me.btnRefresh.UseVisualStyleBackColor = True
@@ -484,9 +519,10 @@ Partial Class frmMainMenuV2
         '
         Me.lblVersion.AutoSize = True
         Me.lblVersion.Font = New System.Drawing.Font("Segoe UI", 8.25!)
-        Me.lblVersion.Location = New System.Drawing.Point(238, 632)
+        Me.lblVersion.Location = New System.Drawing.Point(317, 778)
+        Me.lblVersion.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblVersion.Name = "lblVersion"
-        Me.lblVersion.Size = New System.Drawing.Size(220, 13)
+        Me.lblVersion.Size = New System.Drawing.Size(283, 19)
         Me.lblVersion.TabIndex = 11
         Me.lblVersion.Text = "Filmtopia Cinema Management System  v1.0"
         '
@@ -496,9 +532,9 @@ Partial Class frmMainMenuV2
         '
         'frmMainMenuV2
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1120, 720)
+        Me.ClientSize = New System.Drawing.Size(1493, 886)
         Me.Controls.Add(Me.lblVersion)
         Me.Controls.Add(Me.btnRefresh)
         Me.Controls.Add(Me.dgvWhatsOn)
@@ -513,10 +549,11 @@ Partial Class frmMainMenuV2
         Me.Controls.Add(Me.pnlSidebar)
         Me.Controls.Add(Me.pnlHeader)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
+        Me.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.MaximizeBox = False
         Me.Name = "frmMainMenuV2"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-        Me.Text = "Filmtopia"
+        Me.Text = "a"
         Me.pnlHeader.ResumeLayout(False)
         Me.pnlHeader.PerformLayout()
         Me.pnlSidebar.ResumeLayout(False)

@@ -5,6 +5,9 @@ Public Class frmMainMenuV2
     'counts the timer ticks so the figures can be refreshed once a minute
     Private secondsCounter As Integer = 0
 
+    'which row was right clicked, -1 means none
+    Private rightClickedRow As Integer = -1
+
     'turns all the nav buttons back to see through, used when the menu first opens
     Private Sub SetAllButtonsTransp()
         btnBookings.BackColor = Color.Transparent
@@ -269,15 +272,49 @@ Public Class frmMainMenuV2
         End If
     End Sub
 
-    'double clicking a screening in the grid opens the booking screen already showing that screening
-    Private Sub dgvWhatsOn_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvWhatsOn.CellDoubleClick
-        If e.RowIndex >= 0 Then
-            Dim screeningID As Long = CLng(dgvWhatsOn.Rows(e.RowIndex).Cells("ScreeningID").Value)
-
-            OpenForm(frmBookings, btnBookings)
-            'has to be after the form is shown, because its combo is filled in when it loads
-            frmBookings.SelectScreening(screeningID)
+    'opens the booking screen already showing the screening on the row that was picked
+    Private Sub OpenBookingForRow(rowIndex As Integer)
+        If rowIndex < 0 Or rowIndex >= dgvWhatsOn.Rows.Count Then
+            Exit Sub
         End If
+
+        Dim screeningID As Long = CLng(dgvWhatsOn.Rows(rowIndex).Cells("ScreeningID").Value)
+
+        OpenForm(frmBookings, btnBookings)
+        'has to be after the form is shown, because its combo is filled in when it loads
+        frmBookings.SelectScreening(screeningID)
+    End Sub
+
+    Private Sub dgvWhatsOn_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvWhatsOn.CellDoubleClick
+        OpenBookingForRow(e.RowIndex)
+    End Sub
+
+    'right clicking remembers and highlights the row under the mouse, otherwise the menu would
+    'work on whichever row happened to be selected before
+    Private Sub dgvWhatsOn_CellMouseDown(sender As Object, e As DataGridViewCellMouseEventArgs) Handles dgvWhatsOn.CellMouseDown
+        If e.Button = MouseButtons.Right And e.RowIndex >= 0 Then
+            rightClickedRow = e.RowIndex
+
+            'the row is selected rather than moving the current cell, because the first column is
+            'the hidden ScreeningID and the current cell is not allowed to be on a hidden column
+            dgvWhatsOn.ClearSelection()
+            dgvWhatsOn.Rows(e.RowIndex).Selected = True
+        End If
+    End Sub
+
+    Private Sub GridMenuBook_Click(sender As Object, e As EventArgs)
+        OpenBookingForRow(rightClickedRow)
+    End Sub
+
+    'builds the little menu that appears when a screening is right clicked
+    Private Sub SetGridMenu()
+        Dim gridMenu As New ContextMenuStrip
+        Dim bookItem As ToolStripMenuItem = New ToolStripMenuItem("Make a booking for this screening")
+
+        AddHandler bookItem.Click, AddressOf GridMenuBook_Click
+        gridMenu.Items.Add(bookItem)
+
+        dgvWhatsOn.ContextMenuStrip = gridMenu
     End Sub
 
     'works out a greeting based on the current time of day
@@ -478,9 +515,11 @@ Public Class frmMainMenuV2
         End If
     End Sub
 
-    'adds a column working out what percentage of each screening has been sold
+    'adds a column working out what percentage of each screening has been sold, and a column
+    'saying when it is in words rather than making the user work it out from the date
     Private Sub AddPercentFull(dt As DataTable)
         dt.Columns.Add("PercentFull", GetType(Integer))
+        dt.Columns.Add("WhenText", GetType(String))
 
         For i As Integer = 0 To dt.Rows.Count - 1
             Dim capacity As Integer = CInt(dt.Rows(i)("ScreenCapacity"))
@@ -492,8 +531,25 @@ Public Class frmMainMenuV2
             Else
                 dt.Rows(i)("PercentFull") = 0
             End If
+
+            dt.Rows(i)("WhenText") = DescribeWhen(CDate(dt.Rows(i)("ScreeningDate")))
         Next
     End Sub
+
+    'turns a screening date into something readable like Today or In 3 days
+    Private Function DescribeWhen(showDate As Date) As String
+        Dim days As Integer = DateDiff(DateInterval.Day, Date.Today, showDate)
+
+        If days < 0 Then
+            Return "Past"
+        ElseIf days = 0 Then
+            Return "Today"
+        ElseIf days = 1 Then
+            Return "Tomorrow"
+        Else
+            Return "In " & days & " days"
+        End If
+    End Function
 
     'makes a screening that is filling up stand out, red for nearly full and orange for half full
     Private Sub ColourOccupancy()
@@ -540,13 +596,17 @@ Public Class frmMainMenuV2
         End If
 
         dgvWhatsOn.Columns("FilmTitle").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-        dgvWhatsOn.Columns("ScreenName").Width = 130
-        dgvWhatsOn.Columns("ScreeningDate").Width = 120
+        dgvWhatsOn.Columns("ScreenName").Width = 110
+        dgvWhatsOn.Columns("ScreeningDate").Width = 100
         dgvWhatsOn.Columns("ScreeningTime").Width = 90
         dgvWhatsOn.Columns("ScreenCapacity").Width = 90
         dgvWhatsOn.Columns("SeatsBooked").Width = 90
         dgvWhatsOn.Columns("SeatsLeft").Width = 90
         dgvWhatsOn.Columns("PercentFull").Width = 80
+        dgvWhatsOn.Columns("WhenText").HeaderText = "When"
+        dgvWhatsOn.Columns("WhenText").Width = 90
+        'put the When column next to the time rather than stuck on the end
+        dgvWhatsOn.Columns("WhenText").DisplayIndex = 4
 
         'just the date is wanted, not the 00:00:00 on the end of it
         dgvWhatsOn.Columns("ScreeningDate").DefaultCellStyle.Format = "dd/MM/yyyy"
@@ -602,7 +662,13 @@ Public Class frmMainMenuV2
 
         If secondsCounter >= 60 Then
             secondsCounter = 0
-            RefreshDashboard()
+
+            'only refresh if the database can actually be reached. without this check a database
+            'that had been moved or was open in Access would put an error message on the screen
+            'every single minute, and the user could not get rid of them
+            If DbConnectQuiet() Then
+                RefreshDashboard()
+            End If
         End If
     End Sub
 
@@ -626,6 +692,7 @@ Public Class frmMainMenuV2
         ConfigureAccessLevel()
         SetCardCursors()
         SetToolTips()
+        SetGridMenu()
         RefreshDashboard()
 
         lblClock.Text = Format(Now, "ddd d MMM   HH:mm:ss")
