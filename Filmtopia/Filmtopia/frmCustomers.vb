@@ -1,13 +1,21 @@
-﻿Imports System.Data.OleDb
+Imports System.Data.OleDb
 
 Public Class frmCustomers
 
     'tracks the CustomerID of the row currently selected in the grid, 0 means nothing selected
     Private selectedCustomerID As Long = 0
 
+    'true while the form is setting itself up, so filling the search box does not load the grid
+    'before everything is ready
+    Private stillLoading As Boolean = True
+
     Private Sub frmCustomers_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup(Me)
+
+        stillLoading = False
+
         LoadCustomers()
+        ClearFields()
         WriteLog("CUSTOMER", "Customers form opened")
     End Sub
 
@@ -21,56 +29,145 @@ Public Class frmCustomers
         Return True
     End Function
 
-    'loads all customers from tblCustomer into the grid
+    'loads the customers into the grid, only the ones matching the search box if anything is
+    'typed in it. how many bookings each person has made is counted at the same time
     Private Sub LoadCustomers()
+        Dim dt As New DataTable
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT CustomerID, CustomerForename, CustomerSurname, CustomerEmail, CustomerPhone " &
-                                 "FROM tblCustomer"
+
+            'a LEFT JOIN is used rather than an ordinary one so that somebody who has never booked
+            'anything still appears in the list, with a count of nothing next to them
+            Dim baseQuery As String = "SELECT tblCustomer.CustomerID, CustomerForename, CustomerSurname, CustomerEmail, CustomerPhone, " &
+                                      "COUNT(tblBooking.BookingID) AS Bookings " &
+                                      "FROM tblCustomer LEFT JOIN tblBooking ON tblCustomer.CustomerID = tblBooking.CustomerID"
+
+            Dim grouping As String = " GROUP BY tblCustomer.CustomerID, CustomerForename, CustomerSurname, CustomerEmail, CustomerPhone " &
+                                     "ORDER BY CustomerSurname, CustomerForename"
+
+            If txtSearch.Text.Trim() = "" Then
+                SQLCmd.CommandText = baseQuery & grouping
+            Else
+                'the name, the email and the phone number are all searched, because whoever is on
+                'the desk might only have one of the three to go on
+                SQLCmd.CommandText = baseQuery &
+                                     " WHERE CustomerForename & ' ' & CustomerSurname LIKE @SearchName " &
+                                     "OR CustomerEmail LIKE @SearchEmail " &
+                                     "OR CustomerPhone LIKE @SearchPhone" & grouping
+                SQLCmd.Parameters.AddWithValue("@SearchName", "%" & txtSearch.Text.Trim() & "%")
+                SQLCmd.Parameters.AddWithValue("@SearchEmail", "%" & txtSearch.Text.Trim() & "%")
+                SQLCmd.Parameters.AddWithValue("@SearchPhone", "%" & txtSearch.Text.Trim() & "%")
+            End If
+
             Dim da As New OleDbDataAdapter(SQLCmd)
-            Dim dt As New DataTable
             da.Fill(dt)
-            dgvCustomers.DataSource = dt
             cn.Close()
         End If
 
-        'let the email column stretch out and wrap so its all readable
-        dgvCustomers.Columns("CustomerEmail").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-        dgvCustomers.DefaultCellStyle.WrapMode = DataGridViewTriState.True
-        dgvCustomers.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells
+        dgvCustomers.DataSource = dt
+
+        If dgvCustomers.Columns.Count > 0 Then
+            dgvCustomers.Columns("CustomerID").HeaderText = "ID"
+            dgvCustomers.Columns("CustomerForename").HeaderText = "Forename"
+            dgvCustomers.Columns("CustomerSurname").HeaderText = "Surname"
+            dgvCustomers.Columns("CustomerEmail").HeaderText = "Email"
+            dgvCustomers.Columns("CustomerPhone").HeaderText = "Phone"
+            dgvCustomers.Columns("Bookings").HeaderText = "Bookings"
+
+            dgvCustomers.Columns("CustomerID").Width = 50
+            dgvCustomers.Columns("CustomerForename").Width = 160
+            dgvCustomers.Columns("CustomerSurname").Width = 160
+            dgvCustomers.Columns("CustomerEmail").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            dgvCustomers.Columns("CustomerPhone").Width = 130
+            dgvCustomers.Columns("Bookings").Width = 90
+
+            dgvCustomers.Columns("Bookings").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+        End If
+
+        ShowCount(dt.Rows.Count)
+        dgvCustomers.ClearSelection()
 
         WriteLog("CUSTOMER", "Customer list loaded")
     End Sub
 
-    'adds a new customer using the values typed into the textboxes
-    Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
-        If txtForename.Text = "" Then
+    'says how many customers are showing, and whether the search is hiding any
+    Private Sub ShowCount(shown As Integer)
+        If txtSearch.Text.Trim() = "" Then
+            If shown = 1 Then
+                lblGridCount.Text = "1 customer"
+            Else
+                lblGridCount.Text = shown & " customers"
+            End If
+        ElseIf shown = 0 Then
+            lblGridCount.Text = "Nobody matches '" & txtSearch.Text.Trim() & "'"
+        Else
+            lblGridCount.Text = shown & " match(es) for '" & txtSearch.Text.Trim() & "'"
+        End If
+    End Sub
+
+    'the list narrows as it is typed in, there is no need for a search button
+    Private Sub txtSearch_TextChanged(sender As Object, e As EventArgs) Handles txtSearch.TextChanged
+        If stillLoading Then
+            Exit Sub
+        End If
+
+        LoadCustomers()
+    End Sub
+
+    'checks what has been typed in before it goes anywhere near the database. it is in one place
+    'because adding a customer and changing one both need exactly the same checks doing, and they
+    'were written out twice before which meant remembering to change both of them
+    Private Function DetailsAreOk() As Boolean
+        If txtForename.Text.Trim() = "" Then
             MessageBox.Show("Enter a forename")
-            Exit Sub
+            txtForename.Focus()
+            Return False
         End If
-        If txtSurname.Text = "" Then
+
+        If txtSurname.Text.Trim() = "" Then
             MessageBox.Show("Enter a surname")
-            Exit Sub
+            txtSurname.Focus()
+            Return False
         End If
-        If txtEmail.Text = "" Then
+
+        If txtEmail.Text.Trim() = "" Then
             MessageBox.Show("Enter an email address")
-            Exit Sub
+            txtEmail.Focus()
+            Return False
         End If
+
         If Not txtEmail.Text.Contains("@") Or Not txtEmail.Text.Contains(".") Then
             MessageBox.Show("Enter a valid email address")
-            Exit Sub
+            txtEmail.Focus()
+            Return False
         End If
-        If txtPhone.Text = "" Then
+
+        If txtPhone.Text.Trim() = "" Then
             MessageBox.Show("Enter a phone number")
-            Exit Sub
+            txtPhone.Focus()
+            Return False
         End If
+
         If txtPhone.Text.Length < 10 Or txtPhone.Text.Length > 11 Then
             MessageBox.Show("Phone number must be 10 or 11 digits long")
-            Exit Sub
+            txtPhone.Focus()
+            Return False
         End If
+
         If Not IsDigitsOnly(txtPhone.Text) Then
             MessageBox.Show("Phone number must contain digits only")
+            txtPhone.Focus()
+            Return False
+        End If
+
+        Return True
+    End Function
+
+    'adds a new customer using the values typed into the boxes
+    Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
+        If Not DetailsAreOk() Then
             Exit Sub
         End If
 
@@ -79,51 +176,27 @@ Public Class frmCustomers
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "INSERT INTO tblCustomer (CustomerForename, CustomerSurname, CustomerEmail, CustomerPhone) " &
                                  "VALUES (@CustomerForename, @CustomerSurname, @CustomerEmail, @CustomerPhone)"
-            SQLCmd.Parameters.AddWithValue("@CustomerForename", txtForename.Text)
-            SQLCmd.Parameters.AddWithValue("@CustomerSurname", txtSurname.Text)
-            SQLCmd.Parameters.AddWithValue("@CustomerEmail", txtEmail.Text)
-            SQLCmd.Parameters.AddWithValue("@CustomerPhone", txtPhone.Text)
+            SQLCmd.Parameters.AddWithValue("@CustomerForename", txtForename.Text.Trim())
+            SQLCmd.Parameters.AddWithValue("@CustomerSurname", txtSurname.Text.Trim())
+            SQLCmd.Parameters.AddWithValue("@CustomerEmail", txtEmail.Text.Trim())
+            SQLCmd.Parameters.AddWithValue("@CustomerPhone", txtPhone.Text.Trim())
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If
 
-        WriteLog("CUSTOMER", "Customer added: " & txtForename.Text & " " & txtSurname.Text, LogChange)
+        WriteLog("CUSTOMER", "Customer added: " & txtForename.Text.Trim() & " " & txtSurname.Text.Trim(), LogChange)
         LoadCustomers()
         ClearFields()
     End Sub
 
-    'updates the currently selected customer with the values in the textboxes
+    'saves the changes made to the customer selected in the grid
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
         If selectedCustomerID = 0 Then
             MessageBox.Show("Select a customer in the grid first")
             Exit Sub
         End If
-        If txtForename.Text = "" Then
-            MessageBox.Show("Enter a forename")
-            Exit Sub
-        End If
-        If txtSurname.Text = "" Then
-            MessageBox.Show("Enter a surname")
-            Exit Sub
-        End If
-        If txtEmail.Text = "" Then
-            MessageBox.Show("Enter an email address")
-            Exit Sub
-        End If
-        If Not txtEmail.Text.Contains("@") Or Not txtEmail.Text.Contains(".") Then
-            MessageBox.Show("Enter a valid email address")
-            Exit Sub
-        End If
-        If txtPhone.Text = "" Then
-            MessageBox.Show("Enter a phone number")
-            Exit Sub
-        End If
-        If txtPhone.Text.Length < 10 Or txtPhone.Text.Length > 11 Then
-            MessageBox.Show("Phone number must be 10 or 11 digits long")
-            Exit Sub
-        End If
-        If Not IsDigitsOnly(txtPhone.Text) Then
-            MessageBox.Show("Phone number must contain digits only")
+
+        If Not DetailsAreOk() Then
             Exit Sub
         End If
 
@@ -133,28 +206,39 @@ Public Class frmCustomers
             SQLCmd.CommandText = "UPDATE tblCustomer " &
                                  "SET CustomerForename = @CustomerForename, CustomerSurname = @CustomerSurname, CustomerEmail = @CustomerEmail, CustomerPhone = @CustomerPhone " &
                                  "WHERE CustomerID = @CustomerID"
-            SQLCmd.Parameters.AddWithValue("@CustomerForename", txtForename.Text)
-            SQLCmd.Parameters.AddWithValue("@CustomerSurname", txtSurname.Text)
-            SQLCmd.Parameters.AddWithValue("@CustomerEmail", txtEmail.Text)
-            SQLCmd.Parameters.AddWithValue("@CustomerPhone", txtPhone.Text)
+            SQLCmd.Parameters.AddWithValue("@CustomerForename", txtForename.Text.Trim())
+            SQLCmd.Parameters.AddWithValue("@CustomerSurname", txtSurname.Text.Trim())
+            SQLCmd.Parameters.AddWithValue("@CustomerEmail", txtEmail.Text.Trim())
+            SQLCmd.Parameters.AddWithValue("@CustomerPhone", txtPhone.Text.Trim())
             SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(selectedCustomerID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If
 
-        WriteLog("CUSTOMER", "Customer updated: " & txtForename.Text & " " & txtSurname.Text, LogChange)
+        WriteLog("CUSTOMER", "Customer updated: " & txtForename.Text.Trim() & " " & txtSurname.Text.Trim(), LogChange)
         LoadCustomers()
         ClearFields()
     End Sub
 
-    'deletes the currently selected customer
+    'deletes the customer selected in the grid
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
         If selectedCustomerID = 0 Then
             MessageBox.Show("Select a customer in the grid first")
             Exit Sub
         End If
 
-        If MessageBox.Show("Delete this customer?", "Confirm", MessageBoxButtons.YesNo) = DialogResult.No Then
+        'somebody who has booked cannot just be removed, their bookings would be left pointing at
+        'a customer who is not there and the booking list would show blanks where the name goes
+        Dim bookings As Integer = BookingsFor(selectedCustomerID)
+
+        If bookings > 0 Then
+            MessageBox.Show(txtForename.Text & " " & txtSurname.Text & " has " & bookings & " booking(s)." & vbCrLf &
+                            "Cancel those bookings first, then this customer can be removed.",
+                            "Cannot delete", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        If MessageBox.Show("Delete " & txtForename.Text & " " & txtSurname.Text & "?", "Confirm", MessageBoxButtons.YesNo) = DialogResult.No Then
             Exit Sub
         End If
 
@@ -173,7 +257,23 @@ Public Class frmCustomers
         ClearFields()
     End Sub
 
-    'clears the textboxes and the selection
+    'counts how many bookings somebody has, used to stop them being deleted while they have some
+    Private Function BookingsFor(customerID As Long) As Integer
+        Dim total As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBooking WHERE CustomerID = @CustomerID"
+            SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(customerID))
+            total = CInt(SQLCmd.ExecuteScalar())
+            cn.Close()
+        End If
+
+        Return total
+    End Function
+
+    'clears the boxes and the selection
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         ClearFields()
         WriteLog("CUSTOMER", "Customer fields cleared")
@@ -186,9 +286,27 @@ Public Class frmCustomers
         txtEmail.Text = ""
         txtPhone.Text = ""
         dgvCustomers.ClearSelection()
+        ShowWhatIsBeingEdited()
     End Sub
 
-    'when a row is clicked, load its values into the textboxes for editing
+    'the heading over the boxes says whether a new customer is being typed in or an existing one
+    'is being changed. save and delete are switched off until somebody is picked, rather than
+    'letting them be pressed and then telling the user off with a message box
+    Private Sub ShowWhatIsBeingEdited()
+        If selectedCustomerID = 0 Then
+            lblStatus.Text = "Adding a new customer"
+            btnUpdate.Enabled = False
+            btnDelete.Enabled = False
+            btnAdd.Enabled = True
+        Else
+            lblStatus.Text = "Editing: " & txtForename.Text & " " & txtSurname.Text
+            btnUpdate.Enabled = True
+            btnDelete.Enabled = True
+            btnAdd.Enabled = False
+        End If
+    End Sub
+
+    'when a row is clicked, load its values into the boxes for editing
     Private Sub dgvCustomers_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvCustomers.CellClick
         If e.RowIndex < 0 Then Exit Sub
 
@@ -198,6 +316,8 @@ Public Class frmCustomers
         txtSurname.Text = row.Cells("CustomerSurname").Value.ToString()
         txtEmail.Text = row.Cells("CustomerEmail").Value.ToString()
         txtPhone.Text = row.Cells("CustomerPhone").Value.ToString()
+
+        ShowWhatIsBeingEdited()
         WriteLog("CUSTOMER", "Customer selected: " & txtForename.Text & " " & txtSurname.Text)
     End Sub
 
