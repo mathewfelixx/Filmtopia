@@ -6,6 +6,7 @@ Module modMain
     Public cn As OleDbConnection
     Public LogedIn As Boolean = False
     Public UserAccessLevel As Integer = 99  ' indicates the prvilage level the user has 99 for customers
+    Public CurrentLoginID As Long = 0  ' the LoginID of whoever is logged in, 0 means nobody is
     Public Function DbConnect() As Boolean
         Try
             cn = New OleDbConnection(DatabasePath)

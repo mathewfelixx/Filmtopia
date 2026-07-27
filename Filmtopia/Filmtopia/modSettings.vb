@@ -8,9 +8,6 @@ Module modSettings
     'in SaveUserSettings, and that is all
     Public DarkModeOn As Boolean = False
 
-    'who the settings currently loaded belong to, empty means nobody has logged in yet
-    Private settingsUser As String = ""
-
     'the colours the rest of the program uses, these get filled in by SetThemeColours
     Public FormBack As Color
     Public TextFore As Color
@@ -201,100 +198,95 @@ Module modSettings
         dgv.RowHeadersDefaultCellStyle.ForeColor = TextFore
     End Sub
 
-    'takes out anything that is not a letter or a number so a username is safe to use as a file name
-    Private Function SafeFileName(username As String) As String
-        Dim safe As String = ""
-        Dim i As Integer
-
-        For i = 0 To username.Length - 1
-            If Char.IsLetterOrDigit(username.Chars(i)) Then
-                safe = safe & username.Chars(i)
-            End If
-        Next
-
-        If safe = "" Then
-            safe = "user"
-        End If
-
-        Return safe
-    End Function
-
-    'works out where a users settings file lives
-    Private Function UserSettingsFile(username As String) As String
-        Return Application.StartupPath & "\Settings\" & SafeFileName(username) & ".txt"
-    End Function
-
     'puts every setting back to what a brand new user would get
     Private Sub UseDefaultSettings()
         DarkModeOn = False
     End Sub
 
-    'reads one "name=value" line out of the file and puts it in the right variable
-    Private Sub ReadOneSetting(line As String)
-        Dim bits() As String = line.Split("="c)
-
-        If bits.Length >= 2 Then
-            Dim settingName As String = bits(0).Trim().ToUpper()
-            Dim settingValue As String = bits(1).Trim().ToUpper()
-
-            If settingName = "THEME" Then
-                DarkModeOn = (settingValue = "DARK")
-            End If
-            'any new settings get read here
+    'takes one row out of tblUserSettings and puts it in the right variable
+    Private Sub ReadOneSetting(settingName As String, settingValue As String)
+        If settingName.ToUpper() = "THEME" Then
+            DarkModeOn = (settingValue.ToUpper() = "DARK")
         End If
+        'any new settings get read here
     End Sub
 
     'loads the settings belonging to whoever has just logged in
-    Public Sub LoadUserSettings(username As String)
-        settingsUser = username
+    Public Sub LoadUserSettings(loginID As Long)
+        CurrentLoginID = loginID
 
-        'start from the defaults so a missing file or a missing line still leaves something sensible
+        'start from the defaults so a user with no settings saved yet still gets something sensible
         UseDefaultSettings()
 
-        Dim settingsFile As String = UserSettingsFile(username)
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT SettingName, SettingValue " &
+                                 "FROM tblUserSettings " &
+                                 "WHERE LoginID = @LoginID"
+            SQLCmd.Parameters.AddWithValue("@LoginID", loginID)
 
-        If File.Exists(settingsFile) Then
-            Dim lines() As String = File.ReadAllLines(settingsFile)
-            Dim i As Integer
-
-            For i = 0 To lines.Length - 1
-                ReadOneSetting(lines(i))
-            Next
+            Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+            While rs.Read()
+                ReadOneSetting(rs("SettingName"), rs("SettingValue"))
+            End While
+            rs.Close()
+            cn.Close()
         End If
 
         SetThemeColours()
     End Sub
 
-    'saves the settings of the user who is logged in, each user gets their own file
+    'saves one setting, it updates the row if the user already has one and adds it if they do not
+    'the connection has to be open before this is called
+    Private Sub SaveOneSetting(settingName As String, settingValue As String)
+        Dim SQLCmd As New OleDbCommand
+        SQLCmd.Connection = cn
+        SQLCmd.CommandText = "UPDATE tblUserSettings " &
+                             "SET SettingValue = @SettingValue " &
+                             "WHERE LoginID = @LoginID AND SettingName = @SettingName"
+        'the parameters have to be added in the same order they appear in the SQL above
+        SQLCmd.Parameters.AddWithValue("@SettingValue", settingValue)
+        SQLCmd.Parameters.AddWithValue("@LoginID", CurrentLoginID)
+        SQLCmd.Parameters.AddWithValue("@SettingName", settingName)
+
+        Dim rowsChanged As Integer = SQLCmd.ExecuteNonQuery()
+
+        If rowsChanged = 0 Then
+            'this user has never saved this setting before so a new row is needed
+            Dim SQLCmd2 As New OleDbCommand
+            SQLCmd2.Connection = cn
+            SQLCmd2.CommandText = "INSERT INTO tblUserSettings (LoginID, SettingName, SettingValue) " &
+                                  "VALUES (@LoginID, @SettingName, @SettingValue)"
+            SQLCmd2.Parameters.AddWithValue("@LoginID", CurrentLoginID)
+            SQLCmd2.Parameters.AddWithValue("@SettingName", settingName)
+            SQLCmd2.Parameters.AddWithValue("@SettingValue", settingValue)
+            SQLCmd2.ExecuteNonQuery()
+        End If
+    End Sub
+
+    'saves the settings of the user who is logged in into the database
     Public Sub SaveUserSettings()
-        If settingsUser = "" Then
+        If CurrentLoginID = 0 Then
             'nobody has logged in so there is nobody to save them for
             Exit Sub
         End If
 
-        Dim folder As String = Application.StartupPath & "\Settings"
-        Dim contents As String = ""
-
-        If DarkModeOn Then
-            contents = contents & "THEME=DARK" & vbNewLine
-        Else
-            contents = contents & "THEME=LIGHT" & vbNewLine
-        End If
-        'any new settings get written here
-
-        Try
-            If Not Directory.Exists(folder) Then
-                Directory.CreateDirectory(folder)
+        If DbConnect() Then
+            If DarkModeOn Then
+                SaveOneSetting("THEME", "DARK")
+            Else
+                SaveOneSetting("THEME", "LIGHT")
             End If
-            File.WriteAllText(UserSettingsFile(settingsUser), contents)
-        Catch ex As Exception
-            'not worth stopping the program over, the settings just go back to default next time
-        End Try
+            'any new settings get saved here
+
+            cn.Close()
+        End If
     End Sub
 
     'called when someone logs out so the next person does not get the last persons settings
     Public Sub ClearUserSettings()
-        settingsUser = ""
+        CurrentLoginID = 0
         UseDefaultSettings()
         SetThemeColours()
     End Sub

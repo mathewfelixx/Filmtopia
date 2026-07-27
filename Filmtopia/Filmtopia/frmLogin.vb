@@ -28,7 +28,7 @@ Public Class frmLogin
             LogedIn = True
             WriteLog("AUTH", "User '" & txtUsername.Text & "' logged in successfully")
             'each user has their own settings so they get loaded once we know who has logged in
-            LoadUserSettings(txtUsername.Text)
+            LoadUserSettings(CurrentLoginID)
             ClearLoginFields()
             Me.Hide()
             frmMainForm.Show()
@@ -54,7 +54,7 @@ Public Class frmLogin
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT Password, AccessLevel " &
+            SQLCmd.CommandText = "SELECT LoginID, Password, AccessLevel " &
                                  "FROM tblLogin " &
                                  "WHERE Username = @Username"
             SQLCmd.Parameters.AddWithValue("@Username", username)
@@ -65,6 +65,7 @@ Public Class frmLogin
                 Dim strPW = rs("Password")
                 plainTextPW = Decrypt(strPW)
                 UserAccessLevel = rs("AccessLevel")
+                CurrentLoginID = rs("LoginID")
             Else
                 If username = "" Then
                     MessageBox.Show("Username cannot be empty", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning)
