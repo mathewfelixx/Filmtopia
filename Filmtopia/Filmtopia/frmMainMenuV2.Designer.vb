@@ -19,6 +19,20 @@ Partial Class frmMainMenuV2
         Me.lblBrand = New System.Windows.Forms.Label()
         Me.lblClock = New System.Windows.Forms.Label()
         Me.pnlSidebar = New System.Windows.Forms.Panel()
+        Me.flpNav = New System.Windows.Forms.FlowLayoutPanel()
+        Me.lblNavFront = New System.Windows.Forms.Label()
+        Me.btnBookings = New System.Windows.Forms.Button()
+        Me.btnFindBooking = New System.Windows.Forms.Button()
+        Me.btnScreenings = New System.Windows.Forms.Button()
+        Me.btnCustomers = New System.Windows.Forms.Button()
+        Me.lblNavManage = New System.Windows.Forms.Label()
+        Me.btnFilms = New System.Windows.Forms.Button()
+        Me.btnScreens = New System.Windows.Forms.Button()
+        Me.btnFood = New System.Windows.Forms.Button()
+        Me.btnReports = New System.Windows.Forms.Button()
+        Me.btnLogs = New System.Windows.Forms.Button()
+        Me.lblNavSystem = New System.Windows.Forms.Label()
+        Me.btnSettings = New System.Windows.Forms.Button()
         Me.btnLogout = New System.Windows.Forms.Button()
         Me.lblWelcome = New System.Windows.Forms.Label()
         Me.lblSubtitle = New System.Windows.Forms.Label()
@@ -54,28 +68,14 @@ Partial Class frmMainMenuV2
         Me.lblGridCount = New System.Windows.Forms.Label()
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.timerClock = New System.Windows.Forms.Timer(Me.components)
-        Me.btnSettings = New System.Windows.Forms.Button()
-        Me.lblNavSystem = New System.Windows.Forms.Label()
-        Me.btnLogs = New System.Windows.Forms.Button()
-        Me.btnReports = New System.Windows.Forms.Button()
-        Me.btnFood = New System.Windows.Forms.Button()
-        Me.btnScreens = New System.Windows.Forms.Button()
-        Me.btnFilms = New System.Windows.Forms.Button()
-        Me.lblNavManage = New System.Windows.Forms.Label()
-        Me.btnCustomers = New System.Windows.Forms.Button()
-        Me.btnScreenings = New System.Windows.Forms.Button()
-        Me.btnFindBooking = New System.Windows.Forms.Button()
-        Me.btnBookings = New System.Windows.Forms.Button()
-        Me.lblNavFront = New System.Windows.Forms.Label()
-        Me.flpNav = New System.Windows.Forms.FlowLayoutPanel()
         Me.pnlHeader.SuspendLayout()
         Me.pnlSidebar.SuspendLayout()
+        Me.flpNav.SuspendLayout()
         Me.pnlCard1.SuspendLayout()
         Me.pnlCard2.SuspendLayout()
         Me.pnlCard3.SuspendLayout()
         Me.pnlCard4.SuspendLayout()
         CType(Me.dgvWhatsOn, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.flpNav.SuspendLayout()
         Me.SuspendLayout()
         '
         'pnlHeader
@@ -128,6 +128,237 @@ Partial Class frmMainMenuV2
         Me.pnlSidebar.Name = "pnlSidebar"
         Me.pnlSidebar.Size = New System.Drawing.Size(280, 807)
         Me.pnlSidebar.TabIndex = 1
+        '
+        'flpNav
+        '
+        Me.flpNav.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(64, Byte), Integer))
+        Me.flpNav.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.flpNav.Controls.Add(Me.lblNavFront)
+        Me.flpNav.Controls.Add(Me.btnBookings)
+        Me.flpNav.Controls.Add(Me.btnFindBooking)
+        Me.flpNav.Controls.Add(Me.btnScreenings)
+        Me.flpNav.Controls.Add(Me.btnCustomers)
+        Me.flpNav.Controls.Add(Me.lblNavManage)
+        Me.flpNav.Controls.Add(Me.btnFilms)
+        Me.flpNav.Controls.Add(Me.btnScreens)
+        Me.flpNav.Controls.Add(Me.btnFood)
+        Me.flpNav.Controls.Add(Me.btnReports)
+        Me.flpNav.Controls.Add(Me.btnLogs)
+        Me.flpNav.Controls.Add(Me.lblNavSystem)
+        Me.flpNav.Controls.Add(Me.btnSettings)
+        Me.flpNav.FlowDirection = System.Windows.Forms.FlowDirection.TopDown
+        Me.flpNav.Location = New System.Drawing.Point(0, 14)
+        Me.flpNav.Margin = New System.Windows.Forms.Padding(4)
+        Me.flpNav.Name = "flpNav"
+        Me.flpNav.Size = New System.Drawing.Size(280, 700)
+        Me.flpNav.TabIndex = 0
+        Me.flpNav.WrapContents = False
+        '
+        'lblNavFront
+        '
+        Me.lblNavFront.AutoSize = True
+        Me.lblNavFront.Font = New System.Drawing.Font("Segoe UI", 8.25!, System.Drawing.FontStyle.Bold)
+        Me.lblNavFront.ForeColor = System.Drawing.Color.FromArgb(CType(CType(196, Byte), Integer), CType(CType(140, Byte), Integer), CType(CType(196, Byte), Integer))
+        Me.lblNavFront.Location = New System.Drawing.Point(37, 8)
+        Me.lblNavFront.Margin = New System.Windows.Forms.Padding(37, 8, 0, 6)
+        Me.lblNavFront.Name = "lblNavFront"
+        Me.lblNavFront.Size = New System.Drawing.Size(49, 19)
+        Me.lblNavFront.TabIndex = 0
+        Me.lblNavFront.Text = "SALES"
+        '
+        'btnBookings
+        '
+        Me.btnBookings.BackColor = System.Drawing.Color.Transparent
+        Me.btnBookings.FlatAppearance.BorderSize = 0
+        Me.btnBookings.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnBookings.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.btnBookings.ForeColor = System.Drawing.Color.White
+        Me.btnBookings.Location = New System.Drawing.Point(21, 33)
+        Me.btnBookings.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
+        Me.btnBookings.Name = "btnBookings"
+        Me.btnBookings.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnBookings.Size = New System.Drawing.Size(237, 49)
+        Me.btnBookings.TabIndex = 1
+        Me.btnBookings.Text = "Bookings"
+        Me.btnBookings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnBookings.UseVisualStyleBackColor = False
+        '
+        'btnFindBooking
+        '
+        Me.btnFindBooking.BackColor = System.Drawing.Color.Transparent
+        Me.btnFindBooking.FlatAppearance.BorderSize = 0
+        Me.btnFindBooking.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnFindBooking.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.btnFindBooking.ForeColor = System.Drawing.Color.White
+        Me.btnFindBooking.Location = New System.Drawing.Point(21, 89)
+        Me.btnFindBooking.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
+        Me.btnFindBooking.Name = "btnFindBooking"
+        Me.btnFindBooking.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnFindBooking.Size = New System.Drawing.Size(237, 49)
+        Me.btnFindBooking.TabIndex = 2
+        Me.btnFindBooking.Text = "Find Booking"
+        Me.btnFindBooking.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnFindBooking.UseVisualStyleBackColor = False
+        '
+        'btnScreenings
+        '
+        Me.btnScreenings.BackColor = System.Drawing.Color.Transparent
+        Me.btnScreenings.FlatAppearance.BorderSize = 0
+        Me.btnScreenings.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnScreenings.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.btnScreenings.ForeColor = System.Drawing.Color.White
+        Me.btnScreenings.Location = New System.Drawing.Point(21, 145)
+        Me.btnScreenings.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
+        Me.btnScreenings.Name = "btnScreenings"
+        Me.btnScreenings.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnScreenings.Size = New System.Drawing.Size(237, 49)
+        Me.btnScreenings.TabIndex = 3
+        Me.btnScreenings.Text = "Screenings"
+        Me.btnScreenings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnScreenings.UseVisualStyleBackColor = False
+        '
+        'btnCustomers
+        '
+        Me.btnCustomers.BackColor = System.Drawing.Color.Transparent
+        Me.btnCustomers.FlatAppearance.BorderSize = 0
+        Me.btnCustomers.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnCustomers.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.btnCustomers.ForeColor = System.Drawing.Color.White
+        Me.btnCustomers.Location = New System.Drawing.Point(21, 201)
+        Me.btnCustomers.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
+        Me.btnCustomers.Name = "btnCustomers"
+        Me.btnCustomers.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnCustomers.Size = New System.Drawing.Size(237, 49)
+        Me.btnCustomers.TabIndex = 4
+        Me.btnCustomers.Text = "Customers"
+        Me.btnCustomers.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnCustomers.UseVisualStyleBackColor = False
+        '
+        'lblNavManage
+        '
+        Me.lblNavManage.AutoSize = True
+        Me.lblNavManage.Font = New System.Drawing.Font("Segoe UI", 8.25!, System.Drawing.FontStyle.Bold)
+        Me.lblNavManage.ForeColor = System.Drawing.Color.FromArgb(CType(CType(196, Byte), Integer), CType(CType(140, Byte), Integer), CType(CType(196, Byte), Integer))
+        Me.lblNavManage.Location = New System.Drawing.Point(37, 265)
+        Me.lblNavManage.Margin = New System.Windows.Forms.Padding(37, 8, 0, 6)
+        Me.lblNavManage.Name = "lblNavManage"
+        Me.lblNavManage.Size = New System.Drawing.Size(109, 19)
+        Me.lblNavManage.TabIndex = 5
+        Me.lblNavManage.Text = "MANAGEMENT"
+        '
+        'btnFilms
+        '
+        Me.btnFilms.BackColor = System.Drawing.Color.Transparent
+        Me.btnFilms.FlatAppearance.BorderSize = 0
+        Me.btnFilms.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnFilms.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.btnFilms.ForeColor = System.Drawing.Color.White
+        Me.btnFilms.Location = New System.Drawing.Point(21, 290)
+        Me.btnFilms.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
+        Me.btnFilms.Name = "btnFilms"
+        Me.btnFilms.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnFilms.Size = New System.Drawing.Size(237, 49)
+        Me.btnFilms.TabIndex = 6
+        Me.btnFilms.Text = "Films"
+        Me.btnFilms.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnFilms.UseVisualStyleBackColor = False
+        '
+        'btnScreens
+        '
+        Me.btnScreens.BackColor = System.Drawing.Color.Transparent
+        Me.btnScreens.FlatAppearance.BorderSize = 0
+        Me.btnScreens.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnScreens.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.btnScreens.ForeColor = System.Drawing.Color.White
+        Me.btnScreens.Location = New System.Drawing.Point(21, 346)
+        Me.btnScreens.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
+        Me.btnScreens.Name = "btnScreens"
+        Me.btnScreens.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnScreens.Size = New System.Drawing.Size(237, 49)
+        Me.btnScreens.TabIndex = 7
+        Me.btnScreens.Text = "Screens"
+        Me.btnScreens.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnScreens.UseVisualStyleBackColor = False
+        '
+        'btnFood
+        '
+        Me.btnFood.BackColor = System.Drawing.Color.Transparent
+        Me.btnFood.FlatAppearance.BorderSize = 0
+        Me.btnFood.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnFood.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.btnFood.ForeColor = System.Drawing.Color.White
+        Me.btnFood.Location = New System.Drawing.Point(21, 402)
+        Me.btnFood.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
+        Me.btnFood.Name = "btnFood"
+        Me.btnFood.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnFood.Size = New System.Drawing.Size(237, 49)
+        Me.btnFood.TabIndex = 8
+        Me.btnFood.Text = "Food and Drink"
+        Me.btnFood.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnFood.UseVisualStyleBackColor = False
+        '
+        'btnReports
+        '
+        Me.btnReports.BackColor = System.Drawing.Color.Transparent
+        Me.btnReports.FlatAppearance.BorderSize = 0
+        Me.btnReports.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnReports.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.btnReports.ForeColor = System.Drawing.Color.White
+        Me.btnReports.Location = New System.Drawing.Point(21, 458)
+        Me.btnReports.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
+        Me.btnReports.Name = "btnReports"
+        Me.btnReports.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnReports.Size = New System.Drawing.Size(237, 49)
+        Me.btnReports.TabIndex = 9
+        Me.btnReports.Text = "Sales Report"
+        Me.btnReports.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnReports.UseVisualStyleBackColor = False
+        '
+        'btnLogs
+        '
+        Me.btnLogs.BackColor = System.Drawing.Color.Transparent
+        Me.btnLogs.FlatAppearance.BorderSize = 0
+        Me.btnLogs.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnLogs.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.btnLogs.ForeColor = System.Drawing.Color.White
+        Me.btnLogs.Location = New System.Drawing.Point(21, 514)
+        Me.btnLogs.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
+        Me.btnLogs.Name = "btnLogs"
+        Me.btnLogs.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnLogs.Size = New System.Drawing.Size(237, 49)
+        Me.btnLogs.TabIndex = 10
+        Me.btnLogs.Text = "Logs"
+        Me.btnLogs.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnLogs.UseVisualStyleBackColor = False
+        '
+        'lblNavSystem
+        '
+        Me.lblNavSystem.AutoSize = True
+        Me.lblNavSystem.Font = New System.Drawing.Font("Segoe UI", 8.25!, System.Drawing.FontStyle.Bold)
+        Me.lblNavSystem.ForeColor = System.Drawing.Color.FromArgb(CType(CType(196, Byte), Integer), CType(CType(140, Byte), Integer), CType(CType(196, Byte), Integer))
+        Me.lblNavSystem.Location = New System.Drawing.Point(37, 578)
+        Me.lblNavSystem.Margin = New System.Windows.Forms.Padding(37, 8, 0, 6)
+        Me.lblNavSystem.Name = "lblNavSystem"
+        Me.lblNavSystem.Size = New System.Drawing.Size(62, 19)
+        Me.lblNavSystem.TabIndex = 11
+        Me.lblNavSystem.Text = "SYSTEM"
+        '
+        'btnSettings
+        '
+        Me.btnSettings.BackColor = System.Drawing.Color.Transparent
+        Me.btnSettings.FlatAppearance.BorderSize = 0
+        Me.btnSettings.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnSettings.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.btnSettings.ForeColor = System.Drawing.Color.White
+        Me.btnSettings.Location = New System.Drawing.Point(21, 603)
+        Me.btnSettings.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
+        Me.btnSettings.Name = "btnSettings"
+        Me.btnSettings.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnSettings.Size = New System.Drawing.Size(237, 49)
+        Me.btnSettings.TabIndex = 12
+        Me.btnSettings.Text = "Settings"
+        Me.btnSettings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnSettings.UseVisualStyleBackColor = False
         '
         'btnLogout
         '
@@ -521,237 +752,6 @@ Partial Class frmMainMenuV2
         '
         Me.timerClock.Interval = 1000
         '
-        'btnSettings
-        '
-        Me.btnSettings.BackColor = System.Drawing.Color.Transparent
-        Me.btnSettings.FlatAppearance.BorderSize = 0
-        Me.btnSettings.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnSettings.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.btnSettings.ForeColor = System.Drawing.Color.White
-        Me.btnSettings.Location = New System.Drawing.Point(21, 603)
-        Me.btnSettings.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
-        Me.btnSettings.Name = "btnSettings"
-        Me.btnSettings.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
-        Me.btnSettings.Size = New System.Drawing.Size(237, 49)
-        Me.btnSettings.TabIndex = 12
-        Me.btnSettings.Text = "Settings"
-        Me.btnSettings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.btnSettings.UseVisualStyleBackColor = False
-        '
-        'lblNavSystem
-        '
-        Me.lblNavSystem.AutoSize = True
-        Me.lblNavSystem.Font = New System.Drawing.Font("Segoe UI", 8.25!, System.Drawing.FontStyle.Bold)
-        Me.lblNavSystem.ForeColor = System.Drawing.Color.FromArgb(CType(CType(196, Byte), Integer), CType(CType(140, Byte), Integer), CType(CType(196, Byte), Integer))
-        Me.lblNavSystem.Location = New System.Drawing.Point(37, 578)
-        Me.lblNavSystem.Margin = New System.Windows.Forms.Padding(37, 8, 0, 6)
-        Me.lblNavSystem.Name = "lblNavSystem"
-        Me.lblNavSystem.Size = New System.Drawing.Size(62, 19)
-        Me.lblNavSystem.TabIndex = 11
-        Me.lblNavSystem.Text = "SYSTEM"
-        '
-        'btnLogs
-        '
-        Me.btnLogs.BackColor = System.Drawing.Color.Transparent
-        Me.btnLogs.FlatAppearance.BorderSize = 0
-        Me.btnLogs.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnLogs.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.btnLogs.ForeColor = System.Drawing.Color.White
-        Me.btnLogs.Location = New System.Drawing.Point(21, 514)
-        Me.btnLogs.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
-        Me.btnLogs.Name = "btnLogs"
-        Me.btnLogs.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
-        Me.btnLogs.Size = New System.Drawing.Size(237, 49)
-        Me.btnLogs.TabIndex = 10
-        Me.btnLogs.Text = "Logs"
-        Me.btnLogs.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.btnLogs.UseVisualStyleBackColor = False
-        '
-        'btnReports
-        '
-        Me.btnReports.BackColor = System.Drawing.Color.Transparent
-        Me.btnReports.FlatAppearance.BorderSize = 0
-        Me.btnReports.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnReports.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.btnReports.ForeColor = System.Drawing.Color.White
-        Me.btnReports.Location = New System.Drawing.Point(21, 458)
-        Me.btnReports.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
-        Me.btnReports.Name = "btnReports"
-        Me.btnReports.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
-        Me.btnReports.Size = New System.Drawing.Size(237, 49)
-        Me.btnReports.TabIndex = 9
-        Me.btnReports.Text = "Sales Report"
-        Me.btnReports.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.btnReports.UseVisualStyleBackColor = False
-        '
-        'btnFood
-        '
-        Me.btnFood.BackColor = System.Drawing.Color.Transparent
-        Me.btnFood.FlatAppearance.BorderSize = 0
-        Me.btnFood.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnFood.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.btnFood.ForeColor = System.Drawing.Color.White
-        Me.btnFood.Location = New System.Drawing.Point(21, 402)
-        Me.btnFood.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
-        Me.btnFood.Name = "btnFood"
-        Me.btnFood.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
-        Me.btnFood.Size = New System.Drawing.Size(237, 49)
-        Me.btnFood.TabIndex = 8
-        Me.btnFood.Text = "Food and Drink"
-        Me.btnFood.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.btnFood.UseVisualStyleBackColor = False
-        '
-        'btnScreens
-        '
-        Me.btnScreens.BackColor = System.Drawing.Color.Transparent
-        Me.btnScreens.FlatAppearance.BorderSize = 0
-        Me.btnScreens.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnScreens.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.btnScreens.ForeColor = System.Drawing.Color.White
-        Me.btnScreens.Location = New System.Drawing.Point(21, 346)
-        Me.btnScreens.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
-        Me.btnScreens.Name = "btnScreens"
-        Me.btnScreens.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
-        Me.btnScreens.Size = New System.Drawing.Size(237, 49)
-        Me.btnScreens.TabIndex = 7
-        Me.btnScreens.Text = "Screens"
-        Me.btnScreens.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.btnScreens.UseVisualStyleBackColor = False
-        '
-        'btnFilms
-        '
-        Me.btnFilms.BackColor = System.Drawing.Color.Transparent
-        Me.btnFilms.FlatAppearance.BorderSize = 0
-        Me.btnFilms.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnFilms.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.btnFilms.ForeColor = System.Drawing.Color.White
-        Me.btnFilms.Location = New System.Drawing.Point(21, 290)
-        Me.btnFilms.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
-        Me.btnFilms.Name = "btnFilms"
-        Me.btnFilms.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
-        Me.btnFilms.Size = New System.Drawing.Size(237, 49)
-        Me.btnFilms.TabIndex = 6
-        Me.btnFilms.Text = "Films"
-        Me.btnFilms.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.btnFilms.UseVisualStyleBackColor = False
-        '
-        'lblNavManage
-        '
-        Me.lblNavManage.AutoSize = True
-        Me.lblNavManage.Font = New System.Drawing.Font("Segoe UI", 8.25!, System.Drawing.FontStyle.Bold)
-        Me.lblNavManage.ForeColor = System.Drawing.Color.FromArgb(CType(CType(196, Byte), Integer), CType(CType(140, Byte), Integer), CType(CType(196, Byte), Integer))
-        Me.lblNavManage.Location = New System.Drawing.Point(37, 265)
-        Me.lblNavManage.Margin = New System.Windows.Forms.Padding(37, 8, 0, 6)
-        Me.lblNavManage.Name = "lblNavManage"
-        Me.lblNavManage.Size = New System.Drawing.Size(109, 19)
-        Me.lblNavManage.TabIndex = 5
-        Me.lblNavManage.Text = "MANAGEMENT"
-        '
-        'btnCustomers
-        '
-        Me.btnCustomers.BackColor = System.Drawing.Color.Transparent
-        Me.btnCustomers.FlatAppearance.BorderSize = 0
-        Me.btnCustomers.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnCustomers.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.btnCustomers.ForeColor = System.Drawing.Color.White
-        Me.btnCustomers.Location = New System.Drawing.Point(21, 201)
-        Me.btnCustomers.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
-        Me.btnCustomers.Name = "btnCustomers"
-        Me.btnCustomers.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
-        Me.btnCustomers.Size = New System.Drawing.Size(237, 49)
-        Me.btnCustomers.TabIndex = 4
-        Me.btnCustomers.Text = "Customers"
-        Me.btnCustomers.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.btnCustomers.UseVisualStyleBackColor = False
-        '
-        'btnScreenings
-        '
-        Me.btnScreenings.BackColor = System.Drawing.Color.Transparent
-        Me.btnScreenings.FlatAppearance.BorderSize = 0
-        Me.btnScreenings.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnScreenings.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.btnScreenings.ForeColor = System.Drawing.Color.White
-        Me.btnScreenings.Location = New System.Drawing.Point(21, 145)
-        Me.btnScreenings.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
-        Me.btnScreenings.Name = "btnScreenings"
-        Me.btnScreenings.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
-        Me.btnScreenings.Size = New System.Drawing.Size(237, 49)
-        Me.btnScreenings.TabIndex = 3
-        Me.btnScreenings.Text = "Screenings"
-        Me.btnScreenings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.btnScreenings.UseVisualStyleBackColor = False
-        '
-        'btnFindBooking
-        '
-        Me.btnFindBooking.BackColor = System.Drawing.Color.Transparent
-        Me.btnFindBooking.FlatAppearance.BorderSize = 0
-        Me.btnFindBooking.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnFindBooking.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.btnFindBooking.ForeColor = System.Drawing.Color.White
-        Me.btnFindBooking.Location = New System.Drawing.Point(21, 89)
-        Me.btnFindBooking.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
-        Me.btnFindBooking.Name = "btnFindBooking"
-        Me.btnFindBooking.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
-        Me.btnFindBooking.Size = New System.Drawing.Size(237, 49)
-        Me.btnFindBooking.TabIndex = 2
-        Me.btnFindBooking.Text = "Find Booking"
-        Me.btnFindBooking.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.btnFindBooking.UseVisualStyleBackColor = False
-        '
-        'btnBookings
-        '
-        Me.btnBookings.BackColor = System.Drawing.Color.Transparent
-        Me.btnBookings.FlatAppearance.BorderSize = 0
-        Me.btnBookings.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.btnBookings.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.btnBookings.ForeColor = System.Drawing.Color.White
-        Me.btnBookings.Location = New System.Drawing.Point(21, 33)
-        Me.btnBookings.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
-        Me.btnBookings.Name = "btnBookings"
-        Me.btnBookings.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
-        Me.btnBookings.Size = New System.Drawing.Size(237, 49)
-        Me.btnBookings.TabIndex = 1
-        Me.btnBookings.Text = "Bookings"
-        Me.btnBookings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.btnBookings.UseVisualStyleBackColor = False
-        '
-        'lblNavFront
-        '
-        Me.lblNavFront.AutoSize = True
-        Me.lblNavFront.Font = New System.Drawing.Font("Segoe UI", 8.25!, System.Drawing.FontStyle.Bold)
-        Me.lblNavFront.ForeColor = System.Drawing.Color.FromArgb(CType(CType(196, Byte), Integer), CType(CType(140, Byte), Integer), CType(CType(196, Byte), Integer))
-        Me.lblNavFront.Location = New System.Drawing.Point(37, 8)
-        Me.lblNavFront.Margin = New System.Windows.Forms.Padding(37, 8, 0, 6)
-        Me.lblNavFront.Name = "lblNavFront"
-        Me.lblNavFront.Size = New System.Drawing.Size(49, 19)
-        Me.lblNavFront.TabIndex = 0
-        Me.lblNavFront.Text = "SALES"
-        '
-        'flpNav
-        '
-        Me.flpNav.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(64, Byte), Integer))
-        Me.flpNav.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.flpNav.Controls.Add(Me.lblNavFront)
-        Me.flpNav.Controls.Add(Me.btnBookings)
-        Me.flpNav.Controls.Add(Me.btnFindBooking)
-        Me.flpNav.Controls.Add(Me.btnScreenings)
-        Me.flpNav.Controls.Add(Me.btnCustomers)
-        Me.flpNav.Controls.Add(Me.lblNavManage)
-        Me.flpNav.Controls.Add(Me.btnFilms)
-        Me.flpNav.Controls.Add(Me.btnScreens)
-        Me.flpNav.Controls.Add(Me.btnFood)
-        Me.flpNav.Controls.Add(Me.btnReports)
-        Me.flpNav.Controls.Add(Me.btnLogs)
-        Me.flpNav.Controls.Add(Me.lblNavSystem)
-        Me.flpNav.Controls.Add(Me.btnSettings)
-        Me.flpNav.FlowDirection = System.Windows.Forms.FlowDirection.TopDown
-        Me.flpNav.Location = New System.Drawing.Point(0, 14)
-        Me.flpNav.Margin = New System.Windows.Forms.Padding(4)
-        Me.flpNav.Name = "flpNav"
-        Me.flpNav.Size = New System.Drawing.Size(280, 700)
-        Me.flpNav.TabIndex = 0
-        Me.flpNav.WrapContents = False
-        '
         'frmMainMenuV2
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
@@ -784,6 +784,8 @@ Partial Class frmMainMenuV2
         Me.pnlHeader.ResumeLayout(False)
         Me.pnlHeader.PerformLayout()
         Me.pnlSidebar.ResumeLayout(False)
+        Me.flpNav.ResumeLayout(False)
+        Me.flpNav.PerformLayout()
         Me.pnlCard1.ResumeLayout(False)
         Me.pnlCard1.PerformLayout()
         Me.pnlCard2.ResumeLayout(False)
@@ -793,8 +795,6 @@ Partial Class frmMainMenuV2
         Me.pnlCard4.ResumeLayout(False)
         Me.pnlCard4.PerformLayout()
         CType(Me.dgvWhatsOn, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.flpNav.ResumeLayout(False)
-        Me.flpNav.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
