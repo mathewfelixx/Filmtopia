@@ -157,9 +157,7 @@
     <Compile Include="frmMainMenuV2.Designer.vb">
       <DependentUpon>frmMainMenuV2.vb</DependentUpon>
     </Compile>
-    <Compile Include="frmMainMenuV2.vb">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="frmMainMenuV2.vb" />
     <Compile Include="frmSettings.Designer.vb">
       <DependentUpon>frmSettings.vb</DependentUpon>
     </Compile>
