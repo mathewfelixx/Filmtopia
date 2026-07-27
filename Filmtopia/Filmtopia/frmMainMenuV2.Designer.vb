@@ -553,7 +553,7 @@ Partial Class frmMainMenuV2
         Me.MaximizeBox = False
         Me.Name = "frmMainMenuV2"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-        Me.Text = "a"
+        Me.Text = "Filmtopia Management System"
         Me.pnlHeader.ResumeLayout(False)
         Me.pnlHeader.PerformLayout()
         Me.pnlSidebar.ResumeLayout(False)
