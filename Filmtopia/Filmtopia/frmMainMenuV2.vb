@@ -2,10 +2,7 @@
 
 Public Class frmMainMenuV2
 
-    'remembers which nav button is the selected one so the hover colour does not fight with it
-    Private activeNav As Button = Nothing
-
-    'turns all the nav buttons back to see through so only the selected one is highlighted
+    'turns all the nav buttons back to see through, used when the menu first opens
     Private Sub SetAllButtonsTransp()
         btnBookings.BackColor = Color.Transparent
         btnFindBooking.BackColor = Color.Transparent
@@ -19,20 +16,18 @@ Public Class frmMainMenuV2
         btnSettings.BackColor = Color.Transparent
     End Sub
 
-    'highlights the button that was just clicked
+    'a button is pink the whole time its form is open, so more than one can be pink at once
     Private Sub SetActive(btn As Button)
-        SetAllButtonsTransp()
-        activeNav = btn
         btn.BackColor = HighlightBack
     End Sub
 
-    'lights a button up a bit when the mouse goes over it, unless it is already the selected one
+    'lights a button up a bit when the mouse goes over it, unless its form is already open
     Private Sub NavButton_MouseEnter(sender As Object, e As EventArgs) Handles btnBookings.MouseEnter,
         btnFindBooking.MouseEnter, btnScreenings.MouseEnter, btnCustomers.MouseEnter, btnFilms.MouseEnter,
         btnScreens.MouseEnter, btnFood.MouseEnter, btnReports.MouseEnter, btnLogs.MouseEnter, btnSettings.MouseEnter
 
         Dim btn As Button = CType(sender, Button)
-        If Not btn Is activeNav Then
+        If btn.BackColor <> HighlightBack Then
             btn.BackColor = SidebarHover
         End If
     End Sub
@@ -43,59 +38,76 @@ Public Class frmMainMenuV2
         btnScreens.MouseLeave, btnFood.MouseLeave, btnReports.MouseLeave, btnLogs.MouseLeave, btnSettings.MouseLeave
 
         Dim btn As Button = CType(sender, Button)
-        If Not btn Is activeNav Then
+        If btn.BackColor <> HighlightBack Then
+            btn.BackColor = Color.Transparent
+        End If
+    End Sub
+
+    'opens a form from the menu, highlights the button that opened it, and remembers which button
+    'belongs to that form so the highlight can be taken off again when the form is closed
+    Private Sub OpenForm(frm As Form, btn As Button)
+        SetActive(btn)
+
+        'the form holds on to its button in Tag, the same way the seat map holds a SeatID
+        frm.Tag = btn
+
+        'take the handler off first, otherwise opening the same form twice would add a second one
+        RemoveHandler frm.FormClosed, AddressOf OpenedForm_Closed
+        AddHandler frm.FormClosed, AddressOf OpenedForm_Closed
+
+        frm.Show()
+        frm.BringToFront()
+    End Sub
+
+    'runs when a form opened from the menu is closed, however it was closed, including the X in
+    'the corner, and puts its button back to normal
+    Private Sub OpenedForm_Closed(sender As Object, e As FormClosedEventArgs)
+        Dim frm As Form = CType(sender, Form)
+
+        If TypeOf frm.Tag Is Button Then
+            Dim btn As Button = CType(frm.Tag, Button)
             btn.BackColor = Color.Transparent
         End If
     End Sub
 
     Private Sub btnBookings_Click(sender As Object, e As EventArgs) Handles btnBookings.Click
-        SetActive(btnBookings)
-        frmBookings.Show()
+        OpenForm(frmBookings, btnBookings)
     End Sub
 
     Private Sub btnFindBooking_Click(sender As Object, e As EventArgs) Handles btnFindBooking.Click
-        SetActive(btnFindBooking)
-        frmBookingSearch.Show()
+        OpenForm(frmBookingSearch, btnFindBooking)
     End Sub
 
     Private Sub btnScreenings_Click(sender As Object, e As EventArgs) Handles btnScreenings.Click
-        SetActive(btnScreenings)
-        frmScreenings.Show()
+        OpenForm(frmScreenings, btnScreenings)
     End Sub
 
     Private Sub btnCustomers_Click(sender As Object, e As EventArgs) Handles btnCustomers.Click
-        SetActive(btnCustomers)
-        frmCustomers.Show()
+        OpenForm(frmCustomers, btnCustomers)
     End Sub
 
     Private Sub btnFilms_Click(sender As Object, e As EventArgs) Handles btnFilms.Click
-        SetActive(btnFilms)
-        frmFilms.Show()
+        OpenForm(frmFilms, btnFilms)
     End Sub
 
     Private Sub btnScreens_Click(sender As Object, e As EventArgs) Handles btnScreens.Click
-        SetActive(btnScreens)
-        frmScreens.Show()
+        OpenForm(frmScreens, btnScreens)
     End Sub
 
     Private Sub btnFood_Click(sender As Object, e As EventArgs) Handles btnFood.Click
-        SetActive(btnFood)
-        frmFoodItems.Show()
+        OpenForm(frmFoodItems, btnFood)
     End Sub
 
     Private Sub btnReports_Click(sender As Object, e As EventArgs) Handles btnReports.Click
-        SetActive(btnReports)
-        frmSalesReport.Show()
+        OpenForm(frmSalesReport, btnReports)
     End Sub
 
     Private Sub btnLogs_Click(sender As Object, e As EventArgs) Handles btnLogs.Click
-        SetActive(btnLogs)
-        frmLogs.Show()
+        OpenForm(frmLogs, btnLogs)
     End Sub
 
     Private Sub btnSettings_Click(sender As Object, e As EventArgs) Handles btnSettings.Click
-        SetActive(btnSettings)
-        frmSettings.Show()
+        OpenForm(frmSettings, btnSettings)
     End Sub
 
     Private Sub btnLogout_Click(sender As Object, e As EventArgs) Handles btnLogout.Click
