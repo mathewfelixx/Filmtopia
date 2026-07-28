@@ -132,25 +132,72 @@ Public Class frmFilms
         If dgvFilms.Columns.Contains("FilmID") Then
             dgvFilms.Columns("FilmID").HeaderText = "ID"
             dgvFilms.Columns("FilmTitle").HeaderText = "Title"
+            dgvFilms.Columns("FilmYear").HeaderText = "Year"
             dgvFilms.Columns("FilmAgeRating").HeaderText = "Rating"
             dgvFilms.Columns("RunsFor").HeaderText = "Runs for"
+            dgvFilms.Columns("FilmGenres").HeaderText = "Genres"
             dgvFilms.Columns("FilmDescription").HeaderText = "Description"
 
             'the minutes are still there to be read back when a row is clicked, just not shown
             dgvFilms.Columns("FilmDuration").Visible = False
 
-            dgvFilms.Columns("FilmID").Width = 50
-            dgvFilms.Columns("FilmTitle").Width = 260
-            dgvFilms.Columns("FilmAgeRating").Width = 70
-            dgvFilms.Columns("RunsFor").Width = 100
-            dgvFilms.Columns("FilmDescription").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            'the running time column is worked out after the others so it comes back off the end of
+            'the table, which would put it on the right hand side of the grid after the description.
+            'setting the order here puts the columns in the order they make sense to read in
+            dgvFilms.Columns("FilmID").DisplayIndex = 0
+            dgvFilms.Columns("FilmTitle").DisplayIndex = 1
+            dgvFilms.Columns("FilmYear").DisplayIndex = 2
+            dgvFilms.Columns("FilmAgeRating").DisplayIndex = 3
+            dgvFilms.Columns("RunsFor").DisplayIndex = 4
+            dgvFilms.Columns("FilmGenres").DisplayIndex = 5
+            dgvFilms.Columns("FilmDescription").DisplayIndex = 6
 
+            'the columns share out the width of the grid between them instead of each being set to a
+            'number of pixels. setting them by hand meant the widths never added up to the width of
+            'the grid, so there was either an empty strip down the right hand side or a scroll bar
+            'along the bottom. the weights are out of a hundred, so the title gets a quarter of
+            'whatever room there is and the year gets a fifteenth of it
+            dgvFilms.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+
+            dgvFilms.Columns("FilmID").FillWeight = 4
+            dgvFilms.Columns("FilmTitle").FillWeight = 24
+            dgvFilms.Columns("FilmYear").FillWeight = 6
+            dgvFilms.Columns("FilmAgeRating").FillWeight = 6
+            dgvFilms.Columns("RunsFor").FillWeight = 8
+            dgvFilms.Columns("FilmGenres").FillWeight = 16
+            dgvFilms.Columns("FilmDescription").FillWeight = 36
+
+            'the narrow columns are not allowed to be squashed smaller than their heading
+            dgvFilms.Columns("FilmID").MinimumWidth = 40
+            dgvFilms.Columns("FilmYear").MinimumWidth = 55
+            dgvFilms.Columns("FilmAgeRating").MinimumWidth = 60
+            dgvFilms.Columns("RunsFor").MinimumWidth = 75
+
+            dgvFilms.Columns("FilmYear").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
             dgvFilms.Columns("FilmAgeRating").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
             dgvFilms.Columns("RunsFor").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+            dgvFilms.Columns("FilmID").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
 
-            'let the description wrap so all of it can be read
+            'the three columns that hold proper text are allowed to wrap onto another line, so a long
+            'title or a long list of genres can still be read instead of being cut off with dots
+            dgvFilms.Columns("FilmTitle").DefaultCellStyle.WrapMode = DataGridViewTriState.True
+            dgvFilms.Columns("FilmGenres").DefaultCellStyle.WrapMode = DataGridViewTriState.True
             dgvFilms.Columns("FilmDescription").DefaultCellStyle.WrapMode = DataGridViewTriState.True
+
+            'each row is then made tall enough to show everything that is in it. the rows have a
+            'minimum height set in the designer as well, so a film with hardly anything written
+            'about it still gets a decent sized row instead of a thin one
             dgvFilms.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells
+
+            'a bit of breathing room around the text so it is not right up against the lines, and
+            'the text sits in the middle of the row rather than stuck to the top of it
+            dgvFilms.DefaultCellStyle.Padding = New Padding(6, 4, 6, 4)
+            dgvFilms.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft
+
+            'the header height is only allowed to be set once it has been told to stop working it
+            'out for itself
+            dgvFilms.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing
+            dgvFilms.ColumnHeadersHeight = 32
         End If
 
         ShowCount(dt.Rows.Count)
