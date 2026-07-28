@@ -57,14 +57,27 @@ Partial Class frmFilms
         Me.lblHeading.Font = New System.Drawing.Font("Segoe UI", 14.25!, System.Drawing.FontStyle.Bold)
         Me.lblHeading.Location = New System.Drawing.Point(16, 12)
         Me.lblHeading.Name = "lblHeading"
-        Me.lblHeading.Size = New System.Drawing.Size(60, 25)
+        Me.lblHeading.Size = New System.Drawing.Size(73, 32)
         Me.lblHeading.TabIndex = 0
         Me.lblHeading.Text = "Films"
+        '
+        'btnImportFromFile
+        '
+        Me.btnImportFromFile.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.btnImportFromFile.Location = New System.Drawing.Point(830, 10)
+        Me.btnImportFromFile.Name = "btnImportFromFile"
+        Me.btnImportFromFile.Size = New System.Drawing.Size(220, 28)
+        Me.btnImportFromFile.TabIndex = 4
+        Me.btnImportFromFile.Text = "Import from IMDb file..."
+        Me.btnImportFromFile.UseVisualStyleBackColor = True
         '
         'GroupBox1
         '
         Me.GroupBox1.Controls.Add(Me.lblSearch)
         Me.GroupBox1.Controls.Add(Me.txtSearch)
+        Me.GroupBox1.Controls.Add(Me.lblGenreFilter)
+        Me.GroupBox1.Controls.Add(Me.cboGenreFilter)
+        Me.GroupBox1.Controls.Add(Me.chkNeedsDescription)
         Me.GroupBox1.Controls.Add(Me.lblGridCount)
         Me.GroupBox1.Controls.Add(Me.dgvFilms)
         Me.GroupBox1.Font = New System.Drawing.Font("Segoe UI", 9.0!)
