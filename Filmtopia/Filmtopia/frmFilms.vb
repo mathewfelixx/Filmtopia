@@ -21,6 +21,34 @@ Public Class frmFilms
         cboAgeRating.Items.Add("15")
         cboAgeRating.Items.Add("18")
 
+        'the genres to filter the list by. this is a set list rather than a SELECT DISTINCT because
+        'a film keeps all its genres in the one field, so a distinct query would come back with
+        'Action,Adventure,Drama as a single option instead of three separate ones
+        cboGenreFilter.Items.Add("All genres")
+        cboGenreFilter.Items.Add("Action")
+        cboGenreFilter.Items.Add("Adventure")
+        cboGenreFilter.Items.Add("Animation")
+        cboGenreFilter.Items.Add("Comedy")
+        cboGenreFilter.Items.Add("Crime")
+        cboGenreFilter.Items.Add("Documentary")
+        cboGenreFilter.Items.Add("Drama")
+        cboGenreFilter.Items.Add("Family")
+        cboGenreFilter.Items.Add("Fantasy")
+        cboGenreFilter.Items.Add("Horror")
+        cboGenreFilter.Items.Add("Mystery")
+        cboGenreFilter.Items.Add("Romance")
+        cboGenreFilter.Items.Add("Sci-Fi")
+        cboGenreFilter.Items.Add("Thriller")
+        cboGenreFilter.Items.Add("War")
+        cboGenreFilter.Items.Add("Western")
+        cboGenreFilter.SelectedIndex = 0
+
+        'the shortest a row in the grid is allowed to be. the rows grow to fit whatever is written
+        'about a film, and this stops one with hardly anything in it ending up as a thin line next
+        'to a tall one. it is set here rather than in the designer because opening the form in the
+        'designer wipes it, and then every row goes thin again with nothing to say why
+        dgvFilms.RowTemplate.MinimumHeight = 44
+
         stillLoading = False
 
         LoadFilms()
@@ -96,6 +124,34 @@ Public Class frmFilms
         dgvFilms.ClearSelection()
 
         WriteLog("FILM", "Film list loaded")
+    End Sub
+
+    'the genre that has been picked to filter by, or an empty string if the list is not being
+    'filtered. it is a function because both the query and the count label need to know
+    Private Function GenrePicked() As String
+        If cboGenreFilter.SelectedIndex <= 0 Then
+            Return ""
+        End If
+
+        Return cboGenreFilter.Text
+    End Function
+
+    'the list narrows when a different genre is picked, same as typing in the search box does
+    Private Sub cboGenreFilter_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboGenreFilter.SelectedIndexChanged
+        If stillLoading Then
+            Exit Sub
+        End If
+
+        LoadFilms()
+    End Sub
+
+    'shows just the films still waiting for somebody to write what they are about
+    Private Sub chkNeedsDescription_CheckedChanged(sender As Object, e As EventArgs) Handles chkNeedsDescription.CheckedChanged
+        If stillLoading Then
+            Exit Sub
+        End If
+
+        LoadFilms()
     End Sub
 
     'turns a number of minutes into something like 2h 15m
