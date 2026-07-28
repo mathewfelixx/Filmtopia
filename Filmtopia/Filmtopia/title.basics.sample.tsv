@@ -1,0 +1,36 @@
+tconst	titleType	primaryTitle	originalTitle	isAdult	startYear	endYear	runtimeMinutes	genres
+tt1160419	movie	Dune	Dune	0	2021	\N	155	Action,Adventure,Drama
+tt15239678	movie	Dune: Part Two	Dune: Part Two	0	2024	\N	166	Action,Adventure,Drama
+tt0087182	movie	Dune	Dune	0	1984	\N	137	Action,Adventure,Sci-Fi
+tt1375666	movie	Inception	Inception	0	2010	\N	148	Action,Adventure,Sci-Fi
+tt0816692	movie	Interstellar	Interstellar	0	2014	\N	169	Adventure,Drama,Sci-Fi
+tt6723592	movie	Tenet	Tenet	0	2020	\N	150	Action,Sci-Fi,Thriller
+tt15398776	movie	Oppenheimer	Oppenheimer	0	2023	\N	181	Biography,Drama,History
+tt1517268	movie	Barbie	Barbie	0	2023	\N	114	Adventure,Comedy,Fantasy
+tt9362722	movie	Spider-Man: Across the Spider-Verse	Spider-Man: Across the Spider-Verse	0	2023	\N	140	Animation,Action,Adventure
+tt10366206	movie	John Wick: Chapter 4	John Wick: Chapter 4	0	2023	\N	169	Action,Crime,Thriller
+tt1262426	movie	Wicked	Wicked	0	2024	\N	160	Fantasy,Musical,Romance
+tt9218128	movie	Gladiator II	Gladiator II	0	2024	\N	148	Adventure,Drama
+tt6263850	movie	Deadpool & Wolverine	Deadpool & Wolverine	0	2024	\N	128	Action,Comedy,Sci-Fi
+tt13622970	movie	Moana 2	Moana 2	0	2024	\N	100	Animation,Adventure,Comedy
+tt5535276	movie	Mufasa: The Lion King	Mufasa: The Lion King	0	2024	\N	118	Animation,Adventure,Drama
+tt0468569	movie	The Dark Knight	The Dark Knight	0	2008	\N	152	Action,Crime,Drama
+tt0111161	movie	The Shawshank Redemption	The Shawshank Redemption	0	1994	\N	142	Drama
+tt0110912	movie	Pulp Fiction	Pulp Fiction	0	1994	\N	154	Crime,Drama
+tt0109830	movie	Forrest Gump	Forrest Gump	0	1994	\N	142	Drama,Romance
+tt0133093	movie	The Matrix	The Matrix	0	1999	\N	136	Action,Sci-Fi
+tt3606756	movie	Incredibles 2	Incredibles 2	0	2018	\N	118	Animation,Action,Adventure
+tt2911666	movie	John Wick	John Wick	0	2014	\N	101	Action,Crime,Thriller
+tt1856101	movie	Blade Runner 2049	Blade Runner 2049	0	2017	\N	164	Action,Drama,Mystery
+tt0083658	movie	Blade Runner	Blade Runner	0	1982	\N	117	Action,Drama,Sci-Fi
+tt7286456	movie	Joker	Joker	0	2019	\N	122	Crime,Drama,Thriller
+tt0088763	movie	Back to the Future	Back to the Future	0	1985	\N	116	Adventure,Comedy,Sci-Fi
+tt9999001	movie	The Lost Reel	The Lost Reel	0	2022	\N	\N	Drama,Mystery
+tt9999002	movie	Dune Sketches	Dune Sketches	0	\N	\N	\N	Documentary
+tt11041332	tvSeries	Dune: Prophecy	Dune: Prophecy	0	2024	\N	60	Drama,Sci-Fi
+tt0903747	tvSeries	Breaking Bad	Breaking Bad	0	2008	2013	49	Crime,Drama,Thriller
+tt9999003	short	Dune in a Minute	Dune in a Minute	0	2021	\N	2	Short,Comedy
+tt9999004	tvEpisode	The Spice Must Flow	The Spice Must Flow	0	2024	\N	58	Drama,Sci-Fi
+tt9999005	videoGame	Dune: Spice Wars	Dune: Spice Wars	0	2022	\N	\N	Adventure,Sci-Fi
+tt9999006	movie	Dune Buggy Nights	Dune Buggy Nights	1	2019	\N	88	Adult
+tt9999007	movie	Broken Row Film	Broken Row Film
