@@ -80,7 +80,7 @@ Partial Class frmCustomers
         'txtSearch
         '
         Me.txtSearch.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.txtSearch.Location = New System.Drawing.Point(70, 25)
+        Me.txtSearch.Location = New System.Drawing.Point(85, 25)
         Me.txtSearch.Name = "txtSearch"
         Me.txtSearch.Size = New System.Drawing.Size(300, 23)
         Me.txtSearch.TabIndex = 1
@@ -173,7 +173,7 @@ Partial Class frmCustomers
         'txtSurname
         '
         Me.txtSurname.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.txtSurname.Location = New System.Drawing.Point(470, 58)
+        Me.txtSurname.Location = New System.Drawing.Point(485, 58)
         Me.txtSurname.Name = "txtSurname"
         Me.txtSurname.Size = New System.Drawing.Size(250, 23)
         Me.txtSurname.TabIndex = 4
