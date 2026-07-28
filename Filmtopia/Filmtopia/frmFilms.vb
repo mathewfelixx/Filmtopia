@@ -64,18 +64,51 @@ Public Class frmFilms
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
 
-            Dim baseQuery As String = "SELECT FilmID, FilmTitle, FilmAgeRating, FilmDuration, FilmDescription " &
+            Dim baseQuery As String = "SELECT FilmID, FilmTitle, FilmYear, FilmAgeRating, FilmDuration, FilmGenres, FilmDescription " &
                                       "FROM tblFilm"
 
-            If txtSearch.Text.Trim() = "" Then
-                SQLCmd.CommandText = baseQuery & " ORDER BY FilmTitle"
-            Else
+            'there are two things that can narrow the list now, so the conditions are built up into
+            'a string and only put on the end if there is anything in it. the values are added in
+            'the same order as the conditions, because OleDb goes by the order the parameters were
+            'added and not by their names
+            Dim conditions As String = ""
+
+            If txtSearch.Text.Trim() <> "" Then
                 'searching the description as well means half remembering what a film is about
                 'is enough to find it
-                SQLCmd.CommandText = baseQuery & " WHERE FilmTitle LIKE @Search OR FilmDescription LIKE @Search2 " &
-                                     "ORDER BY FilmTitle"
+                conditions = "(FilmTitle LIKE @Search OR FilmDescription LIKE @Search2)"
+            End If
+
+            If GenrePicked() <> "" Then
+                If conditions <> "" Then
+                    conditions = conditions & " AND "
+                End If
+                conditions = conditions & "FilmGenres LIKE @Genre"
+            End If
+
+            'films that came in from the IMDb file with nothing written about them. an empty box and
+            'a box that was never filled in are not the same thing to Access, so both have to be
+            'asked for
+            If chkNeedsDescription.Checked Then
+                If conditions <> "" Then
+                    conditions = conditions & " AND "
+                End If
+                conditions = conditions & "(FilmDescription IS NULL OR FilmDescription = '')"
+            End If
+
+            If conditions = "" Then
+                SQLCmd.CommandText = baseQuery & " ORDER BY FilmTitle"
+            Else
+                SQLCmd.CommandText = baseQuery & " WHERE " & conditions & " ORDER BY FilmTitle"
+            End If
+
+            If txtSearch.Text.Trim() <> "" Then
                 SQLCmd.Parameters.AddWithValue("@Search", "%" & txtSearch.Text.Trim() & "%")
                 SQLCmd.Parameters.AddWithValue("@Search2", "%" & txtSearch.Text.Trim() & "%")
+            End If
+
+            If GenrePicked() <> "" Then
+                SQLCmd.Parameters.AddWithValue("@Genre", "%" & GenrePicked() & "%")
             End If
 
             Dim da As New OleDbDataAdapter(SQLCmd)
