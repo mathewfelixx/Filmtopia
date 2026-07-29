@@ -703,15 +703,15 @@ Public Class frmMainMenuV2
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             'the bits in brackets count the booked seats for each screening as the query goes along,
-            'the second one takes that away from the capacity to get how many are still free
+            'the second one takes that away from the capacity to get how many are still free.
+            'both of them read the screening straight off the seat row rather than joining back to
+            'tblBooking to find it, which is what they used to do
             SQLCmd.CommandText = "SELECT s.ScreeningID, f.FilmTitle, sc.ScreenName, s.ScreeningDate, s.ScreeningTime, " &
                                  "sc.ScreenCapacity, " &
                                  "(SELECT COUNT(*) FROM tblBookingSeat AS bs " &
-                                 "INNER JOIN tblBooking AS b ON bs.BookingID = b.BookingID " &
-                                 "WHERE b.ScreeningID = s.ScreeningID) AS SeatsBooked, " &
+                                 "WHERE bs.ScreeningID = s.ScreeningID) AS SeatsBooked, " &
                                  "sc.ScreenCapacity - (SELECT COUNT(*) FROM tblBookingSeat AS bs2 " &
-                                 "INNER JOIN tblBooking AS b2 ON bs2.BookingID = b2.BookingID " &
-                                 "WHERE b2.ScreeningID = s.ScreeningID) AS SeatsLeft " &
+                                 "WHERE bs2.ScreeningID = s.ScreeningID) AS SeatsLeft " &
                                  "FROM (tblScreening AS s INNER JOIN tblFilm AS f ON s.FilmID = f.FilmID) " &
                                  "INNER JOIN tblScreen AS sc ON s.ScreenID = sc.ScreenID " &
                                  "WHERE (f.FilmTitle LIKE @Search OR sc.ScreenName LIKE @Search2)" &
