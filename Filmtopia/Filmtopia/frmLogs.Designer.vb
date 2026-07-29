@@ -107,7 +107,7 @@ Partial Class frmLogs
         'lblSearch
         '
         Me.lblSearch.AutoSize = True
-        Me.lblSearch.Location = New System.Drawing.Point(730, 17)
+        Me.lblSearch.Location = New System.Drawing.Point(730, 55)
         Me.lblSearch.Name = "lblSearch"
         Me.lblSearch.Size = New System.Drawing.Size(48, 17)
         Me.lblSearch.TabIndex = 8
@@ -115,9 +115,9 @@ Partial Class frmLogs
         '
         'txtSearch
         '
-        Me.txtSearch.Location = New System.Drawing.Point(784, 13)
+        Me.txtSearch.Location = New System.Drawing.Point(800, 51)
         Me.txtSearch.Name = "txtSearch"
-        Me.txtSearch.Size = New System.Drawing.Size(188, 22)
+        Me.txtSearch.Size = New System.Drawing.Size(165, 22)
         Me.txtSearch.TabIndex = 9
         '
         'lblUser
@@ -132,9 +132,9 @@ Partial Class frmLogs
         'cboUser
         '
         Me.cboUser.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboUser.Location = New System.Drawing.Point(55, 51)
+        Me.cboUser.Location = New System.Drawing.Point(70, 51)
         Me.cboUser.Name = "cboUser"
-        Me.cboUser.Size = New System.Drawing.Size(150, 24)
+        Me.cboUser.Size = New System.Drawing.Size(130, 24)
         Me.cboUser.TabIndex = 11
         '
         'btnApply
