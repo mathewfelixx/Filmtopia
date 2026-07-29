@@ -46,6 +46,35 @@ Module modBookings
                 SQLCmd.Connection = cn
                 SQLCmd.Transaction = trans
 
+                'before anything at all is written, check every seat that was picked is still free
+                'on this screening. the bookings form checks this too, but that check finishes and
+                'closes its connection before this one starts, so on a second till a seat could be
+                'taken in between the two. doing it in here, inside the transaction, means the sale
+                'is either made on seats that were free or it is not made at all
+                Dim seatGone As Boolean = False
+                Dim s As Integer
+
+                For s = 0 To seatIDs.Length - 1
+                    SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBookingSeat " &
+                                         "WHERE ScreeningID = @ScreeningID AND SeatID = @SeatID"
+                    SQLCmd.Parameters.Clear()
+                    SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(screeningID))
+                    SQLCmd.Parameters.AddWithValue("@SeatID", CInt(seatIDs(s)))
+
+                    If CInt(SQLCmd.ExecuteScalar()) > 0 Then
+                        seatGone = True
+                    End If
+                Next
+
+                If seatGone Then
+                    trans.Rollback()
+                    cn.Close()
+                    MessageBox.Show("One of those seats has just been booked on another till." & vbNewLine &
+                                    "Nothing has been saved, so pick the seats again and take the sale once more.",
+                                    "Seat gone", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Return 0
+                End If
+
                 'a walk-in has no details, so a quick customer record is made for them here.
                 'doing it inside the transaction means an abandoned sale cannot leave one behind
                 Dim saleCustomerID As Long = customerID
