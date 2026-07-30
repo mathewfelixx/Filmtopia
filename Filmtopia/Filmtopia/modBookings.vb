@@ -262,12 +262,15 @@ Module modBookings
                 foodTotal = CDbl(foodResult)
             End If
 
+            'a cancelled booking is left alone. its seats have been taken off it, so working the
+            'total out again would drop it to just the food and the refund on record would be wrong
             SQLCmd.CommandText = "UPDATE tblBooking " &
                                  "SET TotalCost = @TotalCost " &
-                                 "WHERE BookingID = @BookingID"
+                                 "WHERE BookingID = @BookingID AND BookingStatus <> @Cancelled"
             SQLCmd.Parameters.Clear()
-            SQLCmd.Parameters.AddWithValue("@TotalCost", (seats * ticketPrice) + foodTotal)
+            SQLCmd.Parameters.AddWithValue("@TotalCost", ticketTotal + foodTotal)
             SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
+            SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
             SQLCmd.ExecuteNonQuery()
 
             cn.Close()
