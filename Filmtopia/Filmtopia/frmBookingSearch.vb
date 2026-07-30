@@ -114,6 +114,19 @@ Public Class frmBookingSearch
         ClearSelectedBooking()
     End Sub
 
+    'a cancelled booking is shown greyed out rather than being hidden, so it is obvious the sale
+    'happened and was cancelled instead of it just not being there. the colour comes from the theme
+    'so it still reads properly in dark mode
+    Private Sub GreyOutCancelled()
+        For Each row As DataGridViewRow In dgvBookings.Rows
+            If row.Cells("BookingStatus").Value IsNot Nothing Then
+                If row.Cells("BookingStatus").Value.ToString() = BookingCancelled Then
+                    row.DefaultCellStyle.ForeColor = PastFore
+                End If
+            End If
+        Next
+    End Sub
+
     'nothing is picked, so there is nothing to cancel
     Private Sub ClearSelectedBooking()
         selectedBookingID = 0
