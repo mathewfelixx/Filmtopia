@@ -26,8 +26,10 @@ Partial Class frmScreens
         Me.lblStatus = New System.Windows.Forms.Label()
         Me.lblName = New System.Windows.Forms.Label()
         Me.txtName = New System.Windows.Forms.TextBox()
-        Me.lblCapacity = New System.Windows.Forms.Label()
-        Me.txtCapacity = New System.Windows.Forms.TextBox()
+        Me.lblRows = New System.Windows.Forms.Label()
+        Me.txtRows = New System.Windows.Forms.TextBox()
+        Me.lblPerRow = New System.Windows.Forms.Label()
+        Me.txtPerRow = New System.Windows.Forms.TextBox()
         Me.lblLayout = New System.Windows.Forms.Label()
         Me.btnAdd = New System.Windows.Forms.Button()
         Me.btnUpdate = New System.Windows.Forms.Button()
@@ -101,8 +103,10 @@ Partial Class frmScreens
         Me.GroupBox2.Controls.Add(Me.lblStatus)
         Me.GroupBox2.Controls.Add(Me.lblName)
         Me.GroupBox2.Controls.Add(Me.txtName)
-        Me.GroupBox2.Controls.Add(Me.lblCapacity)
-        Me.GroupBox2.Controls.Add(Me.txtCapacity)
+        Me.GroupBox2.Controls.Add(Me.lblRows)
+        Me.GroupBox2.Controls.Add(Me.txtRows)
+        Me.GroupBox2.Controls.Add(Me.lblPerRow)
+        Me.GroupBox2.Controls.Add(Me.txtPerRow)
         Me.GroupBox2.Controls.Add(Me.lblLayout)
         Me.GroupBox2.Controls.Add(Me.btnAdd)
         Me.GroupBox2.Controls.Add(Me.btnUpdate)
@@ -141,27 +145,46 @@ Partial Class frmScreens
         Me.txtName.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.txtName.Location = New System.Drawing.Point(90, 58)
         Me.txtName.Name = "txtName"
-        Me.txtName.Size = New System.Drawing.Size(250, 23)
+        Me.txtName.Size = New System.Drawing.Size(200, 23)
         Me.txtName.TabIndex = 2
         '
-        'lblCapacity
+        'lblRows
         '
-        Me.lblCapacity.AutoSize = True
-        Me.lblCapacity.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.lblCapacity.Location = New System.Drawing.Point(360, 61)
-        Me.lblCapacity.Name = "lblCapacity"
-        Me.lblCapacity.Size = New System.Drawing.Size(80, 15)
-        Me.lblCapacity.TabIndex = 3
-        Me.lblCapacity.Text = "How many seats"
+        Me.lblRows.AutoSize = True
+        Me.lblRows.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblRows.Location = New System.Drawing.Point(312, 61)
+        Me.lblRows.Name = "lblRows"
+        Me.lblRows.Size = New System.Drawing.Size(38, 15)
+        Me.lblRows.TabIndex = 3
+        Me.lblRows.Text = "Rows"
         '
-        'txtCapacity
+        'txtRows
         '
-        Me.txtCapacity.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.txtCapacity.Location = New System.Drawing.Point(465, 58)
-        Me.txtCapacity.Name = "txtCapacity"
-        Me.txtCapacity.Size = New System.Drawing.Size(80, 23)
-        Me.txtCapacity.TabIndex = 4
-        Me.txtCapacity.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
+        Me.txtRows.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.txtRows.Location = New System.Drawing.Point(370, 58)
+        Me.txtRows.Name = "txtRows"
+        Me.txtRows.Size = New System.Drawing.Size(50, 23)
+        Me.txtRows.TabIndex = 4
+        Me.txtRows.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
+        '
+        'lblPerRow
+        '
+        Me.lblPerRow.AutoSize = True
+        Me.lblPerRow.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblPerRow.Location = New System.Drawing.Point(434, 61)
+        Me.lblPerRow.Name = "lblPerRow"
+        Me.lblPerRow.Size = New System.Drawing.Size(56, 15)
+        Me.lblPerRow.TabIndex = 5
+        Me.lblPerRow.Text = "Per row"
+        '
+        'txtPerRow
+        '
+        Me.txtPerRow.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.txtPerRow.Location = New System.Drawing.Point(518, 58)
+        Me.txtPerRow.Name = "txtPerRow"
+        Me.txtPerRow.Size = New System.Drawing.Size(50, 23)
+        Me.txtPerRow.TabIndex = 6
+        Me.txtPerRow.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
         'lblLayout
         '
@@ -255,8 +278,10 @@ Partial Class frmScreens
     Friend WithEvents lblStatus As Label
     Friend WithEvents lblName As Label
     Friend WithEvents txtName As TextBox
-    Friend WithEvents lblCapacity As Label
-    Friend WithEvents txtCapacity As TextBox
+    Friend WithEvents lblRows As Label
+    Friend WithEvents txtRows As TextBox
+    Friend WithEvents lblPerRow As Label
+    Friend WithEvents txtPerRow As TextBox
     Friend WithEvents lblLayout As Label
     Friend WithEvents btnAdd As Button
     Friend WithEvents btnUpdate As Button
