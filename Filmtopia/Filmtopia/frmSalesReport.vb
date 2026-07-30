@@ -108,14 +108,17 @@ Public Class frmSalesReport
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            'join order item to food item (for the name and price) and to booking (for the date)
+            'join order item to food item (for the name and price) and to booking (for the date).
+            'the food on a cancelled booking is left out, it was refunded so it is not takings
             SQLCmd.CommandText = "SELECT FoodItemName, SUM(Quantity) AS Sold, SUM(Quantity * FoodItemPrice) AS FoodRevenue " &
                                  "FROM (tblOrderItem INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID) " &
                                  "INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID " &
                                  "WHERE tblBooking.BookingDate BETWEEN @FromDate AND @ToDate " &
+                                 "AND tblBooking.BookingStatus <> @Cancelled " &
                                  "GROUP BY FoodItemName"
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
             SQLCmd.Parameters.AddWithValue("@ToDate", toDate)
+            SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)
             cn.Close()
@@ -225,15 +228,18 @@ Public Class frmSalesReport
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
+            'cancelled bookings are left out, the same as on the concessions report
             SQLCmd.CommandText = "SELECT FilmTitle, SUM(Quantity * FoodItemPrice) AS FoodRevenue " &
                                  "FROM (((tblOrderItem INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID) " &
                                  "INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID) " &
                                  "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
                                  "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
                                  "WHERE tblBooking.BookingDate BETWEEN @FromDate AND @ToDate " &
+                                 "AND tblBooking.BookingStatus <> @Cancelled " &
                                  "GROUP BY FilmTitle"
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
             SQLCmd.Parameters.AddWithValue("@ToDate", toDate)
+            SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)
             cn.Close()
