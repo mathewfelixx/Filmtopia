@@ -13,10 +13,11 @@ Public Class frmSalesReport
         dtpFrom.Value = New Date(Date.Now.Year, Date.Now.Month, 1)
         dtpTo.Value = Date.Now.Date
 
-        'the three ways the report can be run, both together is the one it starts on
+        'the ways the report can be run, both together is the one it starts on
         cboReportType.Items.Add("Tickets and concessions")
         cboReportType.Items.Add("Tickets only")
         cboReportType.Items.Add("Concessions only")
+        cboReportType.Items.Add("Cancellations")
         cboReportType.SelectedIndex = 0
 
         stillLoading = False
@@ -67,6 +68,14 @@ Public Class frmSalesReport
             lblFoodRevenue.Text = "Concessions revenue: " & FormatCurrency(foodRevenue)
             lblGrandTotal.Text = "Concessions total: " & FormatCurrency(foodRevenue)
 
+        ElseIf cboReportType.Text = "Cancellations" Then
+            Dim refunded As Double = LoadCancellations(fromDate, toDate)
+
+            lblTicketRevenue.Visible = False
+            lblFoodRevenue.Visible = True
+            lblFoodRevenue.Text = "These sales are not counted in the takings"
+            lblGrandTotal.Text = "Refunded: " & FormatCurrency(refunded)
+
         Else
             'both together, so the grid gets a column each and the totals show the split
             Dim ticketRevenue As Double = 0
@@ -99,6 +108,51 @@ Public Class frmSalesReport
         End If
 
         Return TotalColumn(dt, "TicketRevenue")
+    End Function
+
+    'fills the grid with the bookings that were cancelled in the date range and what they came to,
+    'and gives back what that adds up to. this is only possible now that cancelling marks a booking
+    'instead of deleting it, before this the sale was gone and there was nothing left to report on.
+    'the date used is when it was cancelled, not when it was booked, because a manager looking at
+    'refunds wants to know what went out that week
+    Private Function LoadCancellations(fromDate As Date, toDate As Date) As Double
+        Dim dt As New DataTable
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT tblBooking.BookingID, CustomerForename & ' ' & CustomerSurname AS CustomerName, " &
+                                 "FilmTitle, CancelledDate, TotalCost " &
+                                 "FROM ((tblBooking INNER JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
+                                 "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
+                                 "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
+                                 "WHERE tblBooking.BookingStatus = @Cancelled " &
+                                 "AND tblBooking.CancelledDate BETWEEN @FromDate AND @ToDate " &
+                                 "ORDER BY tblBooking.CancelledDate DESC"
+            SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
+            SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
+            'the to date is pushed to the end of that day, otherwise anything cancelled during the
+            'last day is missed because the time on it is later than midnight
+            SQLCmd.Parameters.AddWithValue("@ToDate", toDate.AddDays(1).AddSeconds(-1))
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            da.Fill(dt)
+            cn.Close()
+        End If
+
+        dgvSalesByFilm.DataSource = dt
+
+        If dgvSalesByFilm.Columns.Count > 0 Then
+            dgvSalesByFilm.Columns("BookingID").HeaderText = "Booking"
+            dgvSalesByFilm.Columns("CustomerName").HeaderText = "Customer"
+            dgvSalesByFilm.Columns("FilmTitle").HeaderText = "Film"
+            dgvSalesByFilm.Columns("CancelledDate").HeaderText = "Cancelled"
+            dgvSalesByFilm.Columns("TotalCost").HeaderText = "Refunded"
+            dgvSalesByFilm.Columns("FilmTitle").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            dgvSalesByFilm.Columns("CancelledDate").DefaultCellStyle.Format = "dd/MM/yyyy HH:mm"
+            dgvSalesByFilm.Columns("TotalCost").DefaultCellStyle.Format = "C"
+        End If
+
+        Return TotalColumn(dt, "TotalCost")
     End Function
 
     'fills the grid with how many of each food item was sold and what it came to, returns the total
