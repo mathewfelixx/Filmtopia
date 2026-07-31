@@ -109,19 +109,45 @@ Module modBookings
                 SQLCmd.Parameters.Clear()
                 newID = CLng(SQLCmd.ExecuteScalar())
 
+                'what a standard ticket costs for this screening right now. this is read once, here,
+                'because what matters is the price at the moment the sale is made
+                Dim ticketPrice As Double = 0
+                SQLCmd.CommandText = "SELECT TicketPrice FROM tblScreening WHERE ScreeningID = @ScreeningID"
+                SQLCmd.Parameters.Clear()
+                SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(screeningID))
+                Dim priceResult = SQLCmd.ExecuteScalar()
+                If priceResult IsNot Nothing AndAlso Not IsDBNull(priceResult) Then
+                    ticketPrice = CDbl(priceResult)
+                End If
+
                 'the seats that were picked on the map.
                 'the screening is written on each seat row as well as on the booking. it is the same
                 'value twice, which is normally something to avoid, but Access can only make a rule
                 'unique within one table. having it here lets the database itself refuse to sell the
-                'same seat twice on the same screening instead of that only being a rule in the code
+                'same seat twice on the same screening instead of that only being a rule in the code.
+                'what the seat was actually charged at goes on the row as well. a booking is the price
+                'it was agreed at, so if the ticket price goes up next week this sale must not change
                 Dim i As Integer
                 For i = 0 To seatIDs.Length - 1
-                    SQLCmd.CommandText = "INSERT INTO tblBookingSeat (BookingID, SeatID, ScreeningID) " &
-                                         "VALUES (@BookingID, @SeatID, @ScreeningID)"
+                    'the multiplier for this particular seat, so a premium one is charged as premium
+                    SQLCmd.CommandText = "SELECT tblSeatType.PriceMultiplier " &
+                                         "FROM tblSeat INNER JOIN tblSeatType ON tblSeat.SeatTypeID = tblSeatType.SeatTypeID " &
+                                         "WHERE tblSeat.SeatID = @SeatID"
+                    SQLCmd.Parameters.Clear()
+                    SQLCmd.Parameters.AddWithValue("@SeatID", CInt(seatIDs(i)))
+                    Dim multiplier As Double = 1
+                    Dim multiplierResult = SQLCmd.ExecuteScalar()
+                    If multiplierResult IsNot Nothing AndAlso Not IsDBNull(multiplierResult) Then
+                        multiplier = CDbl(multiplierResult)
+                    End If
+
+                    SQLCmd.CommandText = "INSERT INTO tblBookingSeat (BookingID, SeatID, ScreeningID, SeatPricePaid) " &
+                                         "VALUES (@BookingID, @SeatID, @ScreeningID, @SeatPricePaid)"
                     SQLCmd.Parameters.Clear()
                     SQLCmd.Parameters.AddWithValue("@BookingID", CInt(newID))
                     SQLCmd.Parameters.AddWithValue("@SeatID", CInt(seatIDs(i)))
                     SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(screeningID))
+                    SQLCmd.Parameters.AddWithValue("@SeatPricePaid", SeatPrice(ticketPrice, multiplier))
                     SQLCmd.ExecuteNonQuery()
                 Next
 
