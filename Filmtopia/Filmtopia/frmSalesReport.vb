@@ -257,12 +257,15 @@ Public Class frmSalesReport
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            'one row of tblBookingSeat is one ticket, so counting them gives the tickets sold and
-            'adding up the screening price gives what those tickets brought in
-            SQLCmd.CommandText = "SELECT FilmTitle, COUNT(*) AS Tickets, SUM(TicketPrice) AS TicketRevenue " &
-                                 "FROM ((tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID) " &
+            'one row of tblBookingSeat is one ticket, so counting them gives the tickets sold.
+            'the money is the screening price times the multiplier for that sort of seat, added up,
+            'because a premium seat brings in more than a standard one on the same screening
+            SQLCmd.CommandText = "SELECT FilmTitle, COUNT(*) AS Tickets, SUM(TicketPrice * PriceMultiplier) AS TicketRevenue " &
+                                 "FROM ((((tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID) " &
                                  "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
-                                 "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
+                                 "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID) " &
+                                 "INNER JOIN tblSeat ON tblBookingSeat.SeatID = tblSeat.SeatID) " &
+                                 "INNER JOIN tblSeatType ON tblSeat.SeatTypeID = tblSeatType.SeatTypeID " &
                                  "WHERE tblBooking.BookingDate BETWEEN @FromDate AND @ToDate " &
                                  "GROUP BY FilmTitle"
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
