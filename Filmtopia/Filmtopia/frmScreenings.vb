@@ -631,8 +631,17 @@ Public Class frmScreenings
         Dim clash As String = ClashingScreening()
 
         If clash <> "" Then
-            MessageBox.Show("That screen is already showing " & clash & "." & vbCrLf & vbCrLf &
-                            "Pick a different time or a different screen.",
+            'saying no is not much help on its own, so it works out where the film would actually
+            'go and offers that instead
+            Dim slot As Integer = NextFreeSlot()
+            Dim advice As String = "Pick a different time or a different screen."
+
+            If slot >= 0 Then
+                advice = "The first time it would fit on that screen is " & MinutesAsTime(slot) & "." & vbCrLf &
+                         "Find me a free time will put that in for you."
+            End If
+
+            MessageBox.Show("That screen is already showing " & clash & "." & vbCrLf & vbCrLf & advice,
                             "Two films at once", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return False
         End If
