@@ -252,30 +252,14 @@ Module modBookings
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
 
-            'what one standard ticket costs for the screening this booking is for
-            SQLCmd.CommandText = "SELECT TicketPrice " &
-                                 "FROM tblScreening INNER JOIN tblBooking ON tblScreening.ScreeningID = tblBooking.ScreeningID " &
-                                 "WHERE tblBooking.BookingID = @BookingID"
+            'what the seats on this booking were sold for. putting the price up on the screening
+            'later must not change what a customer who already paid is down as having paid
+            SQLCmd.CommandText = "SELECT SUM(SeatPricePaid) FROM tblBookingSeat WHERE BookingID = @BookingID"
             SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
-            Dim priceResult = SQLCmd.ExecuteScalar()
-            If priceResult IsNot Nothing AndAlso Not IsDBNull(priceResult) Then
-                ticketPrice = CDbl(priceResult)
+            Dim ticketResult = SQLCmd.ExecuteScalar()
+            If ticketResult IsNot Nothing AndAlso Not IsDBNull(ticketResult) Then
+                ticketTotal = CDbl(ticketResult)
             End If
-
-            'the seats are added up one at a time rather than being counted, because they are not
-            'all worth the same any more. each seat costs the screening price times the multiplier
-            'for whatever sort of seat it is
-            SQLCmd.CommandText = "SELECT tblSeatType.PriceMultiplier " &
-                                 "FROM (tblBookingSeat INNER JOIN tblSeat ON tblBookingSeat.SeatID = tblSeat.SeatID) " &
-                                 "INNER JOIN tblSeatType ON tblSeat.SeatTypeID = tblSeatType.SeatTypeID " &
-                                 "WHERE tblBookingSeat.BookingID = @BookingID"
-            SQLCmd.Parameters.Clear()
-            SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
-            Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
-            While rs.Read()
-                ticketTotal = ticketTotal + SeatPrice(ticketPrice, CDbl(rs("PriceMultiplier")))
-            End While
-            rs.Close()
 
             'what the food comes to, this comes back empty if nothing has been ordered
             SQLCmd.CommandText = "SELECT SUM(Quantity * FoodItemPrice) " &
