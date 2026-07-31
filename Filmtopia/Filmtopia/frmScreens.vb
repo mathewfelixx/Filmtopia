@@ -173,44 +173,64 @@ Public Class frmScreens
         Return total
     End Function
 
-    'as the capacity is typed in it says what that works out as, so the rows of ten rule can be
-    'seen working instead of only being found out about by getting it wrong
-    Private Sub txtCapacity_TextChanged(sender As Object, e As EventArgs) Handles txtCapacity.TextChanged
+    'as either box is typed in it says what the screen will come out as, so the size and the mix of
+    'seats can be seen before anything is saved
+    Private Sub Layout_TextChanged(sender As Object, e As EventArgs) Handles txtRows.TextChanged, txtPerRow.TextChanged
         ShowLayoutPreview()
     End Sub
 
     Private Sub ShowLayoutPreview()
-        If txtCapacity.Text.Trim() = "" Then
-            lblLayout.Text = "Type how many seats to see the layout"
+        If txtRows.Text.Trim() = "" Or txtPerRow.Text.Trim() = "" Then
+            lblLayout.Text = "Type how many rows and how many seats in each row"
             Exit Sub
         End If
 
-        If Not IsNumeric(txtCapacity.Text) Then
-            lblLayout.Text = "How many seats has to be a number"
+        If Not IsNumeric(txtRows.Text) Or Not IsNumeric(txtPerRow.Text) Then
+            lblLayout.Text = "Both of those have to be numbers"
             Exit Sub
         End If
 
-        Dim capacity As Integer = CInt(Val(txtCapacity.Text))
+        Dim numRows As Integer = CInt(Val(txtRows.Text))
+        Dim perRow As Integer = CInt(Val(txtPerRow.Text))
 
-        If capacity <= 0 Then
-            lblLayout.Text = "A screen needs more than no seats in it"
+        If numRows <= 0 Or perRow <= 0 Then
+            lblLayout.Text = "A screen needs at least one row with at least one seat in it"
             Exit Sub
         End If
 
-        If capacity Mod 10 <> 0 Then
-            'rounding down shows the nearest size that would work, which is more use than just
-            'saying no
-            Dim nearest As Integer = (capacity \ 10) * 10
-            If nearest = 0 Then
-                lblLayout.Text = "Seats are made in rows of ten, so try 10"
+        If numRows > 26 Then
+            'the rows are lettered A to Z, so there is nowhere to go after 26
+            lblLayout.Text = "The rows are lettered A to Z, so 26 rows is the most there can be"
+            Exit Sub
+        End If
+
+        'count how the rows split between the three sorts so the mix can be shown
+        Dim standardRows As Integer = 0
+        Dim premiumRows As Integer = 0
+        Dim accessibleRows As Integer = 0
+
+        For rowIndex As Integer = 0 To numRows - 1
+            Dim thisType As String = SeatTypeForRow(rowIndex, numRows)
+            If thisType = SeatPremium Then
+                premiumRows = premiumRows + 1
+            ElseIf thisType = SeatAccessible Then
+                accessibleRows = accessibleRows + 1
             Else
-                lblLayout.Text = "Seats are made in rows of ten, so try " & nearest & " or " & (nearest + 10)
+                standardRows = standardRows + 1
             End If
-            Exit Sub
+        Next
+
+        Dim mix As String = standardRows & " standard"
+        If premiumRows > 0 Then
+            mix = mix & ", " & premiumRows & " premium"
+        End If
+        If accessibleRows > 0 Then
+            mix = mix & ", " & accessibleRows & " accessible"
         End If
 
-        lblLayout.Text = "That makes " & RowsAsText(capacity) & ", with ten seats in each row." & vbCrLf &
-                         "The seats will be numbered A1 to " & Chr(64 + (capacity \ 10)) & "10."
+        lblLayout.Text = "That makes " & (numRows * perRow) & " seats, numbered A1 to " &
+                         Chr(64 + numRows) & perRow & "." & vbCrLf &
+                         "Rows: " & mix & "."
     End Sub
 
     'adds a new screen and makes its seats
