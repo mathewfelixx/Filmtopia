@@ -9,6 +9,16 @@ Public Class frmScreenings
     'everybody out and cleaning up
     Private Const TurnaroundMinutes As Integer = 15
 
+    'the adverts and trailers that run before the film does. the time on a ticket is when the
+    'adverts start, not when the film does, so a screening ties the screen up for longer than the
+    'running time of the film. without this the schedule was too optimistic by twenty minutes and
+    'two showings could be put on that would really have run into each other
+    Private Const TrailerMinutes As Integer = 20
+
+    'the earliest and the latest a film is allowed to start, used when suggesting a time
+    Private Const FirstShowMinutes As Integer = 10 * 60
+    Private Const LastShowMinutes As Integer = 23 * 60
+
     'true while the form is setting itself up, so filling the show box does not load the grid
     'before everything is ready
     Private stillLoading As Boolean = True
