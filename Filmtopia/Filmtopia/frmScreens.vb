@@ -446,8 +446,41 @@ Public Class frmScreens
             cn.Close()
         End If
 
-        WriteLog("SCREEN", "Seats generated for ScreenID " & screenID & ", " & capacity & " seats", LogChange)
+        WriteLog("SCREEN", "Seats generated for ScreenID " & screenID & ", " & numRows & " row(s) of " &
+                           perRow & ", " & (numRows * perRow) & " seats", LogChange)
     End Sub
+
+    'finds the id of a seat type in the little table that was read at the start
+    Private Function TypeIDFromTable(dtTypes As DataTable, typeName As String) As Long
+        For Each row As DataRow In dtTypes.Rows
+            If row("SeatTypeName").ToString() = typeName Then
+                Return CLng(row("SeatTypeID"))
+            End If
+        Next
+
+        Return 0
+    End Function
+
+    'works out what sort of seat a row is. the back two rows of a screen are the premium ones,
+    'which is how most cinemas do it because the view from the back is better, and the front row
+    'is the accessible one because it is the easiest to get to. everything else is standard.
+    'the rule lives in one function so the seat map, the preview and the seat making all agree
+    Private Function SeatTypeForRow(rowIndex As Integer, numRows As Integer) As String
+        'a really small screen has no room to set rows aside, so it is all standard
+        If numRows < 4 Then
+            Return SeatStandard
+        End If
+
+        If rowIndex = 0 Then
+            Return SeatAccessible
+        End If
+
+        If rowIndex >= numRows - 2 Then
+            Return SeatPremium
+        End If
+
+        Return SeatStandard
+    End Function
 
     'removes every seat that belongs to a screen
     Private Sub DeleteSeats(screenID As Long)
