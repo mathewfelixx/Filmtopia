@@ -496,7 +496,7 @@ Public Class frmBookings
     'customer can be told what they are paying for
     Private Sub UpdateTotal()
         Dim seatCount As Integer = CountSelectedSeats()
-        Dim ticketsCost As Double = seatCount * currentTicketPrice
+        Dim ticketsCost As Double = TicketsTotal()
         Dim foodCost As Double = FoodTotal()
 
         'a tab does not line up in a label because the font is not fixed width, so a plain
@@ -537,7 +537,9 @@ Public Class frmBookings
             Exit Sub
         End If
 
-        Dim ticketsCost As Double = seatCount * currentTicketPrice
+        'the same routine the running total on screen uses, so what gets saved is exactly what the
+        'customer was shown
+        Dim ticketsCost As Double = TicketsTotal()
         Dim totalCost As Double = ticketsCost + FoodTotal()
 
         Dim customerID As Long = 0
