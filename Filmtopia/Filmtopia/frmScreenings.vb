@@ -557,7 +557,7 @@ Public Class frmScreenings
                     Dim otherStart As Integer = TimeAsMinutes(rs("ScreeningTime").ToString())
 
                     If otherStart >= 0 Then
-                        Dim otherEnd As Integer = otherStart + CInt(rs("FilmDuration")) + TurnaroundMinutes
+                        Dim otherEnd As Integer = otherStart + ScreenTimeNeeded(CInt(rs("FilmDuration")))
 
                         'they overlap if this one starts before the other finishes and the other
                         'starts before this one finishes
