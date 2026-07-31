@@ -40,6 +40,7 @@ Partial Class frmScreenings
         Me.btnUpdate = New System.Windows.Forms.Button()
         Me.btnDelete = New System.Windows.Forms.Button()
         Me.btnClear = New System.Windows.Forms.Button()
+        Me.btnSuggest = New System.Windows.Forms.Button()
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
@@ -84,7 +85,7 @@ Partial Class frmScreenings
         '
         Me.cboShow.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cboShow.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.cboShow.Location = New System.Drawing.Point(60, 25)
+        Me.cboShow.Location = New System.Drawing.Point(78, 25)
         Me.cboShow.Name = "cboShow"
         Me.cboShow.Size = New System.Drawing.Size(180, 23)
         Me.cboShow.TabIndex = 1
@@ -127,6 +128,7 @@ Partial Class frmScreenings
         Me.GroupBox2.Controls.Add(Me.lblPrice)
         Me.GroupBox2.Controls.Add(Me.txtTicketPrice)
         Me.GroupBox2.Controls.Add(Me.lblEndsAt)
+        Me.GroupBox2.Controls.Add(Me.btnSuggest)
         Me.GroupBox2.Controls.Add(Me.btnAdd)
         Me.GroupBox2.Controls.Add(Me.btnUpdate)
         Me.GroupBox2.Controls.Add(Me.btnDelete)
@@ -182,7 +184,7 @@ Partial Class frmScreenings
         '
         Me.cboScreen.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cboScreen.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.cboScreen.Location = New System.Drawing.Point(480, 58)
+        Me.cboScreen.Location = New System.Drawing.Point(490, 58)
         Me.cboScreen.Name = "cboScreen"
         Me.cboScreen.Size = New System.Drawing.Size(180, 23)
         Me.cboScreen.TabIndex = 4
@@ -219,10 +221,10 @@ Partial Class frmScreenings
         'txtScreeningTime
         '
         Me.txtScreeningTime.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.txtScreeningTime.Location = New System.Drawing.Point(345, 95)
+        Me.txtScreeningTime.Location = New System.Drawing.Point(385, 95)
         Me.txtScreeningTime.MaxLength = 5
         Me.txtScreeningTime.Name = "txtScreeningTime"
-        Me.txtScreeningTime.Size = New System.Drawing.Size(80, 23)
+        Me.txtScreeningTime.Size = New System.Drawing.Size(70, 23)
         Me.txtScreeningTime.TabIndex = 8
         Me.txtScreeningTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
@@ -230,7 +232,7 @@ Partial Class frmScreenings
         '
         Me.lblPrice.AutoSize = True
         Me.lblPrice.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.lblPrice.Location = New System.Drawing.Point(445, 99)
+        Me.lblPrice.Location = New System.Drawing.Point(475, 99)
         Me.lblPrice.Name = "lblPrice"
         Me.lblPrice.Size = New System.Drawing.Size(75, 15)
         Me.lblPrice.TabIndex = 9
@@ -239,20 +241,30 @@ Partial Class frmScreenings
         'txtTicketPrice
         '
         Me.txtTicketPrice.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.txtTicketPrice.Location = New System.Drawing.Point(570, 95)
+        Me.txtTicketPrice.Location = New System.Drawing.Point(605, 95)
         Me.txtTicketPrice.Name = "txtTicketPrice"
-        Me.txtTicketPrice.Size = New System.Drawing.Size(90, 23)
+        Me.txtTicketPrice.Size = New System.Drawing.Size(75, 23)
         Me.txtTicketPrice.TabIndex = 10
         Me.txtTicketPrice.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'lblEndsAt
         '
         Me.lblEndsAt.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.lblEndsAt.Location = New System.Drawing.Point(16, 133)
+        Me.lblEndsAt.Location = New System.Drawing.Point(16, 131)
         Me.lblEndsAt.Name = "lblEndsAt"
-        Me.lblEndsAt.Size = New System.Drawing.Size(660, 46)
+        Me.lblEndsAt.Size = New System.Drawing.Size(500, 62)
         Me.lblEndsAt.TabIndex = 11
         Me.lblEndsAt.Text = "Pick a film and a start time to see when the screen would be free again"
+        '
+        'btnSuggest
+        '
+        Me.btnSuggest.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.btnSuggest.Location = New System.Drawing.Point(540, 136)
+        Me.btnSuggest.Name = "btnSuggest"
+        Me.btnSuggest.Size = New System.Drawing.Size(140, 32)
+        Me.btnSuggest.TabIndex = 12
+        Me.btnSuggest.Text = "Find me a free time"
+        Me.btnSuggest.UseVisualStyleBackColor = True
         '
         'btnAdd
         '
@@ -347,6 +359,7 @@ Partial Class frmScreenings
     Friend WithEvents lblPrice As Label
     Friend WithEvents txtTicketPrice As TextBox
     Friend WithEvents lblEndsAt As Label
+    Friend WithEvents btnSuggest As Button
     Friend WithEvents btnAdd As Button
     Friend WithEvents btnUpdate As Button
     Friend WithEvents btnDelete As Button
