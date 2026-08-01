@@ -697,6 +697,10 @@ Public Class frmScreenings
             End If
         End If
 
+        'nothing is worked out again for the bookings that already exist on this screening, and that
+        'is on purpose. a booking is the price it was agreed at. if somebody paid 6.99 the cinema
+        'cannot turn round later and say it was 11.99, so a new price only applies to sales made
+        'after it. what each seat was charged is kept on the booking itself so this cannot change it
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
