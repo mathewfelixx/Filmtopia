@@ -56,6 +56,14 @@ Public Class frmKiosk
         pnlFooter.Width = Me.ClientSize.Width
         pnlFooter.Top = Me.ClientSize.Height - pnlFooter.Height
 
+        'back is always bottom left and continue is always bottom right, whatever step is on the
+        'screen. a customer should not have to look for the way on each time the screen changes.
+        'the total sits just inside continue, and it is a label that grows with its own text so
+        'where it starts has to be worked out from its right hand edge
+        btnNext.Left = pnlFooter.Width - btnNext.Width - 32
+        lblRunningTotal.Left = btnNext.Left - lblRunningTotal.Width - 40
+        lblRunningTotal.Top = (pnlFooter.Height - lblRunningTotal.Height) \ 2
+
         'every step panel gets the same rectangle, since only one of them is ever on show
         Dim contentTop As Integer = pnlHeader.Height
         Dim contentHeight As Integer = pnlFooter.Top - contentTop
@@ -126,6 +134,13 @@ Public Class frmKiosk
 
         'there is nothing to go back to from the welcome screen
         btnBack.Visible = (stepName <> StepWelcome)
+
+        'the first two steps are answered by touching a tile, so a continue button on them would
+        'only be something else to press. it appears when there is a running total to carry on with
+        btnNext.Visible = False
+        lblRunningTotal.Visible = False
+
+        LayoutKiosk()
     End Sub
 
     'the films that still have a showing left today. a film with nothing but screenings that have

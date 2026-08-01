@@ -24,6 +24,8 @@ Partial Class frmKiosk
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.pnlFooter = New System.Windows.Forms.Panel()
         Me.btnBack = New System.Windows.Forms.Button()
+        Me.btnNext = New System.Windows.Forms.Button()
+        Me.lblRunningTotal = New System.Windows.Forms.Label()
         Me.pnlWelcome = New System.Windows.Forms.Panel()
         Me.lblWelcomeTitle = New System.Windows.Forms.Label()
         Me.lblWelcomeSub = New System.Windows.Forms.Label()
@@ -102,6 +104,8 @@ Partial Class frmKiosk
         'pnlFooter
         '
         Me.pnlFooter.Controls.Add(Me.lblVersion)
+        Me.pnlFooter.Controls.Add(Me.lblRunningTotal)
+        Me.pnlFooter.Controls.Add(Me.btnNext)
         Me.pnlFooter.Controls.Add(Me.btnBack)
         Me.pnlFooter.Location = New System.Drawing.Point(0, 692)
         Me.pnlFooter.Name = "pnlFooter"
@@ -117,6 +121,28 @@ Partial Class frmKiosk
         Me.btnBack.TabIndex = 0
         Me.btnBack.Text = "Back"
         Me.btnBack.UseVisualStyleBackColor = True
+        '
+        'btnNext
+        '
+        Me.btnNext.Font = New System.Drawing.Font("Segoe UI", 15.0!, System.Drawing.FontStyle.Bold)
+        Me.btnNext.Location = New System.Drawing.Point(1028, 18)
+        Me.btnNext.Name = "btnNext"
+        Me.btnNext.Size = New System.Drawing.Size(220, 68)
+        Me.btnNext.TabIndex = 1
+        Me.btnNext.Text = "Continue"
+        Me.btnNext.UseVisualStyleBackColor = True
+        Me.btnNext.Visible = False
+        '
+        'lblRunningTotal
+        '
+        Me.lblRunningTotal.AutoSize = True
+        Me.lblRunningTotal.Font = New System.Drawing.Font("Segoe UI", 16.0!, System.Drawing.FontStyle.Bold)
+        Me.lblRunningTotal.Location = New System.Drawing.Point(800, 36)
+        Me.lblRunningTotal.Name = "lblRunningTotal"
+        Me.lblRunningTotal.Size = New System.Drawing.Size(140, 30)
+        Me.lblRunningTotal.TabIndex = 2
+        Me.lblRunningTotal.Text = "Total  £0.00"
+        Me.lblRunningTotal.Visible = False
         '
         'pnlWelcome
         '
@@ -275,6 +301,8 @@ Partial Class frmKiosk
     Friend WithEvents lblVersion As Label
     Friend WithEvents pnlFooter As Panel
     Friend WithEvents btnBack As Button
+    Friend WithEvents btnNext As Button
+    Friend WithEvents lblRunningTotal As Label
     Friend WithEvents pnlWelcome As Panel
     Friend WithEvents lblWelcomeTitle As Label
     Friend WithEvents lblWelcomeSub As Label
