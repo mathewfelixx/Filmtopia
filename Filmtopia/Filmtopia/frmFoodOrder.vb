@@ -13,8 +13,36 @@ Public Class frmFoodOrder
         LoadBookingInfo()
         LoadFoodItemsCombo()
         LoadOrderItems()
+
+        'a cancelled sale has been refunded, so nothing more can be put on it. the till screen
+        'already leaves cancelled bookings out of its list, but this form can be reached with any
+        'booking, and adding food to one would sit in the database without ever being charged for
+        If BookingIsCancelled() Then
+            lblBookingInfo.Text = lblBookingInfo.Text & "  -  CANCELLED, nothing can be added"
+            btnAddItem.Enabled = False
+            btnRemoveItem.Enabled = False
+        End If
+
         WriteLog("FOODORDER", "Food order form opened for booking " & currentBookingID)
     End Sub
+
+    'says whether this booking has been cancelled
+    Private Function BookingIsCancelled() As Boolean
+        Dim cancelled As Boolean = False
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBooking " &
+                                 "WHERE BookingID = @BookingID AND BookingStatus = @Cancelled"
+            SQLCmd.Parameters.AddWithValue("@BookingID", CInt(currentBookingID))
+            SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
+            cancelled = CInt(SQLCmd.ExecuteScalar()) > 0
+            cn.Close()
+        End If
+
+        Return cancelled
+    End Function
 
     'shows the customer, film and screening for this booking at the top of the form
     Private Sub LoadBookingInfo()
@@ -96,6 +124,13 @@ Public Class frmFoodOrder
 
     'adds the picked food item and quantity to the order
     Private Sub btnAddItem_Click(sender As Object, e As EventArgs) Handles btnAddItem.Click
+        'checked again here rather than trusting the button being switched off on load
+        If BookingIsCancelled() Then
+            MessageBox.Show("Booking " & currentBookingID & " has been cancelled and refunded, so nothing can be added to it.",
+                            "Cancelled booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
         If cboFoodItem.SelectedIndex = -1 Then
             MessageBox.Show("Pick a food item first")
             Exit Sub
@@ -136,6 +171,14 @@ Public Class frmFoodOrder
 
     'removes the selected item from the order
     Private Sub btnRemoveItem_Click(sender As Object, e As EventArgs) Handles btnRemoveItem.Click
+        'the food on a cancelled sale is kept on purpose so the report can show what was refunded,
+        'so it must not be taken off either
+        If BookingIsCancelled() Then
+            MessageBox.Show("Booking " & currentBookingID & " has been cancelled, so its order cannot be changed.",
+                            "Cancelled booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
         If selectedOrderItemID = 0 Then
             MessageBox.Show("Select an item in the grid first")
             Exit Sub
