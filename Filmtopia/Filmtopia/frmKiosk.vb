@@ -11,17 +11,33 @@ Public Class frmKiosk
     Private Const TileHeight As Integer = 170
     Private Const TileGap As Integer = 20
 
+    'a showing tile is shorter and narrower than a film one, there is far less on it
+    Private Const TimeTileWidth As Integer = 240
+    Private Const TimeTileHeight As Integer = 140
+
     'the steps a customer goes through. they are only ever compared as text so they are kept as
     'constants the same way the log severities are, which means a typo is a compile error instead
     'of a step that quietly never shows up
     Private Const StepWelcome As String = "WELCOME"
     Private Const StepFilms As String = "FILMS"
+    Private Const StepTimes As String = "TIMES"
 
     'which step is on the screen at the moment
     Private currentStep As String = StepWelcome
 
     'the film the customer has picked, 0 means they have not picked one yet
     Private currentFilmID As Long = 0
+    Private currentFilmTitle As String = ""
+
+    'the showing they picked off that film, and the bits of it the later steps need
+    Private currentScreeningID As Long = 0
+    Private currentScreenID As Long = 0
+    Private currentTicketPrice As Double = 0
+    Private currentShowingText As String = ""
+
+    'the films drawn on the first step, kept so the title can be looked up again when a tile is
+    'touched without going back to the database for something that has already been read
+    Private filmsOnToday As DataTable
 
     Private Sub frmKiosk_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup(Me)
@@ -46,11 +62,16 @@ Public Class frmKiosk
 
         SizeStepPanel(pnlWelcome, contentTop, contentHeight)
         SizeStepPanel(pnlFilms, contentTop, contentHeight)
+        SizeStepPanel(pnlTimes, contentTop, contentHeight)
 
         'the list of films fills its step, leaving room for the heading above it
         pnlFilmList.Width = pnlFilms.Width - 40
         pnlFilmList.Height = pnlFilms.Height - pnlFilmList.Top - 20
         ArrangeFilmTiles()
+
+        pnlTimeList.Width = pnlTimes.Width - 40
+        pnlTimeList.Height = pnlTimes.Height - pnlTimeList.Top - 20
+        ArrangeTimeTiles()
 
         CentreWelcome()
 
@@ -92,12 +113,15 @@ Public Class frmKiosk
 
         pnlWelcome.Visible = (stepName = StepWelcome)
         pnlFilms.Visible = (stepName = StepFilms)
+        pnlTimes.Visible = (stepName = StepTimes)
 
         'the wording under the Filmtopia name says where the customer is up to
         If stepName = StepWelcome Then
             lblStep.Text = "Self service"
         ElseIf stepName = StepFilms Then
             lblStep.Text = "Step 1 of 4  -  choose a film"
+        ElseIf stepName = StepTimes Then
+            lblStep.Text = "Step 2 of 4  -  choose a showing"
         End If
 
         'there is nothing to go back to from the welcome screen
@@ -109,7 +133,8 @@ Public Class frmKiosk
     'ScreeningTime is text in HH:MM with the zero always on the front, so comparing it against the
     'time now as text puts them in the right order without having to turn every row into a number
     Private Sub LoadFilmsForToday()
-        Dim dt As New DataTable
+        filmsOnToday = New DataTable
+        Dim dt As DataTable = filmsOnToday
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -195,10 +220,11 @@ Public Class frmKiosk
         ArrangeFilmTiles()
     End Sub
 
-    'works out where each tile goes. how many fit on a row depends on how wide the screen is, so
-    'this is worked out again whenever the window changes size rather than being fixed
-    Private Sub ArrangeFilmTiles()
-        Dim perRow As Integer = (pnlFilmList.Width - TileGap) \ (TileWidth + TileGap)
+    'works out where each tile in a list goes. how many fit on a row depends on how wide the screen
+    'is, so it is worked out again whenever the window changes size rather than being fixed.
+    'the film list and the showings list are both laid out by this, they only differ in tile size
+    Private Sub ArrangeTiles(pnl As Panel, tileWidth As Integer, tileHeight As Integer)
+        Dim perRow As Integer = (pnl.Width - TileGap) \ (tileWidth + TileGap)
 
         'a very narrow screen still has to show one tile per row rather than none at all
         If perRow < 1 Then
@@ -206,13 +232,21 @@ Public Class frmKiosk
         End If
 
         Dim i As Integer
-        For i = 0 To pnlFilmList.Controls.Count - 1
+        For i = 0 To pnl.Controls.Count - 1
             Dim column As Integer = i Mod perRow
             Dim row As Integer = i \ perRow
 
-            pnlFilmList.Controls(i).Left = column * (TileWidth + TileGap)
-            pnlFilmList.Controls(i).Top = row * (TileHeight + TileGap)
+            pnl.Controls(i).Left = column * (tileWidth + TileGap)
+            pnl.Controls(i).Top = row * (tileHeight + TileGap)
         Next
+    End Sub
+
+    Private Sub ArrangeFilmTiles()
+        ArrangeTiles(pnlFilmList, TileWidth, TileHeight)
+    End Sub
+
+    Private Sub ArrangeTimeTiles()
+        ArrangeTiles(pnlTimeList, TimeTileWidth, TimeTileHeight)
     End Sub
 
     'turns a length in minutes into something a customer reads, so 118 comes out as 1h 58m
@@ -225,8 +259,159 @@ Public Class frmKiosk
     Private Sub FilmTile_Click(sender As Object, e As EventArgs)
         Dim ctrl As Control = CType(sender, Control)
         currentFilmID = CLng(ctrl.Tag)
+        currentFilmTitle = TitleOfFilm(currentFilmID)
 
-        WriteLog("KIOSK", "Customer picked film " & currentFilmID)
+        LoadShowingsForFilm()
+        ShowStep(StepTimes)
+    End Sub
+
+    'the title of a film that has already been read onto the first step
+    Private Function TitleOfFilm(filmID As Long) As String
+        Dim rows() As DataRow = filmsOnToday.Select("FilmID = " & filmID)
+
+        If rows.Length > 0 Then
+            Return rows(0)("FilmTitle").ToString()
+        End If
+
+        Return ""
+    End Function
+
+    'every showing of the picked film that has not started yet today, with the screen it is in and
+    'what a standard ticket costs. how full each one is comes afterwards, one showing at a time,
+    'because counting the seats sold inside this query would mean a join inside a subquery and Jet
+    'refuses to run that once the tables have keys on them
+    Private Sub LoadShowingsForFilm()
+        Dim dt As New DataTable
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, ScreeningTime, TicketPrice, " &
+                                 "tblScreening.ScreenID, ScreenName, ScreenCapacity " &
+                                 "FROM tblScreening INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID " &
+                                 "WHERE FilmID = @FilmID AND ScreeningDate = @Today AND ScreeningTime >= @TimeNow " &
+                                 "ORDER BY ScreeningTime"
+            SQLCmd.Parameters.AddWithValue("@FilmID", CInt(currentFilmID))
+            SQLCmd.Parameters.AddWithValue("@Today", Date.Today)
+            SQLCmd.Parameters.AddWithValue("@TimeNow", Format(Now, "HH:mm"))
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            da.Fill(dt)
+            cn.Close()
+        End If
+
+        lblTimesFilm.Text = currentFilmTitle
+        BuildTimeTiles(dt)
+    End Sub
+
+    'how many seats have gone on a screening. the screening is written on the seat row itself, so
+    'this is one table and needs no join
+    Private Function SeatsSold(screeningID As Long) As Integer
+        Dim sold As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBookingSeat WHERE ScreeningID = @ScreeningID"
+            SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(screeningID))
+            sold = CInt(SQLCmd.ExecuteScalar())
+            cn.Close()
+        End If
+
+        Return sold
+    End Function
+
+    'makes one tile per showing, with the time in big writing and the screen and how many seats are
+    'left underneath it. a showing with nothing left is still drawn, greyed out and saying sold out,
+    'because leaving it off the screen would just make the customer wonder where it had gone
+    Private Sub BuildTimeTiles(dtShowings As DataTable)
+        pnlTimeList.Controls.Clear()
+
+        Dim i As Integer
+        For i = 0 To dtShowings.Rows.Count - 1
+            Dim screeningID As Long = CLng(dtShowings.Rows(i)("ScreeningID"))
+            Dim showTime As String = dtShowings.Rows(i)("ScreeningTime").ToString()
+            Dim screenName As String = dtShowings.Rows(i)("ScreenName").ToString()
+            Dim capacity As Integer = CInt(dtShowings.Rows(i)("ScreenCapacity"))
+            Dim price As Double = CDbl(dtShowings.Rows(i)("TicketPrice"))
+            Dim seatsLeft As Integer = capacity - SeatsSold(screeningID)
+
+            Dim tile As New Panel
+            tile.Name = "pnlCardTime" & screeningID
+            tile.Size = New Size(TimeTileWidth, TimeTileHeight)
+            tile.BackColor = CardBack
+            tile.Tag = screeningID
+
+            Dim strip As New Panel
+            strip.Name = "pnlAccentTime" & screeningID
+            strip.Location = New Point(0, 0)
+            strip.Size = New Size(8, TimeTileHeight)
+            tile.Controls.Add(strip)
+
+            Dim lblTime As New Label
+            lblTime.AutoSize = True
+            lblTime.Location = New Point(26, 18)
+            lblTime.Font = New Font("Segoe UI", 26, FontStyle.Bold)
+            lblTime.Text = showTime
+            lblTime.Tag = screeningID
+            tile.Controls.Add(lblTime)
+
+            Dim lblMeta As New Label
+            lblMeta.AutoSize = True
+            lblMeta.Location = New Point(28, 78)
+            lblMeta.Font = New Font("Segoe UI", 11)
+            lblMeta.ForeColor = SubtleFore
+            lblMeta.Tag = screeningID
+            tile.Controls.Add(lblMeta)
+
+            If seatsLeft > 0 Then
+                strip.BackColor = HighlightBack
+                lblTime.ForeColor = TextFore
+                lblMeta.Text = screenName & vbNewLine & seatsLeft & " seats left  -  from " & FormatCurrency(price)
+                tile.Cursor = Cursors.Hand
+
+                AddHandler tile.Click, AddressOf TimeTile_Click
+                AddHandler lblTime.Click, AddressOf TimeTile_Click
+                AddHandler lblMeta.Click, AddressOf TimeTile_Click
+            Else
+                'nothing left, so it is shown but it does not answer to a touch
+                strip.BackColor = SubtleFore
+                lblTime.ForeColor = SubtleFore
+                lblMeta.Text = screenName & vbNewLine & "Sold out"
+            End If
+
+            pnlTimeList.Controls.Add(tile)
+        Next
+
+        ArrangeTimeTiles()
+    End Sub
+
+    'a showing has been picked, so everything the later steps need about it is kept
+    Private Sub TimeTile_Click(sender As Object, e As EventArgs)
+        Dim ctrl As Control = CType(sender, Control)
+        currentScreeningID = CLng(ctrl.Tag)
+
+        LoadShowingDetails()
+        WriteLog("KIOSK", "Customer picked screening " & currentScreeningID & " (" & currentShowingText & ")")
+    End Sub
+
+    'the screen and the ticket price of the picked showing, read once here so the seat map and the
+    'running total do not have to keep asking for them
+    Private Sub LoadShowingDetails()
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT ScreenID, TicketPrice, ScreeningTime " &
+                                 "FROM tblScreening WHERE ScreeningID = @ScreeningID"
+            SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
+            Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+            If rs.Read() Then
+                currentScreenID = CLng(rs("ScreenID"))
+                currentTicketPrice = CDbl(rs("TicketPrice"))
+                currentShowingText = currentFilmTitle & " at " & rs("ScreeningTime").ToString()
+            End If
+            rs.Close()
+            cn.Close()
+        End If
     End Sub
 
     'the start button is the size it is on purpose, but the whole welcome screen answers to a touch
@@ -244,6 +429,11 @@ Public Class frmKiosk
     Private Sub btnBack_Click(sender As Object, e As EventArgs) Handles btnBack.Click
         If currentStep = StepFilms Then
             ShowStep(StepWelcome)
+        ElseIf currentStep = StepTimes Then
+            'going back to the list of films reads it again, because a showing could have started
+            'while the customer was stood there deciding
+            LoadFilmsForToday()
+            ShowStep(StepFilms)
         End If
     End Sub
 

@@ -32,10 +32,15 @@ Partial Class frmKiosk
         Me.lblFilmsHeading = New System.Windows.Forms.Label()
         Me.lblNoFilms = New System.Windows.Forms.Label()
         Me.pnlFilmList = New System.Windows.Forms.Panel()
+        Me.pnlTimes = New System.Windows.Forms.Panel()
+        Me.lblTimesHeading = New System.Windows.Forms.Label()
+        Me.lblTimesFilm = New System.Windows.Forms.Label()
+        Me.pnlTimeList = New System.Windows.Forms.Panel()
         Me.pnlHeader.SuspendLayout()
         Me.pnlFooter.SuspendLayout()
         Me.pnlWelcome.SuspendLayout()
         Me.pnlFilms.SuspendLayout()
+        Me.pnlTimes.SuspendLayout()
         Me.SuspendLayout()
         '
         'pnlHeader
@@ -194,11 +199,51 @@ Partial Class frmKiosk
         Me.pnlFilmList.Size = New System.Drawing.Size(1240, 500)
         Me.pnlFilmList.TabIndex = 2
         '
+        'pnlTimes
+        '
+        Me.pnlTimes.Controls.Add(Me.pnlTimeList)
+        Me.pnlTimes.Controls.Add(Me.lblTimesFilm)
+        Me.pnlTimes.Controls.Add(Me.lblTimesHeading)
+        Me.pnlTimes.Location = New System.Drawing.Point(0, 96)
+        Me.pnlTimes.Name = "pnlTimes"
+        Me.pnlTimes.Size = New System.Drawing.Size(1280, 596)
+        Me.pnlTimes.TabIndex = 5
+        Me.pnlTimes.Visible = False
+        '
+        'lblTimesHeading
+        '
+        Me.lblTimesHeading.AutoSize = True
+        Me.lblTimesHeading.Font = New System.Drawing.Font("Segoe UI", 20.0!, System.Drawing.FontStyle.Bold)
+        Me.lblTimesHeading.Location = New System.Drawing.Point(32, 24)
+        Me.lblTimesHeading.Name = "lblTimesHeading"
+        Me.lblTimesHeading.Size = New System.Drawing.Size(240, 37)
+        Me.lblTimesHeading.TabIndex = 0
+        Me.lblTimesHeading.Text = "Pick a showing"
+        '
+        'lblTimesFilm
+        '
+        Me.lblTimesFilm.AutoSize = True
+        Me.lblTimesFilm.Font = New System.Drawing.Font("Segoe UI", 13.0!)
+        Me.lblTimesFilm.Location = New System.Drawing.Point(36, 68)
+        Me.lblTimesFilm.Name = "lblTimesFilm"
+        Me.lblTimesFilm.Size = New System.Drawing.Size(160, 30)
+        Me.lblTimesFilm.TabIndex = 1
+        Me.lblTimesFilm.Text = "Film"
+        '
+        'pnlTimeList
+        '
+        Me.pnlTimeList.AutoScroll = True
+        Me.pnlTimeList.Location = New System.Drawing.Point(20, 116)
+        Me.pnlTimeList.Name = "pnlTimeList"
+        Me.pnlTimeList.Size = New System.Drawing.Size(1240, 460)
+        Me.pnlTimeList.TabIndex = 2
+        '
         'frmKiosk
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1280, 800)
+        Me.Controls.Add(Me.pnlTimes)
         Me.Controls.Add(Me.pnlFilms)
         Me.Controls.Add(Me.pnlWelcome)
         Me.Controls.Add(Me.pnlFooter)
@@ -216,6 +261,8 @@ Partial Class frmKiosk
         Me.pnlWelcome.PerformLayout()
         Me.pnlFilms.ResumeLayout(False)
         Me.pnlFilms.PerformLayout()
+        Me.pnlTimes.ResumeLayout(False)
+        Me.pnlTimes.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -236,4 +283,8 @@ Partial Class frmKiosk
     Friend WithEvents lblFilmsHeading As Label
     Friend WithEvents lblNoFilms As Label
     Friend WithEvents pnlFilmList As Panel
+    Friend WithEvents pnlTimes As Panel
+    Friend WithEvents lblTimesHeading As Label
+    Friend WithEvents lblTimesFilm As Label
+    Friend WithEvents pnlTimeList As Panel
 End Class
