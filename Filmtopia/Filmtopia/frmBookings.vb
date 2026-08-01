@@ -186,30 +186,6 @@ Public Class frmBookings
         End If
     End Sub
 
-    'makes a quick customer record for someone who walks in without giving their details
-    Private Function CreateWalkInCustomer() As Long
-        Dim newCustomerID As Long = 0
-
-        If DbConnect() Then
-            Dim SQLCmd As New OleDbCommand
-            SQLCmd.Connection = cn
-            SQLCmd.CommandText = "INSERT INTO tblCustomer (CustomerForename, CustomerSurname, CustomerEmail, CustomerPhone) " &
-                                 "VALUES (@CustomerForename, @CustomerSurname, @CustomerEmail, @CustomerPhone)"
-            SQLCmd.Parameters.AddWithValue("@CustomerForename", "Walk-in")
-            SQLCmd.Parameters.AddWithValue("@CustomerSurname", "Customer")
-            SQLCmd.Parameters.AddWithValue("@CustomerEmail", "")
-            SQLCmd.Parameters.AddWithValue("@CustomerPhone", "")
-            SQLCmd.ExecuteNonQuery()
-
-            SQLCmd.CommandText = "SELECT @@IDENTITY"
-            SQLCmd.Parameters.Clear()
-            newCustomerID = CLng(SQLCmd.ExecuteScalar())
-            cn.Close()
-        End If
-
-        Return newCustomerID
-    End Function
-
     'gets the screen and ticket price for the picked screening
     Private Sub LoadScreeningDetails()
         If DbConnect() Then
@@ -590,26 +566,6 @@ Public Class frmBookings
         Next
 
         Return seatIDs
-    End Function
-
-    'reads back what a booking came to, so the message on screen matches what was saved
-    Private Function GetBookingTotal(bookingID As Long) As Double
-        Dim total As Double = 0
-
-        If DbConnect() Then
-            Dim SQLCmd As New OleDbCommand
-            SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT TotalCost FROM tblBooking " &
-                                 "WHERE BookingID = @BookingID"
-            SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
-            Dim result = SQLCmd.ExecuteScalar()
-            If result IsNot Nothing AndAlso Not IsDBNull(result) Then
-                total = CDbl(result)
-            End If
-            cn.Close()
-        End If
-
-        Return total
     End Function
 
     'opens the food order form for a booking and tidies up afterwards. the food order changes
