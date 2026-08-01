@@ -22,7 +22,18 @@ Partial Class frmKiosk
         Me.lblStep = New System.Windows.Forms.Label()
         Me.btnExitKiosk = New System.Windows.Forms.Button()
         Me.lblVersion = New System.Windows.Forms.Label()
+        Me.pnlFooter = New System.Windows.Forms.Panel()
+        Me.btnBack = New System.Windows.Forms.Button()
+        Me.pnlWelcome = New System.Windows.Forms.Panel()
+        Me.lblWelcomeTitle = New System.Windows.Forms.Label()
+        Me.lblWelcomeSub = New System.Windows.Forms.Label()
+        Me.btnStart = New System.Windows.Forms.Button()
+        Me.pnlFilms = New System.Windows.Forms.Panel()
+        Me.lblFilmsHeading = New System.Windows.Forms.Label()
         Me.pnlHeader.SuspendLayout()
+        Me.pnlFooter.SuspendLayout()
+        Me.pnlWelcome.SuspendLayout()
+        Me.pnlFilms.SuspendLayout()
         Me.SuspendLayout()
         '
         'pnlHeader
@@ -75,18 +86,98 @@ Partial Class frmKiosk
         '
         Me.lblVersion.AutoSize = True
         Me.lblVersion.ForeColor = System.Drawing.Color.Gray
-        Me.lblVersion.Location = New System.Drawing.Point(32, 772)
+        Me.lblVersion.Location = New System.Drawing.Point(989, 74)
         Me.lblVersion.Name = "lblVersion"
         Me.lblVersion.Size = New System.Drawing.Size(271, 16)
         Me.lblVersion.TabIndex = 1
         Me.lblVersion.Text = "Filmtopia Cinema Management System  v1.0"
+        '
+        'pnlFooter
+        '
+        Me.pnlFooter.Controls.Add(Me.lblVersion)
+        Me.pnlFooter.Controls.Add(Me.btnBack)
+        Me.pnlFooter.Location = New System.Drawing.Point(0, 692)
+        Me.pnlFooter.Name = "pnlFooter"
+        Me.pnlFooter.Size = New System.Drawing.Size(1280, 100)
+        Me.pnlFooter.TabIndex = 2
+        '
+        'btnBack
+        '
+        Me.btnBack.Font = New System.Drawing.Font("Segoe UI", 15.0!)
+        Me.btnBack.Location = New System.Drawing.Point(32, 18)
+        Me.btnBack.Name = "btnBack"
+        Me.btnBack.Size = New System.Drawing.Size(220, 68)
+        Me.btnBack.TabIndex = 0
+        Me.btnBack.Text = "Back"
+        Me.btnBack.UseVisualStyleBackColor = True
+        '
+        'pnlWelcome
+        '
+        Me.pnlWelcome.Controls.Add(Me.btnStart)
+        Me.pnlWelcome.Controls.Add(Me.lblWelcomeSub)
+        Me.pnlWelcome.Controls.Add(Me.lblWelcomeTitle)
+        Me.pnlWelcome.Location = New System.Drawing.Point(0, 96)
+        Me.pnlWelcome.Name = "pnlWelcome"
+        Me.pnlWelcome.Size = New System.Drawing.Size(1280, 596)
+        Me.pnlWelcome.TabIndex = 3
+        '
+        'lblWelcomeTitle
+        '
+        Me.lblWelcomeTitle.AutoSize = True
+        Me.lblWelcomeTitle.Font = New System.Drawing.Font("Segoe UI", 34.0!, System.Drawing.FontStyle.Bold)
+        Me.lblWelcomeTitle.Location = New System.Drawing.Point(340, 150)
+        Me.lblWelcomeTitle.Name = "lblWelcomeTitle"
+        Me.lblWelcomeTitle.Size = New System.Drawing.Size(560, 61)
+        Me.lblWelcomeTitle.TabIndex = 0
+        Me.lblWelcomeTitle.Text = "Buy your tickets here"
+        '
+        'lblWelcomeSub
+        '
+        Me.lblWelcomeSub.AutoSize = True
+        Me.lblWelcomeSub.Font = New System.Drawing.Font("Segoe UI", 16.0!)
+        Me.lblWelcomeSub.Location = New System.Drawing.Point(400, 230)
+        Me.lblWelcomeSub.Name = "lblWelcomeSub"
+        Me.lblWelcomeSub.Size = New System.Drawing.Size(420, 30)
+        Me.lblWelcomeSub.TabIndex = 1
+        Me.lblWelcomeSub.Text = "Pick a film, pick your seats, pay at the machine"
+        '
+        'btnStart
+        '
+        Me.btnStart.Font = New System.Drawing.Font("Segoe UI", 22.0!, System.Drawing.FontStyle.Bold)
+        Me.btnStart.Location = New System.Drawing.Point(410, 320)
+        Me.btnStart.Name = "btnStart"
+        Me.btnStart.Size = New System.Drawing.Size(460, 130)
+        Me.btnStart.TabIndex = 2
+        Me.btnStart.Text = "Touch to start"
+        Me.btnStart.UseVisualStyleBackColor = True
+        '
+        'pnlFilms
+        '
+        Me.pnlFilms.Controls.Add(Me.lblFilmsHeading)
+        Me.pnlFilms.Location = New System.Drawing.Point(0, 96)
+        Me.pnlFilms.Name = "pnlFilms"
+        Me.pnlFilms.Size = New System.Drawing.Size(1280, 596)
+        Me.pnlFilms.TabIndex = 4
+        Me.pnlFilms.Visible = False
+        '
+        'lblFilmsHeading
+        '
+        Me.lblFilmsHeading.AutoSize = True
+        Me.lblFilmsHeading.Font = New System.Drawing.Font("Segoe UI", 20.0!, System.Drawing.FontStyle.Bold)
+        Me.lblFilmsHeading.Location = New System.Drawing.Point(32, 24)
+        Me.lblFilmsHeading.Name = "lblFilmsHeading"
+        Me.lblFilmsHeading.Size = New System.Drawing.Size(300, 37)
+        Me.lblFilmsHeading.TabIndex = 0
+        Me.lblFilmsHeading.Text = "What's on today"
         '
         'frmKiosk
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1280, 800)
-        Me.Controls.Add(Me.lblVersion)
+        Me.Controls.Add(Me.pnlFilms)
+        Me.Controls.Add(Me.pnlWelcome)
+        Me.Controls.Add(Me.pnlFooter)
         Me.Controls.Add(Me.pnlHeader)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.Name = "frmKiosk"
@@ -95,6 +186,12 @@ Partial Class frmKiosk
         Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
         Me.pnlHeader.ResumeLayout(False)
         Me.pnlHeader.PerformLayout()
+        Me.pnlFooter.ResumeLayout(False)
+        Me.pnlFooter.PerformLayout()
+        Me.pnlWelcome.ResumeLayout(False)
+        Me.pnlWelcome.PerformLayout()
+        Me.pnlFilms.ResumeLayout(False)
+        Me.pnlFilms.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -105,4 +202,12 @@ Partial Class frmKiosk
     Friend WithEvents lblStep As Label
     Friend WithEvents btnExitKiosk As Button
     Friend WithEvents lblVersion As Label
+    Friend WithEvents pnlFooter As Panel
+    Friend WithEvents btnBack As Button
+    Friend WithEvents pnlWelcome As Panel
+    Friend WithEvents lblWelcomeTitle As Label
+    Friend WithEvents lblWelcomeSub As Label
+    Friend WithEvents btnStart As Button
+    Friend WithEvents pnlFilms As Panel
+    Friend WithEvents lblFilmsHeading As Label
 End Class
