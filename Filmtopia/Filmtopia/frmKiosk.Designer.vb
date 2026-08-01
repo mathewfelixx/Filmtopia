@@ -38,11 +38,24 @@ Partial Class frmKiosk
         Me.lblTimesHeading = New System.Windows.Forms.Label()
         Me.lblTimesFilm = New System.Windows.Forms.Label()
         Me.pnlTimeList = New System.Windows.Forms.Panel()
+        Me.pnlSeats = New System.Windows.Forms.Panel()
+        Me.lblSeatsHeading = New System.Windows.Forms.Label()
+        Me.lblSeatsShowing = New System.Windows.Forms.Label()
+        Me.lblScreen = New System.Windows.Forms.Label()
+        Me.pnlSeatMap = New System.Windows.Forms.Panel()
+        Me.lblSwatchAvailable = New System.Windows.Forms.Label()
+        Me.lblKeyAvailable = New System.Windows.Forms.Label()
+        Me.lblSwatchSelected = New System.Windows.Forms.Label()
+        Me.lblKeySelected = New System.Windows.Forms.Label()
+        Me.lblSwatchTaken = New System.Windows.Forms.Label()
+        Me.lblKeyTaken = New System.Windows.Forms.Label()
+        Me.lblSeatsPicked = New System.Windows.Forms.Label()
         Me.pnlHeader.SuspendLayout()
         Me.pnlFooter.SuspendLayout()
         Me.pnlWelcome.SuspendLayout()
         Me.pnlFilms.SuspendLayout()
         Me.pnlTimes.SuspendLayout()
+        Me.pnlSeats.SuspendLayout()
         Me.SuspendLayout()
         '
         'pnlHeader
@@ -264,11 +277,131 @@ Partial Class frmKiosk
         Me.pnlTimeList.Size = New System.Drawing.Size(1240, 460)
         Me.pnlTimeList.TabIndex = 2
         '
+        'pnlSeats
+        '
+        Me.pnlSeats.Controls.Add(Me.lblSeatsPicked)
+        Me.pnlSeats.Controls.Add(Me.lblKeyTaken)
+        Me.pnlSeats.Controls.Add(Me.lblSwatchTaken)
+        Me.pnlSeats.Controls.Add(Me.lblKeySelected)
+        Me.pnlSeats.Controls.Add(Me.lblSwatchSelected)
+        Me.pnlSeats.Controls.Add(Me.lblKeyAvailable)
+        Me.pnlSeats.Controls.Add(Me.lblSwatchAvailable)
+        Me.pnlSeats.Controls.Add(Me.pnlSeatMap)
+        Me.pnlSeats.Controls.Add(Me.lblScreen)
+        Me.pnlSeats.Controls.Add(Me.lblSeatsShowing)
+        Me.pnlSeats.Controls.Add(Me.lblSeatsHeading)
+        Me.pnlSeats.Location = New System.Drawing.Point(0, 96)
+        Me.pnlSeats.Name = "pnlSeats"
+        Me.pnlSeats.Size = New System.Drawing.Size(1280, 596)
+        Me.pnlSeats.TabIndex = 6
+        Me.pnlSeats.Visible = False
+        '
+        'lblSeatsHeading
+        '
+        Me.lblSeatsHeading.AutoSize = True
+        Me.lblSeatsHeading.Font = New System.Drawing.Font("Segoe UI", 20.0!, System.Drawing.FontStyle.Bold)
+        Me.lblSeatsHeading.Location = New System.Drawing.Point(32, 20)
+        Me.lblSeatsHeading.Name = "lblSeatsHeading"
+        Me.lblSeatsHeading.Size = New System.Drawing.Size(280, 37)
+        Me.lblSeatsHeading.TabIndex = 0
+        Me.lblSeatsHeading.Text = "Choose your seats"
+        '
+        'lblSeatsShowing
+        '
+        Me.lblSeatsShowing.AutoSize = True
+        Me.lblSeatsShowing.Font = New System.Drawing.Font("Segoe UI", 13.0!)
+        Me.lblSeatsShowing.Location = New System.Drawing.Point(36, 62)
+        Me.lblSeatsShowing.Name = "lblSeatsShowing"
+        Me.lblSeatsShowing.Size = New System.Drawing.Size(200, 30)
+        Me.lblSeatsShowing.TabIndex = 1
+        Me.lblSeatsShowing.Text = "Showing"
+        '
+        'lblScreen
+        '
+        Me.lblScreen.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(64, Byte), Integer))
+        Me.lblScreen.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold)
+        Me.lblScreen.ForeColor = System.Drawing.Color.White
+        Me.lblScreen.Location = New System.Drawing.Point(330, 106)
+        Me.lblScreen.Name = "lblScreen"
+        Me.lblScreen.Size = New System.Drawing.Size(620, 34)
+        Me.lblScreen.TabIndex = 2
+        Me.lblScreen.Text = "SCREEN"
+        Me.lblScreen.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'pnlSeatMap
+        '
+        Me.pnlSeatMap.AutoScroll = True
+        Me.pnlSeatMap.Location = New System.Drawing.Point(330, 156)
+        Me.pnlSeatMap.Name = "pnlSeatMap"
+        Me.pnlSeatMap.Size = New System.Drawing.Size(620, 380)
+        Me.pnlSeatMap.TabIndex = 3
+        '
+        'lblSwatchAvailable
+        '
+        Me.lblSwatchAvailable.Location = New System.Drawing.Point(36, 500)
+        Me.lblSwatchAvailable.Name = "lblSwatchAvailable"
+        Me.lblSwatchAvailable.Size = New System.Drawing.Size(28, 28)
+        Me.lblSwatchAvailable.TabIndex = 4
+        '
+        'lblKeyAvailable
+        '
+        Me.lblKeyAvailable.AutoSize = True
+        Me.lblKeyAvailable.Font = New System.Drawing.Font("Segoe UI", 11.0!)
+        Me.lblKeyAvailable.Location = New System.Drawing.Point(74, 503)
+        Me.lblKeyAvailable.Name = "lblKeyAvailable"
+        Me.lblKeyAvailable.Size = New System.Drawing.Size(70, 25)
+        Me.lblKeyAvailable.TabIndex = 5
+        Me.lblKeyAvailable.Text = "Free"
+        '
+        'lblSwatchSelected
+        '
+        Me.lblSwatchSelected.Location = New System.Drawing.Point(160, 500)
+        Me.lblSwatchSelected.Name = "lblSwatchSelected"
+        Me.lblSwatchSelected.Size = New System.Drawing.Size(28, 28)
+        Me.lblSwatchSelected.TabIndex = 6
+        '
+        'lblKeySelected
+        '
+        Me.lblKeySelected.AutoSize = True
+        Me.lblKeySelected.Font = New System.Drawing.Font("Segoe UI", 11.0!)
+        Me.lblKeySelected.Location = New System.Drawing.Point(198, 503)
+        Me.lblKeySelected.Name = "lblKeySelected"
+        Me.lblKeySelected.Size = New System.Drawing.Size(80, 25)
+        Me.lblKeySelected.TabIndex = 7
+        Me.lblKeySelected.Text = "Yours"
+        '
+        'lblSwatchTaken
+        '
+        Me.lblSwatchTaken.Location = New System.Drawing.Point(36, 544)
+        Me.lblSwatchTaken.Name = "lblSwatchTaken"
+        Me.lblSwatchTaken.Size = New System.Drawing.Size(28, 28)
+        Me.lblSwatchTaken.TabIndex = 8
+        '
+        'lblKeyTaken
+        '
+        Me.lblKeyTaken.AutoSize = True
+        Me.lblKeyTaken.Font = New System.Drawing.Font("Segoe UI", 11.0!)
+        Me.lblKeyTaken.Location = New System.Drawing.Point(74, 547)
+        Me.lblKeyTaken.Name = "lblKeyTaken"
+        Me.lblKeyTaken.Size = New System.Drawing.Size(80, 25)
+        Me.lblKeyTaken.TabIndex = 9
+        Me.lblKeyTaken.Text = "Taken"
+        '
+        'lblSeatsPicked
+        '
+        Me.lblSeatsPicked.Font = New System.Drawing.Font("Segoe UI", 13.0!)
+        Me.lblSeatsPicked.Location = New System.Drawing.Point(36, 120)
+        Me.lblSeatsPicked.Name = "lblSeatsPicked"
+        Me.lblSeatsPicked.Size = New System.Drawing.Size(270, 340)
+        Me.lblSeatsPicked.TabIndex = 10
+        Me.lblSeatsPicked.Text = "No seats picked yet"
+        '
         'frmKiosk
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1280, 800)
+        Me.Controls.Add(Me.pnlSeats)
         Me.Controls.Add(Me.pnlTimes)
         Me.Controls.Add(Me.pnlFilms)
         Me.Controls.Add(Me.pnlWelcome)
@@ -289,6 +422,8 @@ Partial Class frmKiosk
         Me.pnlFilms.PerformLayout()
         Me.pnlTimes.ResumeLayout(False)
         Me.pnlTimes.PerformLayout()
+        Me.pnlSeats.ResumeLayout(False)
+        Me.pnlSeats.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -315,4 +450,16 @@ Partial Class frmKiosk
     Friend WithEvents lblTimesHeading As Label
     Friend WithEvents lblTimesFilm As Label
     Friend WithEvents pnlTimeList As Panel
+    Friend WithEvents pnlSeats As Panel
+    Friend WithEvents lblSeatsHeading As Label
+    Friend WithEvents lblSeatsShowing As Label
+    Friend WithEvents lblScreen As Label
+    Friend WithEvents pnlSeatMap As Panel
+    Friend WithEvents lblSwatchAvailable As Label
+    Friend WithEvents lblKeyAvailable As Label
+    Friend WithEvents lblSwatchSelected As Label
+    Friend WithEvents lblKeySelected As Label
+    Friend WithEvents lblSwatchTaken As Label
+    Friend WithEvents lblKeyTaken As Label
+    Friend WithEvents lblSeatsPicked As Label
 End Class
