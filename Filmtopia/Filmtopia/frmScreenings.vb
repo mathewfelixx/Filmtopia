@@ -487,7 +487,9 @@ Public Class frmScreenings
         Dim earliest As Integer = FirstShowMinutes
 
         For i = 0 To howMany - 1
-            If earliest + needed <= starts(i) Then
+            'the gap has to be big enough AND the start has to be one we are allowed to use.
+            'without the second half a gap late on could be offered after the last start time
+            If earliest + needed <= starts(i) And earliest <= LastShowMinutes Then
                 Return earliest
             End If
 
