@@ -50,12 +50,18 @@ Partial Class frmKiosk
         Me.lblSwatchTaken = New System.Windows.Forms.Label()
         Me.lblKeyTaken = New System.Windows.Forms.Label()
         Me.lblSeatsPicked = New System.Windows.Forms.Label()
+        Me.pnlConfirm = New System.Windows.Forms.Panel()
+        Me.lblConfirmHeading = New System.Windows.Forms.Label()
+        Me.lblConfirmDetail = New System.Windows.Forms.Label()
+        Me.lblConfirmTotal = New System.Windows.Forms.Label()
+        Me.lblConfirmNote = New System.Windows.Forms.Label()
         Me.pnlHeader.SuspendLayout()
         Me.pnlFooter.SuspendLayout()
         Me.pnlWelcome.SuspendLayout()
         Me.pnlFilms.SuspendLayout()
         Me.pnlTimes.SuspendLayout()
         Me.pnlSeats.SuspendLayout()
+        Me.pnlConfirm.SuspendLayout()
         Me.SuspendLayout()
         '
         'pnlHeader
@@ -396,11 +402,64 @@ Partial Class frmKiosk
         Me.lblSeatsPicked.TabIndex = 10
         Me.lblSeatsPicked.Text = "No seats picked yet"
         '
+        'pnlConfirm
+        '
+        Me.pnlConfirm.Controls.Add(Me.lblConfirmNote)
+        Me.pnlConfirm.Controls.Add(Me.lblConfirmTotal)
+        Me.pnlConfirm.Controls.Add(Me.lblConfirmDetail)
+        Me.pnlConfirm.Controls.Add(Me.lblConfirmHeading)
+        Me.pnlConfirm.Location = New System.Drawing.Point(0, 96)
+        Me.pnlConfirm.Name = "pnlConfirm"
+        Me.pnlConfirm.Size = New System.Drawing.Size(1280, 596)
+        Me.pnlConfirm.TabIndex = 7
+        Me.pnlConfirm.Visible = False
+        '
+        'lblConfirmHeading
+        '
+        Me.lblConfirmHeading.AutoSize = True
+        Me.lblConfirmHeading.Font = New System.Drawing.Font("Segoe UI", 20.0!, System.Drawing.FontStyle.Bold)
+        Me.lblConfirmHeading.Location = New System.Drawing.Point(32, 20)
+        Me.lblConfirmHeading.Name = "lblConfirmHeading"
+        Me.lblConfirmHeading.Size = New System.Drawing.Size(280, 37)
+        Me.lblConfirmHeading.TabIndex = 0
+        Me.lblConfirmHeading.Text = "Check your order"
+        '
+        'lblConfirmDetail
+        '
+        Me.lblConfirmDetail.Font = New System.Drawing.Font("Segoe UI", 14.0!)
+        Me.lblConfirmDetail.Location = New System.Drawing.Point(36, 80)
+        Me.lblConfirmDetail.Name = "lblConfirmDetail"
+        Me.lblConfirmDetail.Size = New System.Drawing.Size(700, 380)
+        Me.lblConfirmDetail.TabIndex = 1
+        Me.lblConfirmDetail.Text = "Order"
+        '
+        'lblConfirmTotal
+        '
+        Me.lblConfirmTotal.AutoSize = True
+        Me.lblConfirmTotal.Font = New System.Drawing.Font("Segoe UI", 28.0!, System.Drawing.FontStyle.Bold)
+        Me.lblConfirmTotal.Location = New System.Drawing.Point(36, 470)
+        Me.lblConfirmTotal.Name = "lblConfirmTotal"
+        Me.lblConfirmTotal.Size = New System.Drawing.Size(300, 50)
+        Me.lblConfirmTotal.TabIndex = 2
+        Me.lblConfirmTotal.Text = "To pay  £0.00"
+        '
+        'lblConfirmNote
+        '
+        Me.lblConfirmNote.AutoSize = True
+        Me.lblConfirmNote.Font = New System.Drawing.Font("Segoe UI", 12.0!)
+        Me.lblConfirmNote.ForeColor = System.Drawing.Color.Gray
+        Me.lblConfirmNote.Location = New System.Drawing.Point(38, 530)
+        Me.lblConfirmNote.Name = "lblConfirmNote"
+        Me.lblConfirmNote.Size = New System.Drawing.Size(520, 28)
+        Me.lblConfirmNote.TabIndex = 3
+        Me.lblConfirmNote.Text = "Your seats are not held until you have paid"
+        '
         'frmKiosk
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1280, 800)
+        Me.Controls.Add(Me.pnlConfirm)
         Me.Controls.Add(Me.pnlSeats)
         Me.Controls.Add(Me.pnlTimes)
         Me.Controls.Add(Me.pnlFilms)
@@ -424,6 +483,8 @@ Partial Class frmKiosk
         Me.pnlTimes.PerformLayout()
         Me.pnlSeats.ResumeLayout(False)
         Me.pnlSeats.PerformLayout()
+        Me.pnlConfirm.ResumeLayout(False)
+        Me.pnlConfirm.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -462,4 +523,9 @@ Partial Class frmKiosk
     Friend WithEvents lblSwatchTaken As Label
     Friend WithEvents lblKeyTaken As Label
     Friend WithEvents lblSeatsPicked As Label
+    Friend WithEvents pnlConfirm As Panel
+    Friend WithEvents lblConfirmHeading As Label
+    Friend WithEvents lblConfirmDetail As Label
+    Friend WithEvents lblConfirmTotal As Label
+    Friend WithEvents lblConfirmNote As Label
 End Class

@@ -36,6 +36,7 @@ Public Class frmKiosk
     Private Const StepFilms As String = "FILMS"
     Private Const StepTimes As String = "TIMES"
     Private Const StepSeats As String = "SEATS"
+    Private Const StepConfirm As String = "CONFIRM"
 
     'which step is on the screen at the moment
     Private currentStep As String = StepWelcome
@@ -85,11 +86,13 @@ Public Class frmKiosk
         SizeStepPanel(pnlFilms, contentTop, contentHeight)
         SizeStepPanel(pnlTimes, contentTop, contentHeight)
         SizeStepPanel(pnlSeats, contentTop, contentHeight)
+        SizeStepPanel(pnlConfirm, contentTop, contentHeight)
 
         CentreWelcome()
         LayoutFilmsStep()
         LayoutTimesStep()
         LayoutSeatsStep()
+        LayoutConfirmStep()
     End Sub
 
     'the purple bar. the two lines of writing in it are AutoSize labels, so how tall they really
@@ -145,6 +148,16 @@ Public Class frmKiosk
         pnlTimeList.Width = pnlTimes.Width - 40
         pnlTimeList.Height = pnlTimes.Height - pnlTimeList.Top - 20
         ArrangeTimeTiles()
+    End Sub
+
+    'the order goes down the left and the total sits underneath it, big enough that nobody presses
+    'pay without having seen it. the note about the seats not being held goes under that
+    Private Sub LayoutConfirmStep()
+        lblConfirmDetail.Top = lblConfirmHeading.Bottom + 20
+        lblConfirmDetail.Height = pnlConfirm.Height - lblConfirmDetail.Top - 130
+
+        lblConfirmTotal.Top = lblConfirmDetail.Bottom + 10
+        lblConfirmNote.Top = lblConfirmTotal.Bottom + 8
     End Sub
 
     'the seat step is in two columns, the seats picked so far down the left and the map itself in
@@ -213,6 +226,7 @@ Public Class frmKiosk
         pnlFilms.Visible = (stepName = StepFilms)
         pnlTimes.Visible = (stepName = StepTimes)
         pnlSeats.Visible = (stepName = StepSeats)
+        pnlConfirm.Visible = (stepName = StepConfirm)
 
         'the wording under the Filmtopia name says where the customer is up to
         If stepName = StepWelcome Then
@@ -223,6 +237,8 @@ Public Class frmKiosk
             lblStep.Text = "Step 2 of 4  -  choose a showing"
         ElseIf stepName = StepSeats Then
             lblStep.Text = "Step 3 of 4  -  choose your seats"
+        ElseIf stepName = StepConfirm Then
+            lblStep.Text = "Step 4 of 4  -  pay"
         End If
 
         'there is nothing to go back to from the welcome screen
@@ -230,8 +246,17 @@ Public Class frmKiosk
 
         'the first two steps are answered by touching a tile, so a continue button on them would
         'only be something else to press. it appears when there is a running total to carry on with
-        btnNext.Visible = (stepName = StepSeats)
+        btnNext.Visible = (stepName = StepSeats Or stepName = StepConfirm)
         lblRunningTotal.Visible = (stepName = StepSeats)
+
+        'the button says what pressing it is about to do. carrying on and paying are not the same
+        'thing and the last one wants saying out loud
+        If stepName = StepConfirm Then
+            btnNext.Text = "Pay now"
+            btnNext.Enabled = True
+        Else
+            btnNext.Text = "Continue"
+        End If
 
         LayoutKiosk()
     End Sub
@@ -759,6 +784,33 @@ Public Class frmKiosk
         ShowStep(StepFilms)
     End Sub
 
+    'writes out the whole order in plain english before any money is taken. everything on here has
+    'already been worked out on the step before, it is not added up again, so what the customer is
+    'shown to agree to is exactly what they were shown while they were picking
+    Private Sub BuildConfirmation()
+        Dim detail As String = currentShowingText & vbNewLine & vbNewLine
+
+        Dim i As Integer
+        For i = 0 To pickedSeats.Rows.Count - 1
+            Dim seatName As String = pickedSeats.Rows(i)("SeatName").ToString()
+            Dim multiplier As Double = CDbl(pickedSeats.Rows(i)("Multiplier"))
+            Dim price As Double = SeatPrice(currentTicketPrice, multiplier)
+
+            detail = detail & "Seat " & seatName
+
+            'a seat that costs more than a standard one is said out loud, so nobody gets to the
+            'total and wonders why it is more than the price on the poster
+            If multiplier <> 1 Then
+                detail = detail & "  (premium)"
+            End If
+
+            detail = detail & "   " & FormatCurrency(price) & vbNewLine
+        Next
+
+        lblConfirmDetail.Text = detail
+        lblConfirmTotal.Text = "To pay  " & FormatCurrency(TicketsTotal())
+    End Sub
+
     'goes back a step. the welcome screen is the one place it cannot be pressed
     Private Sub btnBack_Click(sender As Object, e As EventArgs) Handles btnBack.Click
         If currentStep = StepFilms Then
@@ -773,6 +825,21 @@ Public Class frmKiosk
             'again so how many are left is right rather than however full it was a minute ago
             LoadShowingsForFilm()
             ShowStep(StepTimes)
+        ElseIf currentStep = StepConfirm Then
+            'the map is drawn again on the way back rather than being left as it was, because
+            'somebody else could have bought one of those seats while this order sat on screen.
+            'that does mean the seats picked are lost, which is annoying but a lot less annoying
+            'than being shown a seat as free that has already gone
+            BuildSeatMap()
+            ShowStep(StepSeats)
+        End If
+    End Sub
+
+    'the button in the bottom right. what it does depends on which step is on the screen
+    Private Sub btnNext_Click(sender As Object, e As EventArgs) Handles btnNext.Click
+        If currentStep = StepSeats Then
+            BuildConfirmation()
+            ShowStep(StepConfirm)
         End If
     End Sub
 
