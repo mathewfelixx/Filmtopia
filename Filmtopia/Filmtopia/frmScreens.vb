@@ -246,29 +246,56 @@ Public Class frmScreens
         End If
 
         Dim newScreenID As Long = 0
+        Dim numRows As Integer = CInt(Val(txtRows.Text))
+        Dim perRow As Integer = CInt(Val(txtPerRow.Text))
 
+        'the screen and its seats go in together inside one transaction. they used to be two
+        'separate connections, so if the seats failed there was a screen sitting there with nothing
+        'in it and the seat map came up empty with nothing to say why
         If DbConnect() Then
-            Dim SQLCmd As New OleDbCommand
-            SQLCmd.Connection = cn
-            'the capacity is still stored, but it is worked out from the layout rather than typed,
-            'so it can no longer disagree with the number of seats that actually get made
-            SQLCmd.CommandText = "INSERT INTO tblScreen (ScreenName, ScreenCapacity, ScreenRows, SeatsPerRow) " &
-                                 "VALUES (@ScreenName, @ScreenCapacity, @ScreenRows, @SeatsPerRow)"
-            SQLCmd.Parameters.AddWithValue("@ScreenName", txtName.Text.Trim())
-            SQLCmd.Parameters.AddWithValue("@ScreenCapacity", CInt(Val(txtRows.Text) * Val(txtPerRow.Text)))
-            SQLCmd.Parameters.AddWithValue("@ScreenRows", CInt(Val(txtRows.Text)))
-            SQLCmd.Parameters.AddWithValue("@SeatsPerRow", CInt(Val(txtPerRow.Text)))
-            SQLCmd.ExecuteNonQuery()
+            Dim trans As OleDbTransaction = cn.BeginTransaction()
 
-            'grab the ID just given to the new screen so we can generate its seats
-            SQLCmd.CommandText = "SELECT @@IDENTITY"
-            newScreenID = CLng(SQLCmd.ExecuteScalar())
+            Try
+                Dim SQLCmd As New OleDbCommand
+                SQLCmd.Connection = cn
+                SQLCmd.Transaction = trans
+                'the capacity is still stored, but it is worked out from the layout rather than typed,
+                'so it can no longer disagree with the number of seats that actually get made
+                SQLCmd.CommandText = "INSERT INTO tblScreen (ScreenName, ScreenCapacity, ScreenRows, SeatsPerRow) " &
+                                     "VALUES (@ScreenName, @ScreenCapacity, @ScreenRows, @SeatsPerRow)"
+                SQLCmd.Parameters.AddWithValue("@ScreenName", txtName.Text.Trim())
+                SQLCmd.Parameters.AddWithValue("@ScreenCapacity", numRows * perRow)
+                SQLCmd.Parameters.AddWithValue("@ScreenRows", numRows)
+                SQLCmd.Parameters.AddWithValue("@SeatsPerRow", perRow)
+                SQLCmd.ExecuteNonQuery()
+
+                'grab the ID just given to the new screen so we can generate its seats.
+                'the parameters have to come off first, this query does not take any
+                SQLCmd.CommandText = "SELECT @@IDENTITY"
+                SQLCmd.Parameters.Clear()
+                newScreenID = CLng(SQLCmd.ExecuteScalar())
+
+                GenerateSeats(SQLCmd, newScreenID, numRows, perRow)
+
+                trans.Commit()
+
+            Catch ex As Exception
+                trans.Rollback()
+                newScreenID = 0
+                MessageBox.Show("The screen could not be saved, so nothing at all was written. " & ex.Message,
+                                "Screen", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+
             cn.Close()
         End If
 
-        GenerateSeats(newScreenID, CInt(Val(txtRows.Text)), CInt(Val(txtPerRow.Text)))
+        'logging waits until the connection is shut, WriteLog opens its own
+        If newScreenID > 0 Then
+            WriteLog("SCREEN", "Screen added: " & txtName.Text.Trim(), LogChange)
+            WriteLog("SCREEN", "Seats generated for ScreenID " & newScreenID & ", " & numRows & " row(s) of " &
+                               perRow & ", " & (numRows * perRow) & " seats", LogChange)
+        End If
 
-        WriteLog("SCREEN", "Screen added: " & txtName.Text.Trim(), LogChange)
         LoadScreens()
         ClearFields()
     End Sub
@@ -320,28 +347,57 @@ Public Class frmScreens
             End If
         End If
 
+        'this is the most damaging thing the program can do. resizing a screen throws all of its
+        'seats away and makes them again, and that used to happen on three separate connections, so
+        'a failure after the delete left the room with no seats at all and no way of getting them
+        'back. all of it is one transaction now, so either the whole resize happens or none of it
+        Dim saved As Boolean = False
+
         If DbConnect() Then
-            Dim SQLCmd As New OleDbCommand
-            SQLCmd.Connection = cn
-            SQLCmd.CommandText = "UPDATE tblScreen " &
-                                 "SET ScreenName = @ScreenName, ScreenCapacity = @ScreenCapacity, " &
-                                 "ScreenRows = @ScreenRows, SeatsPerRow = @SeatsPerRow " &
-                                 "WHERE ScreenID = @ScreenID"
-            SQLCmd.Parameters.AddWithValue("@ScreenName", txtName.Text.Trim())
-            SQLCmd.Parameters.AddWithValue("@ScreenCapacity", newCapacity)
-            SQLCmd.Parameters.AddWithValue("@ScreenRows", newRows)
-            SQLCmd.Parameters.AddWithValue("@SeatsPerRow", newPerRow)
-            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
-            SQLCmd.ExecuteNonQuery()
+            Dim trans As OleDbTransaction = cn.BeginTransaction()
+
+            Try
+                Dim SQLCmd As New OleDbCommand
+                SQLCmd.Connection = cn
+                SQLCmd.Transaction = trans
+                SQLCmd.CommandText = "UPDATE tblScreen " &
+                                     "SET ScreenName = @ScreenName, ScreenCapacity = @ScreenCapacity, " &
+                                     "ScreenRows = @ScreenRows, SeatsPerRow = @SeatsPerRow " &
+                                     "WHERE ScreenID = @ScreenID"
+                SQLCmd.Parameters.AddWithValue("@ScreenName", txtName.Text.Trim())
+                SQLCmd.Parameters.AddWithValue("@ScreenCapacity", newCapacity)
+                SQLCmd.Parameters.AddWithValue("@ScreenRows", newRows)
+                SQLCmd.Parameters.AddWithValue("@SeatsPerRow", newPerRow)
+                SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
+                SQLCmd.ExecuteNonQuery()
+
+                'only remake the seats if the layout actually changed, not if just the name did
+                If capacityChanged Then
+                    DeleteSeats(SQLCmd, selectedScreenID)
+                    GenerateSeats(SQLCmd, selectedScreenID, newRows, newPerRow)
+                End If
+
+                trans.Commit()
+                saved = True
+
+            Catch ex As Exception
+                trans.Rollback()
+                MessageBox.Show("The screen could not be saved, so it has been left exactly as it was. " & ex.Message,
+                                "Screen", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+
             cn.Close()
         End If
 
-        If capacityChanged Then
-            DeleteSeats(selectedScreenID)
-            GenerateSeats(selectedScreenID, newRows, newPerRow)
+        If saved Then
+            WriteLog("SCREEN", "Screen updated: " & txtName.Text.Trim(), LogChange)
+
+            If capacityChanged Then
+                WriteLog("SCREEN", "Seats generated for ScreenID " & selectedScreenID & ", " & newRows & " row(s) of " &
+                                   newPerRow & ", " & (newRows * newPerRow) & " seats", LogChange)
+            End If
         End If
 
-        WriteLog("SCREEN", "Screen updated: " & txtName.Text.Trim(), LogChange)
         LoadScreens()
         ClearFields()
     End Sub
@@ -377,20 +433,42 @@ Public Class frmScreens
             Exit Sub
         End If
 
-        'remove the seats that belong to this screen first
-        DeleteSeats(selectedScreenID)
+        'the seats have to go before the screen does, the database will not allow it the other way
+        'round. both together in one transaction so a screen can never be left with orphan seats
+        Dim deleted As Boolean = False
 
         If DbConnect() Then
-            Dim SQLCmd As New OleDbCommand
-            SQLCmd.Connection = cn
-            SQLCmd.CommandText = "DELETE FROM tblScreen " &
-                                 "WHERE ScreenID = @ScreenID"
-            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
-            SQLCmd.ExecuteNonQuery()
+            Dim trans As OleDbTransaction = cn.BeginTransaction()
+
+            Try
+                Dim SQLCmd As New OleDbCommand
+                SQLCmd.Connection = cn
+                SQLCmd.Transaction = trans
+
+                DeleteSeats(SQLCmd, selectedScreenID)
+
+                SQLCmd.CommandText = "DELETE FROM tblScreen " &
+                                     "WHERE ScreenID = @ScreenID"
+                SQLCmd.Parameters.Clear()
+                SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
+                SQLCmd.ExecuteNonQuery()
+
+                trans.Commit()
+                deleted = True
+
+            Catch ex As Exception
+                trans.Rollback()
+                MessageBox.Show("The screen could not be deleted, so nothing has been removed. " & ex.Message,
+                                "Screen", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+
             cn.Close()
         End If
 
-        WriteLog("SCREEN", "Screen deleted: " & txtName.Text, LogChange)
+        If deleted Then
+            WriteLog("SCREEN", "Screen deleted: " & txtName.Text, LogChange)
+        End If
+
         LoadScreens()
         ClearFields()
     End Sub
@@ -483,41 +561,36 @@ Public Class frmScreens
     'it used to work the rows out as capacity \ 10, which threw away the remainder, so asking for
     '95 seats quietly made 90. the number of rows and the seats in each are now both given, so
     'the seats made always come to exactly rows times seats per row
-    Private Sub GenerateSeats(screenID As Long, numRows As Integer, perRow As Integer)
-        If DbConnect() Then
-            Dim SQLCmd As New OleDbCommand
-            SQLCmd.Connection = cn
+    'the command is passed in already connected and inside a transaction, because making the seats
+    'has to succeed or fail together with whatever is being done to the screen itself
+    Private Sub GenerateSeats(SQLCmd As OleDbCommand, screenID As Long, numRows As Integer, perRow As Integer)
+        'read the seat types once at the start rather than looking one up for every seat
+        SQLCmd.CommandText = "SELECT SeatTypeID, SeatTypeName FROM tblSeatType"
+        SQLCmd.Parameters.Clear()
+        Dim dtTypes As New DataTable
+        Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+        dtTypes.Load(rs)
+        rs.Close()
 
-            'read the seat types once at the start rather than looking one up for every seat
-            SQLCmd.CommandText = "SELECT SeatTypeID, SeatTypeName FROM tblSeatType"
-            Dim da As New OleDbDataAdapter(SQLCmd)
-            Dim dtTypes As New DataTable
-            da.Fill(dtTypes)
+        SQLCmd.CommandText = "INSERT INTO tblSeat (ScreenID, SeatRow, SeatNumber, SeatTypeID) " &
+                             "VALUES (@ScreenID, @SeatRow, @SeatNumber, @SeatTypeID)"
+        SQLCmd.Parameters.Clear()
+        SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
+        SQLCmd.Parameters.AddWithValue("@SeatRow", "")
+        SQLCmd.Parameters.AddWithValue("@SeatNumber", 0)
+        SQLCmd.Parameters.AddWithValue("@SeatTypeID", 0)
 
-            SQLCmd.CommandText = "INSERT INTO tblSeat (ScreenID, SeatRow, SeatNumber, SeatTypeID) " &
-                                 "VALUES (@ScreenID, @SeatRow, @SeatNumber, @SeatTypeID)"
-            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
-            SQLCmd.Parameters.AddWithValue("@SeatRow", "")
-            SQLCmd.Parameters.AddWithValue("@SeatNumber", 0)
-            SQLCmd.Parameters.AddWithValue("@SeatTypeID", 0)
+        For rowIndex As Integer = 0 To numRows - 1
+            Dim rowLetter As String = Chr(65 + rowIndex)
+            Dim typeID As Long = TypeIDFromTable(dtTypes, SeatTypeForRow(rowIndex, numRows))
 
-            For rowIndex As Integer = 0 To numRows - 1
-                Dim rowLetter As String = Chr(65 + rowIndex)
-                Dim typeID As Long = TypeIDFromTable(dtTypes, SeatTypeForRow(rowIndex, numRows))
-
-                For seatNum As Integer = 1 To perRow
-                    SQLCmd.Parameters("@SeatRow").Value = rowLetter
-                    SQLCmd.Parameters("@SeatNumber").Value = seatNum
-                    SQLCmd.Parameters("@SeatTypeID").Value = CInt(typeID)
-                    SQLCmd.ExecuteNonQuery()
-                Next
+            For seatNum As Integer = 1 To perRow
+                SQLCmd.Parameters("@SeatRow").Value = rowLetter
+                SQLCmd.Parameters("@SeatNumber").Value = seatNum
+                SQLCmd.Parameters("@SeatTypeID").Value = CInt(typeID)
+                SQLCmd.ExecuteNonQuery()
             Next
-
-            cn.Close()
-        End If
-
-        WriteLog("SCREEN", "Seats generated for ScreenID " & screenID & ", " & numRows & " row(s) of " &
-                           perRow & ", " & (numRows * perRow) & " seats", LogChange)
+        Next
     End Sub
 
     'finds the id of a seat type in the little table that was read at the start
@@ -552,17 +625,14 @@ Public Class frmScreens
         Return SeatStandard
     End Function
 
-    'removes every seat that belongs to a screen
-    Private Sub DeleteSeats(screenID As Long)
-        If DbConnect() Then
-            Dim SQLCmd As New OleDbCommand
-            SQLCmd.Connection = cn
-            SQLCmd.CommandText = "DELETE FROM tblSeat " &
-                                 "WHERE ScreenID = @ScreenID"
-            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
-            SQLCmd.ExecuteNonQuery()
-            cn.Close()
-        End If
+    'removes every seat that belongs to a screen. same as GenerateSeats, the command comes in
+    'already inside a transaction so the delete can be undone if what follows it goes wrong
+    Private Sub DeleteSeats(SQLCmd As OleDbCommand, screenID As Long)
+        SQLCmd.CommandText = "DELETE FROM tblSeat " &
+                             "WHERE ScreenID = @ScreenID"
+        SQLCmd.Parameters.Clear()
+        SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
+        SQLCmd.ExecuteNonQuery()
     End Sub
 
     'when a row is clicked, load its values into the boxes for editing
