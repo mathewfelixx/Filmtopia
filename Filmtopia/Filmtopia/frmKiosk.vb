@@ -37,6 +37,7 @@ Public Class frmKiosk
     Private Const StepTimes As String = "TIMES"
     Private Const StepSeats As String = "SEATS"
     Private Const StepConfirm As String = "CONFIRM"
+    Private Const StepDone As String = "DONE"
 
     'which step is on the screen at the moment
     Private currentStep As String = StepWelcome
@@ -87,12 +88,14 @@ Public Class frmKiosk
         SizeStepPanel(pnlTimes, contentTop, contentHeight)
         SizeStepPanel(pnlSeats, contentTop, contentHeight)
         SizeStepPanel(pnlConfirm, contentTop, contentHeight)
+        SizeStepPanel(pnlDone, contentTop, contentHeight)
 
         CentreWelcome()
         LayoutFilmsStep()
         LayoutTimesStep()
         LayoutSeatsStep()
         LayoutConfirmStep()
+        LayoutDoneStep()
     End Sub
 
     'the purple bar. the two lines of writing in it are AutoSize labels, so how tall they really
@@ -158,6 +161,22 @@ Public Class frmKiosk
 
         lblConfirmTotal.Top = lblConfirmDetail.Bottom + 10
         lblConfirmNote.Top = lblConfirmTotal.Bottom + 8
+    End Sub
+
+    'the thank you screen is all one column down the middle. it is centred rather than lined up on
+    'the left because there is nothing to compare it against, it is just being read
+    Private Sub LayoutDoneStep()
+        lblDoneHeading.Left = (pnlDone.Width - lblDoneHeading.Width) \ 2
+        lblDoneHeading.Top = (pnlDone.Height \ 2) - 190
+
+        lblDoneRef.Left = (pnlDone.Width - lblDoneRef.Width) \ 2
+        lblDoneRef.Top = lblDoneHeading.Bottom + 24
+
+        lblDoneDetail.Left = (pnlDone.Width - lblDoneDetail.Width) \ 2
+        lblDoneDetail.Top = lblDoneRef.Bottom + 30
+
+        lblDoneNote.Left = (pnlDone.Width - lblDoneNote.Width) \ 2
+        lblDoneNote.Top = lblDoneDetail.Bottom + 50
     End Sub
 
     'the seat step is in two columns, the seats picked so far down the left and the map itself in
@@ -227,6 +246,7 @@ Public Class frmKiosk
         pnlTimes.Visible = (stepName = StepTimes)
         pnlSeats.Visible = (stepName = StepSeats)
         pnlConfirm.Visible = (stepName = StepConfirm)
+        pnlDone.Visible = (stepName = StepDone)
 
         'the wording under the Filmtopia name says where the customer is up to
         If stepName = StepWelcome Then
@@ -239,20 +259,26 @@ Public Class frmKiosk
             lblStep.Text = "Step 3 of 4  -  choose your seats"
         ElseIf stepName = StepConfirm Then
             lblStep.Text = "Step 4 of 4  -  pay"
+        ElseIf stepName = StepDone Then
+            lblStep.Text = "Self service"
         End If
 
-        'there is nothing to go back to from the welcome screen
-        btnBack.Visible = (stepName <> StepWelcome)
+        'there is nothing to go back to from the welcome screen, and once the sale is made going
+        'back would only mean paying for the same seats twice
+        btnBack.Visible = (stepName <> StepWelcome And stepName <> StepDone)
 
         'the first two steps are answered by touching a tile, so a continue button on them would
         'only be something else to press. it appears when there is a running total to carry on with
-        btnNext.Visible = (stepName = StepSeats Or stepName = StepConfirm)
+        btnNext.Visible = (stepName = StepSeats Or stepName = StepConfirm Or stepName = StepDone)
         lblRunningTotal.Visible = (stepName = StepSeats)
 
-        'the button says what pressing it is about to do. carrying on and paying are not the same
-        'thing and the last one wants saying out loud
+        'the button says what pressing it is about to do. carrying on, paying and finishing are
+        'three different things and the middle one wants saying out loud
         If stepName = StepConfirm Then
             btnNext.Text = "Pay now"
+            btnNext.Enabled = True
+        ElseIf stepName = StepDone Then
+            btnNext.Text = "Finish"
             btnNext.Enabled = True
         Else
             btnNext.Text = "Continue"
@@ -840,7 +866,96 @@ Public Class frmKiosk
         If currentStep = StepSeats Then
             BuildConfirmation()
             ShowStep(StepConfirm)
+        ElseIf currentStep = StepConfirm Then
+            TakePayment()
+        ElseIf currentStep = StepDone Then
+            StartAgain()
         End If
+    End Sub
+
+    'makes the sale. nothing at all has been written to the database up to this point, so a
+    'customer who walks away part way through leaves nothing behind.
+    'the whole sale goes through CompleteSale, the same routine the till uses, rather than the
+    'kiosk having its own way of writing a booking. that routine already checks the seats are
+    'still free inside its own transaction and works the seat prices out, and having a second
+    'version of all that on here is exactly how the two screens would end up disagreeing
+    Private Sub TakePayment()
+        Dim seatCount As Integer = pickedSeats.Rows.Count
+
+        If seatCount = 0 Then
+            Exit Sub
+        End If
+
+        'the kiosk does not know who anybody is, so every sale it makes is a walk-in. no food is
+        'sold at the machine yet so an empty order goes in
+        Dim noFood As New DataTable
+        noFood.Columns.Add("FoodItemID", GetType(Integer))
+        noFood.Columns.Add("Quantity", GetType(Integer))
+
+        Dim total As Double = TicketsTotal()
+        Dim newBookingID As Long = CompleteSale(0, True, currentScreeningID, PickedSeatIDs(), noFood, total)
+
+        If newBookingID = 0 Then
+            'nothing was saved and CompleteSale has already said why. the most likely reason is
+            'somebody else took one of these seats, so the map is drawn again and they start the
+            'seat picking over rather than being left looking at an order that cannot happen
+            BuildSeatMap()
+            ShowStep(StepSeats)
+            Exit Sub
+        End If
+
+        WriteLog("KIOSK", "Kiosk sale " & newBookingID & ", " & seatCount & " seat(s), " & FormatCurrency(total))
+
+        BuildReceipt(newBookingID, seatCount, total)
+        ShowStep(StepDone)
+    End Sub
+
+    'collects the SeatID of every seat picked, ready to be saved
+    Private Function PickedSeatIDs() As Long()
+        Dim seatIDs(pickedSeats.Rows.Count - 1) As Long
+        Dim i As Integer
+
+        For i = 0 To pickedSeats.Rows.Count - 1
+            seatIDs(i) = CLng(pickedSeats.Rows(i)("SeatID"))
+        Next
+
+        Return seatIDs
+    End Function
+
+    'what the customer is left looking at once they have paid. the booking number is the biggest
+    'thing on it because that is what they will be asked for at the door
+    Private Sub BuildReceipt(bookingID As Long, seatCount As Integer, total As Double)
+        Dim seatList As String = ""
+        Dim i As Integer
+
+        For i = 0 To pickedSeats.Rows.Count - 1
+            If seatList <> "" Then
+                seatList = seatList & ", "
+            End If
+            seatList = seatList & pickedSeats.Rows(i)("SeatName").ToString()
+        Next
+
+        lblDoneRef.Text = "Booking " & bookingID
+        lblDoneDetail.Text = currentShowingText & vbNewLine &
+                             seatCount & " ticket(s), seat " & seatList & vbNewLine &
+                             "Paid " & FormatCurrency(total)
+    End Sub
+
+    'clears everything down ready for whoever walks up next. it is deliberately a full reset, a
+    'kiosk that remembers the last person's order is a kiosk that sells somebody the wrong thing
+    Private Sub StartAgain()
+        currentFilmID = 0
+        currentFilmTitle = ""
+        currentScreeningID = 0
+        currentScreenID = 0
+        currentTicketPrice = 0
+        currentShowingText = ""
+
+        SetUpPickedSeats()
+        pnlSeatMap.Controls.Clear()
+        currentSeats = Nothing
+
+        ShowStep(StepWelcome)
     End Sub
 
     'a real kiosk has no way out for a customer, so this is the way a member of staff gets back to
