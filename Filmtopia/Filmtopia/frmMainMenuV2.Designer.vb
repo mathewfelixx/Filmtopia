@@ -31,6 +31,7 @@ Partial Class frmMainMenuV2
         Me.btnFood = New System.Windows.Forms.Button()
         Me.btnReports = New System.Windows.Forms.Button()
         Me.btnLogs = New System.Windows.Forms.Button()
+        Me.btnKiosk = New System.Windows.Forms.Button()
         Me.lblNavSystem = New System.Windows.Forms.Label()
         Me.btnSettings = New System.Windows.Forms.Button()
         Me.btnLogout = New System.Windows.Forms.Button()
@@ -131,6 +132,7 @@ Partial Class frmMainMenuV2
         '
         'flpNav
         '
+        Me.flpNav.AutoScroll = True
         Me.flpNav.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(64, Byte), Integer))
         Me.flpNav.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.flpNav.Controls.Add(Me.lblNavFront)
@@ -138,6 +140,7 @@ Partial Class frmMainMenuV2
         Me.flpNav.Controls.Add(Me.btnFindBooking)
         Me.flpNav.Controls.Add(Me.btnScreenings)
         Me.flpNav.Controls.Add(Me.btnCustomers)
+        Me.flpNav.Controls.Add(Me.btnKiosk)
         Me.flpNav.Controls.Add(Me.lblNavManage)
         Me.flpNav.Controls.Add(Me.btnFilms)
         Me.flpNav.Controls.Add(Me.btnScreens)
@@ -313,6 +316,23 @@ Partial Class frmMainMenuV2
         Me.btnReports.Text = "Sales Report"
         Me.btnReports.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnReports.UseVisualStyleBackColor = False
+        '
+        'btnKiosk
+        '
+        Me.btnKiosk.BackColor = System.Drawing.Color.Transparent
+        Me.btnKiosk.FlatAppearance.BorderSize = 0
+        Me.btnKiosk.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnKiosk.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.btnKiosk.ForeColor = System.Drawing.Color.White
+        Me.btnKiosk.Location = New System.Drawing.Point(21, 514)
+        Me.btnKiosk.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
+        Me.btnKiosk.Name = "btnKiosk"
+        Me.btnKiosk.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnKiosk.Size = New System.Drawing.Size(237, 49)
+        Me.btnKiosk.TabIndex = 11
+        Me.btnKiosk.Text = "Kiosk Mode"
+        Me.btnKiosk.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnKiosk.UseVisualStyleBackColor = False
         '
         'btnLogs
         '
@@ -850,6 +870,7 @@ Partial Class frmMainMenuV2
     Friend WithEvents btnFood As Button
     Friend WithEvents btnReports As Button
     Friend WithEvents btnLogs As Button
+    Friend WithEvents btnKiosk As Button
     Friend WithEvents lblNavSystem As Label
     Friend WithEvents btnSettings As Button
 End Class
