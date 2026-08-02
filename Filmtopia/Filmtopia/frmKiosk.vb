@@ -29,6 +29,10 @@ Public Class frmKiosk
     'gets what is left over
     Private Const LeftColumnWidth As Integer = 330
 
+    'how many days ahead the machine will sell. a week is what the posters in the foyer show, and
+    'anything further out than that is somebody planning rather than somebody walking in
+    Private Const DaysAhead As Integer = 7
+
     'the steps a customer goes through. they are only ever compared as text so they are kept as
     'constants the same way the log severities are, which means a typo is a compile error instead
     'of a step that quietly never shows up
@@ -42,6 +46,9 @@ Public Class frmKiosk
     'which step is on the screen at the moment
     Private currentStep As String = StepWelcome
 
+    'the day being looked at. it starts on today and the customer can move it along the week
+    Private currentDay As Date = Date.Today
+
     'the film the customer has picked, 0 means they have not picked one yet
     Private currentFilmID As Long = 0
     Private currentFilmTitle As String = ""
@@ -54,7 +61,7 @@ Public Class frmKiosk
 
     'the films drawn on the first step, kept so the title can be looked up again when a tile is
     'touched without going back to the database for something that has already been read
-    Private filmsOnToday As DataTable
+    Private filmsOnDay As DataTable
 
     'every seat in the screen the picked showing is in, with what sort of seat it is and what that
     'does to the price. read once when the map is drawn so touching a seat does not need another
@@ -136,9 +143,13 @@ Public Class frmKiosk
     'the list of films fills its step, starting under the heading rather than at a number typed
     'into the designer, because how tall the heading draws depends on its font
     Private Sub LayoutFilmsStep()
-        lblNoFilms.Top = lblFilmsHeading.Bottom + 24
+        pnlDayPicker.Top = lblFilmsHeading.Bottom + 16
+        pnlDayPicker.Width = pnlFilms.Width - 40
+        ArrangeDayButtons()
 
-        pnlFilmList.Top = lblFilmsHeading.Bottom + 20
+        lblNoFilms.Top = pnlDayPicker.Bottom + 30
+
+        pnlFilmList.Top = pnlDayPicker.Bottom + 20
         pnlFilmList.Width = pnlFilms.Width - 40
         pnlFilmList.Height = pnlFilms.Height - pnlFilmList.Top - 20
         ArrangeFilmTiles()
@@ -291,30 +302,135 @@ Public Class frmKiosk
     'already started is no use to somebody stood at the machine, so those are left out.
     'ScreeningTime is text in HH:MM with the zero always on the front, so comparing it against the
     'time now as text puts them in the right order without having to turn every row into a number
-    Private Sub LoadFilmsForToday()
-        filmsOnToday = New DataTable
-        Dim dt As DataTable = filmsOnToday
+    Private Sub LoadFilmsForDay()
+        filmsOnDay = New DataTable
+        Dim dt As DataTable = filmsOnDay
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            'DISTINCT because a film with three showings today should still only be one tile
+            'DISTINCT because a film on three times in a day should still only be one tile
             SQLCmd.CommandText = "SELECT DISTINCT tblFilm.FilmID, FilmTitle, FilmAgeRating, FilmDuration " &
                                  "FROM tblFilm INNER JOIN tblScreening ON tblFilm.FilmID = tblScreening.FilmID " &
-                                 "WHERE ScreeningDate = @Today AND ScreeningTime >= @TimeNow " &
+                                 "WHERE ScreeningDate = @Day AND ScreeningTime >= @EarliestTime " &
                                  "ORDER BY FilmTitle"
-            SQLCmd.Parameters.AddWithValue("@Today", Date.Today)
-            SQLCmd.Parameters.AddWithValue("@TimeNow", Format(Now, "HH:mm"))
+            SQLCmd.Parameters.AddWithValue("@Day", currentDay)
+            SQLCmd.Parameters.AddWithValue("@EarliestTime", EarliestTimeForDay())
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)
             cn.Close()
         End If
 
+        lblFilmsHeading.Text = HeadingForDay()
         BuildFilmTiles(dt)
 
-        'if there is genuinely nothing left on, say so rather than leaving a blank screen that
+        'if there is genuinely nothing on that day, say so rather than leaving a blank screen that
         'looks like the machine has gone wrong
         lblNoFilms.Visible = (dt.Rows.Count = 0)
+
+        If currentDay = Date.Today Then
+            lblNoFilms.Text = "There is nothing left on today, try another day"
+        Else
+            lblNoFilms.Text = "There is nothing on that day, try another one"
+        End If
+    End Sub
+
+    'the heading over the list. today and tomorrow get the word because that is what people say,
+    'any other day gets its date
+    Private Function HeadingForDay() As String
+        If currentDay = Date.Today Then
+            Return "What's on today"
+        ElseIf currentDay = Date.Today.AddDays(1) Then
+            Return "What's on tomorrow"
+        End If
+
+        Return "What's on " & Format(currentDay, "dddd d MMMM")
+    End Function
+
+    'the earliest showing worth offering on the day being looked at. on today that is the time now,
+    'because a showing that has already started is no use to somebody stood at the machine. on any
+    'other day the whole day is still to come, so it is midnight
+    Private Function EarliestTimeForDay() As String
+        If currentDay = Date.Today Then
+            Return Format(Now, "HH:mm")
+        End If
+
+        Return "00:00"
+    End Function
+
+    'what a day is called on the buttons and in the heading. the first two get words because that
+    'is what people say, the rest get the date
+    Private Function DayName(theDay As Date) As String
+        If theDay = Date.Today Then
+            Return "Today"
+        ElseIf theDay = Date.Today.AddDays(1) Then
+            Return "Tomorrow"
+        End If
+
+        Return Format(theDay, "ddd d MMM")
+    End Function
+
+    'makes the row of day buttons across the top of the film list, today first and then the rest
+    'of the week. they are built here because which days they are depends on what day it is
+    Private Sub BuildDayPicker()
+        pnlDayPicker.Controls.Clear()
+
+        Dim i As Integer
+
+        For i = 0 To DaysAhead - 1
+            Dim theDay As Date = Date.Today.AddDays(i)
+
+            Dim b As New Button
+            b.Tag = theDay
+            b.Text = DayName(theDay)
+            b.Font = New Font("Segoe UI", 11)
+            b.FlatStyle = FlatStyle.Flat
+            b.FlatAppearance.BorderColor = BorderCol
+
+            'the day being looked at is the pink one, so it is obvious which list is on screen
+            If theDay = currentDay Then
+                b.BackColor = HighlightBack
+                b.ForeColor = HighlightFore
+                b.Font = New Font("Segoe UI", 11, FontStyle.Bold)
+            Else
+                b.BackColor = CardBack
+                b.ForeColor = TextFore
+            End If
+
+            AddHandler b.Click, AddressOf DayButton_Click
+            pnlDayPicker.Controls.Add(b)
+        Next
+
+        ArrangeDayButtons()
+    End Sub
+
+    'shares the width out between the day buttons rather than giving them a fixed size. seven
+    'buttons at a size that looked right on one screen ran off the edge of a narrower one, and a
+    'day the customer cannot see is a day they cannot buy for
+    Private Sub ArrangeDayButtons()
+        If pnlDayPicker.Controls.Count = 0 Then
+            Exit Sub
+        End If
+
+        Dim gap As Integer = 8
+        Dim buttonWidth As Integer = (pnlDayPicker.Width - (gap * (DaysAhead - 1))) \ DaysAhead
+
+        Dim i As Integer
+        For i = 0 To pnlDayPicker.Controls.Count - 1
+            pnlDayPicker.Controls(i).Size = New Size(buttonWidth, 62)
+            pnlDayPicker.Controls(i).Left = i * (buttonWidth + gap)
+            pnlDayPicker.Controls(i).Top = 0
+        Next
+    End Sub
+
+    'a different day was picked, so the whole list is read again for it
+    Private Sub DayButton_Click(sender As Object, e As EventArgs)
+        Dim b As Button = CType(sender, Button)
+        currentDay = CDate(b.Tag)
+
+        BuildDayPicker()
+        LoadFilmsForDay()
+        LayoutFilmsStep()
     End Sub
 
     'makes one tile per film. they are built here rather than being put in the designer because
@@ -426,7 +542,7 @@ Public Class frmKiosk
 
     'the title of a film that has already been read onto the first step
     Private Function TitleOfFilm(filmID As Long) As String
-        Dim rows() As DataRow = filmsOnToday.Select("FilmID = " & filmID)
+        Dim rows() As DataRow = filmsOnDay.Select("FilmID = " & filmID)
 
         If rows.Length > 0 Then
             Return rows(0)("FilmTitle").ToString()
@@ -448,11 +564,11 @@ Public Class frmKiosk
             SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, ScreeningTime, TicketPrice, " &
                                  "tblScreening.ScreenID, ScreenName, ScreenCapacity " &
                                  "FROM tblScreening INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID " &
-                                 "WHERE FilmID = @FilmID AND ScreeningDate = @Today AND ScreeningTime >= @TimeNow " &
+                                 "WHERE FilmID = @FilmID AND ScreeningDate = @Day AND ScreeningTime >= @EarliestTime " &
                                  "ORDER BY ScreeningTime"
             SQLCmd.Parameters.AddWithValue("@FilmID", CInt(currentFilmID))
-            SQLCmd.Parameters.AddWithValue("@Today", Date.Today)
-            SQLCmd.Parameters.AddWithValue("@TimeNow", Format(Now, "HH:mm"))
+            SQLCmd.Parameters.AddWithValue("@Day", currentDay)
+            SQLCmd.Parameters.AddWithValue("@EarliestTime", EarliestTimeForDay())
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)
             cn.Close()
@@ -804,9 +920,10 @@ Public Class frmKiosk
     Private Sub Welcome_Click(sender As Object, e As EventArgs) Handles btnStart.Click, pnlWelcome.Click,
         lblWelcomeTitle.Click, lblWelcomeSub.Click
 
-        'the list is read again every time rather than once when the form opens, otherwise a
-        'machine left on all day would still be offering this morning's showings
-        LoadFilmsForToday()
+        'both are read again every time rather than once when the form opens, otherwise a machine
+        'left on all day would still be offering this morning's showings and yesterday's dates
+        BuildDayPicker()
+        LoadFilmsForDay()
         ShowStep(StepFilms)
     End Sub
 
@@ -844,7 +961,7 @@ Public Class frmKiosk
         ElseIf currentStep = StepTimes Then
             'going back to the list of films reads it again, because a showing could have started
             'while the customer was stood there deciding
-            LoadFilmsForToday()
+            LoadFilmsForDay()
             ShowStep(StepFilms)
         ElseIf currentStep = StepSeats Then
             'the seats picked are thrown away on the way back, and the list of showings is read
@@ -944,6 +1061,7 @@ Public Class frmKiosk
     'clears everything down ready for whoever walks up next. it is deliberately a full reset, a
     'kiosk that remembers the last person's order is a kiosk that sells somebody the wrong thing
     Private Sub StartAgain()
+        currentDay = Date.Today
         currentFilmID = 0
         currentFilmTitle = ""
         currentScreeningID = 0
