@@ -37,6 +37,12 @@ Public Class frmKiosk
     'gets what is left over
     Private Const LeftColumnWidth As Integer = 330
 
+    'how big the buttons at the bottom are. windows draws a normal button about 50 high once this
+    'machine has scaled the designer down, which is under what a finger reliably hits, so they are
+    'sized here in code instead where the scaling cannot get at them
+    Private Const FooterHeight As Integer = 104
+    Private Const FooterButtonHeight As Integer = 72
+
     'how long the machine sits untouched before it gives up and goes back to the welcome screen.
     'part way through an order it waits a while, because somebody may well be stood there deciding.
     'on the thank you screen it is much shorter, since that one is finished with and the next
@@ -147,9 +153,14 @@ Public Class frmKiosk
     'back is always bottom left and continue is always bottom right, whatever step is on the
     'screen. a customer should not have to look for the way on each time the screen changes
     Private Sub LayoutFooter()
+        pnlFooter.Height = FooterHeight
         pnlFooter.Width = Me.ClientSize.Width
         pnlFooter.Top = Me.ClientSize.Height - pnlFooter.Height
 
+        btnBack.Size = New Size(220, FooterButtonHeight)
+        btnNext.Size = New Size(240, FooterButtonHeight)
+
+        btnBack.Left = 32
         btnBack.Top = (pnlFooter.Height - btnBack.Height) \ 2
 
         'the total sits just inside continue. it is a label that grows with its own text so where
@@ -262,6 +273,7 @@ Public Class frmKiosk
         lblWelcomeSub.Left = (pnlWelcome.Width - lblWelcomeSub.Width) \ 2
         lblWelcomeSub.Top = lblWelcomeTitle.Bottom + 16
 
+        btnStart.Size = New Size(460, 140)
         btnStart.Left = (pnlWelcome.Width - btnStart.Width) \ 2
         btnStart.Top = lblWelcomeSub.Bottom + 60
     End Sub
@@ -276,6 +288,7 @@ Public Class frmKiosk
     Private Sub ShowStep(stepName As String)
         currentStep = stepName
         Touched()
+        StyleKioskButtons()
 
         pnlWelcome.Visible = (stepName = StepWelcome)
         pnlFilms.Visible = (stepName = StepFilms)
@@ -839,8 +852,16 @@ Public Class frmKiosk
         pnlSeatMap.Left = mapLeft
         pnlSeatMap.Width = mapWidth
         pnlSeatMap.Top = mapTop
-        'the key sits under the map so the map stops short of the bottom to leave room for it
-        pnlSeatMap.Height = spaceDown
+
+        'the panel is only made as tall as the seats actually need. if it was given the whole of
+        'the space left the key underneath it would end up floating a long way below the back row
+        Dim mapHeight As Integer = (rowsDown * (seatDrawHeight + SeatGap)) - SeatGap
+
+        If mapHeight > spaceDown Then
+            mapHeight = spaceDown
+        End If
+
+        pnlSeatMap.Height = mapHeight
 
         ArrangeSeatMap()
     End Sub
@@ -862,7 +883,9 @@ Public Class frmKiosk
         If rowsDown > 0 Then
             'worked out in height first then turned back into a width, because the two are tied
             'together and it is the width everything else is measured from
-            Dim heightThatFits As Integer = (spaceDown \ rowsDown) - SeatGap
+            'a gap is taken off the height first so there is always a little slack. without it the
+            'sums came out exactly the right size and the panel put a scroll bar up anyway
+            Dim heightThatFits As Integer = ((spaceDown - SeatGap) \ rowsDown) - SeatGap
             Dim fitsDown As Integer = (heightThatFits * SeatWidth) \ SeatHeight
 
             If fitsDown < biggest Then
@@ -1020,6 +1043,7 @@ Public Class frmKiosk
 
         lblRunningTotal.Text = "Total  " & FormatCurrency(TicketsTotal())
         btnNext.Enabled = (pickedSeats.Rows.Count > 0)
+        PaintKioskButton(btnNext, True)
     End Sub
 
     'the screen and the ticket price of the picked showing, read once here so the seat map and the
@@ -1201,6 +1225,42 @@ Public Class frmKiosk
         currentSeats = Nothing
 
         ShowStep(StepWelcome)
+    End Sub
+
+    'the buttons a customer presses are painted here rather than being left as windows draws them.
+    'the one that carries on is the pink one and it is the only pink thing on the screen, so on a
+    'machine somebody walks up to and uses without being shown how, where to press is obvious.
+    'it is called from ShowStep because the theme repaints every button when the form is coloured
+    'and would otherwise put them all back to grey
+    Private Sub StyleKioskButtons()
+        PaintKioskButton(btnStart, True)
+        PaintKioskButton(btnNext, True)
+        PaintKioskButton(btnBack, False)
+    End Sub
+
+    'one button. the main one is filled in, the ones that only go backwards are left plain with a
+    'border, so they can still be found without competing with the way forward
+    Private Sub PaintKioskButton(btn As Button, isMainAction As Boolean)
+        btn.FlatStyle = FlatStyle.Flat
+        btn.UseVisualStyleBackColor = False
+
+        If isMainAction Then
+            btn.BackColor = HighlightBack
+            btn.ForeColor = HighlightFore
+            btn.FlatAppearance.BorderSize = 0
+        Else
+            btn.BackColor = CardBack
+            btn.ForeColor = TextFore
+            btn.FlatAppearance.BorderSize = 1
+            btn.FlatAppearance.BorderColor = BorderCol
+        End If
+
+        'a button that cannot be pressed yet is greyed off, otherwise a bright pink Continue that
+        'does nothing when you press it just looks like the machine has stopped working
+        If Not btn.Enabled Then
+            btn.BackColor = ReadOnlyBack
+            btn.ForeColor = SubtleFore
+        End If
     End Sub
 
     'anything the customer does calls this, so the machine knows it is still being used. every
