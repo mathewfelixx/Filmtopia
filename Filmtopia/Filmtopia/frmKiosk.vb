@@ -319,6 +319,11 @@ Public Class frmKiosk
     End Sub
 
     Private Sub frmKiosk_Resize(sender As Object, e As EventArgs) Handles Me.Resize
+        'the buttons are painted last, after this has decided which of them show, what they say and
+        'whether they can be pressed. doing it first left Finish greyed off on the thank you screen,
+        'because at that point it was still switched off from the seats step
+        StyleKioskButtons()
+
         LayoutKiosk()
     End Sub
 
@@ -328,7 +333,6 @@ Public Class frmKiosk
     Private Sub ShowStep(stepName As String)
         currentStep = stepName
         Touched()
-        StyleKioskButtons()
 
         pnlWelcome.Visible = (stepName = StepWelcome)
         pnlFilms.Visible = (stepName = StepFilms)
