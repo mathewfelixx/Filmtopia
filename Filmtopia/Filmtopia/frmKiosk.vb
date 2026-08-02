@@ -37,6 +37,11 @@ Public Class frmKiosk
     'is a party booking and is better off talking to somebody at the desk
     Private Const MaxSeatsPerSale As Integer = 8
 
+    'the edge put round a seat that is not a standard one. blue is used for accessible rather than
+    'a theme colour because it has to mean the same thing in light mode and dark mode, and because
+    'it is the colour that already means accessible everywhere else people see it
+    Private ReadOnly AccessibleEdge As Color = Color.FromArgb(45, 125, 210)
+
     'how much of the seat step is taken up by the list of what has been picked so far, the map
     'gets what is left over
     Private Const LeftColumnWidth As Integer = 330
@@ -285,6 +290,9 @@ Public Class frmKiosk
         lblKeyAvailable.Top = lblSwatchAvailable.Top + 2
         lblKeySelected.Top = lblKeyAvailable.Top
         lblKeyTaken.Top = lblKeyAvailable.Top
+
+        lblSeatKeyTypes.Left = pnlSeatMap.Left
+        lblSeatKeyTypes.Top = lblKeyAvailable.Bottom + 10
     End Sub
 
     'gives one step panel the whole of the space between the header and the footer
@@ -762,6 +770,7 @@ Public Class frmKiosk
         pickedSeats = New DataTable
         pickedSeats.Columns.Add("SeatID", GetType(Integer))
         pickedSeats.Columns.Add("SeatName", GetType(String))
+        pickedSeats.Columns.Add("SeatType", GetType(String))
         'the multiplier travels with the seat so the running total can be added up without going
         'back to the database every time somebody touches one
         pickedSeats.Columns.Add("Multiplier", GetType(Double))
@@ -822,6 +831,7 @@ Public Class frmKiosk
             Dim seatRow As String = currentSeats.Rows(i)("SeatRow").ToString()
             Dim seatNumber As Integer = CInt(currentSeats.Rows(i)("SeatNumber"))
             Dim multiplier As Double = CDbl(currentSeats.Rows(i)("PriceMultiplier"))
+            Dim seatType As String = currentSeats.Rows(i)("SeatTypeName").ToString()
 
             Dim b As New Button
             b.Tag = seatID
@@ -831,12 +841,18 @@ Public Class frmKiosk
             'where it goes and how big it is are decided by ArrangeSeatMap, because both depend on
             'how much room the screen has and that is not known until the map is being laid out
 
-            'a seat that costs more than a standard one gets a border round it so the difference
-            'can be seen. the background is left to say whether it is free, picked or gone, so the
-            'two things are not fighting over the same colour
-            If multiplier <> 1 Then
+            'anything that is not a plain standard seat gets an edge round it, so the difference can
+            'be seen without the background having to say it. the background is busy saying whether
+            'the seat is free, picked or gone and the two would only fight over the same colour.
+            'accessible seats used to get nothing at all because they are the same price as a
+            'standard one, and the marking was going off the price rather than what sort of seat it
+            'is, which is exactly the wrong thing to hang it on
+            If seatType = SeatPremium Then
                 b.FlatAppearance.BorderSize = 3
                 b.FlatAppearance.BorderColor = AccentFore
+            ElseIf seatType = SeatAccessible Then
+                b.FlatAppearance.BorderSize = 3
+                b.FlatAppearance.BorderColor = AccessibleEdge
             End If
 
             If dtTaken.Select("SeatID = " & seatID).Length > 0 Then
@@ -869,7 +885,8 @@ Public Class frmKiosk
 
         lblScreen.Top = lblSeatsShowing.Bottom + 24
         Dim mapTop As Integer = lblScreen.Bottom + 16
-        Dim spaceDown As Integer = pnlSeats.Height - mapTop - 80
+        'the key and the line about the seat edges both sit under the map, so that much is kept back
+        Dim spaceDown As Integer = pnlSeats.Height - mapTop - 115
 
         'the whole room has to fit on the screen at once. a seat map you have to scroll around is
         'no use to somebody choosing where to sit, they need to see the shape of it, so when there
@@ -1031,12 +1048,23 @@ Public Class frmKiosk
                 Exit Sub
             End If
 
-            pickedSeats.Rows.Add(CInt(seatID), b.Text, MultiplierForSeat(seatID))
+            pickedSeats.Rows.Add(CInt(seatID), b.Text, TypeOfSeat(seatID), MultiplierForSeat(seatID))
             b.BackColor = SeatSelected
         End If
 
         UpdateSeatSummary()
     End Sub
+
+    'what sort of seat it is, out of the seats that were read when the map was drawn
+    Private Function TypeOfSeat(seatID As Long) As String
+        Dim rows() As DataRow = currentSeats.Select("SeatID = " & seatID)
+
+        If rows.Length > 0 Then
+            Return rows(0)("SeatTypeName").ToString()
+        End If
+
+        Return SeatStandard
+    End Function
 
     'what a seat does to the price, out of the seats that were read when the map was drawn
     Private Function MultiplierForSeat(seatID As Long) As Double
@@ -1390,15 +1418,16 @@ Public Class frmKiosk
         Dim i As Integer
         For i = 0 To pickedSeats.Rows.Count - 1
             Dim seatName As String = pickedSeats.Rows(i)("SeatName").ToString()
-            Dim multiplier As Double = CDbl(pickedSeats.Rows(i)("Multiplier"))
-            Dim price As Double = SeatPrice(currentTicketPrice, multiplier)
+            Dim seatType As String = pickedSeats.Rows(i)("SeatType").ToString()
+            Dim price As Double = SeatPrice(currentTicketPrice, CDbl(pickedSeats.Rows(i)("Multiplier")))
 
             detail = detail & "Seat " & seatName
 
-            'a seat that costs more than a standard one is said out loud, so nobody gets to the
-            'total and wonders why it is more than the price on the poster
-            If multiplier <> 1 Then
-                detail = detail & "  (premium)"
+            'anything that is not a plain seat is said out loud, so nobody gets to the total and
+            'wonders why it is more than the price on the poster, and so anybody who has picked an
+            'accessible seat can see that is what they have got
+            If seatType <> SeatStandard Then
+                detail = detail & "  (" & seatType.ToLower() & ")"
             End If
 
             detail = detail & "   " & FormatCurrency(price) & vbNewLine
