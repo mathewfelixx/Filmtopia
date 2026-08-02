@@ -11,6 +11,10 @@ Public Class frmKiosk
     Private Const TileHeight As Integer = 170
     Private Const TileGap As Integer = 20
 
+    'a food tile only has a name, a price and how many have been added
+    Private Const FoodTileWidth As Integer = 220
+    Private Const FoodTileHeight As Integer = 130
+
     'a showing tile is shorter and narrower than a film one, there is far less on it
     Private Const TimeTileWidth As Integer = 240
     Private Const TimeTileHeight As Integer = 140
@@ -61,6 +65,7 @@ Public Class frmKiosk
     Private Const StepFilms As String = "FILMS"
     Private Const StepTimes As String = "TIMES"
     Private Const StepSeats As String = "SEATS"
+    Private Const StepFood As String = "FOOD"
     Private Const StepConfirm As String = "CONFIRM"
     Private Const StepDone As String = "DONE"
 
@@ -96,6 +101,14 @@ Public Class frmKiosk
     'never what decides anything, the same way round as the staff booking form does it
     Private pickedSeats As DataTable
 
+    'the food and drink added so far. same as the seats, it is only held here while the order is
+    'being built up and nothing reaches the database until the customer pays
+    Private pendingFood As DataTable
+
+    'everything on sale at the counter, kept so the name and price can be looked up again when a
+    'tile is touched without going back to the database for something already read
+    Private foodOnSale As DataTable
+
     'the size the seats are actually being drawn at, which is not always the size above because a
     'wide screen full of seats has to be squashed to fit
     Private seatDrawWidth As Integer = SeatWidth
@@ -103,6 +116,8 @@ Public Class frmKiosk
 
     Private Sub frmKiosk_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup(Me)
+        SetUpPickedSeats()
+        SetUpPendingFood()
         LayoutKiosk()
         ShowStep(StepWelcome)
         timerIdle.Start()
@@ -124,6 +139,7 @@ Public Class frmKiosk
         SizeStepPanel(pnlFilms, contentTop, contentHeight)
         SizeStepPanel(pnlTimes, contentTop, contentHeight)
         SizeStepPanel(pnlSeats, contentTop, contentHeight)
+        SizeStepPanel(pnlFood, contentTop, contentHeight)
         SizeStepPanel(pnlConfirm, contentTop, contentHeight)
         SizeStepPanel(pnlDone, contentTop, contentHeight)
 
@@ -131,6 +147,7 @@ Public Class frmKiosk
         LayoutFilmsStep()
         LayoutTimesStep()
         LayoutSeatsStep()
+        LayoutFoodStep()
         LayoutConfirmStep()
         LayoutDoneStep()
     End Sub
@@ -197,6 +214,21 @@ Public Class frmKiosk
         pnlTimeList.Width = pnlTimes.Width - 40
         pnlTimeList.Height = pnlTimes.Height - pnlTimeList.Top - 20
         ArrangeTimeTiles()
+    End Sub
+
+    'the food step is the same two columns as the seats one, what has been added down the left and
+    'the things that can be added filling the rest
+    Private Sub LayoutFoodStep()
+        lblFoodSub.Top = lblFoodHeading.Bottom + 6
+
+        lblFoodOrder.Top = lblFoodSub.Bottom + 24
+        lblFoodOrder.Height = pnlFood.Height - lblFoodOrder.Top - 20
+
+        pnlFoodList.Left = LeftColumnWidth
+        pnlFoodList.Top = lblFoodOrder.Top
+        pnlFoodList.Width = pnlFood.Width - LeftColumnWidth - 30
+        pnlFoodList.Height = pnlFood.Height - pnlFoodList.Top - 20
+        ArrangeTiles(pnlFoodList, FoodTileWidth, FoodTileHeight)
     End Sub
 
     'the order goes down the left and the total sits underneath it, big enough that nobody presses
@@ -294,6 +326,7 @@ Public Class frmKiosk
         pnlFilms.Visible = (stepName = StepFilms)
         pnlTimes.Visible = (stepName = StepTimes)
         pnlSeats.Visible = (stepName = StepSeats)
+        pnlFood.Visible = (stepName = StepFood)
         pnlConfirm.Visible = (stepName = StepConfirm)
         pnlDone.Visible = (stepName = StepDone)
 
@@ -301,13 +334,15 @@ Public Class frmKiosk
         If stepName = StepWelcome Then
             lblStep.Text = "Self service"
         ElseIf stepName = StepFilms Then
-            lblStep.Text = "Step 1 of 4  -  choose a film"
+            lblStep.Text = "Step 1 of 5  -  choose a film"
         ElseIf stepName = StepTimes Then
-            lblStep.Text = "Step 2 of 4  -  choose a showing"
+            lblStep.Text = "Step 2 of 5  -  choose a showing"
         ElseIf stepName = StepSeats Then
-            lblStep.Text = "Step 3 of 4  -  choose your seats"
+            lblStep.Text = "Step 3 of 5  -  choose your seats"
+        ElseIf stepName = StepFood Then
+            lblStep.Text = "Step 4 of 5  -  food and drink"
         ElseIf stepName = StepConfirm Then
-            lblStep.Text = "Step 4 of 4  -  pay"
+            lblStep.Text = "Step 5 of 5  -  pay"
         ElseIf stepName = StepDone Then
             lblStep.Text = "Self service"
         End If
@@ -318,8 +353,9 @@ Public Class frmKiosk
 
         'the first two steps are answered by touching a tile, so a continue button on them would
         'only be something else to press. it appears when there is a running total to carry on with
-        btnNext.Visible = (stepName = StepSeats Or stepName = StepConfirm Or stepName = StepDone)
-        lblRunningTotal.Visible = (stepName = StepSeats)
+        btnNext.Visible = (stepName = StepSeats Or stepName = StepFood Or
+                          stepName = StepConfirm Or stepName = StepDone)
+        lblRunningTotal.Visible = (stepName = StepSeats Or stepName = StepFood)
 
         'the button says what pressing it is about to do. carrying on, paying and finishing are
         'three different things and the middle one wants saying out loud
@@ -328,6 +364,11 @@ Public Class frmKiosk
             btnNext.Enabled = True
         ElseIf stepName = StepDone Then
             btnNext.Text = "Finish"
+            btnNext.Enabled = True
+        ElseIf stepName = StepFood Then
+            'nothing has to be bought on this step so it is always pressable, and it says no thanks
+            'rather than continue because that is the answer most people are giving it
+            btnNext.Text = NextTextForFood()
             btnNext.Enabled = True
         Else
             btnNext.Text = "Continue"
@@ -1041,7 +1082,7 @@ Public Class frmKiosk
             lblSeatsPicked.Text = pickedSeats.Rows.Count & " seat(s)" & vbNewLine & vbNewLine & listing
         End If
 
-        lblRunningTotal.Text = "Total  " & FormatCurrency(TicketsTotal())
+        lblRunningTotal.Text = "Total  " & FormatCurrency(OrderTotal())
         btnNext.Enabled = (pickedSeats.Rows.Count > 0)
         PaintKioskButton(btnNext, True)
     End Sub
@@ -1078,6 +1119,214 @@ Public Class frmKiosk
         ShowStep(StepFilms)
     End Sub
 
+    'makes the empty table that holds the food added to this order. the columns match what
+    'CompleteSale expects, so the same table goes straight into the sale without being copied
+    Private Sub SetUpPendingFood()
+        pendingFood = New DataTable
+        pendingFood.Columns.Add("FoodItemID", GetType(Integer))
+        pendingFood.Columns.Add("Item", GetType(String))
+        pendingFood.Columns.Add("Price", GetType(Double))
+        pendingFood.Columns.Add("Quantity", GetType(Integer))
+    End Sub
+
+    'everything on sale at the counter, drawn as tiles the same way the films are
+    Private Sub LoadFoodItems()
+        foodOnSale = New DataTable
+        Dim dt As DataTable = foodOnSale
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT FoodItemID, FoodItemName, FoodItemPrice " &
+                                 "FROM tblFoodItem ORDER BY FoodItemName"
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            da.Fill(dt)
+            cn.Close()
+        End If
+
+        BuildFoodTiles(dt)
+        UpdateFoodOrder()
+    End Sub
+
+    'one tile per thing on sale. touching it adds one, and once there is at least one on the order
+    'the tile says how many so the customer can see what they have done without reading the list
+    Private Sub BuildFoodTiles(dtFood As DataTable)
+        pnlFoodList.Controls.Clear()
+
+        Dim i As Integer
+        For i = 0 To dtFood.Rows.Count - 1
+            Dim foodID As Long = CLng(dtFood.Rows(i)("FoodItemID"))
+            Dim itemName As String = dtFood.Rows(i)("FoodItemName").ToString()
+            Dim price As Double = CDbl(dtFood.Rows(i)("FoodItemPrice"))
+
+            Dim tile As New Panel
+            tile.Name = "pnlCardFood" & foodID
+            tile.Size = New Size(FoodTileWidth, FoodTileHeight)
+            tile.BackColor = CardBack
+            tile.Cursor = Cursors.Hand
+            tile.Tag = foodID
+
+            Dim strip As New Panel
+            strip.Name = "pnlAccentFood" & foodID
+            strip.Location = New Point(0, 0)
+            strip.Size = New Size(8, FoodTileHeight)
+            strip.BackColor = HighlightBack
+            tile.Controls.Add(strip)
+
+            Dim lblName As New Label
+            lblName.AutoSize = False
+            lblName.Location = New Point(24, 16)
+            lblName.Size = New Size(FoodTileWidth - 44, 48)
+            lblName.Font = New Font("Segoe UI", 12, FontStyle.Bold)
+            lblName.ForeColor = TextFore
+            lblName.Text = itemName
+            lblName.Tag = foodID
+            tile.Controls.Add(lblName)
+
+            Dim lblPrice As New Label
+            lblPrice.AutoSize = True
+            lblPrice.Location = New Point(24, FoodTileHeight - 42)
+            lblPrice.Font = New Font("Segoe UI", 12)
+            lblPrice.ForeColor = SubtleFore
+            lblPrice.Text = FormatCurrency(price)
+            lblPrice.Tag = foodID
+            tile.Controls.Add(lblPrice)
+
+            'how many of this one are on the order. it is made now and left empty, so that adding
+            'one only has to change the writing on it rather than build the whole tile again
+            Dim lblCount As New Label
+            lblCount.Name = "lblFoodCount" & foodID
+            lblCount.AutoSize = False
+            lblCount.TextAlign = ContentAlignment.MiddleRight
+            lblCount.Location = New Point(FoodTileWidth - 90, FoodTileHeight - 46)
+            lblCount.Size = New Size(70, 32)
+            lblCount.Font = New Font("Segoe UI", 14, FontStyle.Bold)
+            lblCount.ForeColor = HighlightBack
+            lblCount.Text = ""
+            lblCount.Tag = foodID
+            tile.Controls.Add(lblCount)
+
+            'the whole tile answers to a touch, the labels sit on top of it so a finger landing on
+            'the name would otherwise do nothing
+            AddHandler tile.Click, AddressOf FoodTile_Click
+            AddHandler lblName.Click, AddressOf FoodTile_Click
+            AddHandler lblPrice.Click, AddressOf FoodTile_Click
+            AddHandler lblCount.Click, AddressOf FoodTile_Click
+
+            pnlFoodList.Controls.Add(tile)
+        Next
+
+        ArrangeTiles(pnlFoodList, FoodTileWidth, FoodTileHeight)
+    End Sub
+
+    'adds one of whatever was touched. if it is already on the order it just goes up by one rather
+    'than appearing twice, the same way the till screen does it
+    Private Sub FoodTile_Click(sender As Object, e As EventArgs)
+        Touched()
+
+        Dim ctrl As Control = CType(sender, Control)
+        Dim foodID As Long = CLng(ctrl.Tag)
+
+        Dim rows() As DataRow = pendingFood.Select("FoodItemID = " & foodID)
+
+        If rows.Length > 0 Then
+            rows(0)("Quantity") = CInt(rows(0)("Quantity")) + 1
+        Else
+            AddFoodLine(foodID)
+        End If
+
+        UpdateFoodOrder()
+    End Sub
+
+    'puts a new line on the order. the name and the price come out of what was read when the tiles
+    'were drawn, the same way the film title is looked up, rather than asking the database again
+    'for something that is already on the screen
+    Private Sub AddFoodLine(foodID As Long)
+        Dim rows() As DataRow = foodOnSale.Select("FoodItemID = " & foodID)
+
+        If rows.Length = 0 Then
+            Exit Sub
+        End If
+
+        pendingFood.Rows.Add(CInt(foodID), rows(0)("FoodItemName").ToString(),
+                             CDbl(rows(0)("FoodItemPrice")), 1)
+    End Sub
+
+    'writes out what has been added down the left, puts the count on each tile and works the
+    'running total out again
+    Private Sub UpdateFoodOrder()
+        Dim listing As String = ""
+        Dim i As Integer
+
+        For i = 0 To pendingFood.Rows.Count - 1
+            Dim quantity As Integer = CInt(pendingFood.Rows(i)("Quantity"))
+            Dim itemName As String = pendingFood.Rows(i)("Item").ToString()
+            Dim lineCost As Double = CDbl(pendingFood.Rows(i)("Price")) * quantity
+
+            listing = listing & quantity & " x " & itemName & "   " & FormatCurrency(lineCost) & vbNewLine
+        Next
+
+        If pendingFood.Rows.Count = 0 Then
+            lblFoodOrder.Text = "Nothing added yet"
+        Else
+            lblFoodOrder.Text = "Your order" & vbNewLine & vbNewLine & listing
+        End If
+
+        ShowFoodCounts()
+
+        lblRunningTotal.Text = "Total  " & FormatCurrency(OrderTotal())
+        btnNext.Text = NextTextForFood()
+        PaintKioskButton(btnNext, True)
+    End Sub
+
+    'puts the number added onto each tile, or clears it off again when there are none
+    Private Sub ShowFoodCounts()
+        Dim i As Integer
+
+        For i = 0 To pnlFoodList.Controls.Count - 1
+            Dim foodID As Long = CLng(pnlFoodList.Controls(i).Tag)
+            Dim lblCount As Control = pnlFoodList.Controls(i).Controls("lblFoodCount" & foodID)
+
+            If lblCount IsNot Nothing Then
+                Dim rows() As DataRow = pendingFood.Select("FoodItemID = " & foodID)
+
+                If rows.Length > 0 Then
+                    lblCount.Text = "x" & rows(0)("Quantity").ToString()
+                Else
+                    lblCount.Text = ""
+                End If
+            End If
+        Next
+    End Sub
+
+    'the button says no thanks until something has been added, because carrying on with an empty
+    'order is what most people want and it should not look like they have missed a step
+    Private Function NextTextForFood() As String
+        If pendingFood Is Nothing OrElse pendingFood.Rows.Count = 0 Then
+            Return "No thanks"
+        End If
+
+        Return "Continue"
+    End Function
+
+    'what the food comes to
+    Private Function FoodTotal() As Double
+        Dim total As Double = 0
+        Dim i As Integer
+
+        For i = 0 To pendingFood.Rows.Count - 1
+            total = total + (CDbl(pendingFood.Rows(i)("Price")) * CInt(pendingFood.Rows(i)("Quantity")))
+        Next
+
+        Return total
+    End Function
+
+    'the whole order, tickets and food. everything that shows a total goes through here so the
+    'running total, the confirmation and what actually gets saved cannot disagree
+    Private Function OrderTotal() As Double
+        Return TicketsTotal() + FoodTotal()
+    End Function
+
     'writes out the whole order in plain english before any money is taken. everything on here has
     'already been worked out on the step before, it is not added up again, so what the customer is
     'shown to agree to is exactly what they were shown while they were picking
@@ -1101,8 +1350,21 @@ Public Class frmKiosk
             detail = detail & "   " & FormatCurrency(price) & vbNewLine
         Next
 
+        Dim f As Integer
+        For f = 0 To pendingFood.Rows.Count - 1
+            Dim quantity As Integer = CInt(pendingFood.Rows(f)("Quantity"))
+            Dim itemName As String = pendingFood.Rows(f)("Item").ToString()
+            Dim lineCost As Double = CDbl(pendingFood.Rows(f)("Price")) * quantity
+
+            If f = 0 Then
+                detail = detail & vbNewLine
+            End If
+
+            detail = detail & quantity & " x " & itemName & "   " & FormatCurrency(lineCost) & vbNewLine
+        Next
+
         lblConfirmDetail.Text = detail
-        lblConfirmTotal.Text = "To pay  " & FormatCurrency(TicketsTotal())
+        lblConfirmTotal.Text = "To pay  " & FormatCurrency(OrderTotal())
     End Sub
 
     'goes back a step. the welcome screen is the one place it cannot be pressed
@@ -1119,19 +1381,24 @@ Public Class frmKiosk
             'again so how many are left is right rather than however full it was a minute ago
             LoadShowingsForFilm()
             ShowStep(StepTimes)
-        ElseIf currentStep = StepConfirm Then
+        ElseIf currentStep = StepFood Then
             'the map is drawn again on the way back rather than being left as it was, because
             'somebody else could have bought one of those seats while this order sat on screen.
             'that does mean the seats picked are lost, which is annoying but a lot less annoying
             'than being shown a seat as free that has already gone
             BuildSeatMap()
             ShowStep(StepSeats)
+        ElseIf currentStep = StepConfirm Then
+            ShowStep(StepFood)
         End If
     End Sub
 
     'the button in the bottom right. what it does depends on which step is on the screen
     Private Sub btnNext_Click(sender As Object, e As EventArgs) Handles btnNext.Click
         If currentStep = StepSeats Then
+            LoadFoodItems()
+            ShowStep(StepFood)
+        ElseIf currentStep = StepFood Then
             BuildConfirmation()
             ShowStep(StepConfirm)
         ElseIf currentStep = StepConfirm Then
@@ -1154,14 +1421,10 @@ Public Class frmKiosk
             Exit Sub
         End If
 
-        'the kiosk does not know who anybody is, so every sale it makes is a walk-in. no food is
-        'sold at the machine yet so an empty order goes in
-        Dim noFood As New DataTable
-        noFood.Columns.Add("FoodItemID", GetType(Integer))
-        noFood.Columns.Add("Quantity", GetType(Integer))
-
-        Dim total As Double = TicketsTotal()
-        Dim newBookingID As Long = CompleteSale(0, True, currentScreeningID, PickedSeatIDs(), noFood, total)
+        'the kiosk does not know who anybody is, so every sale it makes is a walk-in. the food goes
+        'in with it, and if nothing was added the table is simply empty
+        Dim total As Double = OrderTotal()
+        Dim newBookingID As Long = CompleteSale(0, True, currentScreeningID, PickedSeatIDs(), pendingFood, total)
 
         If newBookingID = 0 Then
             'nothing was saved and CompleteSale has already said why. the most likely reason is
@@ -1172,7 +1435,8 @@ Public Class frmKiosk
             Exit Sub
         End If
 
-        WriteLog("KIOSK", "Kiosk sale " & newBookingID & ", " & seatCount & " seat(s), " & FormatCurrency(total))
+        WriteLog("KIOSK", "Kiosk sale " & newBookingID & ", " & seatCount & " seat(s) and " &
+                          pendingFood.Rows.Count & " food line(s), " & FormatCurrency(total))
 
         BuildReceipt(newBookingID, seatCount, total)
         ShowStep(StepDone)
@@ -1221,7 +1485,9 @@ Public Class frmKiosk
         currentShowingText = ""
 
         SetUpPickedSeats()
+        SetUpPendingFood()
         pnlSeatMap.Controls.Clear()
+        pnlFoodList.Controls.Clear()
         currentSeats = Nothing
 
         ShowStep(StepWelcome)

@@ -63,6 +63,11 @@ Partial Class frmKiosk
         Me.lblDoneDetail = New System.Windows.Forms.Label()
         Me.lblDoneNote = New System.Windows.Forms.Label()
         Me.timerIdle = New System.Windows.Forms.Timer(Me.components)
+        Me.pnlFood = New System.Windows.Forms.Panel()
+        Me.lblFoodHeading = New System.Windows.Forms.Label()
+        Me.lblFoodSub = New System.Windows.Forms.Label()
+        Me.pnlFoodList = New System.Windows.Forms.Panel()
+        Me.lblFoodOrder = New System.Windows.Forms.Label()
         Me.pnlHeader.SuspendLayout()
         Me.pnlFooter.SuspendLayout()
         Me.pnlWelcome.SuspendLayout()
@@ -71,6 +76,7 @@ Partial Class frmKiosk
         Me.pnlSeats.SuspendLayout()
         Me.pnlConfirm.SuspendLayout()
         Me.pnlDone.SuspendLayout()
+        Me.pnlFood.SuspendLayout()
         Me.SuspendLayout()
         '
         'pnlHeader
@@ -528,11 +534,62 @@ Partial Class frmKiosk
         '
         Me.timerIdle.Interval = 1000
         '
+        'pnlFood
+        '
+        Me.pnlFood.Controls.Add(Me.lblFoodOrder)
+        Me.pnlFood.Controls.Add(Me.pnlFoodList)
+        Me.pnlFood.Controls.Add(Me.lblFoodSub)
+        Me.pnlFood.Controls.Add(Me.lblFoodHeading)
+        Me.pnlFood.Location = New System.Drawing.Point(0, 96)
+        Me.pnlFood.Name = "pnlFood"
+        Me.pnlFood.Size = New System.Drawing.Size(1280, 596)
+        Me.pnlFood.TabIndex = 9
+        Me.pnlFood.Visible = False
+        '
+        'lblFoodHeading
+        '
+        Me.lblFoodHeading.AutoSize = True
+        Me.lblFoodHeading.Font = New System.Drawing.Font("Segoe UI", 20.0!, System.Drawing.FontStyle.Bold)
+        Me.lblFoodHeading.Location = New System.Drawing.Point(32, 20)
+        Me.lblFoodHeading.Name = "lblFoodHeading"
+        Me.lblFoodHeading.Size = New System.Drawing.Size(320, 37)
+        Me.lblFoodHeading.TabIndex = 0
+        Me.lblFoodHeading.Text = "Anything to eat or drink?"
+        '
+        'lblFoodSub
+        '
+        Me.lblFoodSub.AutoSize = True
+        Me.lblFoodSub.Font = New System.Drawing.Font("Segoe UI", 13.0!)
+        Me.lblFoodSub.ForeColor = System.Drawing.Color.Gray
+        Me.lblFoodSub.Location = New System.Drawing.Point(36, 62)
+        Me.lblFoodSub.Name = "lblFoodSub"
+        Me.lblFoodSub.Size = New System.Drawing.Size(400, 30)
+        Me.lblFoodSub.TabIndex = 1
+        Me.lblFoodSub.Text = "Touch an item to add one, or just carry on"
+        '
+        'pnlFoodList
+        '
+        Me.pnlFoodList.AutoScroll = True
+        Me.pnlFoodList.Location = New System.Drawing.Point(330, 116)
+        Me.pnlFoodList.Name = "pnlFoodList"
+        Me.pnlFoodList.Size = New System.Drawing.Size(920, 440)
+        Me.pnlFoodList.TabIndex = 2
+        '
+        'lblFoodOrder
+        '
+        Me.lblFoodOrder.Font = New System.Drawing.Font("Segoe UI", 13.0!)
+        Me.lblFoodOrder.Location = New System.Drawing.Point(36, 116)
+        Me.lblFoodOrder.Name = "lblFoodOrder"
+        Me.lblFoodOrder.Size = New System.Drawing.Size(270, 440)
+        Me.lblFoodOrder.TabIndex = 3
+        Me.lblFoodOrder.Text = "Nothing added yet"
+        '
         'frmKiosk
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1280, 800)
+        Me.Controls.Add(Me.pnlFood)
         Me.Controls.Add(Me.pnlDone)
         Me.Controls.Add(Me.pnlConfirm)
         Me.Controls.Add(Me.pnlSeats)
@@ -562,6 +619,8 @@ Partial Class frmKiosk
         Me.pnlConfirm.PerformLayout()
         Me.pnlDone.ResumeLayout(False)
         Me.pnlDone.PerformLayout()
+        Me.pnlFood.ResumeLayout(False)
+        Me.pnlFood.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -612,4 +671,9 @@ Partial Class frmKiosk
     Friend WithEvents lblDoneDetail As Label
     Friend WithEvents lblDoneNote As Label
     Friend WithEvents timerIdle As Timer
+    Friend WithEvents pnlFood As Panel
+    Friend WithEvents lblFoodHeading As Label
+    Friend WithEvents lblFoodSub As Label
+    Friend WithEvents pnlFoodList As Panel
+    Friend WithEvents lblFoodOrder As Label
 End Class
