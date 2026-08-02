@@ -37,6 +37,13 @@ Public Class frmKiosk
     'gets what is left over
     Private Const LeftColumnWidth As Integer = 330
 
+    'how long the machine sits untouched before it gives up and goes back to the welcome screen.
+    'part way through an order it waits a while, because somebody may well be stood there deciding.
+    'on the thank you screen it is much shorter, since that one is finished with and the next
+    'person in the queue should not walk up to somebody else's booking number
+    Private Const IdleSecondsAllowed As Integer = 90
+    Private Const IdleSecondsOnThankYou As Integer = 25
+
     'how many days ahead the machine will sell. a week is what the posters in the foyer show, and
     'anything further out than that is somebody planning rather than somebody walking in
     Private Const DaysAhead As Integer = 7
@@ -53,6 +60,9 @@ Public Class frmKiosk
 
     'which step is on the screen at the moment
     Private currentStep As String = StepWelcome
+
+    'how many seconds it has been since anybody touched anything
+    Private secondsIdle As Integer = 0
 
     'the day being looked at. it starts on today and the customer can move it along the week
     Private currentDay As Date = Date.Today
@@ -89,6 +99,7 @@ Public Class frmKiosk
         CommonFormStartup(Me)
         LayoutKiosk()
         ShowStep(StepWelcome)
+        timerIdle.Start()
         WriteLog("KIOSK", "Kiosk opened")
     End Sub
 
@@ -264,6 +275,7 @@ Public Class frmKiosk
     'rather than every button doing its own showing and hiding
     Private Sub ShowStep(stepName As String)
         currentStep = stepName
+        Touched()
 
         pnlWelcome.Visible = (stepName = StepWelcome)
         pnlFilms.Visible = (stepName = StepFilms)
@@ -438,6 +450,8 @@ Public Class frmKiosk
 
     'a different day was picked, so the whole list is read again for it
     Private Sub DayButton_Click(sender As Object, e As EventArgs)
+        Touched()
+
         Dim b As Button = CType(sender, Button)
         currentDay = CDate(b.Tag)
 
@@ -545,6 +559,8 @@ Public Class frmKiosk
     'a film has been picked. the FilmID is kept in Tag on the tile and on each of its labels, so
     'whichever part of it got touched the answer is the same
     Private Sub FilmTile_Click(sender As Object, e As EventArgs)
+        Touched()
+
         Dim ctrl As Control = CType(sender, Control)
         currentFilmID = CLng(ctrl.Tag)
         currentFilmTitle = TitleOfFilm(currentFilmID)
@@ -675,6 +691,8 @@ Public Class frmKiosk
 
     'a showing has been picked, so everything the later steps need about it is kept
     Private Sub TimeTile_Click(sender As Object, e As EventArgs)
+        Touched()
+
         Dim ctrl As Control = CType(sender, Control)
         currentScreeningID = CLng(ctrl.Tag)
 
@@ -930,6 +948,8 @@ Public Class frmKiosk
     'turns a seat on or off. the table is what changes, the colour is only put on afterwards to
     'show what the table now says
     Private Sub Seat_Click(sender As Object, e As EventArgs)
+        Touched()
+
         Dim b As Button = CType(sender, Button)
         Dim seatID As Long = CLng(b.Tag)
 
@@ -1181,6 +1201,40 @@ Public Class frmKiosk
         currentSeats = Nothing
 
         ShowStep(StepWelcome)
+    End Sub
+
+    'anything the customer does calls this, so the machine knows it is still being used. every
+    'handler on the form goes through it rather than trying to listen for the mouse itself, because
+    'a click on a seat button never reaches the form underneath it
+    Private Sub Touched()
+        secondsIdle = 0
+    End Sub
+
+    'ticks once a second and counts how long the machine has been left alone. an order somebody has
+    'walked away from is cleared down, both so the next person starts fresh and so a half picked
+    'order is not left on a screen in a public foyer
+    Private Sub timerIdle_Tick(sender As Object, e As EventArgs) Handles timerIdle.Tick
+        'nothing to time out on the welcome screen, it is already where it would go back to
+        If currentStep = StepWelcome Then
+            Exit Sub
+        End If
+
+        secondsIdle = secondsIdle + 1
+
+        Dim allowed As Integer = IdleSecondsAllowed
+        If currentStep = StepDone Then
+            allowed = IdleSecondsOnThankYou
+        End If
+
+        If secondsIdle >= allowed Then
+            'a sale that has already gone through is finished with, anything before that is being
+            'abandoned and is worth a line in the log so it can be seen how often it happens
+            If currentStep <> StepDone Then
+                WriteLog("KIOSK", "Order left unfinished on the " & currentStep & " step, kiosk reset itself")
+            End If
+
+            StartAgain()
+        End If
     End Sub
 
     'a real kiosk has no way out for a customer, so this is the way a member of staff gets back to

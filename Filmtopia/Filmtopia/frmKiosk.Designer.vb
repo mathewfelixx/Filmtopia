@@ -17,6 +17,7 @@ Partial Class frmKiosk
 
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
         Me.pnlHeader = New System.Windows.Forms.Panel()
         Me.lblKioskTitle = New System.Windows.Forms.Label()
         Me.lblStep = New System.Windows.Forms.Label()
@@ -61,6 +62,7 @@ Partial Class frmKiosk
         Me.lblDoneRef = New System.Windows.Forms.Label()
         Me.lblDoneDetail = New System.Windows.Forms.Label()
         Me.lblDoneNote = New System.Windows.Forms.Label()
+        Me.timerIdle = New System.Windows.Forms.Timer(Me.components)
         Me.pnlHeader.SuspendLayout()
         Me.pnlFooter.SuspendLayout()
         Me.pnlWelcome.SuspendLayout()
@@ -522,6 +524,10 @@ Partial Class frmKiosk
         Me.lblDoneNote.TabIndex = 3
         Me.lblDoneNote.Text = "Please take your tickets from the slot below"
         '
+        'timerIdle
+        '
+        Me.timerIdle.Interval = 1000
+        '
         'frmKiosk
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
@@ -605,4 +611,5 @@ Partial Class frmKiosk
     Friend WithEvents lblDoneRef As Label
     Friend WithEvents lblDoneDetail As Label
     Friend WithEvents lblDoneNote As Label
+    Friend WithEvents timerIdle As Timer
 End Class
