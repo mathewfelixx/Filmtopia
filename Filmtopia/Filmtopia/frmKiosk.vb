@@ -1175,8 +1175,10 @@ Public Class frmKiosk
 
             Dim lblName As New Label
             lblName.AutoSize = False
-            lblName.Location = New Point(24, 16)
-            lblName.Size = New Size(FoodTileWidth - 44, 48)
+            'the name gets the top of the tile to itself, all the way across. it used to be tall
+            'enough to reach the take one off button and was drawing over the top of it
+            lblName.Location = New Point(24, 14)
+            lblName.Size = New Size(FoodTileWidth - 44, 46)
             lblName.Font = New Font("Segoe UI", 12, FontStyle.Bold)
             lblName.ForeColor = TextFore
             lblName.Text = itemName
@@ -1185,7 +1187,7 @@ Public Class frmKiosk
 
             Dim lblPrice As New Label
             lblPrice.AutoSize = True
-            lblPrice.Location = New Point(24, FoodTileHeight - 42)
+            lblPrice.Location = New Point(24, FoodTileHeight - 40)
             lblPrice.Font = New Font("Segoe UI", 12)
             lblPrice.ForeColor = SubtleFore
             lblPrice.Text = FormatCurrency(price)
@@ -1198,13 +1200,33 @@ Public Class frmKiosk
             lblCount.Name = "lblFoodCount" & foodID
             lblCount.AutoSize = False
             lblCount.TextAlign = ContentAlignment.MiddleRight
-            lblCount.Location = New Point(FoodTileWidth - 90, FoodTileHeight - 46)
-            lblCount.Size = New Size(70, 32)
+            lblCount.Location = New Point(FoodTileWidth - 130, FoodTileHeight - 42)
+            lblCount.Size = New Size(56, 30)
             lblCount.Font = New Font("Segoe UI", 14, FontStyle.Bold)
             lblCount.ForeColor = HighlightBack
             lblCount.Text = ""
             lblCount.Tag = foodID
             tile.Controls.Add(lblCount)
+
+            'taking one back off. it only shows up once there is something to take off. it is in the
+            'bottom corner on its own, well away from the name, so that the big easy thing to hit
+            'is still adding one and taking one off has to be aimed at
+            Dim btnLess As New Button
+            btnLess.Name = "btnFoodLess" & foodID
+            btnLess.Text = "-"
+            btnLess.Font = New Font("Segoe UI", 15, FontStyle.Bold)
+            btnLess.Size = New Size(54, 40)
+            btnLess.Location = New Point(FoodTileWidth - 66, FoodTileHeight - 50)
+            btnLess.FlatStyle = FlatStyle.Flat
+            btnLess.FlatAppearance.BorderSize = 1
+            btnLess.FlatAppearance.BorderColor = BorderCol
+            btnLess.BackColor = FormBack
+            btnLess.ForeColor = TextFore
+            btnLess.Visible = False
+            btnLess.Tag = foodID
+            AddHandler btnLess.Click, AddressOf FoodLess_Click
+            tile.Controls.Add(btnLess)
+            btnLess.BringToFront()
 
             'the whole tile answers to a touch, the labels sit on top of it so a finger landing on
             'the name would otherwise do nothing
@@ -1233,6 +1255,31 @@ Public Class frmKiosk
             rows(0)("Quantity") = CInt(rows(0)("Quantity")) + 1
         Else
             AddFoodLine(foodID)
+        End If
+
+        UpdateFoodOrder()
+    End Sub
+
+    'takes one of something back off the order. a tile is easy to catch by accident on a screen
+    'people prod at, so there has to be a way back that is not starting the whole order again
+    Private Sub FoodLess_Click(sender As Object, e As EventArgs)
+        Touched()
+
+        Dim btn As Button = CType(sender, Button)
+        Dim foodID As Long = CLng(btn.Tag)
+
+        Dim rows() As DataRow = pendingFood.Select("FoodItemID = " & foodID)
+
+        If rows.Length > 0 Then
+            Dim quantity As Integer = CInt(rows(0)("Quantity")) - 1
+
+            If quantity > 0 Then
+                rows(0)("Quantity") = quantity
+            Else
+                'the last one has gone so the line comes off altogether rather than sitting there
+                'saying nought
+                pendingFood.Rows.Remove(rows(0))
+            End If
         End If
 
         UpdateFoodOrder()
@@ -1295,6 +1342,13 @@ Public Class frmKiosk
                 Else
                     lblCount.Text = ""
                 End If
+            End If
+
+            'the take one off button is only any use once there is something on the order
+            Dim btnLess As Control = pnlFoodList.Controls(i).Controls("btnFoodLess" & foodID)
+
+            If btnLess IsNot Nothing Then
+                btnLess.Visible = (pendingFood.Select("FoodItemID = " & foodID).Length > 0)
             End If
         Next
     End Sub
