@@ -96,4 +96,66 @@ Module modMain
 
         Return CInt(number)
     End Function
+
+    'gets a cell as text. an empty cell holds Nothing rather than an empty string, so calling
+    'ToString on it straight off falls over
+    Public Function CellAsText(row As DataGridViewRow, columnIndex As Integer) As String
+        If row.Cells(columnIndex).Value Is Nothing Then
+            Return ""
+        End If
+
+        Return row.Cells(columnIndex).Value.ToString()
+    End Function
+
+    'saves whatever is showing in a grid out to a csv file. it walks the grid's own columns rather
+    'than having the column names typed in, so a screen that gains a column gains it in the export
+    'too instead of quietly leaving it out. hidden columns are left out because they are not part
+    'of what the user is looking at. returns True only if a file was actually written, so the form
+    'that called it knows whether there is anything worth logging
+    Public Function ExportGridToCsv(dgv As DataGridView, defaultFileName As String, title As String) As Boolean
+        If dgv.Rows.Count = 0 Then
+            MessageBox.Show("There is nothing on screen to export", title, MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return False
+        End If
+
+        Dim saveDialog As New SaveFileDialog
+        saveDialog.Filter = "CSV files (*.csv)|*.csv"
+        saveDialog.FileName = defaultFileName
+        'without this the whole program is left sat in whatever folder was last saved to
+        saveDialog.RestoreDirectory = True
+
+        If saveDialog.ShowDialog() <> DialogResult.OK Then
+            Return False
+        End If
+
+        Dim writer As New System.IO.StreamWriter(saveDialog.FileName)
+        Dim line As String = ""
+
+        'the headings come off the grid so the file says the same as the screen does
+        For Each col As DataGridViewColumn In dgv.Columns
+            If col.Visible Then
+                If line <> "" Then
+                    line = line & ","
+                End If
+                line = line & CsvField(col.HeaderText)
+            End If
+        Next
+        writer.WriteLine(line)
+
+        For Each row As DataGridViewRow In dgv.Rows
+            line = ""
+            For Each col As DataGridViewColumn In dgv.Columns
+                If col.Visible Then
+                    If line <> "" Then
+                        line = line & ","
+                    End If
+                    line = line & CsvField(CellAsText(row, col.Index))
+                End If
+            Next
+            writer.WriteLine(line)
+        Next
+
+        writer.Close()
+        Return True
+    End Function
 End Module
