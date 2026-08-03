@@ -37,6 +37,7 @@ Partial Class frmCustomers
         Me.btnUpdate = New System.Windows.Forms.Button()
         Me.btnDelete = New System.Windows.Forms.Button()
         Me.btnClear = New System.Windows.Forms.Button()
+        Me.btnExport = New System.Windows.Forms.Button()
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
@@ -255,6 +256,14 @@ Partial Class frmCustomers
         Me.btnClear.Text = "Clear the boxes"
         Me.btnClear.UseVisualStyleBackColor = True
         '
+        'btnExport
+        '
+        Me.btnExport.Location = New System.Drawing.Point(910, 10)
+        Me.btnExport.Name = "btnExport"
+        Me.btnExport.Size = New System.Drawing.Size(140, 28)
+        Me.btnExport.Text = "Export to CSV"
+        Me.btnExport.UseVisualStyleBackColor = True
+        '
         'lblVersion
         '
         Me.lblVersion.AutoSize = True
@@ -270,6 +279,7 @@ Partial Class frmCustomers
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1068, 670)
+        Me.Controls.Add(Me.btnExport)
         Me.Controls.Add(Me.lblVersion)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)
@@ -309,5 +319,6 @@ Partial Class frmCustomers
     Friend WithEvents btnUpdate As Button
     Friend WithEvents btnDelete As Button
     Friend WithEvents btnClear As Button
+    Friend WithEvents btnExport As Button
     Friend WithEvents lblVersion As Label
 End Class
