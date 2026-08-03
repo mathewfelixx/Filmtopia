@@ -361,7 +361,7 @@ Public Class frmFilms
             Return DBNull.Value
         End If
 
-        Return CInt(Val(txtYear.Text))
+        Return SafeInt(txtYear.Text)
     End Function
 
     'adds a new film using the values typed into the boxes
