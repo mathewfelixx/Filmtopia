@@ -81,4 +81,19 @@ Module modMain
     Public Function CsvField(value As String) As String
         Return """" & value.Replace("""", """""") & """"
     End Function
+
+    'turns what somebody typed into a whole number. Val is used rather than CInt on its own because
+    'it copes with the box being empty or having letters in it, but Val hands back a Double, and
+    'CInt on a Double too big for an Integer throws instead of coming back with anything. pasting a
+    'long number into the quantity box was enough to bring the program down, so anything out of
+    'range comes back as 0 and gets refused by the validation like any other silly value would
+    Public Function SafeInt(text As String) As Integer
+        Dim number As Double = Val(text)
+
+        If number > Integer.MaxValue Or number < Integer.MinValue Then
+            Return 0
+        End If
+
+        Return CInt(number)
+    End Function
 End Module
