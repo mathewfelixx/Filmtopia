@@ -183,7 +183,7 @@ Public Class frmImportFilms
         Dim earliestYear As Integer = 0
 
         If txtYearFrom.Text.Trim() <> "" Then
-            earliestYear = CInt(Val(txtYearFrom.Text))
+            earliestYear = SafeInt(txtYearFrom.Text)
         End If
 
         Dim reader As New System.IO.StreamReader(txtFilePath.Text)
