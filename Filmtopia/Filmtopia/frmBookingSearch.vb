@@ -9,9 +9,26 @@ Public Class frmBookingSearch
 
     Private Sub frmBookingSearch_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup(Me)
+
+        'lets the form see escape before the box that has focus does
+        Me.KeyPreview = True
+
         LoadBookings("")
         LoadScreeningsCombo()
+        txtSearch.Focus()
         WriteLog("BOOKING", "Booking search form opened")
+    End Sub
+
+    'escape empties the search box, or shuts the form if there is nothing to empty
+    Private Sub frmBookingSearch_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
+        If e.KeyCode = Keys.Escape Then
+            If txtSearch.Text <> "" Then
+                txtSearch.Text = ""
+                LoadBookings("")
+            Else
+                Me.Close()
+            End If
+        End If
     End Sub
 
     'fills the screening combo for the door list section
