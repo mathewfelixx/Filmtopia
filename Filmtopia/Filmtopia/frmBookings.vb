@@ -271,7 +271,7 @@ Public Class frmBookings
             Exit Sub
         End If
 
-        Dim quantity As Integer = CInt(Val(txtQuantity.Text))
+        Dim quantity As Integer = SafeInt(txtQuantity.Text)
         If quantity < 1 Then
             MessageBox.Show("Enter a quantity of 1 or more")
             Exit Sub
