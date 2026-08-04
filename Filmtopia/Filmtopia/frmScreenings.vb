@@ -43,9 +43,27 @@ Public Class frmScreenings
 
         stillLoading = False
 
+        'lets the form see escape before the box that has focus does
+        Me.KeyPreview = True
+
         LoadScreenings()
         ClearFields()
+        cboFilm.Focus()
         WriteLog("SCREENING", "Screenings form opened")
+    End Sub
+
+    'saves the schedule as it is on screen, which is what the show filter has left showing
+    Private Sub btnExport_Click(sender As Object, e As EventArgs) Handles btnExport.Click
+        If ExportGridToCsv(dgvScreenings, "Screenings.csv", "Screenings") Then
+            WriteLog("SCREENING", "Screening list exported, " & dgvScreenings.Rows.Count & " screenings")
+        End If
+    End Sub
+
+    'escape shuts the form, same as the close button on the ones that have one
+    Private Sub frmScreenings_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
+        If e.KeyCode = Keys.Escape Then
+            Me.Close()
+        End If
     End Sub
 
     'how many screenings are today or later, used to decide what the form opens on
