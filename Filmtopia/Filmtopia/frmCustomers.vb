@@ -260,6 +260,7 @@ Public Class frmCustomers
             MessageBox.Show(txtForename.Text & " " & txtSurname.Text & " has " & bookings & " booking(s)." & vbCrLf &
                             "Cancel those bookings first, then this customer can be removed.",
                             "Cannot delete", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            WriteLog("CUSTOMER", "Delete refused for " & txtForename.Text & " " & txtSurname.Text & ", they have " & bookings & " booking(s)", LogWarning)
             Exit Sub
         End If
 
