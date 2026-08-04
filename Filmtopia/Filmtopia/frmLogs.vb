@@ -332,7 +332,7 @@ Public Class frmLogs
     'saves whatever is on screen to a csv file, so a manager can keep a copy of what was looked at
     Private Sub btnExport_Click(sender As Object, e As EventArgs) Handles btnExport.Click
         If dgvLogs.Rows.Count = 0 Then
-            MessageBox.Show("There is nothing on screen to export")
+            MessageBox.Show("There is nothing on screen to export", "Audit Log", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
@@ -358,7 +358,7 @@ Public Class frmLogs
             'the export itself is worth logging, somebody taking a copy of the audit trail out of
             'the system is exactly the sort of thing an audit trail should be recording
             WriteLog("LOGS", "Audit log exported, " & dgvLogs.Rows.Count & " entries", LogSecurity)
-            MessageBox.Show("Audit log exported")
+            MessageBox.Show("Audit log exported", "Audit Log", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
     End Sub
 
