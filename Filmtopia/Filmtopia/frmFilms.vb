@@ -321,31 +321,31 @@ Public Class frmFilms
     'because adding and changing a film both need exactly the same checks doing
     Private Function DetailsAreOk() As Boolean
         If txtTitle.Text.Trim() = "" Then
-            MessageBox.Show("Enter a film title")
+            MessageBox.Show("Enter a film title", "Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtTitle.Focus()
             Return False
         End If
 
         If cboAgeRating.Text.Trim() = "" Then
-            MessageBox.Show("Pick an age rating")
+            MessageBox.Show("Pick an age rating", "Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             cboAgeRating.Focus()
             Return False
         End If
 
         If txtDuration.Text.Trim() = "" Then
-            MessageBox.Show("Enter a duration in minutes")
+            MessageBox.Show("Enter a duration in minutes", "Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtDuration.Focus()
             Return False
         End If
 
         If Not IsNumeric(txtDuration.Text) Then
-            MessageBox.Show("The duration has to be a number of minutes")
+            MessageBox.Show("The duration has to be a number of minutes", "Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtDuration.Focus()
             Return False
         End If
 
         If Val(txtDuration.Text) <= 0 Then
-            MessageBox.Show("The duration has to be more than zero")
+            MessageBox.Show("The duration has to be more than zero", "Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtDuration.Focus()
             Return False
         End If
@@ -353,7 +353,7 @@ Public Class frmFilms
         'nothing runs for longer than about five hours, so a number bigger than that is somebody
         'typing the running time in seconds or slipping on the keyboard
         If Val(txtDuration.Text) > 300 Then
-            MessageBox.Show("That duration looks too long, it should be in minutes")
+            MessageBox.Show("That duration looks too long, it should be in minutes", "Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtDuration.Focus()
             Return False
         End If
@@ -363,7 +363,7 @@ Public Class frmFilms
         'has to make sense
         If txtYear.Text.Trim() <> "" Then
             If Not IsNumeric(txtYear.Text) Then
-                MessageBox.Show("The year has to be a number, like 2021")
+                MessageBox.Show("The year has to be a number, like 2021", "Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 txtYear.Focus()
                 Return False
             End If
@@ -371,7 +371,8 @@ Public Class frmFilms
             'the first films were made in the 1880s, and a cinema might have next year's blockbuster
             'on the system early, but not one from twenty years time
             If Val(txtYear.Text) < 1888 Or Val(txtYear.Text) > Year(Date.Today) + 5 Then
-                MessageBox.Show("That year does not look right, it should be between 1888 and " & (Year(Date.Today) + 5))
+                MessageBox.Show("That year does not look right, it should be between 1888 and " & (Year(Date.Today) + 5),
+                                "Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 txtYear.Focus()
                 Return False
             End If
@@ -419,7 +420,7 @@ Public Class frmFilms
     'saves the changes made to the film that is selected in the grid
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
         If selectedFilmID = 0 Then
-            MessageBox.Show("Select a film in the grid first")
+            MessageBox.Show("Select a film in the grid first", "Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
@@ -452,7 +453,7 @@ Public Class frmFilms
     'deletes the film that is selected in the grid
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
         If selectedFilmID = 0 Then
-            MessageBox.Show("Select a film in the grid first")
+            MessageBox.Show("Select a film in the grid first", "Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
@@ -467,7 +468,7 @@ Public Class frmFilms
             Exit Sub
         End If
 
-        If MessageBox.Show("Delete '" & txtTitle.Text & "'?", "Confirm", MessageBoxButtons.YesNo) = DialogResult.No Then
+        If MessageBox.Show("Delete '" & txtTitle.Text & "'?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
             Exit Sub
         End If
 
@@ -563,7 +564,7 @@ Public Class frmFilms
     'that screen closes so anything imported shows up straight away
     Private Sub btnImportFromFile_Click(sender As Object, e As EventArgs) Handles btnImportFromFile.Click
         If UserAccessLevel <> 1 Then
-            MessageBox.Show("Only a manager can import films")
+            MessageBox.Show("Only a manager can import films", "Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
