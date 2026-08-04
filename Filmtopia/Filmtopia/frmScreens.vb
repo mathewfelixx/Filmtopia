@@ -248,7 +248,7 @@ Public Class frmScreens
     'adds a new screen and makes its seats
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
         If txtName.Text.Trim() = "" Then
-            MessageBox.Show("Enter a screen name")
+            MessageBox.Show("Enter a screen name", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtName.Focus()
             Exit Sub
         End If
@@ -315,12 +315,12 @@ Public Class frmScreens
     'saves the changes made to the screen selected in the grid
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
         If selectedScreenID = 0 Then
-            MessageBox.Show("Select a screen in the grid first")
+            MessageBox.Show("Select a screen in the grid first", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
         If txtName.Text.Trim() = "" Then
-            MessageBox.Show("Enter a screen name")
+            MessageBox.Show("Enter a screen name", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtName.Focus()
             Exit Sub
         End If
@@ -354,7 +354,7 @@ Public Class frmScreens
             End If
 
             If MessageBox.Show("Changing the number of seats will make all of this screen's seats again." & vbCrLf &
-                               "Carry on?", "Confirm", MessageBoxButtons.YesNo) = DialogResult.No Then
+                               "Carry on?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
                 Exit Sub
             End If
         End If
@@ -417,7 +417,7 @@ Public Class frmScreens
     'deletes the screen selected in the grid
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
         If selectedScreenID = 0 Then
-            MessageBox.Show("Select a screen in the grid first")
+            MessageBox.Show("Select a screen in the grid first", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
@@ -441,7 +441,7 @@ Public Class frmScreens
             Exit Sub
         End If
 
-        If MessageBox.Show("Delete '" & txtName.Text & "' and all of its seats?", "Confirm", MessageBoxButtons.YesNo) = DialogResult.No Then
+        If MessageBox.Show("Delete '" & txtName.Text & "' and all of its seats?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
             Exit Sub
         End If
 
@@ -489,13 +489,13 @@ Public Class frmScreens
     'the seats in them are given separately, so any size of screen works out exactly
     Private Function CapacityIsValid() As Boolean
         If Not IsNumeric(txtRows.Text) Then
-            MessageBox.Show("How many rows has to be a number")
+            MessageBox.Show("How many rows has to be a number", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtRows.Focus()
             Return False
         End If
 
         If Not IsNumeric(txtPerRow.Text) Then
-            MessageBox.Show("How many seats in a row has to be a number")
+            MessageBox.Show("How many seats in a row has to be a number", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtPerRow.Focus()
             Return False
         End If
@@ -504,20 +504,20 @@ Public Class frmScreens
         Dim perRow As Integer = SafeInt(txtPerRow.Text)
 
         If numRows <= 0 Then
-            MessageBox.Show("A screen needs at least one row")
+            MessageBox.Show("A screen needs at least one row", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtRows.Focus()
             Return False
         End If
 
         If perRow <= 0 Then
-            MessageBox.Show("A row needs at least one seat in it")
+            MessageBox.Show("A row needs at least one seat in it", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtPerRow.Focus()
             Return False
         End If
 
         'twenty six rows is as far as the letters go
         If numRows > 26 Then
-            MessageBox.Show("The rows are lettered A to Z, so a screen cannot have more than 26 rows")
+            MessageBox.Show("The rows are lettered A to Z, so a screen cannot have more than 26 rows", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtRows.Focus()
             Return False
         End If
@@ -525,7 +525,7 @@ Public Class frmScreens
         'the seat map draws a button per seat across the panel, so a silly wide row would run off
         'the side of it
         If perRow > 20 Then
-            MessageBox.Show("A row cannot have more than 20 seats in it, they would not fit on the seat map")
+            MessageBox.Show("A row cannot have more than 20 seats in it, they would not fit on the seat map", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtPerRow.Focus()
             Return False
         End If
