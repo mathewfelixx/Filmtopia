@@ -190,13 +190,13 @@ Public Class frmBookingSearch
     'cancels the selected booking, putting its seats back on sale and marking it cancelled
     Private Sub btnCancelBooking_Click(sender As Object, e As EventArgs) Handles btnCancelBooking.Click
         If selectedBookingID = 0 Then
-            MessageBox.Show("Select a booking in the grid first")
+            MessageBox.Show("Select a booking in the grid first", "Booking Search", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
         If MessageBox.Show("Cancel this booking? Its seats go back on sale." & vbCrLf &
                            "The booking itself is kept and marked as cancelled, so the sale is still in the history.",
-                           "Confirm", MessageBoxButtons.YesNo) = DialogResult.No Then
+                           "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
             Exit Sub
         End If
 
@@ -273,7 +273,7 @@ Public Class frmBookingSearch
     'the booking number so a ticket on the door can be matched to the list
     Private Sub btnLoadDoorList_Click(sender As Object, e As EventArgs) Handles btnLoadDoorList.Click
         If cboDoorListScreening.SelectedIndex = -1 Then
-            MessageBox.Show("Select a screening first")
+            MessageBox.Show("Pick a screening first", "Booking Search", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
@@ -319,7 +319,7 @@ Public Class frmBookingSearch
     'saves the door list grid to a csv file so it can be printed and taken to the door
     Private Sub btnExportDoorList_Click(sender As Object, e As EventArgs) Handles btnExportDoorList.Click
         If dgvDoorList.Rows.Count = 0 Then
-            MessageBox.Show("Load a door list first")
+            MessageBox.Show("Load a door list first", "Booking Search", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
@@ -343,7 +343,7 @@ Public Class frmBookingSearch
             writer.Close()
 
             WriteLog("BOOKING", "Door list exported for ScreeningID " & cboDoorListScreening.SelectedValue.ToString())
-            MessageBox.Show("Door list exported")
+            MessageBox.Show("Door list exported", "Booking Search", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
     End Sub
 
