@@ -147,25 +147,25 @@ Public Class frmFoodItems
     'because adding an item and changing one both need exactly the same checks doing
     Private Function DetailsAreOk() As Boolean
         If txtName.Text.Trim() = "" Then
-            MessageBox.Show("Enter a name for the item")
+            MessageBox.Show("Enter a name for the item", "Food Items", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtName.Focus()
             Return False
         End If
 
         If txtPrice.Text.Trim() = "" Then
-            MessageBox.Show("Enter a price")
+            MessageBox.Show("Enter a price", "Food Items", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtPrice.Focus()
             Return False
         End If
 
         If Not IsNumeric(txtPrice.Text) Then
-            MessageBox.Show("The price has to be a number")
+            MessageBox.Show("The price has to be a number", "Food Items", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtPrice.Focus()
             Return False
         End If
 
         If Val(txtPrice.Text) <= 0 Then
-            MessageBox.Show("The price has to be more than nothing")
+            MessageBox.Show("The price has to be more than nothing", "Food Items", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtPrice.Focus()
             Return False
         End If
@@ -173,13 +173,13 @@ Public Class frmFoodItems
         'nothing behind a cinema counter costs fifty pounds, so a number that big is a slip, most
         'likely the price being typed in pence instead of pounds
         If Val(txtPrice.Text) > 50 Then
-            MessageBox.Show("That price looks too high, it should be in pounds")
+            MessageBox.Show("That price looks too high, it should be in pounds", "Food Items", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtPrice.Focus()
             Return False
         End If
 
         If cboCategory.Text.Trim() = "" Then
-            MessageBox.Show("Pick a category")
+            MessageBox.Show("Pick a category", "Food Items", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             cboCategory.Focus()
             Return False
         End If
@@ -212,7 +212,7 @@ Public Class frmFoodItems
     'saves the changes made to the item selected in the grid
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
         If selectedFoodItemID = 0 Then
-            MessageBox.Show("Select an item in the grid first")
+            MessageBox.Show("Select an item in the grid first", "Food Items", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
@@ -241,7 +241,7 @@ Public Class frmFoodItems
     'takes an item off the menu
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
         If selectedFoodItemID = 0 Then
-            MessageBox.Show("Select an item in the grid first")
+            MessageBox.Show("Select an item in the grid first", "Food Items", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
@@ -256,7 +256,7 @@ Public Class frmFoodItems
             Exit Sub
         End If
 
-        If MessageBox.Show("Take '" & txtName.Text & "' off the menu?", "Confirm", MessageBoxButtons.YesNo) = DialogResult.No Then
+        If MessageBox.Show("Take '" & txtName.Text & "' off the menu?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
             Exit Sub
         End If
 
