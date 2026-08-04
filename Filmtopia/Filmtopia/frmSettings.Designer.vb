@@ -272,6 +272,7 @@ Partial Class frmSettings
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)
         Me.Controls.Add(Me.lblHeading)
+        Me.CancelButton = Me.btnClose
         Me.Name = "frmSettings"
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.MaximizeBox = False
