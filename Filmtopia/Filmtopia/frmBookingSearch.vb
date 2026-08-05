@@ -21,7 +21,9 @@ Public Class frmBookingSearch
 
     'escape empties the search box, or shuts the form if there is nothing to empty
     Private Sub frmBookingSearch_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
-        If e.KeyCode = Keys.Escape Then
+        If e.KeyCode = Keys.F5 Then
+            LoadBookings(txtSearch.Text.Trim())
+        ElseIf e.KeyCode = Keys.Escape Then
             If txtSearch.Text <> "" Then
                 txtSearch.Text = ""
                 LoadBookings("")
