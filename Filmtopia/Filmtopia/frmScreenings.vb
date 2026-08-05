@@ -663,6 +663,8 @@ Public Class frmScreenings
 
             MessageBox.Show("That screen is already showing " & clash & "." & vbCrLf & vbCrLf & advice,
                             "Two films at once", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            'a clash being caught is the scheduler doing its job, so it is worth having on record
+            WriteLog("SCREENING", "Clash refused, " & cboScreen.Text & " is already showing " & clash & " at " & txtScreeningTime.Text, LogWarning)
             Return False
         End If
 
@@ -761,6 +763,7 @@ Public Class frmScreenings
                             sold & " seat(s) in total." & vbCrLf &
                             "Cancel those bookings first, then the screening can be removed.",
                             "Cannot delete", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            WriteLog("SCREENING", "Delete refused, the screening has " & bookings & " booking(s) on it", LogWarning)
             Exit Sub
         End If
 
