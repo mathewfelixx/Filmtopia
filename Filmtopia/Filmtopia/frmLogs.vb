@@ -33,6 +33,7 @@ Public Class frmLogs
 
         LoadLogs()
         txtSearch.Focus()
+        WriteLog("LOGS", "Audit log form opened")
     End Sub
 
     'escape empties the search box, or shuts the form if there is nothing to empty
