@@ -429,6 +429,7 @@ Public Class frmScreens
             MessageBox.Show("'" & txtName.Text & "' has " & screenings & " screening(s) scheduled in it." & vbCrLf &
                             "Delete those screenings first, then the screen can be removed.",
                             "Cannot delete", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            WriteLog("SCREEN", "Delete refused for '" & txtName.Text & "', it has " & screenings & " screening(s)", LogWarning)
             Exit Sub
         End If
 
@@ -438,6 +439,7 @@ Public Class frmScreens
             MessageBox.Show("'" & txtName.Text & "' has " & booked & " seat(s) that are booked." & vbCrLf &
                             "Cancel those bookings first, then the screen can be removed.",
                             "Cannot delete", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            WriteLog("SCREEN", "Delete refused for '" & txtName.Text & "', it has " & booked & " booked seat(s)", LogWarning)
             Exit Sub
         End If
 
