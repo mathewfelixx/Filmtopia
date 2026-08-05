@@ -73,7 +73,11 @@ Public Class frmFilms
     'escape empties the search box, or shuts the form if there is nothing to empty. doing both off
     'the one key means it never has to be explained, you press it until you are out
     Private Sub frmFilms_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
-        If e.KeyCode = Keys.Escape Then
+        'f5 reloads the list, which is what most programs use that key for and what the main menu
+        'already does. before this the only way to pick up somebody elses change was to close it
+        If e.KeyCode = Keys.F5 Then
+            LoadFilms()
+        ElseIf e.KeyCode = Keys.Escape Then
             If txtSearch.Text <> "" Then
                 txtSearch.Text = ""
             Else
