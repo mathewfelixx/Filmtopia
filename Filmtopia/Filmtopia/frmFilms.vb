@@ -378,7 +378,50 @@ Public Class frmFilms
             End If
         End If
 
+        If TitleAlreadyUsed() Then
+            MessageBox.Show("'" & txtTitle.Text.Trim() & "' is already on the system for that year." & vbCrLf &
+                            "Edit the one that is there rather than adding it twice.",
+                            "Already on the system", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtTitle.Focus()
+            Return False
+        End If
+
         Return True
+    End Function
+
+    'says whether another film already has this title and year. the year is part of it because the
+    'same title genuinely does come round again, a remake is not a duplicate. the selected film is
+    'left out of the count so saving a film without changing its title does not trip over itself,
+    'and when nothing is selected selectedFilmID is 0, which no real film has
+    Private Function TitleAlreadyUsed() As Boolean
+        Dim total As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+
+            'a film with no year has to be matched on the title on its own, because in SQL a null
+            'is never equal to anything, not even another null
+            If txtYear.Text.Trim() = "" Then
+                SQLCmd.CommandText = "SELECT COUNT(*) FROM tblFilm " &
+                                     "WHERE FilmTitle = @FilmTitle AND FilmYear IS NULL AND FilmID <> @FilmID"
+            Else
+                SQLCmd.CommandText = "SELECT COUNT(*) FROM tblFilm " &
+                                     "WHERE FilmTitle = @FilmTitle AND FilmYear = @FilmYear AND FilmID <> @FilmID"
+            End If
+
+            SQLCmd.Parameters.AddWithValue("@FilmTitle", txtTitle.Text.Trim())
+
+            If txtYear.Text.Trim() <> "" Then
+                SQLCmd.Parameters.AddWithValue("@FilmYear", SafeInt(txtYear.Text))
+            End If
+
+            SQLCmd.Parameters.AddWithValue("@FilmID", CInt(selectedFilmID))
+            total = CInt(SQLCmd.ExecuteScalar())
+            cn.Close()
+        End If
+
+        Return total > 0
     End Function
 
     'the year box as something the database will take. an empty box has to go in as a proper null
