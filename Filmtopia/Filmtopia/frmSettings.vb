@@ -104,6 +104,7 @@
         btnCreateBackup.Enabled = False
         ClearPasswordFields()
         ConfigureAccessLevel()
+        WriteLog("SETTINGS", "Settings form opened")
 
         'tick whichever theme is already being used
         If DarkModeOn Then
