@@ -11,6 +11,13 @@ Public Class frmScreens
     Private perRowWhenPicked As Integer = 0
 
     Private Sub frmScreens_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        If UserAccessLevel <> 1 Then
+            MessageBox.Show("Only a manager can open the screens screen.", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            WriteLog("SCREEN", "Screens screen refused, access level " & UserAccessLevel, LogSecurity)
+            Me.Close()
+            Exit Sub
+        End If
+
         CommonFormStartup(Me)
 
         'lets the form see escape before the box that has focus does
