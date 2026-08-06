@@ -27,7 +27,9 @@ Public Class frmFoodItems
 
     'escape shuts the form, same as the close button on the ones that have one
     Private Sub frmFoodItems_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
-        If e.KeyCode = Keys.Escape Then
+        If e.KeyCode = Keys.F5 Then
+            LoadFoodItems()
+        ElseIf e.KeyCode = Keys.Escape Then
             Me.Close()
         End If
     End Sub
