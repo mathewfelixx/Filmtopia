@@ -16,6 +16,13 @@ Public Class frmLogs
     Private matchingRows As Integer = 0
 
     Private Sub frmLogs_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        If UserAccessLevel <> 1 Then
+            MessageBox.Show("Only a manager can see the audit log.", "Audit Log", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            WriteLog("LOGS", "Audit log refused, access level " & UserAccessLevel, LogSecurity)
+            Me.Close()
+            Exit Sub
+        End If
+
         CommonFormStartup(Me)
 
         'a week is a sensible amount to be looking at, the date boxes can be widened if more is wanted
