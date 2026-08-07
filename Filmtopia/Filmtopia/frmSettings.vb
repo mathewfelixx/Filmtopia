@@ -72,13 +72,26 @@
     End Sub
 
     'only managers are allowed to take a backup of the database
+    'the buttons get turned off rather than the whole group box, because greying out the group box
+    'greys out the writing on it as well and that is very hard to read in dark mode
     Private Sub ConfigureAccessLevel()
         If UserAccessLevel = 1 Then
-            GroupBox1.Enabled = True
+            btnChooseFolder.Enabled = True
         Else
-            GroupBox1.Enabled = False
+            btnChooseFolder.Enabled = False
+            btnCreateBackup.Enabled = False
             lblHelp.Text = "Only a manager can back up the database."
         End If
+    End Sub
+
+    'the theme buttons use Click rather than CheckedChanged so that ticking one in code on load
+    'does not set the theme off by itself
+    Private Sub rdoLight_Click(sender As Object, e As EventArgs) Handles rdoLight.Click
+        LightMode()
+    End Sub
+
+    Private Sub rdoDark_Click(sender As Object, e As EventArgs) Handles rdoDark.Click
+        DarkMode()
     End Sub
 
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
@@ -86,11 +99,18 @@
     End Sub
 
     Private Sub frmSettings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        CommonFormStartup()
+        CommonFormStartup(Me)
         txtFolder.Text = ""
         btnCreateBackup.Enabled = False
         ClearPasswordFields()
         ConfigureAccessLevel()
+
+        'tick whichever theme is already being used
+        If DarkModeOn Then
+            rdoDark.Checked = True
+        Else
+            rdoLight.Checked = True
+        End If
     End Sub
 
 End Class

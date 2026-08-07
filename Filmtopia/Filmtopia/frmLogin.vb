@@ -27,6 +27,8 @@ Public Class frmLogin
             attempts = 0
             LogedIn = True
             WriteLog("AUTH", "User '" & txtUsername.Text & "' logged in successfully")
+            'each user has their own settings so they get loaded once we know who has logged in
+            LoadUserSettings(txtUsername.Text)
             ClearLoginFields()
             Me.Hide()
             frmMainForm.Show()
@@ -90,7 +92,7 @@ Public Class frmLogin
 
 
     Private Sub frmLogin_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        CommonFormStartup()
+        CommonFormStartup(Me)
         ClearLoginFields()
 
         attempts = 0

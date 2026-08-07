@@ -1,16 +1,304 @@
-﻿Imports System.IO
+Imports System.IO
 Imports System.Data.OleDb
 
 Module modSettings
+
+    'the settings for whoever is logged in at the moment
+    'when a new setting is added it needs a variable here, a line in ReadOneSetting and a line
+    'in SaveUserSettings, and that is all
+    Public DarkModeOn As Boolean = False
+
+    'who the settings currently loaded belong to, empty means nobody has logged in yet
+    Private settingsUser As String = ""
+
+    'the colours the rest of the program uses, these get filled in by SetThemeColours
+    Public FormBack As Color
+    Public TextFore As Color
+    Public InputBack As Color
+    Public InputFore As Color
+    Public ReadOnlyBack As Color
+    Public ButtonBack As Color
+    Public ButtonFore As Color
+    Public PanelBack As Color
+    Public PanelFore As Color
+    Public HighlightBack As Color
+    Public HighlightFore As Color
+    Public SubtleFore As Color
+    Public AccentFore As Color
+    Public GridBack As Color
+    Public GridLineCol As Color
+    Public BorderCol As Color
+
+    'picks which set of colours to use depending on the mode
+    Public Sub SetThemeColours()
+        'the sidebar purple and the pink highlight stay the same in both modes so the program
+        'still looks like Filmtopia either way
+        PanelBack = Color.FromArgb(64, 0, 64)
+        PanelFore = Color.White
+        HighlightBack = Color.FromArgb(216, 27, 96)
+        HighlightFore = Color.White
+
+        If DarkModeOn Then
+            FormBack = Color.FromArgb(43, 43, 46)
+            TextFore = Color.FromArgb(232, 232, 232)
+            InputBack = Color.FromArgb(60, 60, 65)
+            InputFore = Color.FromArgb(236, 236, 236)
+            ReadOnlyBack = Color.FromArgb(50, 50, 54)
+            ButtonBack = Color.FromArgb(69, 69, 73)
+            ButtonFore = Color.FromArgb(236, 236, 236)
+            SubtleFore = Color.FromArgb(154, 154, 154)
+            AccentFore = Color.FromArgb(231, 169, 231)
+            GridBack = Color.FromArgb(50, 50, 54)
+            GridLineCol = Color.FromArgb(74, 74, 80)
+            BorderCol = Color.FromArgb(90, 90, 96)
+        Else
+            FormBack = SystemColors.Control
+            TextFore = Color.Black
+            InputBack = Color.White
+            InputFore = Color.Black
+            ReadOnlyBack = Color.FromArgb(230, 230, 230)
+            ButtonBack = SystemColors.Control
+            ButtonFore = Color.Black
+            SubtleFore = Color.Gray
+            AccentFore = Color.FromArgb(64, 0, 64)
+            GridBack = Color.White
+            GridLineCol = Color.FromArgb(210, 210, 210)
+            BorderCol = Color.FromArgb(180, 180, 180)
+        End If
+    End Sub
+
+    'switches the program to dark mode
     Public Sub DarkMode()
-
+        DarkModeOn = True
+        SetThemeColours()
+        SaveUserSettings()
+        ApplyThemeToAllForms()
     End Sub
+
+    'switches the program back to light mode
     Public Sub LightMode()
-
+        DarkModeOn = False
+        SetThemeColours()
+        SaveUserSettings()
+        ApplyThemeToAllForms()
     End Sub
-    Public Sub ColourScheme()
 
+    'colours a whole form and everything sitting on it
+    Public Sub ColourScheme(frm As Form)
+        SetThemeColours()
+        frm.BackColor = FormBack
+        frm.ForeColor = TextFore
+        ColourControls(frm)
     End Sub
+
+    'recolours every form that is open at the moment so the change happens straight away
+    Public Sub ApplyThemeToAllForms()
+        For Each openForm As Form In Application.OpenForms
+            ColourScheme(openForm)
+        Next
+    End Sub
+
+    'the sidebar and the header bar are purple in both modes so they are left alone
+    Private Function IsBrandPanel(ctrl As Control) As Boolean
+        If ctrl.Name = "FlowLayoutPanel1" Or ctrl.Name = "pnlHeader" Then
+            Return True
+        Else
+            Return False
+        End If
+    End Function
+
+    'goes through the controls on a container and colours them, it calls itself again for
+    'anything that has controls inside it like a group box or a panel
+    Private Sub ColourControls(parent As Control)
+        For Each ctrl As Control In parent.Controls
+            If Not IsBrandPanel(ctrl) Then
+                ColourOneControl(ctrl)
+
+                If ctrl.HasChildren Then
+                    ColourControls(ctrl)
+                End If
+            End If
+        Next
+    End Sub
+
+    'works out what a single control should look like from what type it is
+    Private Sub ColourOneControl(ctrl As Control)
+        If TypeOf ctrl Is DataGridView Then
+            ColourGrid(CType(ctrl, DataGridView))
+
+        ElseIf TypeOf ctrl Is TextBox Then
+            Dim box As TextBox = CType(ctrl, TextBox)
+            If box.ReadOnly Then
+                box.BackColor = ReadOnlyBack
+            Else
+                box.BackColor = InputBack
+            End If
+            box.ForeColor = InputFore
+
+        ElseIf TypeOf ctrl Is ComboBox Or TypeOf ctrl Is ListBox Then
+            ctrl.BackColor = InputBack
+            ctrl.ForeColor = InputFore
+
+        ElseIf TypeOf ctrl Is Button Then
+            ColourButton(CType(ctrl, Button))
+
+        ElseIf TypeOf ctrl Is Label Then
+            'the version label is meant to be faint and the welcome message uses the accent colour
+            If ctrl.Name = "lblVersion" Then
+                ctrl.ForeColor = SubtleFore
+            ElseIf ctrl.Name = "lblWelcome" Then
+                ctrl.ForeColor = AccentFore
+            Else
+                ctrl.ForeColor = TextFore
+            End If
+
+        ElseIf TypeOf ctrl Is PictureBox Then
+            'left alone because these hold the logo
+
+        ElseIf TypeOf ctrl Is DateTimePicker Then
+            'windows draws these itself so changing the colours does nothing, they are left alone
+
+        Else
+            'group boxes, panels, check boxes and radio buttons all just take the form colours
+            ctrl.BackColor = FormBack
+            ctrl.ForeColor = TextFore
+        End If
+    End Sub
+
+    'buttons need a bit more doing to them because windows normally draws them itself
+    Private Sub ColourButton(btn As Button)
+        If DarkModeOn Then
+            btn.FlatStyle = FlatStyle.Flat
+            btn.FlatAppearance.BorderColor = BorderCol
+            btn.BackColor = ButtonBack
+            btn.ForeColor = ButtonFore
+        Else
+            'putting it back to the normal windows button look
+            btn.FlatStyle = FlatStyle.Standard
+            btn.BackColor = ButtonBack
+            btn.ForeColor = ButtonFore
+            btn.UseVisualStyleBackColor = True
+        End If
+    End Sub
+
+    'colours a grid, the headers need EnableHeadersVisualStyles turning off or they stay grey
+    Private Sub ColourGrid(dgv As DataGridView)
+        dgv.BackgroundColor = GridBack
+        dgv.GridColor = GridLineCol
+        dgv.EnableHeadersVisualStyles = False
+
+        dgv.DefaultCellStyle.BackColor = InputBack
+        dgv.DefaultCellStyle.ForeColor = InputFore
+        dgv.DefaultCellStyle.SelectionBackColor = HighlightBack
+        dgv.DefaultCellStyle.SelectionForeColor = HighlightFore
+
+        dgv.ColumnHeadersDefaultCellStyle.BackColor = PanelBack
+        dgv.ColumnHeadersDefaultCellStyle.ForeColor = PanelFore
+        dgv.ColumnHeadersDefaultCellStyle.SelectionBackColor = PanelBack
+        dgv.ColumnHeadersDefaultCellStyle.SelectionForeColor = PanelFore
+
+        dgv.RowHeadersDefaultCellStyle.BackColor = FormBack
+        dgv.RowHeadersDefaultCellStyle.ForeColor = TextFore
+    End Sub
+
+    'takes out anything that is not a letter or a number so a username is safe to use as a file name
+    Private Function SafeFileName(username As String) As String
+        Dim safe As String = ""
+        Dim i As Integer
+
+        For i = 0 To username.Length - 1
+            If Char.IsLetterOrDigit(username.Chars(i)) Then
+                safe = safe & username.Chars(i)
+            End If
+        Next
+
+        If safe = "" Then
+            safe = "user"
+        End If
+
+        Return safe
+    End Function
+
+    'works out where a users settings file lives
+    Private Function UserSettingsFile(username As String) As String
+        Return Application.StartupPath & "\Settings\" & SafeFileName(username) & ".txt"
+    End Function
+
+    'puts every setting back to what a brand new user would get
+    Private Sub UseDefaultSettings()
+        DarkModeOn = False
+    End Sub
+
+    'reads one "name=value" line out of the file and puts it in the right variable
+    Private Sub ReadOneSetting(line As String)
+        Dim bits() As String = line.Split("="c)
+
+        If bits.Length >= 2 Then
+            Dim settingName As String = bits(0).Trim().ToUpper()
+            Dim settingValue As String = bits(1).Trim().ToUpper()
+
+            If settingName = "THEME" Then
+                DarkModeOn = (settingValue = "DARK")
+            End If
+            'any new settings get read here
+        End If
+    End Sub
+
+    'loads the settings belonging to whoever has just logged in
+    Public Sub LoadUserSettings(username As String)
+        settingsUser = username
+
+        'start from the defaults so a missing file or a missing line still leaves something sensible
+        UseDefaultSettings()
+
+        Dim settingsFile As String = UserSettingsFile(username)
+
+        If File.Exists(settingsFile) Then
+            Dim lines() As String = File.ReadAllLines(settingsFile)
+            Dim i As Integer
+
+            For i = 0 To lines.Length - 1
+                ReadOneSetting(lines(i))
+            Next
+        End If
+
+        SetThemeColours()
+    End Sub
+
+    'saves the settings of the user who is logged in, each user gets their own file
+    Public Sub SaveUserSettings()
+        If settingsUser = "" Then
+            'nobody has logged in so there is nobody to save them for
+            Exit Sub
+        End If
+
+        Dim folder As String = Application.StartupPath & "\Settings"
+        Dim contents As String = ""
+
+        If DarkModeOn Then
+            contents = contents & "THEME=DARK" & vbNewLine
+        Else
+            contents = contents & "THEME=LIGHT" & vbNewLine
+        End If
+        'any new settings get written here
+
+        Try
+            If Not Directory.Exists(folder) Then
+                Directory.CreateDirectory(folder)
+            End If
+            File.WriteAllText(UserSettingsFile(settingsUser), contents)
+        Catch ex As Exception
+            'not worth stopping the program over, the settings just go back to default next time
+        End Try
+    End Sub
+
+    'called when someone logs out so the next person does not get the last persons settings
+    Public Sub ClearUserSettings()
+        settingsUser = ""
+        UseDefaultSettings()
+        SetThemeColours()
+    End Sub
+
     'checks the old password is right and if it is saves the new one, returns True if it worked
     Public Function ChangePassword(Username As String, OldPassword As String, NewPassword As String) As Boolean
         Dim changed As Boolean = False

@@ -3,6 +3,7 @@
 Public Class frmLogs
 
     Private Sub frmLogs_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        CommonFormStartup(Me)
         LoadLogs()
     End Sub
 

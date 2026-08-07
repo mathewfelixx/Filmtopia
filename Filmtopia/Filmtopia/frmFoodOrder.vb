@@ -9,7 +9,7 @@ Public Class frmFoodOrder
     Private selectedOrderItemID As Integer = 0
 
     Private Sub frmFoodOrder_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        CommonFormStartup()
+        CommonFormStartup(Me)
         LoadBookingInfo()
         LoadFoodItemsCombo()
         LoadOrderItems()

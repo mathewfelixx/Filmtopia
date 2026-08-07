@@ -6,7 +6,7 @@ Public Class frmScreenings
     Private selectedScreeningID As Integer = 0
 
     Private Sub frmScreenings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        CommonFormStartup()
+        CommonFormStartup(Me)
         LoadFilmsCombo()
         LoadScreensCombo()
         LoadScreenings()

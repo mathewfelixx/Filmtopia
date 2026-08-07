@@ -15,69 +15,72 @@ Public Class frmMainForm
 
     Private Sub btnBookings_Click(sender As Object, e As EventArgs) Handles btnBookings.Click
         SetAllButtonsTransp()
-        btnBookings.BackColor = Color.FromArgb(173, 20, 87)
+        btnBookings.BackColor = HighlightBack
         frmBookings.Show()
     End Sub
 
     Private Sub btnFindBooking_Click(sender As Object, e As EventArgs) Handles btnFindBooking.Click
         SetAllButtonsTransp()
-        btnFindBooking.BackColor = Color.FromArgb(173, 20, 87)
+        btnFindBooking.BackColor = HighlightBack
         frmBookingSearch.Show()
     End Sub
 
     Private Sub btnScreenings_Click(sender As Object, e As EventArgs) Handles btnScreenings.Click
         SetAllButtonsTransp()
-        btnScreenings.BackColor = Color.FromArgb(173, 20, 87)
+        btnScreenings.BackColor = HighlightBack
         frmScreenings.Show()
     End Sub
 
     Private Sub btnCustomers_Click(sender As Object, e As EventArgs) Handles btnCustomers.Click
         SetAllButtonsTransp()
-        btnCustomers.BackColor = Color.FromArgb(173, 20, 87)
+        btnCustomers.BackColor = HighlightBack
         frmCustomers.Show()
     End Sub
 
     Private Sub btnFilms_Click(sender As Object, e As EventArgs) Handles btnFilms.Click
         SetAllButtonsTransp()
-        btnFilms.BackColor = Color.FromArgb(173, 20, 87)
+        btnFilms.BackColor = HighlightBack
         frmFilms.Show()
     End Sub
 
     Private Sub btnScreens_Click(sender As Object, e As EventArgs) Handles btnScreens.Click
         SetAllButtonsTransp()
-        btnScreens.BackColor = Color.FromArgb(173, 20, 87)
+        btnScreens.BackColor = HighlightBack
         frmScreens.Show()
     End Sub
 
     Private Sub btnFood_Click(sender As Object, e As EventArgs) Handles btnFood.Click
         SetAllButtonsTransp()
-        btnFood.BackColor = Color.FromArgb(173, 20, 87)
+        btnFood.BackColor = HighlightBack
         frmFoodItems.Show()
     End Sub
 
     Private Sub btnReports_Click(sender As Object, e As EventArgs) Handles btnReports.Click
         SetAllButtonsTransp()
-        btnReports.BackColor = Color.FromArgb(173, 20, 87)
+        btnReports.BackColor = HighlightBack
         frmSalesReport.Show()
     End Sub
 
     Private Sub btnLogs_Click(sender As Object, e As EventArgs) Handles btnLogs.Click
         SetAllButtonsTransp()
-        btnLogs.BackColor = Color.FromArgb(173, 20, 87)
+        btnLogs.BackColor = HighlightBack
         frmLogs.Show()
     End Sub
 
     Private Sub btnSettings_Click(sender As Object, e As EventArgs) Handles btnSettings.Click
         SetAllButtonsTransp()
-        btnSettings.BackColor = Color.FromArgb(173, 20, 87)
+        btnSettings.BackColor = HighlightBack
         frmSettings.Show()
     End Sub
 
     Private Sub btnLogout_Click(sender As Object, e As EventArgs) Handles btnLogout.Click
         LogedIn = False
         UserAccessLevel = 99
+        'put the settings back to default so the next person to log in does not get this users theme
+        ClearUserSettings()
         Me.Close()
         frmLogin.Show()
+        ApplyThemeToAllForms()
     End Sub
 
     'works out a greeting based on the current time of day
@@ -117,7 +120,7 @@ Public Class frmMainForm
 
     Private Sub frmMainForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         SetAllButtonsTransp()
-        CommonFormStartup()
+        CommonFormStartup(Me)
         ConfigureAccessLevel()
     End Sub
 End Class

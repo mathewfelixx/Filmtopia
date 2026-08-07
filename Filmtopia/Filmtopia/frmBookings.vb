@@ -17,7 +17,7 @@ Public Class frmBookings
     Private takenColour As Color = Color.FromArgb(255, 192, 255)
 
     Private Sub frmBookings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        CommonFormStartup()
+        CommonFormStartup(Me)
         LoadScreenings()
         LoadCustomers()
         WriteLog("BOOKING", "Bookings form opened")
