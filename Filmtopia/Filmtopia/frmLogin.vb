@@ -31,7 +31,7 @@ Public Class frmLogin
             LoadUserSettings(CurrentLoginID)
             ClearLoginFields()
             Me.Hide()
-            frmMainForm.Show()
+            frmMainMenuV2.Show()
         Else
             attempts += 1
             txtPassword.Text = ""

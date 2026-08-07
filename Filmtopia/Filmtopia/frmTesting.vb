@@ -27,6 +27,14 @@ Public Class frmTesting
         frmVersionControlUTIL.Show()
     End Sub
 
+    'opens the new dashboard style menu as a manager so all the buttons show
+    Private Sub btnMainMenuV2_Click(sender As Object, e As EventArgs) Handles btnMainMenuV2.Click
+        frmLogin.globalusername = "Admin"
+        UserAccessLevel = 1
+        frmMainMenuV2.Show()
+        Me.Hide()
+    End Sub
+
     Private Sub frmTesting_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup(Me)
     End Sub

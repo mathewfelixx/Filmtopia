@@ -25,6 +25,14 @@ Module modSettings
     Public GridBack As Color
     Public GridLineCol As Color
     Public BorderCol As Color
+    Public CardBack As Color
+    Public SidebarHover As Color
+    'the seat map colours on the bookings form
+    Public SeatAvailable As Color
+    Public SeatSelected As Color
+    Public SeatTaken As Color
+    Public SeatFore As Color
+    Public SeatTakenFore As Color
 
     'picks which set of colours to use depending on the mode
     Public Sub SetThemeColours()
@@ -34,6 +42,8 @@ Module modSettings
         PanelFore = Color.White
         HighlightBack = Color.FromArgb(216, 27, 96)
         HighlightFore = Color.White
+        'a slightly lighter purple used when the mouse goes over a sidebar button
+        SidebarHover = Color.FromArgb(92, 16, 90)
 
         If DarkModeOn Then
             FormBack = Color.FromArgb(43, 43, 46)
@@ -48,6 +58,14 @@ Module modSettings
             GridBack = Color.FromArgb(50, 50, 54)
             GridLineCol = Color.FromArgb(74, 74, 80)
             BorderCol = Color.FromArgb(90, 90, 96)
+            CardBack = Color.FromArgb(58, 58, 64)
+            'a free seat is grey, a picked one is the Filmtopia pink, a taken one is a dull
+            'maroon so it fades into the background and does not look clickable
+            SeatAvailable = Color.FromArgb(69, 69, 75)
+            SeatSelected = Color.FromArgb(216, 27, 96)
+            SeatTaken = Color.FromArgb(92, 43, 62)
+            SeatFore = Color.FromArgb(232, 232, 232)
+            SeatTakenFore = Color.FromArgb(168, 128, 143)
         Else
             FormBack = SystemColors.Control
             TextFore = Color.Black
@@ -61,6 +79,13 @@ Module modSettings
             GridBack = Color.White
             GridLineCol = Color.FromArgb(210, 210, 210)
             BorderCol = Color.FromArgb(180, 180, 180)
+            CardBack = Color.White
+            'the same seat colours the form already used, kept so light mode looks unchanged
+            SeatAvailable = Color.FromArgb(220, 220, 220)
+            SeatSelected = Color.Fuchsia
+            SeatTaken = Color.FromArgb(255, 192, 255)
+            SeatFore = Color.Black
+            SeatTakenFore = Color.Black
         End If
     End Sub
 
@@ -97,7 +122,7 @@ Module modSettings
 
     'the sidebar and the header bar are purple in both modes so they are left alone
     Private Function IsBrandPanel(ctrl As Control) As Boolean
-        If ctrl.Name = "FlowLayoutPanel1" Or ctrl.Name = "pnlHeader" Then
+        If ctrl.Name = "FlowLayoutPanel1" Or ctrl.Name = "pnlHeader" Or ctrl.Name = "pnlSidebar" Then
             Return True
         Else
             Return False
@@ -111,7 +136,9 @@ Module modSettings
             If Not IsBrandPanel(ctrl) Then
                 ColourOneControl(ctrl)
 
-                If ctrl.HasChildren Then
+                'the seat map buttons use their own colours to show which seats are free, taken
+                'or picked, so the theme must not go inside it and paint over them
+                If ctrl.HasChildren And ctrl.Name <> "pnlSeatMap" Then
                     ColourControls(ctrl)
                 End If
             End If
@@ -140,14 +167,24 @@ Module modSettings
             ColourButton(CType(ctrl, Button))
 
         ElseIf TypeOf ctrl Is Label Then
-            'the version label is meant to be faint and the welcome message uses the accent colour
-            If ctrl.Name = "lblVersion" Then
+            'the version label is meant to be faint, and the welcome message and the big numbers
+            'on the dashboard cards use the accent colour so they stand out
+            If ctrl.Name = "lblVersion" Or ctrl.Name = "lblSubtitle" Then
                 ctrl.ForeColor = SubtleFore
-            ElseIf ctrl.Name = "lblWelcome" Then
+            ElseIf ctrl.Name = "lblWelcome" Or ctrl.Name.StartsWith("lblStat") Then
                 ctrl.ForeColor = AccentFore
             Else
                 ctrl.ForeColor = TextFore
             End If
+
+        ElseIf TypeOf ctrl Is Panel Then
+            'the dashboard cards sit on top of the form so they use the lighter surface colour
+            If ctrl.Name.StartsWith("pnlCard") Then
+                ctrl.BackColor = CardBack
+            Else
+                ctrl.BackColor = FormBack
+            End If
+            ctrl.ForeColor = TextFore
 
         ElseIf TypeOf ctrl Is PictureBox Then
             'left alone because these hold the logo

@@ -70,6 +70,7 @@ Module modVersionControl
         frmSalesReport.lblVersion.Text = GetVersion()
         frmBookingSearch.lblVersion.Text = GetVersion()
         frmSettings.lblVersion.Text = GetVersion()
+        frmMainMenuV2.lblVersion.Text = GetVersion()
 
     End Sub
 
