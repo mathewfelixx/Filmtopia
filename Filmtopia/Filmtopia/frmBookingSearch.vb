@@ -79,16 +79,23 @@ Public Class frmBookingSearch
                                       "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
                                       "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID"
 
+            'this grid had no ORDER BY on it at all, so the order was whatever Access felt like
+            'handing back and two runs of the same search could come out differently. newest first
+            'is what somebody looking a booking up actually wants, and the id can never tie. it goes
+            'on the end of each branch rather than being stuck on afterwards so the query is still
+            'one whole string the checking script can pull out and run
             If searchText = "" Then
-                SQLCmd.CommandText = baseQuery
+                SQLCmd.CommandText = baseQuery & " ORDER BY tblBooking.BookingID DESC"
             ElseIf IsNumeric(searchText) Then
-                SQLCmd.CommandText = baseQuery & " WHERE tblBooking.BookingID = @SearchID"
+                SQLCmd.CommandText = baseQuery & " WHERE tblBooking.BookingID = @SearchID " &
+                                     "ORDER BY tblBooking.BookingID DESC"
                 SQLCmd.Parameters.AddWithValue("@SearchID", CInt(searchText))
             Else
                 'search the customer name and the film title, so typing a film finds everyone
                 'booked onto it. the two parameters are added in the order they appear in the SQL
                 SQLCmd.CommandText = baseQuery & " WHERE CustomerForename & ' ' & CustomerSurname LIKE @SearchName " &
-                                     "OR FilmTitle LIKE @SearchFilm"
+                                     "OR FilmTitle LIKE @SearchFilm " &
+                                     "ORDER BY tblBooking.BookingID DESC"
                 SQLCmd.Parameters.AddWithValue("@SearchName", "%" & searchText & "%")
                 SQLCmd.Parameters.AddWithValue("@SearchFilm", "%" & searchText & "%")
             End If
