@@ -70,7 +70,7 @@ Public Class frmMainForm
     Private Sub btnSettings_Click(sender As Object, e As EventArgs) Handles btnSettings.Click
         SetAllButtonsTransp()
         btnSettings.BackColor = Color.FromArgb(173, 20, 87)
-        MessageBox.Show("Settings coming soon")
+        frmSettings.Show()
     End Sub
 
     Private Sub btnLogout_Click(sender As Object, e As EventArgs) Handles btnLogout.Click
