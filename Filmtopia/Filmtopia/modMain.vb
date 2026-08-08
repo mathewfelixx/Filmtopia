@@ -18,6 +18,20 @@ Module modMain
             Return False
         End Try
     End Function
+    'same idea as DbConnect but it does not show a message if it cannot get in, and it closes
+    'the connection again straight away. it is for things that run on a timer, where a popup
+    'appearing every minute would make the program impossible to use
+    Public Function DbConnectQuiet() As Boolean
+        Try
+            cn = New OleDbConnection(DatabasePath)
+            cn.Open()
+            cn.Close()
+            Return True
+        Catch ex As Exception
+            Return False
+        End Try
+    End Function
+
     Public Function Encrypt(PlainText As String) As String
         'Function takes plain text concerts it into Unitext8 (UTF8) and uses VB built encrption function (basically it
         'XORS with key called UTF8) 
