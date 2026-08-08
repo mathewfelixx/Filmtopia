@@ -42,6 +42,7 @@ Partial Class frmScreenings
         Me.btnClear = New System.Windows.Forms.Button()
         Me.btnSuggest = New System.Windows.Forms.Button()
         Me.btnExport = New System.Windows.Forms.Button()
+        Me.lblSaved = New System.Windows.Forms.Label()
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
@@ -315,6 +316,14 @@ Partial Class frmScreenings
         Me.btnExport.Text = "Export to CSV"
         Me.btnExport.UseVisualStyleBackColor = True
         '
+        'lblSaved
+        '
+        Me.lblSaved.AutoSize = False
+        Me.lblSaved.Location = New System.Drawing.Point(360, 666)
+        Me.lblSaved.Name = "lblSaved"
+        Me.lblSaved.Size = New System.Drawing.Size(692, 16)
+        Me.lblSaved.Text = ""
+        '
         'lblVersion
         '
         Me.lblVersion.AutoSize = True
@@ -331,6 +340,7 @@ Partial Class frmScreenings
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1068, 695)
         Me.Controls.Add(Me.btnExport)
+        Me.Controls.Add(Me.lblSaved)
         Me.Controls.Add(Me.lblVersion)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)
@@ -375,5 +385,6 @@ Partial Class frmScreenings
     Friend WithEvents btnDelete As Button
     Friend WithEvents btnClear As Button
     Friend WithEvents btnExport As Button
+    Friend WithEvents lblSaved As Label
     Friend WithEvents lblVersion As Label
 End Class

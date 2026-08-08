@@ -709,9 +709,11 @@ Public Class frmScreenings
             cn.Close()
         End If
 
+        Dim savedName As String = cboFilm.Text & " on " & cboScreen.Text
         WriteLog("SCREENING", "Screening added: " & cboFilm.Text & " on " & cboScreen.Text, LogChange)
         LoadScreenings()
         ClearFields()
+        SayDone(lblSaved, "Added '" & savedName & "'")
     End Sub
 
     'saves the changes made to the screening selected in the grid
@@ -757,9 +759,11 @@ Public Class frmScreenings
             cn.Close()
         End If
 
+        Dim savedName As String = cboFilm.Text & " on " & cboScreen.Text
         WriteLog("SCREENING", "Screening updated: " & cboFilm.Text & " on " & cboScreen.Text, LogChange)
         LoadScreenings()
         ClearFields()
+        SayDone(lblSaved, "Saved changes to '" & savedName & "'")
     End Sub
 
     'deletes the screening selected in the grid
@@ -799,9 +803,12 @@ Public Class frmScreenings
             cn.Close()
         End If
 
+        Dim savedName As String = cboFilm.Text
+
         WriteLog("SCREENING", "Screening deleted: ScreeningID " & selectedScreeningID, LogChange)
         LoadScreenings()
         ClearFields()
+        SayDone(lblSaved, "Deleted the '" & savedName & "' screening")
     End Sub
 
     'clears the fields and the selection
@@ -811,6 +818,8 @@ Public Class frmScreenings
     End Sub
 
     Private Sub ClearFields()
+        'the confirmation only lasts until the next thing is started
+        lblSaved.Text = ""
         selectedScreeningID = 0
         cboFilm.SelectedIndex = -1
         cboScreen.SelectedIndex = -1
