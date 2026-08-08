@@ -82,6 +82,10 @@ Module modBookings
                 If isWalkIn Then
                     SQLCmd.CommandText = "INSERT INTO tblCustomer (CustomerForename, CustomerSurname, CustomerEmail, CustomerPhone) " &
                                          "VALUES (@CustomerForename, @CustomerSurname, @CustomerEmail, @CustomerPhone)"
+                    'the seat check above leaves its two parameters on the command, and OleDb fills
+                    'the placeholders in the order they were added rather than by name, so without
+                    'this the screening id and the seat id went in as the name
+                    SQLCmd.Parameters.Clear()
                     SQLCmd.Parameters.AddWithValue("@CustomerForename", "Walk-in")
                     SQLCmd.Parameters.AddWithValue("@CustomerSurname", "Customer")
                     SQLCmd.Parameters.AddWithValue("@CustomerEmail", "")
