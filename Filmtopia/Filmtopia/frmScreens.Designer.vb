@@ -35,6 +35,7 @@ Partial Class frmScreens
         Me.btnUpdate = New System.Windows.Forms.Button()
         Me.btnDelete = New System.Windows.Forms.Button()
         Me.btnClear = New System.Windows.Forms.Button()
+        Me.lblSaved = New System.Windows.Forms.Label()
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
@@ -235,6 +236,14 @@ Partial Class frmScreens
         Me.btnClear.Text = "Clear the boxes"
         Me.btnClear.UseVisualStyleBackColor = True
         '
+        'lblSaved
+        '
+        Me.lblSaved.AutoSize = False
+        Me.lblSaved.Location = New System.Drawing.Point(360, 626)
+        Me.lblSaved.Name = "lblSaved"
+        Me.lblSaved.Size = New System.Drawing.Size(524, 16)
+        Me.lblSaved.Text = ""
+        '
         'lblVersion
         '
         Me.lblVersion.AutoSize = True
@@ -250,6 +259,7 @@ Partial Class frmScreens
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(900, 655)
+        Me.Controls.Add(Me.lblSaved)
         Me.Controls.Add(Me.lblVersion)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)
@@ -287,5 +297,6 @@ Partial Class frmScreens
     Friend WithEvents btnUpdate As Button
     Friend WithEvents btnDelete As Button
     Friend WithEvents btnClear As Button
+    Friend WithEvents lblSaved As Label
     Friend WithEvents lblVersion As Label
 End Class
