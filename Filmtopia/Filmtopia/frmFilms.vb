@@ -489,9 +489,11 @@ Public Class frmFilms
             cn.Close()
         End If
 
+        Dim savedName As String = txtTitle.Text.Trim()
         WriteLog("FILM", "Film added: " & txtTitle.Text.Trim(), LogChange)
         LoadFilms()
         ClearFields()
+        SayDone(lblSaved, "Added '" & savedName & "'")
     End Sub
 
     'saves the changes made to the film that is selected in the grid
@@ -522,9 +524,11 @@ Public Class frmFilms
             cn.Close()
         End If
 
+        Dim savedName As String = txtTitle.Text.Trim()
         WriteLog("FILM", "Film updated: " & txtTitle.Text.Trim(), LogChange)
         LoadFilms()
         ClearFields()
+        SayDone(lblSaved, "Saved changes to '" & savedName & "'")
     End Sub
 
     'deletes the film that is selected in the grid
@@ -562,9 +566,11 @@ Public Class frmFilms
             cn.Close()
         End If
 
+        Dim savedName As String = txtTitle.Text.Trim()
         WriteLog("FILM", "Film deleted: " & txtTitle.Text, LogChange)
         LoadFilms()
         ClearFields()
+        SayDone(lblSaved, "Deleted '" & savedName & "'")
     End Sub
 
     'counts how many screenings a film has, used to stop it being deleted while it is scheduled
@@ -590,6 +596,8 @@ Public Class frmFilms
     End Sub
 
     Private Sub ClearFields()
+        'the confirmation only lasts until the next thing is started
+        lblSaved.Text = ""
         selectedFilmID = 0
         txtTitle.Text = ""
         txtYear.Text = ""
