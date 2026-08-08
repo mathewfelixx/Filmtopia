@@ -474,6 +474,8 @@ Public Class frmFilms
             Exit Sub
         End If
 
+        Dim saved As Boolean = False
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
@@ -487,6 +489,13 @@ Public Class frmFilms
             SQLCmd.Parameters.AddWithValue("@FilmDescription", txtDescription.Text.Trim())
             SQLCmd.ExecuteNonQuery()
             cn.Close()
+            saved = True
+        End If
+
+        'nothing was written if the database could not be opened, so it must not be
+        'logged or announced as though it had been
+        If Not saved Then
+            Exit Sub
         End If
 
         Dim savedName As String = txtTitle.Text.Trim()
@@ -507,6 +516,8 @@ Public Class frmFilms
             Exit Sub
         End If
 
+        Dim saved As Boolean = False
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
@@ -522,6 +533,13 @@ Public Class frmFilms
             SQLCmd.Parameters.AddWithValue("@FilmID", CInt(selectedFilmID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
+            saved = True
+        End If
+
+        'nothing was written if the database could not be opened, so it must not be
+        'logged or announced as though it had been
+        If Not saved Then
+            Exit Sub
         End If
 
         Dim savedName As String = txtTitle.Text.Trim()
@@ -556,6 +574,8 @@ Public Class frmFilms
             Exit Sub
         End If
 
+        Dim saved As Boolean = False
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
@@ -564,6 +584,13 @@ Public Class frmFilms
             SQLCmd.Parameters.AddWithValue("@FilmID", CInt(selectedFilmID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
+            saved = True
+        End If
+
+        'nothing was written if the database could not be opened, so it must not be
+        'logged or announced as though it had been
+        If Not saved Then
+            Exit Sub
         End If
 
         Dim savedName As String = txtTitle.Text.Trim()
