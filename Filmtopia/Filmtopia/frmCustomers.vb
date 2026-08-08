@@ -201,6 +201,8 @@ Public Class frmCustomers
             Exit Sub
         End If
 
+        Dim saved As Boolean = False
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
@@ -212,6 +214,13 @@ Public Class frmCustomers
             SQLCmd.Parameters.AddWithValue("@CustomerPhone", txtPhone.Text.Trim())
             SQLCmd.ExecuteNonQuery()
             cn.Close()
+            saved = True
+        End If
+
+        'nothing was written if the database could not be opened, so it must not be
+        'logged or announced as though it had been
+        If Not saved Then
+            Exit Sub
         End If
 
         Dim savedName As String = txtForename.Text.Trim() & " " & txtSurname.Text.Trim()
@@ -232,6 +241,8 @@ Public Class frmCustomers
             Exit Sub
         End If
 
+        Dim saved As Boolean = False
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
@@ -245,6 +256,13 @@ Public Class frmCustomers
             SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(selectedCustomerID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
+            saved = True
+        End If
+
+        'nothing was written if the database could not be opened, so it must not be
+        'logged or announced as though it had been
+        If Not saved Then
+            Exit Sub
         End If
 
         Dim savedName As String = txtForename.Text.Trim() & " " & txtSurname.Text.Trim()
@@ -277,6 +295,8 @@ Public Class frmCustomers
             Exit Sub
         End If
 
+        Dim saved As Boolean = False
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
@@ -285,6 +305,13 @@ Public Class frmCustomers
             SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(selectedCustomerID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
+            saved = True
+        End If
+
+        'nothing was written if the database could not be opened, so it must not be
+        'logged or announced as though it had been
+        If Not saved Then
+            Exit Sub
         End If
 
         Dim savedName As String = txtForename.Text.Trim() & " " & txtSurname.Text.Trim()
