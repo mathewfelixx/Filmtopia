@@ -82,6 +82,16 @@ Module modMain
         Return """" & value.Replace("""", """""") & """"
     End Function
 
+    'puts a short line on the form saying what just happened. adding, changing and deleting a record
+    'only ever wrote a log entry before, so on screen nothing moved except the grid and there was no
+    'telling a save that worked from a button that had not been pressed properly. the colour comes
+    'from the theme so it still reads in dark mode. the label is emptied again by the form's
+    'ClearFields, so the message only lasts until the next thing is started
+    Public Sub SayDone(lbl As Label, message As String)
+        lbl.Text = message
+        lbl.ForeColor = AccentFore
+    End Sub
+
     'turns what somebody typed into a whole number. Val is used rather than CInt on its own because
     'it copes with the box being empty or having letters in it, but Val hands back a Double, and
     'CInt on a Double too big for an Integer throws instead of coming back with anything. pasting a
