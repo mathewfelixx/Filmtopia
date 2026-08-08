@@ -33,6 +33,14 @@ Module modSettings
     Public SeatTaken As Color
     Public SeatFore As Color
     Public SeatTakenFore As Color
+    'used on the dashboard to show how full a screening is
+    Public OccupancyHigh As Color
+    Public OccupancyMed As Color
+    'every other row in a grid, and the colour for a screening that has already been and gone
+    Public AltRowBack As Color
+    Public PastFore As Color
+    'a dashboard card with the mouse over it
+    Public CardHover As Color
 
     'picks which set of colours to use depending on the mode
     Public Sub SetThemeColours()
@@ -66,6 +74,11 @@ Module modSettings
             SeatTaken = Color.FromArgb(92, 43, 62)
             SeatFore = Color.FromArgb(232, 232, 232)
             SeatTakenFore = Color.FromArgb(168, 128, 143)
+            OccupancyHigh = Color.FromArgb(255, 107, 107)
+            OccupancyMed = Color.FromArgb(255, 183, 77)
+            AltRowBack = Color.FromArgb(56, 56, 61)
+            PastFore = Color.FromArgb(130, 130, 138)
+            CardHover = Color.FromArgb(74, 74, 82)
         Else
             FormBack = SystemColors.Control
             TextFore = Color.Black
@@ -86,6 +99,11 @@ Module modSettings
             SeatTaken = Color.FromArgb(255, 192, 255)
             SeatFore = Color.Black
             SeatTakenFore = Color.Black
+            OccupancyHigh = Color.FromArgb(198, 40, 40)
+            OccupancyMed = Color.FromArgb(239, 108, 0)
+            AltRowBack = Color.FromArgb(245, 245, 248)
+            PastFore = Color.FromArgb(140, 140, 140)
+            CardHover = Color.FromArgb(238, 238, 245)
         End If
     End Sub
 

@@ -35,6 +35,12 @@ Public Class frmBookings
         WriteLog("BOOKING", "Bookings form opened")
     End Sub
 
+    'picks a screening in the combo from outside the form, used when a screening is double clicked
+    'on the main menu, setting the value fires the combo's changed event which builds the seat map
+    Public Sub SelectScreening(screeningID As Long)
+        cboScreening.SelectedValue = screeningID
+    End Sub
+
     'fills the screening combo with each screening and its film, date and time
     Private Sub LoadScreenings()
         If DbConnect() Then
