@@ -211,9 +211,11 @@ Public Class frmCustomers
             cn.Close()
         End If
 
+        Dim savedName As String = txtForename.Text.Trim() & " " & txtSurname.Text.Trim()
         WriteLog("CUSTOMER", "Customer added: " & txtForename.Text.Trim() & " " & txtSurname.Text.Trim(), LogChange)
         LoadCustomers()
         ClearFields()
+        SayDone(lblSaved, "Added '" & savedName & "'")
     End Sub
 
     'saves the changes made to the customer selected in the grid
@@ -242,9 +244,11 @@ Public Class frmCustomers
             cn.Close()
         End If
 
+        Dim savedName As String = txtForename.Text.Trim() & " " & txtSurname.Text.Trim()
         WriteLog("CUSTOMER", "Customer updated: " & txtForename.Text.Trim() & " " & txtSurname.Text.Trim(), LogChange)
         LoadCustomers()
         ClearFields()
+        SayDone(lblSaved, "Saved changes to '" & savedName & "'")
     End Sub
 
     'deletes the customer selected in the grid
@@ -280,9 +284,11 @@ Public Class frmCustomers
             cn.Close()
         End If
 
+        Dim savedName As String = txtForename.Text.Trim() & " " & txtSurname.Text.Trim()
         WriteLog("CUSTOMER", "Customer deleted: " & txtForename.Text & " " & txtSurname.Text, LogChange)
         LoadCustomers()
         ClearFields()
+        SayDone(lblSaved, "Deleted '" & savedName & "'")
     End Sub
 
     'counts how many bookings somebody has, used to stop them being deleted while they have some
@@ -308,6 +314,8 @@ Public Class frmCustomers
     End Sub
 
     Private Sub ClearFields()
+        'the confirmation only lasts until the next thing is started
+        lblSaved.Text = ""
         selectedCustomerID = 0
         txtForename.Text = ""
         txtSurname.Text = ""
