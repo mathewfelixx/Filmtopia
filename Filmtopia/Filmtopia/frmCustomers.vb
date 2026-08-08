@@ -71,8 +71,11 @@ Public Class frmCustomers
                                       "COUNT(tblBooking.BookingID) AS Bookings " &
                                       "FROM tblCustomer LEFT JOIN tblBooking ON tblCustomer.CustomerID = tblBooking.CustomerID"
 
+            'the id on the end of the ORDER BY has to say which table it comes from. tblBooking has
+            'a CustomerID on it as well, that is what the join is on, so an unqualified one leaves
+            'Access with two columns of that name to choose between and it refuses the whole query
             Dim grouping As String = " GROUP BY tblCustomer.CustomerID, CustomerForename, CustomerSurname, CustomerEmail, CustomerPhone " &
-                                     "ORDER BY CustomerSurname, CustomerForename, CustomerID"
+                                     "ORDER BY CustomerSurname, CustomerForename, tblCustomer.CustomerID"
 
             If txtSearch.Text.Trim() = "" Then
                 SQLCmd.CommandText = baseQuery & grouping
