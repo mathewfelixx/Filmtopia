@@ -242,8 +242,10 @@ Public Class frmFoodItems
             cn.Close()
         End If
 
-        WriteLog("FOOD", "Food item added: " & txtName.Text.Trim(), LogChange)
+        Dim savedName As String = txtName.Text.Trim()
+        WriteLog("FOOD", "Food item added: " & savedName, LogChange)
         ReloadEverything()
+        SayDone(lblSaved, "Added '" & savedName & "'")
     End Sub
 
     'saves the changes made to the item selected in the grid
@@ -271,8 +273,10 @@ Public Class frmFoodItems
             cn.Close()
         End If
 
-        WriteLog("FOOD", "Food item updated: " & txtName.Text.Trim(), LogChange)
+        Dim savedName As String = txtName.Text.Trim()
+        WriteLog("FOOD", "Food item updated: " & savedName, LogChange)
         ReloadEverything()
+        SayDone(lblSaved, "Saved changes to '" & savedName & "'")
     End Sub
 
     'takes an item off the menu
@@ -308,8 +312,10 @@ Public Class frmFoodItems
             cn.Close()
         End If
 
-        WriteLog("FOOD", "Food item deleted: " & txtName.Text, LogChange)
+        Dim savedName As String = txtName.Text.Trim()
+        WriteLog("FOOD", "Food item deleted: " & savedName, LogChange)
         ReloadEverything()
+        SayDone(lblSaved, "Took '" & savedName & "' off the menu")
     End Sub
 
     'counts how many order lines an item is on, used to stop it being deleted once it has sold
@@ -353,6 +359,8 @@ Public Class frmFoodItems
     End Sub
 
     Private Sub ClearFields()
+        'the confirmation only lasts until the next thing is started
+        lblSaved.Text = ""
         selectedFoodItemID = 0
         txtName.Text = ""
         txtPrice.Text = ""
