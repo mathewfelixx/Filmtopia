@@ -187,7 +187,10 @@ Module modSettings
         ElseIf TypeOf ctrl Is Label Then
             'the version label is meant to be faint, and the welcome message and the big numbers
             'on the dashboard cards use the accent colour so they stand out
-            If ctrl.Name = "lblVersion" Or ctrl.Name = "lblSubtitle" Then
+            If ctrl.Name = "lblScreen" Then
+                'the screen bar on the booking form is purple in both modes so it keeps white text
+                ctrl.ForeColor = PanelFore
+            ElseIf ctrl.Name = "lblVersion" Or ctrl.Name = "lblSubtitle" Then
                 ctrl.ForeColor = SubtleFore
             ElseIf ctrl.Name = "lblWelcome" Or ctrl.Name.StartsWith("lblStat") Then
                 ctrl.ForeColor = AccentFore

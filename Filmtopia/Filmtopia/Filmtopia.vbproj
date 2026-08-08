@@ -196,6 +196,7 @@
     <Compile Include="frmVersionControlUTIL.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="modBookings.vb" />
     <Compile Include="modLogs.vb" />
     <Compile Include="modMain.vb" />
     <Compile Include="modSettings.vb" />

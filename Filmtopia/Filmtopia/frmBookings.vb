@@ -1,4 +1,4 @@
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 
 Public Class frmBookings
 
@@ -10,6 +10,10 @@ Public Class frmBookings
     Private currentTicketPrice As Double = 0
     'the booking id of the booking just created, used to open food ordering
     Private lastBookingID As Long = 0
+
+    'the food the customer has asked for so far. it is only held here in memory while the sale
+    'is being built up, and it is not written to the database until COMPLETE SALE is pressed
+    Private pendingFood As DataTable
 
     'the three seat colours, these get set from the theme so they work in dark mode too
     Private availableColour As Color
@@ -30,6 +34,8 @@ Public Class frmBookings
     Private Sub frmBookings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup(Me)
         ApplySeatColours()
+        SetUpPendingFood()
+        LoadFoodItems()
         LoadScreenings()
         LoadCustomers()
         WriteLog("BOOKING", "Bookings form opened")
@@ -96,8 +102,10 @@ Public Class frmBookings
 
     'when a customer is picked, show their existing bookings in the small grid
     Private Sub cboCustomer_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboCustomer.SelectedIndexChanged
+        'a different customer means the booking that was picked before is no longer relevant
         lastBookingID = 0
         btnOrderFood.Enabled = False
+        lblCustomerBookings.Text = "Pick a booking to add food to it"
 
         If cboCustomer.SelectedIndex = -1 Then
             dgvCustomerBookings.DataSource = Nothing
@@ -143,6 +151,7 @@ Public Class frmBookings
         Dim row As DataGridViewRow = dgvCustomerBookings.Rows(e.RowIndex)
         lastBookingID = CLng(row.Cells("BookingID").Value)
         btnOrderFood.Enabled = True
+        lblCustomerBookings.Text = "Food will be added to booking " & lastBookingID
     End Sub
 
     'when walk-in is ticked, the customer combo isnt needed so grey it out
@@ -201,6 +210,115 @@ Public Class frmBookings
     End Sub
 
     'draws a button for every seat in the screens layout and greys out the taken ones
+    'makes the empty table that holds the food for the sale being built up
+    Private Sub SetUpPendingFood()
+        pendingFood = New DataTable
+        pendingFood.Columns.Add("FoodItemID", GetType(Integer))
+        pendingFood.Columns.Add("Item", GetType(String))
+        pendingFood.Columns.Add("Price", GetType(Double))
+        pendingFood.Columns.Add("Quantity", GetType(Integer))
+        pendingFood.Columns.Add("Subtotal", GetType(Double))
+
+        dgvPendingFood.DataSource = pendingFood
+        TidyFoodGrid()
+    End Sub
+
+    'fills the food and drink combo
+    Private Sub LoadFoodItems()
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT FoodItemID, FoodItemName, FoodItemPrice " &
+                                 "FROM tblFoodItem ORDER BY FoodItemName"
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            Dim dt As New DataTable
+            da.Fill(dt)
+            cboFoodItem.DataSource = dt
+            cboFoodItem.DisplayMember = "FoodItemName"
+            cboFoodItem.ValueMember = "FoodItemID"
+            cboFoodItem.SelectedIndex = -1
+            cn.Close()
+        End If
+    End Sub
+
+    Private Sub TidyFoodGrid()
+        If dgvPendingFood.Columns.Count = 0 Then Exit Sub
+
+        dgvPendingFood.Columns("FoodItemID").Visible = False
+        dgvPendingFood.Columns("Item").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+        dgvPendingFood.Columns("Price").Width = 90
+        dgvPendingFood.Columns("Quantity").HeaderText = "Qty"
+        dgvPendingFood.Columns("Quantity").Width = 60
+        dgvPendingFood.Columns("Subtotal").Width = 100
+        dgvPendingFood.Columns("Price").DefaultCellStyle.Format = "C"
+        dgvPendingFood.Columns("Subtotal").DefaultCellStyle.Format = "C"
+    End Sub
+
+    'adds the picked item to the order being built up. nothing goes in the database yet
+    Private Sub btnAddFood_Click(sender As Object, e As EventArgs) Handles btnAddFood.Click
+        If cboFoodItem.SelectedIndex = -1 Then
+            MessageBox.Show("Pick a food or drink item first")
+            Exit Sub
+        End If
+
+        Dim quantity As Integer = CInt(Val(txtQuantity.Text))
+        If quantity < 1 Then
+            MessageBox.Show("Enter a quantity of 1 or more")
+            Exit Sub
+        End If
+
+        Dim chosen As DataRowView = CType(cboFoodItem.SelectedItem, DataRowView)
+        Dim itemID As Integer = CInt(chosen("FoodItemID"))
+        Dim price As Double = CDbl(chosen("FoodItemPrice"))
+
+        'if that item is already on the order just add to how many, rather than a second line
+        Dim i As Integer
+        For i = 0 To pendingFood.Rows.Count - 1
+            If CInt(pendingFood.Rows(i)("FoodItemID")) = itemID Then
+                pendingFood.Rows(i)("Quantity") = CInt(pendingFood.Rows(i)("Quantity")) + quantity
+                pendingFood.Rows(i)("Subtotal") = CInt(pendingFood.Rows(i)("Quantity")) * price
+                UpdateTotal()
+                txtQuantity.Text = "1"
+                Exit Sub
+            End If
+        Next
+
+        Dim newRow As DataRow = pendingFood.NewRow()
+        newRow("FoodItemID") = itemID
+        newRow("Item") = chosen("FoodItemName").ToString()
+        newRow("Price") = price
+        newRow("Quantity") = quantity
+        newRow("Subtotal") = price * quantity
+        pendingFood.Rows.Add(newRow)
+
+        TidyFoodGrid()
+        UpdateTotal()
+        txtQuantity.Text = "1"
+    End Sub
+
+    'takes a line back off the order
+    Private Sub btnRemoveFood_Click(sender As Object, e As EventArgs) Handles btnRemoveFood.Click
+        If dgvPendingFood.CurrentRow Is Nothing Then
+            MessageBox.Show("Pick a line in the food list first")
+            Exit Sub
+        End If
+
+        pendingFood.Rows.RemoveAt(dgvPendingFood.CurrentRow.Index)
+        UpdateTotal()
+    End Sub
+
+    'adds up everything on the order so far
+    Private Function FoodTotal() As Double
+        Dim total As Double = 0
+        Dim i As Integer
+
+        For i = 0 To pendingFood.Rows.Count - 1
+            total = total + CDbl(pendingFood.Rows(i)("Subtotal"))
+        Next
+
+        Return total
+    End Function
+
     Private Sub BuildSeatMap()
         'make sure the colours match the theme in case it was changed since the form opened
         ApplySeatColours()
@@ -293,14 +411,27 @@ Public Class frmBookings
     End Function
 
     'shows the running total of selected seats and their cost
+    'shows what the sale comes to as it is being built up, tickets and food kept separate so the
+    'customer can be told what they are paying for
     Private Sub UpdateTotal()
-        Dim count As Integer = CountSelectedSeats()
-        lblTotal.Text = count & " seats selected - " & FormatCurrency(count * currentTicketPrice)
+        Dim seatCount As Integer = CountSelectedSeats()
+        Dim ticketsCost As Double = seatCount * currentTicketPrice
+        Dim foodCost As Double = FoodTotal()
+
+        'a tab does not line up in a label because the font is not fixed width, so a plain
+        'separator is used instead
+        lblTickets.Text = "Tickets (" & seatCount & ")  -  " & FormatCurrency(ticketsCost)
+        lblFoodTotal.Text = "Food and drink  -  " & FormatCurrency(foodCost)
+        lblTotal.Text = "TOTAL  " & FormatCurrency(ticketsCost + foodCost)
+
+        'there is nothing to sell until they have picked either a seat or something to eat
+        btnCreateBooking.Enabled = (seatCount > 0 Or pendingFood.Rows.Count > 0)
     End Sub
 
     'creates a booking from the picked screening, customer and selected seats
+    'saves the whole sale in one go. nothing has been written to the database up to this point,
+    'so if anything is wrong the user is simply told and the sale stays on screen to be fixed
     Private Sub btnCreateBooking_Click(sender As Object, e As EventArgs) Handles btnCreateBooking.Click
-        'make sure everything needed has been picked first
         If currentScreeningID = 0 Then
             MessageBox.Show("Pick a screening first")
             Exit Sub
@@ -311,8 +442,10 @@ Public Class frmBookings
         End If
 
         Dim seatCount As Integer = CountSelectedSeats()
-        If seatCount = 0 Then
-            MessageBox.Show("Select at least one seat")
+
+        'a sale has to be for something, but it can be seats only, food only, or both
+        If seatCount = 0 And pendingFood.Rows.Count = 0 Then
+            MessageBox.Show("Pick some seats, or add something from the food and drink list")
             Exit Sub
         End If
 
@@ -323,45 +456,40 @@ Public Class frmBookings
             Exit Sub
         End If
 
-        Dim newBookingID As Long = 0
-        Dim totalCost As Double = seatCount * currentTicketPrice
+        Dim ticketsCost As Double = seatCount * currentTicketPrice
+        Dim totalCost As Double = ticketsCost + FoodTotal()
 
-        'if its a walk-in, make a quick customer record so the booking still has someone to belong to
-        Dim bookingCustomerID As Long
-        If chkWalkIn.Checked Then
-            bookingCustomerID = CreateWalkInCustomer()
-        Else
-            bookingCustomerID = CLng(cboCustomer.SelectedValue)
+        Dim customerID As Long = 0
+        If Not chkWalkIn.Checked Then
+            customerID = CLng(cboCustomer.SelectedValue)
         End If
 
-        If DbConnect() Then
-            Dim SQLCmd As New OleDbCommand
-            SQLCmd.Connection = cn
-            SQLCmd.CommandText = "INSERT INTO tblBooking (CustomerID, ScreeningID, BookingDate, TotalCost) " &
-                                 "VALUES (@CustomerID, @ScreeningID, @BookingDate, @TotalCost)"
-            SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(bookingCustomerID))
-            SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
-            SQLCmd.Parameters.AddWithValue("@BookingDate", Date.Now.Date)
-            SQLCmd.Parameters.AddWithValue("@TotalCost", totalCost)
-            SQLCmd.ExecuteNonQuery()
+        'one transaction writes the customer, the booking, the seats and the food together
+        Dim newBookingID As Long = CompleteSale(customerID, chkWalkIn.Checked, currentScreeningID,
+                                                GetSelectedSeatIDs(), pendingFood, totalCost)
 
-            'grab the id just given to the new booking so we can link its seats
-            SQLCmd.CommandText = "SELECT @@IDENTITY"
-            SQLCmd.Parameters.Clear()
-            newBookingID = CLng(SQLCmd.ExecuteScalar())
-            cn.Close()
+        If newBookingID = 0 Then
+            'nothing was saved, the message has already been shown, so leave the sale on screen
+            Exit Sub
         End If
 
-        SaveBookingSeats(newBookingID)
+        WriteLog("BOOKING", "Sale " & newBookingID & " completed, " & seatCount & " seat(s) and " &
+                            pendingFood.Rows.Count & " food line(s), " & FormatCurrency(totalCost))
 
-        WriteLog("BOOKING", "Booking " & newBookingID & " created with " & seatCount & " seats")
-        MessageBox.Show("Booking created")
+        MessageBox.Show("Sale complete." & vbNewLine & vbNewLine &
+                        "Booking " & newBookingID & vbNewLine &
+                        seatCount & " seat(s) and " & pendingFood.Rows.Count & " food item line(s)" & vbNewLine &
+                        "Total " & FormatCurrency(totalCost),
+                        "Sale Complete", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
-        'remember this booking so food can be ordered for it
+        'start a fresh sale
+        'the sale is finished, so clear it down ready for the next customer. the booking just
+        'made is kept selected so food can still be added to it if they change their mind
         lastBookingID = newBookingID
         btnOrderFood.Enabled = True
-
         BuildSeatMap()
+        ClearSaleInputs()
+        lblCustomerBookings.Text = "Food can still be added to booking " & newBookingID
 
         'walk-ins dont have a customer picked in the combo, so theres no list to refresh
         If Not chkWalkIn.Checked Then
@@ -369,37 +497,53 @@ Public Class frmBookings
         End If
     End Sub
 
-    'makes a zero-seat booking for someone who just wants to buy food, then opens food ordering for it
-    Private Sub btnFoodOnly_Click(sender As Object, e As EventArgs) Handles btnFoodOnly.Click
-        If currentScreeningID = 0 Then
-            MessageBox.Show("Pick a screening first")
-            Exit Sub
-        End If
+    'collects the SeatID of every seat the user has picked on the map, ready to be saved
+    Private Function GetSelectedSeatIDs() As Long()
+        Dim seatIDs(CountSelectedSeats() - 1) As Long
+        Dim i As Integer = 0
 
-        Dim newCustomerID As Long = CreateWalkInCustomer()
-        Dim newBookingID As Long = 0
+        For Each ctrl As Control In pnlSeatMap.Controls
+            If TypeOf ctrl Is Button Then
+                Dim b As Button = CType(ctrl, Button)
+                If b.BackColor = selectedColour Then
+                    seatIDs(i) = CLng(b.Tag)
+                    i = i + 1
+                End If
+            End If
+        Next
+
+        Return seatIDs
+    End Function
+
+    'reads back what a booking came to, so the message on screen matches what was saved
+    Private Function GetBookingTotal(bookingID As Long) As Double
+        Dim total As Double = 0
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "INSERT INTO tblBooking (CustomerID, ScreeningID, BookingDate, TotalCost) " &
-                                 "VALUES (@CustomerID, @ScreeningID, @BookingDate, @TotalCost)"
-            SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(newCustomerID))
-            SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
-            SQLCmd.Parameters.AddWithValue("@BookingDate", Date.Now.Date)
-            SQLCmd.Parameters.AddWithValue("@TotalCost", 0)
-            SQLCmd.ExecuteNonQuery()
-
-            SQLCmd.CommandText = "SELECT @@IDENTITY"
-            SQLCmd.Parameters.Clear()
-            newBookingID = CLng(SQLCmd.ExecuteScalar())
+            SQLCmd.CommandText = "SELECT TotalCost FROM tblBooking " &
+                                 "WHERE BookingID = @BookingID"
+            SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
+            Dim result = SQLCmd.ExecuteScalar()
+            If result IsNot Nothing AndAlso Not IsDBNull(result) Then
+                total = CDbl(result)
+            End If
             cn.Close()
         End If
 
-        WriteLog("BOOKING", "Food-only booking " & newBookingID & " created with no seats")
+        Return total
+    End Function
 
-        frmFoodOrder.currentBookingID = newBookingID
+    'opens the food order form for a booking and tidies up afterwards. the food order changes
+    'the booking total, so the customer's list of bookings is reloaded once it closes
+    Private Sub OpenFoodOrder(bookingID As Long)
+        frmFoodOrder.currentBookingID = bookingID
         frmFoodOrder.ShowDialog()
+
+        If Not chkWalkIn.Checked And cboCustomer.SelectedIndex <> -1 Then
+            LoadCustomerBookings(CLng(cboCustomer.SelectedValue))
+        End If
     End Sub
 
     'opens the food ordering form for the booking just created
@@ -409,30 +553,7 @@ Public Class frmBookings
             Exit Sub
         End If
 
-        frmFoodOrder.currentBookingID = lastBookingID
-        frmFoodOrder.ShowDialog()
-    End Sub
-
-    'inserts a tblBookingSeat row for each selected seat on the map
-    Private Sub SaveBookingSeats(bookingID As Long)
-        If DbConnect() Then
-            Dim SQLCmd As New OleDbCommand
-            SQLCmd.Connection = cn
-            For Each ctrl As Control In pnlSeatMap.Controls
-                If TypeOf ctrl Is Button Then
-                    Dim b As Button = CType(ctrl, Button)
-                    If b.BackColor = selectedColour Then
-                        SQLCmd.CommandText = "INSERT INTO tblBookingSeat (BookingID, SeatID) " &
-                                             "VALUES (@BookingID, @SeatID)"
-                        SQLCmd.Parameters.Clear()
-                        SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
-                        SQLCmd.Parameters.AddWithValue("@SeatID", CInt(b.Tag))
-                        SQLCmd.ExecuteNonQuery()
-                    End If
-                End If
-            Next
-            cn.Close()
-        End If
+        OpenFoodOrder(lastBookingID)
     End Sub
 
     'rechecks the database to see if any selected seat has just been taken
@@ -465,7 +586,9 @@ Public Class frmBookings
     End Function
 
     'clears any seat selection on the map
-    Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
+    'takes every seat back off the map and empties the food order. this is everything that makes
+    'up the sale being built, so after this the form is ready to start a fresh one
+    Private Sub ClearSaleInputs()
         For Each ctrl As Control In pnlSeatMap.Controls
             If TypeOf ctrl Is Button Then
                 Dim b As Button = CType(ctrl, Button)
@@ -474,8 +597,38 @@ Public Class frmBookings
                 End If
             End If
         Next
+
+        pendingFood.Rows.Clear()
+        cboFoodItem.SelectedIndex = -1
+        txtQuantity.Text = "1"
+
         UpdateTotal()
-        WriteLog("BOOKING", "Seat selection cleared")
+    End Sub
+
+    'the button clears the sale and also forgets which past booking was being pointed at, so
+    'nothing at all is left over from what the user was doing before
+    Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
+        ClearSaleInputs()
+
+        lastBookingID = 0
+        btnOrderFood.Enabled = False
+        lblCustomerBookings.Text = "Pick a booking to add food to it"
+        dgvCustomerBookings.ClearSelection()
+
+        WriteLog("BOOKING", "Sale cleared before it was completed")
+    End Sub
+
+    'pressing enter in the quantity box adds the item, rather than reaching for the Add button
+    Private Sub txtQuantity_KeyDown(sender As Object, e As KeyEventArgs) Handles txtQuantity.KeyDown
+        If e.KeyCode = Keys.Enter Then
+            btnAddFood.PerformClick()
+            e.SuppressKeyPress = True
+        End If
+    End Sub
+
+    'selects what is in the quantity box when it is clicked into, so a new number just replaces it
+    Private Sub txtQuantity_Enter(sender As Object, e As EventArgs) Handles txtQuantity.Enter
+        txtQuantity.SelectAll()
     End Sub
 
 End Class

@@ -1,4 +1,4 @@
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 
 Public Class frmFoodOrder
 
@@ -119,6 +119,8 @@ Public Class frmFoodOrder
             cn.Close()
         End If
 
+        'modBookings owns the money, this form just tells it something changed
+        RecalculateBookingTotal(currentBookingID)
         WriteLog("FOODORDER", "Added " & quantity & " x " & cboFoodItem.Text & " to booking " & currentBookingID)
         LoadOrderItems()
         txtQuantity.Text = "1"
@@ -149,6 +151,8 @@ Public Class frmFoodOrder
             cn.Close()
         End If
 
+        'modBookings owns the money, this form just tells it something changed
+        RecalculateBookingTotal(currentBookingID)
         WriteLog("FOODORDER", "Removed order item " & selectedOrderItemID & " from booking " & currentBookingID)
         selectedOrderItemID = 0
         LoadOrderItems()
