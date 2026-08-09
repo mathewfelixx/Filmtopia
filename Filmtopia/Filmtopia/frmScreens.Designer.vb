@@ -1,4 +1,4 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
+<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class frmScreens
     Inherits System.Windows.Forms.Form
 
@@ -17,139 +17,247 @@ Partial Class frmScreens
 
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        Me.lblHeading = New System.Windows.Forms.Label()
+        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.lblHint = New System.Windows.Forms.Label()
+        Me.lblGridCount = New System.Windows.Forms.Label()
         Me.dgvScreens = New System.Windows.Forms.DataGridView()
+        Me.GroupBox2 = New System.Windows.Forms.GroupBox()
+        Me.lblStatus = New System.Windows.Forms.Label()
         Me.lblName = New System.Windows.Forms.Label()
         Me.txtName = New System.Windows.Forms.TextBox()
         Me.lblCapacity = New System.Windows.Forms.Label()
         Me.txtCapacity = New System.Windows.Forms.TextBox()
+        Me.lblLayout = New System.Windows.Forms.Label()
         Me.btnAdd = New System.Windows.Forms.Button()
         Me.btnUpdate = New System.Windows.Forms.Button()
         Me.btnDelete = New System.Windows.Forms.Button()
         Me.btnClear = New System.Windows.Forms.Button()
         Me.lblVersion = New System.Windows.Forms.Label()
+        Me.GroupBox1.SuspendLayout()
+        Me.GroupBox2.SuspendLayout()
         CType(Me.dgvScreens, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
+        '
+        'lblHeading
+        '
+        Me.lblHeading.AutoSize = True
+        Me.lblHeading.Font = New System.Drawing.Font("Segoe UI", 14.25!, System.Drawing.FontStyle.Bold)
+        Me.lblHeading.Location = New System.Drawing.Point(16, 12)
+        Me.lblHeading.Name = "lblHeading"
+        Me.lblHeading.Size = New System.Drawing.Size(90, 25)
+        Me.lblHeading.TabIndex = 0
+        Me.lblHeading.Text = "Screens"
+        '
+        'GroupBox1
+        '
+        Me.GroupBox1.Controls.Add(Me.lblHint)
+        Me.GroupBox1.Controls.Add(Me.lblGridCount)
+        Me.GroupBox1.Controls.Add(Me.dgvScreens)
+        Me.GroupBox1.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.GroupBox1.Location = New System.Drawing.Point(16, 46)
+        Me.GroupBox1.Name = "GroupBox1"
+        Me.GroupBox1.Size = New System.Drawing.Size(868, 380)
+        Me.GroupBox1.TabIndex = 1
+        Me.GroupBox1.TabStop = False
+        Me.GroupBox1.Text = "The screens in the building"
+        '
+        'lblHint
+        '
+        Me.lblHint.AutoSize = True
+        Me.lblHint.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblHint.Location = New System.Drawing.Point(16, 28)
+        Me.lblHint.Name = "lblHint"
+        Me.lblHint.Size = New System.Drawing.Size(380, 15)
+        Me.lblHint.TabIndex = 0
+        Me.lblHint.Text = "Seats are made in rows of ten, lettered A, B, C and so on"
+        '
+        'lblGridCount
+        '
+        Me.lblGridCount.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblGridCount.Location = New System.Drawing.Point(500, 28)
+        Me.lblGridCount.Name = "lblGridCount"
+        Me.lblGridCount.Size = New System.Drawing.Size(352, 17)
+        Me.lblGridCount.TabIndex = 1
+        Me.lblGridCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight
         '
         'dgvScreens
         '
         Me.dgvScreens.AllowUserToAddRows = False
+        Me.dgvScreens.AllowUserToDeleteRows = False
+        Me.dgvScreens.AllowUserToResizeRows = False
         Me.dgvScreens.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvScreens.Location = New System.Drawing.Point(12, 12)
+        Me.dgvScreens.Location = New System.Drawing.Point(16, 58)
         Me.dgvScreens.MultiSelect = False
         Me.dgvScreens.Name = "dgvScreens"
+        Me.dgvScreens.ReadOnly = True
+        Me.dgvScreens.RowHeadersVisible = False
         Me.dgvScreens.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvScreens.Size = New System.Drawing.Size(660, 300)
-        Me.dgvScreens.TabIndex = 0
+        Me.dgvScreens.Size = New System.Drawing.Size(836, 310)
+        Me.dgvScreens.TabIndex = 2
+        '
+        'GroupBox2
+        '
+        Me.GroupBox2.Controls.Add(Me.lblStatus)
+        Me.GroupBox2.Controls.Add(Me.lblName)
+        Me.GroupBox2.Controls.Add(Me.txtName)
+        Me.GroupBox2.Controls.Add(Me.lblCapacity)
+        Me.GroupBox2.Controls.Add(Me.txtCapacity)
+        Me.GroupBox2.Controls.Add(Me.lblLayout)
+        Me.GroupBox2.Controls.Add(Me.btnAdd)
+        Me.GroupBox2.Controls.Add(Me.btnUpdate)
+        Me.GroupBox2.Controls.Add(Me.btnDelete)
+        Me.GroupBox2.Controls.Add(Me.btnClear)
+        Me.GroupBox2.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.GroupBox2.Location = New System.Drawing.Point(16, 436)
+        Me.GroupBox2.Name = "GroupBox2"
+        Me.GroupBox2.Size = New System.Drawing.Size(868, 180)
+        Me.GroupBox2.TabIndex = 2
+        Me.GroupBox2.TabStop = False
+        Me.GroupBox2.Text = "Add a screen or change one"
+        '
+        'lblStatus
+        '
+        Me.lblStatus.AutoSize = True
+        Me.lblStatus.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
+        Me.lblStatus.Location = New System.Drawing.Point(16, 24)
+        Me.lblStatus.Name = "lblStatus"
+        Me.lblStatus.Size = New System.Drawing.Size(150, 19)
+        Me.lblStatus.TabIndex = 0
+        Me.lblStatus.Text = "Adding a new screen"
         '
         'lblName
         '
         Me.lblName.AutoSize = True
-        Me.lblName.Location = New System.Drawing.Point(12, 330)
+        Me.lblName.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblName.Location = New System.Drawing.Point(16, 61)
         Me.lblName.Name = "lblName"
-        Me.lblName.Size = New System.Drawing.Size(35, 13)
+        Me.lblName.Size = New System.Drawing.Size(39, 15)
         Me.lblName.TabIndex = 1
         Me.lblName.Text = "Name"
         '
         'txtName
         '
-        Me.txtName.Location = New System.Drawing.Point(120, 327)
+        Me.txtName.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.txtName.Location = New System.Drawing.Point(90, 58)
         Me.txtName.Name = "txtName"
-        Me.txtName.Size = New System.Drawing.Size(250, 20)
+        Me.txtName.Size = New System.Drawing.Size(250, 23)
         Me.txtName.TabIndex = 2
         '
         'lblCapacity
         '
         Me.lblCapacity.AutoSize = True
-        Me.lblCapacity.Location = New System.Drawing.Point(12, 360)
+        Me.lblCapacity.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblCapacity.Location = New System.Drawing.Point(360, 61)
         Me.lblCapacity.Name = "lblCapacity"
-        Me.lblCapacity.Size = New System.Drawing.Size(50, 13)
+        Me.lblCapacity.Size = New System.Drawing.Size(80, 15)
         Me.lblCapacity.TabIndex = 3
-        Me.lblCapacity.Text = "Capacity"
+        Me.lblCapacity.Text = "How many seats"
         '
         'txtCapacity
         '
-        Me.txtCapacity.Location = New System.Drawing.Point(120, 357)
+        Me.txtCapacity.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.txtCapacity.Location = New System.Drawing.Point(465, 58)
         Me.txtCapacity.Name = "txtCapacity"
-        Me.txtCapacity.Size = New System.Drawing.Size(100, 20)
+        Me.txtCapacity.Size = New System.Drawing.Size(80, 23)
         Me.txtCapacity.TabIndex = 4
+        Me.txtCapacity.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
+        '
+        'lblLayout
+        '
+        Me.lblLayout.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblLayout.Location = New System.Drawing.Point(16, 95)
+        Me.lblLayout.Name = "lblLayout"
+        Me.lblLayout.Size = New System.Drawing.Size(560, 60)
+        Me.lblLayout.TabIndex = 5
+        Me.lblLayout.Text = "Type how many seats to see the layout"
         '
         'btnAdd
         '
-        Me.btnAdd.Location = New System.Drawing.Point(450, 327)
+        Me.btnAdd.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
+        Me.btnAdd.Location = New System.Drawing.Point(600, 55)
         Me.btnAdd.Name = "btnAdd"
-        Me.btnAdd.Size = New System.Drawing.Size(90, 30)
-        Me.btnAdd.TabIndex = 5
-        Me.btnAdd.Text = "Add"
+        Me.btnAdd.Size = New System.Drawing.Size(252, 42)
+        Me.btnAdd.TabIndex = 6
+        Me.btnAdd.Text = "ADD THIS SCREEN"
         Me.btnAdd.UseVisualStyleBackColor = True
         '
         'btnUpdate
         '
-        Me.btnUpdate.Location = New System.Drawing.Point(546, 327)
+        Me.btnUpdate.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.btnUpdate.Location = New System.Drawing.Point(600, 103)
         Me.btnUpdate.Name = "btnUpdate"
-        Me.btnUpdate.Size = New System.Drawing.Size(90, 30)
-        Me.btnUpdate.TabIndex = 6
-        Me.btnUpdate.Text = "Update"
+        Me.btnUpdate.Size = New System.Drawing.Size(121, 32)
+        Me.btnUpdate.TabIndex = 7
+        Me.btnUpdate.Text = "Save changes"
         Me.btnUpdate.UseVisualStyleBackColor = True
         '
         'btnDelete
         '
-        Me.btnDelete.Location = New System.Drawing.Point(450, 363)
+        Me.btnDelete.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.btnDelete.Location = New System.Drawing.Point(731, 103)
         Me.btnDelete.Name = "btnDelete"
-        Me.btnDelete.Size = New System.Drawing.Size(90, 30)
-        Me.btnDelete.TabIndex = 7
+        Me.btnDelete.Size = New System.Drawing.Size(121, 32)
+        Me.btnDelete.TabIndex = 8
         Me.btnDelete.Text = "Delete"
         Me.btnDelete.UseVisualStyleBackColor = True
         '
         'btnClear
         '
-        Me.btnClear.Location = New System.Drawing.Point(546, 363)
+        Me.btnClear.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.btnClear.Location = New System.Drawing.Point(600, 141)
         Me.btnClear.Name = "btnClear"
-        Me.btnClear.Size = New System.Drawing.Size(90, 30)
-        Me.btnClear.TabIndex = 8
-        Me.btnClear.Text = "Clear"
+        Me.btnClear.Size = New System.Drawing.Size(252, 28)
+        Me.btnClear.TabIndex = 9
+        Me.btnClear.Text = "Clear the boxes"
         Me.btnClear.UseVisualStyleBackColor = True
         '
         'lblVersion
         '
         Me.lblVersion.AutoSize = True
         Me.lblVersion.ForeColor = System.Drawing.Color.Gray
-        Me.lblVersion.Location = New System.Drawing.Point(550, 490)
+        Me.lblVersion.Location = New System.Drawing.Point(16, 626)
         Me.lblVersion.Name = "lblVersion"
-        Me.lblVersion.Size = New System.Drawing.Size(215, 13)
-        Me.lblVersion.TabIndex = 9
+        Me.lblVersion.Size = New System.Drawing.Size(271, 16)
+        Me.lblVersion.TabIndex = 3
         Me.lblVersion.Text = "Filmtopia Cinema Management System  v1.0"
         '
         'frmScreens
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(800, 520)
+        Me.ClientSize = New System.Drawing.Size(900, 655)
         Me.Controls.Add(Me.lblVersion)
-        Me.Controls.Add(Me.btnClear)
-        Me.Controls.Add(Me.btnDelete)
-        Me.Controls.Add(Me.btnUpdate)
-        Me.Controls.Add(Me.btnAdd)
-        Me.Controls.Add(Me.txtCapacity)
-        Me.Controls.Add(Me.lblCapacity)
-        Me.Controls.Add(Me.txtName)
-        Me.Controls.Add(Me.lblName)
-        Me.Controls.Add(Me.dgvScreens)
+        Me.Controls.Add(Me.GroupBox2)
+        Me.Controls.Add(Me.GroupBox1)
+        Me.Controls.Add(Me.lblHeading)
         Me.Name = "frmScreens"
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.MaximizeBox = False
         Me.Text = "Screens"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
+        Me.GroupBox1.ResumeLayout(False)
+        Me.GroupBox1.PerformLayout()
+        Me.GroupBox2.ResumeLayout(False)
+        Me.GroupBox2.PerformLayout()
         CType(Me.dgvScreens, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
 
+    Friend WithEvents lblHeading As Label
+    Friend WithEvents GroupBox1 As GroupBox
+    Friend WithEvents lblHint As Label
+    Friend WithEvents lblGridCount As Label
     Friend WithEvents dgvScreens As DataGridView
+    Friend WithEvents GroupBox2 As GroupBox
+    Friend WithEvents lblStatus As Label
     Friend WithEvents lblName As Label
     Friend WithEvents txtName As TextBox
     Friend WithEvents lblCapacity As Label
     Friend WithEvents txtCapacity As TextBox
+    Friend WithEvents lblLayout As Label
     Friend WithEvents btnAdd As Button
     Friend WithEvents btnUpdate As Button
     Friend WithEvents btnDelete As Button

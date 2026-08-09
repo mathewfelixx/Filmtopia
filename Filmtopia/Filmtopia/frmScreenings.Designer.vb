@@ -1,4 +1,4 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
+<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class frmScreenings
     Inherits System.Windows.Forms.Form
 
@@ -17,228 +17,336 @@ Partial Class frmScreenings
 
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        Me.lblHeading = New System.Windows.Forms.Label()
+        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.lblShow = New System.Windows.Forms.Label()
+        Me.cboShow = New System.Windows.Forms.ComboBox()
+        Me.lblGridCount = New System.Windows.Forms.Label()
         Me.dgvScreenings = New System.Windows.Forms.DataGridView()
+        Me.GroupBox2 = New System.Windows.Forms.GroupBox()
+        Me.lblStatus = New System.Windows.Forms.Label()
         Me.lblFilm = New System.Windows.Forms.Label()
         Me.cboFilm = New System.Windows.Forms.ComboBox()
         Me.lblScreen = New System.Windows.Forms.Label()
         Me.cboScreen = New System.Windows.Forms.ComboBox()
-        Me.lblScreeningDate = New System.Windows.Forms.Label()
+        Me.lblDate = New System.Windows.Forms.Label()
         Me.dtpScreeningDate = New System.Windows.Forms.DateTimePicker()
-        Me.lblScreeningTime = New System.Windows.Forms.Label()
+        Me.lblTime = New System.Windows.Forms.Label()
         Me.txtScreeningTime = New System.Windows.Forms.TextBox()
-        Me.lblTicketPrice = New System.Windows.Forms.Label()
+        Me.lblPrice = New System.Windows.Forms.Label()
         Me.txtTicketPrice = New System.Windows.Forms.TextBox()
+        Me.lblEndsAt = New System.Windows.Forms.Label()
         Me.btnAdd = New System.Windows.Forms.Button()
         Me.btnUpdate = New System.Windows.Forms.Button()
         Me.btnDelete = New System.Windows.Forms.Button()
         Me.btnClear = New System.Windows.Forms.Button()
         Me.lblVersion = New System.Windows.Forms.Label()
+        Me.GroupBox1.SuspendLayout()
+        Me.GroupBox2.SuspendLayout()
         CType(Me.dgvScreenings, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
+        '
+        'lblHeading
+        '
+        Me.lblHeading.AutoSize = True
+        Me.lblHeading.Font = New System.Drawing.Font("Segoe UI", 14.25!, System.Drawing.FontStyle.Bold)
+        Me.lblHeading.Location = New System.Drawing.Point(16, 12)
+        Me.lblHeading.Name = "lblHeading"
+        Me.lblHeading.Size = New System.Drawing.Size(130, 25)
+        Me.lblHeading.TabIndex = 0
+        Me.lblHeading.Text = "Screenings"
+        '
+        'GroupBox1
+        '
+        Me.GroupBox1.Controls.Add(Me.lblShow)
+        Me.GroupBox1.Controls.Add(Me.cboShow)
+        Me.GroupBox1.Controls.Add(Me.lblGridCount)
+        Me.GroupBox1.Controls.Add(Me.dgvScreenings)
+        Me.GroupBox1.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.GroupBox1.Location = New System.Drawing.Point(16, 46)
+        Me.GroupBox1.Name = "GroupBox1"
+        Me.GroupBox1.Size = New System.Drawing.Size(1036, 400)
+        Me.GroupBox1.TabIndex = 1
+        Me.GroupBox1.TabStop = False
+        Me.GroupBox1.Text = "What is scheduled"
+        '
+        'lblShow
+        '
+        Me.lblShow.AutoSize = True
+        Me.lblShow.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblShow.Location = New System.Drawing.Point(16, 28)
+        Me.lblShow.Name = "lblShow"
+        Me.lblShow.Size = New System.Drawing.Size(35, 15)
+        Me.lblShow.TabIndex = 0
+        Me.lblShow.Text = "Show"
+        '
+        'cboShow
+        '
+        Me.cboShow.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboShow.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.cboShow.Location = New System.Drawing.Point(60, 25)
+        Me.cboShow.Name = "cboShow"
+        Me.cboShow.Size = New System.Drawing.Size(180, 23)
+        Me.cboShow.TabIndex = 1
+        '
+        'lblGridCount
+        '
+        Me.lblGridCount.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblGridCount.Location = New System.Drawing.Point(660, 28)
+        Me.lblGridCount.Name = "lblGridCount"
+        Me.lblGridCount.Size = New System.Drawing.Size(360, 17)
+        Me.lblGridCount.TabIndex = 2
+        Me.lblGridCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight
         '
         'dgvScreenings
         '
         Me.dgvScreenings.AllowUserToAddRows = False
+        Me.dgvScreenings.AllowUserToDeleteRows = False
+        Me.dgvScreenings.AllowUserToResizeRows = False
         Me.dgvScreenings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvScreenings.Location = New System.Drawing.Point(16, 15)
-        Me.dgvScreenings.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.dgvScreenings.Location = New System.Drawing.Point(16, 58)
         Me.dgvScreenings.MultiSelect = False
         Me.dgvScreenings.Name = "dgvScreenings"
-        Me.dgvScreenings.RowHeadersWidth = 51
+        Me.dgvScreenings.ReadOnly = True
+        Me.dgvScreenings.RowHeadersVisible = False
         Me.dgvScreenings.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvScreenings.Size = New System.Drawing.Size(1038, 369)
-        Me.dgvScreenings.TabIndex = 0
+        Me.dgvScreenings.Size = New System.Drawing.Size(1004, 330)
+        Me.dgvScreenings.TabIndex = 3
+        '
+        'GroupBox2
+        '
+        Me.GroupBox2.Controls.Add(Me.lblStatus)
+        Me.GroupBox2.Controls.Add(Me.lblFilm)
+        Me.GroupBox2.Controls.Add(Me.cboFilm)
+        Me.GroupBox2.Controls.Add(Me.lblScreen)
+        Me.GroupBox2.Controls.Add(Me.cboScreen)
+        Me.GroupBox2.Controls.Add(Me.lblDate)
+        Me.GroupBox2.Controls.Add(Me.dtpScreeningDate)
+        Me.GroupBox2.Controls.Add(Me.lblTime)
+        Me.GroupBox2.Controls.Add(Me.txtScreeningTime)
+        Me.GroupBox2.Controls.Add(Me.lblPrice)
+        Me.GroupBox2.Controls.Add(Me.txtTicketPrice)
+        Me.GroupBox2.Controls.Add(Me.lblEndsAt)
+        Me.GroupBox2.Controls.Add(Me.btnAdd)
+        Me.GroupBox2.Controls.Add(Me.btnUpdate)
+        Me.GroupBox2.Controls.Add(Me.btnDelete)
+        Me.GroupBox2.Controls.Add(Me.btnClear)
+        Me.GroupBox2.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.GroupBox2.Location = New System.Drawing.Point(16, 456)
+        Me.GroupBox2.Name = "GroupBox2"
+        Me.GroupBox2.Size = New System.Drawing.Size(1036, 200)
+        Me.GroupBox2.TabIndex = 2
+        Me.GroupBox2.TabStop = False
+        Me.GroupBox2.Text = "Put a film on, or change a screening that is already there"
+        '
+        'lblStatus
+        '
+        Me.lblStatus.AutoSize = True
+        Me.lblStatus.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
+        Me.lblStatus.Location = New System.Drawing.Point(16, 24)
+        Me.lblStatus.Name = "lblStatus"
+        Me.lblStatus.Size = New System.Drawing.Size(170, 19)
+        Me.lblStatus.TabIndex = 0
+        Me.lblStatus.Text = "Adding a new screening"
         '
         'lblFilm
         '
         Me.lblFilm.AutoSize = True
-        Me.lblFilm.Location = New System.Drawing.Point(16, 406)
-        Me.lblFilm.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblFilm.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblFilm.Location = New System.Drawing.Point(16, 61)
         Me.lblFilm.Name = "lblFilm"
-        Me.lblFilm.Size = New System.Drawing.Size(32, 16)
+        Me.lblFilm.Size = New System.Drawing.Size(28, 15)
         Me.lblFilm.TabIndex = 1
         Me.lblFilm.Text = "Film"
         '
         'cboFilm
         '
         Me.cboFilm.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboFilm.FormattingEnabled = True
-        Me.cboFilm.Location = New System.Drawing.Point(160, 402)
-        Me.cboFilm.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.cboFilm.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.cboFilm.Location = New System.Drawing.Point(90, 58)
         Me.cboFilm.Name = "cboFilm"
-        Me.cboFilm.Size = New System.Drawing.Size(332, 24)
+        Me.cboFilm.Size = New System.Drawing.Size(300, 23)
         Me.cboFilm.TabIndex = 2
         '
         'lblScreen
         '
         Me.lblScreen.AutoSize = True
-        Me.lblScreen.Location = New System.Drawing.Point(16, 443)
-        Me.lblScreen.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblScreen.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblScreen.Location = New System.Drawing.Point(410, 61)
         Me.lblScreen.Name = "lblScreen"
-        Me.lblScreen.Size = New System.Drawing.Size(48, 16)
+        Me.lblScreen.Size = New System.Drawing.Size(45, 15)
         Me.lblScreen.TabIndex = 3
         Me.lblScreen.Text = "Screen"
         '
         'cboScreen
         '
         Me.cboScreen.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboScreen.FormattingEnabled = True
-        Me.cboScreen.Location = New System.Drawing.Point(160, 439)
-        Me.cboScreen.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.cboScreen.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.cboScreen.Location = New System.Drawing.Point(480, 58)
         Me.cboScreen.Name = "cboScreen"
-        Me.cboScreen.Size = New System.Drawing.Size(200, 24)
+        Me.cboScreen.Size = New System.Drawing.Size(180, 23)
         Me.cboScreen.TabIndex = 4
         '
-        'lblScreeningDate
+        'lblDate
         '
-        Me.lblScreeningDate.AutoSize = True
-        Me.lblScreeningDate.Location = New System.Drawing.Point(16, 480)
-        Me.lblScreeningDate.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.lblScreeningDate.Name = "lblScreeningDate"
-        Me.lblScreeningDate.Size = New System.Drawing.Size(46, 16)
-        Me.lblScreeningDate.TabIndex = 5
-        Me.lblScreeningDate.Text = "Date"
+        Me.lblDate.AutoSize = True
+        Me.lblDate.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblDate.Location = New System.Drawing.Point(16, 99)
+        Me.lblDate.Name = "lblDate"
+        Me.lblDate.Size = New System.Drawing.Size(31, 15)
+        Me.lblDate.TabIndex = 5
+        Me.lblDate.Text = "Date"
         '
         'dtpScreeningDate
         '
+        Me.dtpScreeningDate.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.dtpScreeningDate.Format = System.Windows.Forms.DateTimePickerFormat.Short
-        Me.dtpScreeningDate.Location = New System.Drawing.Point(160, 476)
-        Me.dtpScreeningDate.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.dtpScreeningDate.Location = New System.Drawing.Point(90, 95)
         Me.dtpScreeningDate.Name = "dtpScreeningDate"
-        Me.dtpScreeningDate.Size = New System.Drawing.Size(200, 22)
+        Me.dtpScreeningDate.Size = New System.Drawing.Size(140, 23)
         Me.dtpScreeningDate.TabIndex = 6
         '
-        'lblScreeningTime
+        'lblTime
         '
-        Me.lblScreeningTime.AutoSize = True
-        Me.lblScreeningTime.Location = New System.Drawing.Point(16, 517)
-        Me.lblScreeningTime.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.lblScreeningTime.Name = "lblScreeningTime"
-        Me.lblScreeningTime.Size = New System.Drawing.Size(122, 16)
-        Me.lblScreeningTime.TabIndex = 7
-        Me.lblScreeningTime.Text = "Time (HH:MM)"
+        Me.lblTime.AutoSize = True
+        Me.lblTime.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblTime.Location = New System.Drawing.Point(250, 99)
+        Me.lblTime.Name = "lblTime"
+        Me.lblTime.Size = New System.Drawing.Size(80, 15)
+        Me.lblTime.TabIndex = 7
+        Me.lblTime.Text = "Starts (HH:MM)"
         '
         'txtScreeningTime
         '
-        Me.txtScreeningTime.Location = New System.Drawing.Point(160, 513)
-        Me.txtScreeningTime.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.txtScreeningTime.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.txtScreeningTime.Location = New System.Drawing.Point(345, 95)
+        Me.txtScreeningTime.MaxLength = 5
         Me.txtScreeningTime.Name = "txtScreeningTime"
-        Me.txtScreeningTime.Size = New System.Drawing.Size(132, 22)
+        Me.txtScreeningTime.Size = New System.Drawing.Size(80, 23)
         Me.txtScreeningTime.TabIndex = 8
+        Me.txtScreeningTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
-        'lblTicketPrice
+        'lblPrice
         '
-        Me.lblTicketPrice.AutoSize = True
-        Me.lblTicketPrice.Location = New System.Drawing.Point(16, 554)
-        Me.lblTicketPrice.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.lblTicketPrice.Name = "lblTicketPrice"
-        Me.lblTicketPrice.Size = New System.Drawing.Size(76, 16)
-        Me.lblTicketPrice.TabIndex = 9
-        Me.lblTicketPrice.Text = "Ticket Price"
+        Me.lblPrice.AutoSize = True
+        Me.lblPrice.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblPrice.Location = New System.Drawing.Point(445, 99)
+        Me.lblPrice.Name = "lblPrice"
+        Me.lblPrice.Size = New System.Drawing.Size(75, 15)
+        Me.lblPrice.TabIndex = 9
+        Me.lblPrice.Text = "Ticket price (£)"
         '
         'txtTicketPrice
         '
-        Me.txtTicketPrice.Location = New System.Drawing.Point(160, 550)
-        Me.txtTicketPrice.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.txtTicketPrice.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.txtTicketPrice.Location = New System.Drawing.Point(570, 95)
         Me.txtTicketPrice.Name = "txtTicketPrice"
-        Me.txtTicketPrice.Size = New System.Drawing.Size(132, 22)
+        Me.txtTicketPrice.Size = New System.Drawing.Size(90, 23)
         Me.txtTicketPrice.TabIndex = 10
+        Me.txtTicketPrice.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'lblEndsAt
+        '
+        Me.lblEndsAt.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblEndsAt.Location = New System.Drawing.Point(16, 133)
+        Me.lblEndsAt.Name = "lblEndsAt"
+        Me.lblEndsAt.Size = New System.Drawing.Size(660, 46)
+        Me.lblEndsAt.TabIndex = 11
+        Me.lblEndsAt.Text = "Pick a film and a start time to see when the screen would be free again"
         '
         'btnAdd
         '
-        Me.btnAdd.Location = New System.Drawing.Point(600, 402)
-        Me.btnAdd.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.btnAdd.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
+        Me.btnAdd.Location = New System.Drawing.Point(700, 58)
         Me.btnAdd.Name = "btnAdd"
-        Me.btnAdd.Size = New System.Drawing.Size(120, 37)
-        Me.btnAdd.TabIndex = 11
-        Me.btnAdd.Text = "Add"
+        Me.btnAdd.Size = New System.Drawing.Size(320, 42)
+        Me.btnAdd.TabIndex = 12
+        Me.btnAdd.Text = "PUT THIS FILM ON"
         Me.btnAdd.UseVisualStyleBackColor = True
         '
         'btnUpdate
         '
-        Me.btnUpdate.Location = New System.Drawing.Point(728, 402)
-        Me.btnUpdate.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.btnUpdate.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.btnUpdate.Location = New System.Drawing.Point(700, 106)
         Me.btnUpdate.Name = "btnUpdate"
-        Me.btnUpdate.Size = New System.Drawing.Size(120, 37)
-        Me.btnUpdate.TabIndex = 12
-        Me.btnUpdate.Text = "Update"
+        Me.btnUpdate.Size = New System.Drawing.Size(155, 34)
+        Me.btnUpdate.TabIndex = 13
+        Me.btnUpdate.Text = "Save changes"
         Me.btnUpdate.UseVisualStyleBackColor = True
         '
         'btnDelete
         '
-        Me.btnDelete.Location = New System.Drawing.Point(600, 447)
-        Me.btnDelete.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.btnDelete.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.btnDelete.Location = New System.Drawing.Point(865, 106)
         Me.btnDelete.Name = "btnDelete"
-        Me.btnDelete.Size = New System.Drawing.Size(120, 37)
-        Me.btnDelete.TabIndex = 13
-        Me.btnDelete.Text = "Delete"
+        Me.btnDelete.Size = New System.Drawing.Size(155, 34)
+        Me.btnDelete.TabIndex = 14
+        Me.btnDelete.Text = "Delete screening"
         Me.btnDelete.UseVisualStyleBackColor = True
         '
         'btnClear
         '
-        Me.btnClear.Location = New System.Drawing.Point(728, 447)
-        Me.btnClear.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.btnClear.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.btnClear.Location = New System.Drawing.Point(700, 146)
         Me.btnClear.Name = "btnClear"
-        Me.btnClear.Size = New System.Drawing.Size(120, 37)
-        Me.btnClear.TabIndex = 14
-        Me.btnClear.Text = "Clear"
+        Me.btnClear.Size = New System.Drawing.Size(320, 30)
+        Me.btnClear.TabIndex = 15
+        Me.btnClear.Text = "Clear the boxes"
         Me.btnClear.UseVisualStyleBackColor = True
         '
         'lblVersion
         '
         Me.lblVersion.AutoSize = True
         Me.lblVersion.ForeColor = System.Drawing.Color.Gray
-        Me.lblVersion.Location = New System.Drawing.Point(733, 603)
-        Me.lblVersion.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblVersion.Location = New System.Drawing.Point(16, 666)
         Me.lblVersion.Name = "lblVersion"
         Me.lblVersion.Size = New System.Drawing.Size(271, 16)
-        Me.lblVersion.TabIndex = 15
+        Me.lblVersion.TabIndex = 3
         Me.lblVersion.Text = "Filmtopia Cinema Management System  v1.0"
         '
         'frmScreenings
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1067, 640)
+        Me.ClientSize = New System.Drawing.Size(1068, 695)
         Me.Controls.Add(Me.lblVersion)
-        Me.Controls.Add(Me.btnClear)
-        Me.Controls.Add(Me.btnDelete)
-        Me.Controls.Add(Me.btnUpdate)
-        Me.Controls.Add(Me.btnAdd)
-        Me.Controls.Add(Me.txtTicketPrice)
-        Me.Controls.Add(Me.lblTicketPrice)
-        Me.Controls.Add(Me.txtScreeningTime)
-        Me.Controls.Add(Me.lblScreeningTime)
-        Me.Controls.Add(Me.dtpScreeningDate)
-        Me.Controls.Add(Me.lblScreeningDate)
-        Me.Controls.Add(Me.cboScreen)
-        Me.Controls.Add(Me.lblScreen)
-        Me.Controls.Add(Me.cboFilm)
-        Me.Controls.Add(Me.lblFilm)
-        Me.Controls.Add(Me.dgvScreenings)
-        Me.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.Controls.Add(Me.GroupBox2)
+        Me.Controls.Add(Me.GroupBox1)
+        Me.Controls.Add(Me.lblHeading)
         Me.Name = "frmScreenings"
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.MaximizeBox = False
         Me.Text = "Screenings"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
+        Me.GroupBox1.ResumeLayout(False)
+        Me.GroupBox1.PerformLayout()
+        Me.GroupBox2.ResumeLayout(False)
+        Me.GroupBox2.PerformLayout()
         CType(Me.dgvScreenings, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
 
+    Friend WithEvents lblHeading As Label
+    Friend WithEvents GroupBox1 As GroupBox
+    Friend WithEvents lblShow As Label
+    Friend WithEvents cboShow As ComboBox
+    Friend WithEvents lblGridCount As Label
     Friend WithEvents dgvScreenings As DataGridView
+    Friend WithEvents GroupBox2 As GroupBox
+    Friend WithEvents lblStatus As Label
     Friend WithEvents lblFilm As Label
     Friend WithEvents cboFilm As ComboBox
     Friend WithEvents lblScreen As Label
     Friend WithEvents cboScreen As ComboBox
-    Friend WithEvents lblScreeningDate As Label
+    Friend WithEvents lblDate As Label
     Friend WithEvents dtpScreeningDate As DateTimePicker
-    Friend WithEvents lblScreeningTime As Label
+    Friend WithEvents lblTime As Label
     Friend WithEvents txtScreeningTime As TextBox
-    Friend WithEvents lblTicketPrice As Label
+    Friend WithEvents lblPrice As Label
     Friend WithEvents txtTicketPrice As TextBox
+    Friend WithEvents lblEndsAt As Label
     Friend WithEvents btnAdd As Button
     Friend WithEvents btnUpdate As Button
     Friend WithEvents btnDelete As Button

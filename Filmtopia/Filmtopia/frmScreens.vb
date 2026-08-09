@@ -1,46 +1,227 @@
-﻿Imports System.Data.OleDb
+Imports System.Data.OleDb
 
 Public Class frmScreens
 
     'tracks the ScreenID of the row currently selected in the grid, 0 means nothing selected
     Private selectedScreenID As Long = 0
 
+    'the capacity the selected screen had when it was clicked on. it is kept so that saving can
+    'tell whether the capacity has actually been changed, because the seats only need making
+    'again if it has
+    Private capacityWhenPicked As Integer = 0
+
     Private Sub frmScreens_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup(Me)
         LoadScreens()
+        ClearFields()
         WriteLog("SCREEN", "Screens form opened")
     End Sub
 
-    'loads all screens from tblScreen into the grid
+    'loads the screens into the grid along with how many seats have actually been made for each
+    'one and how many screenings it has, so a screen that is in use is obvious before anybody
+    'starts changing it
     Private Sub LoadScreens()
+        Dim dt As New DataTable
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "SELECT ScreenID, ScreenName, ScreenCapacity " &
-                                 "FROM tblScreen"
+                                 "FROM tblScreen ORDER BY ScreenName"
             Dim da As New OleDbDataAdapter(SQLCmd)
-            Dim dt As New DataTable
             da.Fill(dt)
-            dgvScreens.DataSource = dt
             cn.Close()
         End If
 
-        'let the name column stretch out and wrap so its all readable
-        dgvScreens.Columns("ScreenName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-        dgvScreens.DefaultCellStyle.WrapMode = DataGridViewTriState.True
-        dgvScreens.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells
+        'the extra columns are worked out a screen at a time. there are only ever a handful of
+        'screens so this is quick enough, and it is far easier to follow than one big query
+        dt.Columns.Add("Rows", GetType(String))
+        dt.Columns.Add("Seats", GetType(Integer))
+        dt.Columns.Add("Screenings", GetType(Integer))
+
+        For Each row As DataRow In dt.Rows
+            Dim screenID As Long = CLng(row("ScreenID"))
+            Dim capacity As Integer = CInt(row("ScreenCapacity"))
+
+            row("Rows") = RowsAsText(capacity)
+            row("Seats") = SeatsOnScreen(screenID)
+            row("Screenings") = ScreeningsOnScreen(screenID)
+        Next
+
+        dgvScreens.DataSource = dt
+
+        If dgvScreens.Columns.Contains("ScreenID") Then
+            dgvScreens.Columns("ScreenID").HeaderText = "ID"
+            dgvScreens.Columns("ScreenName").HeaderText = "Screen"
+            dgvScreens.Columns("ScreenCapacity").HeaderText = "Capacity"
+            dgvScreens.Columns("Rows").HeaderText = "Rows"
+            dgvScreens.Columns("Seats").HeaderText = "Seats made"
+            dgvScreens.Columns("Screenings").HeaderText = "Screenings"
+
+            dgvScreens.Columns("ScreenID").Width = 50
+            dgvScreens.Columns("ScreenName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            dgvScreens.Columns("ScreenCapacity").Width = 90
+            dgvScreens.Columns("Rows").Width = 120
+            dgvScreens.Columns("Seats").Width = 100
+            dgvScreens.Columns("Screenings").Width = 100
+
+            dgvScreens.Columns("ScreenCapacity").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+            dgvScreens.Columns("Seats").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+            dgvScreens.Columns("Screenings").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+        End If
+
+        MarkScreensThatDoNotAddUp()
+        ShowCount(dt)
+        dgvScreens.ClearSelection()
 
         WriteLog("SCREEN", "Screen list loaded")
     End Sub
 
-    'adds a new screen using the values typed into the textboxes
-    Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
-        If txtName.Text = "" Then
-            MessageBox.Show("Enter a screen name")
+    'a screen whose capacity does not match the seats that were actually made is a sign something
+    'went wrong when it was set up, so it is coloured in rather than left to be spotted by eye
+    Private Sub MarkScreensThatDoNotAddUp()
+        For Each row As DataGridViewRow In dgvScreens.Rows
+            If CInt(row.Cells("ScreenCapacity").Value) <> CInt(row.Cells("Seats").Value) Then
+                If DarkModeOn Then
+                    row.DefaultCellStyle.BackColor = Color.FromArgb(82, 62, 12)
+                    row.DefaultCellStyle.ForeColor = Color.White
+                Else
+                    row.DefaultCellStyle.BackColor = Color.FromArgb(255, 244, 205)
+                    row.DefaultCellStyle.ForeColor = Color.FromArgb(110, 80, 0)
+                End If
+            End If
+        Next
+    End Sub
+
+    'says how many screens there are and how many seats that is altogether
+    Private Sub ShowCount(dt As DataTable)
+        Dim seats As Integer = 0
+
+        For Each row As DataRow In dt.Rows
+            seats = seats + CInt(row("Seats"))
+        Next
+
+        lblGridCount.Text = dt.Rows.Count & " screen(s), " & seats & " seats in the building"
+    End Sub
+
+    'describes the rows a capacity works out as, e.g. 4 rows, A to D
+    Private Function RowsAsText(capacity As Integer) As String
+        Dim numRows As Integer = capacity \ 10
+
+        If numRows <= 0 Then
+            Return "none"
+        End If
+
+        If numRows = 1 Then
+            Return "1 row, A"
+        End If
+
+        Return numRows & " rows, A to " & Chr(64 + numRows)
+    End Function
+
+    'counts the seats that have actually been made for a screen
+    Private Function SeatsOnScreen(screenID As Long) As Integer
+        Dim total As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblSeat WHERE ScreenID = @ScreenID"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
+            total = CInt(SQLCmd.ExecuteScalar())
+            cn.Close()
+        End If
+
+        Return total
+    End Function
+
+    'counts the screenings scheduled in a screen
+    Private Function ScreeningsOnScreen(screenID As Long) As Integer
+        Dim total As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblScreening WHERE ScreenID = @ScreenID"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
+            total = CInt(SQLCmd.ExecuteScalar())
+            cn.Close()
+        End If
+
+        Return total
+    End Function
+
+    'counts how many seats in a screen have been booked by somebody. this is what makes changing
+    'the size of a screen dangerous, because making the seats again would leave those bookings
+    'pointing at seats that no longer exist
+    Private Function BookedSeatsOnScreen(screenID As Long) As Integer
+        Dim total As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBookingSeat " &
+                                 "INNER JOIN tblSeat ON tblBookingSeat.SeatID = tblSeat.SeatID " &
+                                 "WHERE tblSeat.ScreenID = @ScreenID"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
+            total = CInt(SQLCmd.ExecuteScalar())
+            cn.Close()
+        End If
+
+        Return total
+    End Function
+
+    'as the capacity is typed in it says what that works out as, so the rows of ten rule can be
+    'seen working instead of only being found out about by getting it wrong
+    Private Sub txtCapacity_TextChanged(sender As Object, e As EventArgs) Handles txtCapacity.TextChanged
+        ShowLayoutPreview()
+    End Sub
+
+    Private Sub ShowLayoutPreview()
+        If txtCapacity.Text.Trim() = "" Then
+            lblLayout.Text = "Type how many seats to see the layout"
             Exit Sub
         End If
 
-        If Not CapacityIsValid() Then Exit Sub
+        If Not IsNumeric(txtCapacity.Text) Then
+            lblLayout.Text = "How many seats has to be a number"
+            Exit Sub
+        End If
+
+        Dim capacity As Integer = CInt(Val(txtCapacity.Text))
+
+        If capacity <= 0 Then
+            lblLayout.Text = "A screen needs more than no seats in it"
+            Exit Sub
+        End If
+
+        If capacity Mod 10 <> 0 Then
+            'rounding down shows the nearest size that would work, which is more use than just
+            'saying no
+            Dim nearest As Integer = (capacity \ 10) * 10
+            If nearest = 0 Then
+                lblLayout.Text = "Seats are made in rows of ten, so try 10"
+            Else
+                lblLayout.Text = "Seats are made in rows of ten, so try " & nearest & " or " & (nearest + 10)
+            End If
+            Exit Sub
+        End If
+
+        lblLayout.Text = "That makes " & RowsAsText(capacity) & ", with ten seats in each row." & vbCrLf &
+                         "The seats will be numbered A1 to " & Chr(64 + (capacity \ 10)) & "10."
+    End Sub
+
+    'adds a new screen and makes its seats
+    Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
+        If txtName.Text.Trim() = "" Then
+            MessageBox.Show("Enter a screen name")
+            txtName.Focus()
+            Exit Sub
+        End If
+
+        If Not CapacityIsValid() Then
+            Exit Sub
+        End If
 
         Dim newScreenID As Long = 0
 
@@ -49,7 +230,7 @@ Public Class frmScreens
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "INSERT INTO tblScreen (ScreenName, ScreenCapacity) " &
                                  "VALUES (@ScreenName, @ScreenCapacity)"
-            SQLCmd.Parameters.AddWithValue("@ScreenName", txtName.Text)
+            SQLCmd.Parameters.AddWithValue("@ScreenName", txtName.Text.Trim())
             SQLCmd.Parameters.AddWithValue("@ScreenCapacity", Val(txtCapacity.Text))
             SQLCmd.ExecuteNonQuery()
 
@@ -59,25 +240,55 @@ Public Class frmScreens
             cn.Close()
         End If
 
-        GenerateSeats(newScreenID, Val(txtCapacity.Text))
+        GenerateSeats(newScreenID, CInt(Val(txtCapacity.Text)))
 
-        WriteLog("SCREEN", "Screen added: " & txtName.Text, LogChange)
+        WriteLog("SCREEN", "Screen added: " & txtName.Text.Trim(), LogChange)
         LoadScreens()
         ClearFields()
     End Sub
 
-    'updates the currently selected screen with the values in the textboxes
+    'saves the changes made to the screen selected in the grid
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
         If selectedScreenID = 0 Then
             MessageBox.Show("Select a screen in the grid first")
             Exit Sub
         End If
 
-                If txtName.Text = "" Then
+        If txtName.Text.Trim() = "" Then
             MessageBox.Show("Enter a screen name")
+            txtName.Focus()
             Exit Sub
         End If
-        If Not CapacityIsValid() Then Exit Sub
+
+        If Not CapacityIsValid() Then
+            Exit Sub
+        End If
+
+        Dim newCapacity As Integer = CInt(Val(txtCapacity.Text))
+
+        'the seats are only worth making again if the size of the screen has actually changed.
+        'before, renaming a screen wiped all of its seats and made them again for no reason
+        Dim capacityChanged As Boolean = (newCapacity <> capacityWhenPicked)
+
+        If capacityChanged Then
+            'making the seats again means deleting the old ones, and anything already booked in
+            'this screen is booked against one of those seats, so it has to be stopped
+            Dim booked As Integer = BookedSeatsOnScreen(selectedScreenID)
+
+            If booked > 0 Then
+                MessageBox.Show("This screen has " & booked & " seat(s) already booked." & vbCrLf &
+                                "Changing how many seats it has would mean making them all again, and those " &
+                                "bookings would be left pointing at seats that no longer exist." & vbCrLf & vbCrLf &
+                                "Cancel those bookings first, or leave the number of seats as it is.",
+                                "Cannot resize this screen", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                Exit Sub
+            End If
+
+            If MessageBox.Show("Changing the number of seats will make all of this screen's seats again." & vbCrLf &
+                               "Carry on?", "Confirm", MessageBoxButtons.YesNo) = DialogResult.No Then
+                Exit Sub
+            End If
+        End If
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -85,30 +296,51 @@ Public Class frmScreens
             SQLCmd.CommandText = "UPDATE tblScreen " &
                                  "SET ScreenName = @ScreenName, ScreenCapacity = @ScreenCapacity " &
                                  "WHERE ScreenID = @ScreenID"
-            SQLCmd.Parameters.AddWithValue("@ScreenName", txtName.Text)
-            SQLCmd.Parameters.AddWithValue("@ScreenCapacity", Val(txtCapacity.Text))
+            SQLCmd.Parameters.AddWithValue("@ScreenName", txtName.Text.Trim())
+            SQLCmd.Parameters.AddWithValue("@ScreenCapacity", newCapacity)
             SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If
 
-        'capacity may have changed so wipe the old seats and generate fresh ones
-        DeleteSeats(selectedScreenID)
-        GenerateSeats(selectedScreenID, Val(txtCapacity.Text))
+        If capacityChanged Then
+            DeleteSeats(selectedScreenID)
+            GenerateSeats(selectedScreenID, newCapacity)
+        End If
 
-        WriteLog("SCREEN", "Screen updated: " & txtName.Text, LogChange)
+        WriteLog("SCREEN", "Screen updated: " & txtName.Text.Trim(), LogChange)
         LoadScreens()
         ClearFields()
     End Sub
 
-    'deletes the currently selected screen
+    'deletes the screen selected in the grid
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
         If selectedScreenID = 0 Then
             MessageBox.Show("Select a screen in the grid first")
             Exit Sub
         End If
 
-        If MessageBox.Show("Delete this screen?", "Confirm", MessageBoxButtons.YesNo) = DialogResult.No Then
+        'a screen with something scheduled in it cannot go, those screenings would be left in a
+        'room that does not exist
+        Dim screenings As Integer = ScreeningsOnScreen(selectedScreenID)
+
+        If screenings > 0 Then
+            MessageBox.Show("'" & txtName.Text & "' has " & screenings & " screening(s) scheduled in it." & vbCrLf &
+                            "Delete those screenings first, then the screen can be removed.",
+                            "Cannot delete", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        Dim booked As Integer = BookedSeatsOnScreen(selectedScreenID)
+
+        If booked > 0 Then
+            MessageBox.Show("'" & txtName.Text & "' has " & booked & " seat(s) that are booked." & vbCrLf &
+                            "Cancel those bookings first, then the screen can be removed.",
+                            "Cannot delete", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        If MessageBox.Show("Delete '" & txtName.Text & "' and all of its seats?", "Confirm", MessageBoxButtons.YesNo) = DialogResult.No Then
             Exit Sub
         End If
 
@@ -132,17 +364,31 @@ Public Class frmScreens
 
     'checks the capacity box is a whole multiple of 10, since seats are generated in rows of 10
     Private Function CapacityIsValid() As Boolean
-        Dim capacity As Integer = Val(txtCapacity.Text)
+        If Not IsNumeric(txtCapacity.Text) Then
+            MessageBox.Show("How many seats has to be a number")
+            txtCapacity.Focus()
+            Return False
+        End If
+
+        Dim capacity As Integer = CInt(Val(txtCapacity.Text))
 
         If capacity <= 0 Or capacity Mod 10 <> 0 Then
             MessageBox.Show("Screen capacity must be a multiple of 10 (e.g. 10, 20, 30...)")
+            txtCapacity.Focus()
+            Return False
+        End If
+
+        'twenty six rows is as far as the letters go, so that is as big as a screen can be
+        If capacity > 260 Then
+            MessageBox.Show("The rows are lettered A to Z, so a screen cannot be bigger than 260 seats")
+            txtCapacity.Focus()
             Return False
         End If
 
         Return True
     End Function
 
-    'clears the textboxes and the selection
+    'clears the boxes and the selection
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         ClearFields()
         WriteLog("SCREEN", "Screen fields cleared")
@@ -150,9 +396,29 @@ Public Class frmScreens
 
     Private Sub ClearFields()
         selectedScreenID = 0
+        capacityWhenPicked = 0
         txtName.Text = ""
         txtCapacity.Text = ""
         dgvScreens.ClearSelection()
+        ShowWhatIsBeingEdited()
+        ShowLayoutPreview()
+    End Sub
+
+    'the heading over the boxes says whether a new screen is being typed in or an existing one is
+    'being changed. save and delete are switched off until something is picked, rather than
+    'letting them be pressed and then telling the user off with a message box
+    Private Sub ShowWhatIsBeingEdited()
+        If selectedScreenID = 0 Then
+            lblStatus.Text = "Adding a new screen"
+            btnUpdate.Enabled = False
+            btnDelete.Enabled = False
+            btnAdd.Enabled = True
+        Else
+            lblStatus.Text = "Editing: " & txtName.Text
+            btnUpdate.Enabled = True
+            btnDelete.Enabled = True
+            btnAdd.Enabled = False
+        End If
     End Sub
 
     'makes a row of 10 seats for every 10 seats of capacity, rows go A, B, C...
@@ -180,7 +446,7 @@ Public Class frmScreens
             cn.Close()
         End If
 
-        WriteLog("SCREEN", "Seats generated for ScreenID " & screenID, LogChange)
+        WriteLog("SCREEN", "Seats generated for ScreenID " & screenID & ", " & capacity & " seats", LogChange)
     End Sub
 
     'removes every seat that belongs to a screen
@@ -196,7 +462,7 @@ Public Class frmScreens
         End If
     End Sub
 
-    'when a row is clicked, load its values into the textboxes for editing
+    'when a row is clicked, load its values into the boxes for editing
     Private Sub dgvScreens_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvScreens.CellClick
         If e.RowIndex < 0 Then Exit Sub
 
@@ -204,6 +470,11 @@ Public Class frmScreens
         selectedScreenID = CLng(row.Cells("ScreenID").Value)
         txtName.Text = row.Cells("ScreenName").Value.ToString()
         txtCapacity.Text = row.Cells("ScreenCapacity").Value.ToString()
+
+        'remembered so saving can tell whether the size has been changed or only the name
+        capacityWhenPicked = CInt(row.Cells("ScreenCapacity").Value)
+
+        ShowWhatIsBeingEdited()
         WriteLog("SCREEN", "Screen selected: " & txtName.Text)
     End Sub
 
