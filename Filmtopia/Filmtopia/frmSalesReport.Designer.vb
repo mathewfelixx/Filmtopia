@@ -22,6 +22,8 @@ Partial Class frmSalesReport
         Me.lblTo = New System.Windows.Forms.Label()
         Me.dtpTo = New System.Windows.Forms.DateTimePicker()
         Me.btnRunReport = New System.Windows.Forms.Button()
+        Me.lblShow = New System.Windows.Forms.Label()
+        Me.cboReportType = New System.Windows.Forms.ComboBox()
         Me.dgvSalesByFilm = New System.Windows.Forms.DataGridView()
         Me.lblTicketRevenue = New System.Windows.Forms.Label()
         Me.lblFoodRevenue = New System.Windows.Forms.Label()
@@ -78,71 +80,92 @@ Partial Class frmSalesReport
         Me.btnRunReport.Text = "Run Report"
         Me.btnRunReport.UseVisualStyleBackColor = True
         '
+        'lblShow
+        '
+        Me.lblShow.AutoSize = True
+        Me.lblShow.Location = New System.Drawing.Point(16, 60)
+        Me.lblShow.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblShow.Name = "lblShow"
+        Me.lblShow.Size = New System.Drawing.Size(40, 16)
+        Me.lblShow.TabIndex = 5
+        Me.lblShow.Text = "Show"
+        '
+        'cboReportType
+        '
+        Me.cboReportType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboReportType.Location = New System.Drawing.Point(70, 56)
+        Me.cboReportType.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboReportType.Name = "cboReportType"
+        Me.cboReportType.Size = New System.Drawing.Size(250, 24)
+        Me.cboReportType.TabIndex = 6
+        '
         'dgvSalesByFilm
         '
         Me.dgvSalesByFilm.AllowUserToAddRows = False
         Me.dgvSalesByFilm.AllowUserToDeleteRows = False
         Me.dgvSalesByFilm.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvSalesByFilm.Location = New System.Drawing.Point(16, 56)
+        Me.dgvSalesByFilm.Location = New System.Drawing.Point(16, 95)
         Me.dgvSalesByFilm.Margin = New System.Windows.Forms.Padding(4)
         Me.dgvSalesByFilm.Name = "dgvSalesByFilm"
         Me.dgvSalesByFilm.ReadOnly = True
         Me.dgvSalesByFilm.RowHeadersWidth = 51
         Me.dgvSalesByFilm.Size = New System.Drawing.Size(660, 250)
-        Me.dgvSalesByFilm.TabIndex = 5
+        Me.dgvSalesByFilm.TabIndex = 7
         '
         'lblTicketRevenue
         '
         Me.lblTicketRevenue.AutoSize = True
-        Me.lblTicketRevenue.Location = New System.Drawing.Point(16, 322)
+        Me.lblTicketRevenue.Location = New System.Drawing.Point(16, 360)
         Me.lblTicketRevenue.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblTicketRevenue.Name = "lblTicketRevenue"
         Me.lblTicketRevenue.Size = New System.Drawing.Size(120, 16)
-        Me.lblTicketRevenue.TabIndex = 6
+        Me.lblTicketRevenue.TabIndex = 8
         Me.lblTicketRevenue.Text = "Ticket revenue: £0.00"
         '
         'lblFoodRevenue
         '
         Me.lblFoodRevenue.AutoSize = True
-        Me.lblFoodRevenue.Location = New System.Drawing.Point(16, 350)
+        Me.lblFoodRevenue.Location = New System.Drawing.Point(16, 388)
         Me.lblFoodRevenue.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblFoodRevenue.Name = "lblFoodRevenue"
         Me.lblFoodRevenue.Size = New System.Drawing.Size(112, 16)
-        Me.lblFoodRevenue.TabIndex = 7
+        Me.lblFoodRevenue.TabIndex = 9
         Me.lblFoodRevenue.Text = "Food revenue: £0.00"
         '
         'lblGrandTotal
         '
         Me.lblGrandTotal.AutoSize = True
         Me.lblGrandTotal.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold)
-        Me.lblGrandTotal.Location = New System.Drawing.Point(16, 380)
+        Me.lblGrandTotal.Location = New System.Drawing.Point(16, 418)
         Me.lblGrandTotal.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblGrandTotal.Name = "lblGrandTotal"
         Me.lblGrandTotal.Size = New System.Drawing.Size(140, 28)
-        Me.lblGrandTotal.TabIndex = 8
+        Me.lblGrandTotal.TabIndex = 10
         Me.lblGrandTotal.Text = "Grand total: £0.00"
         '
         'lblVersion
         '
         Me.lblVersion.AutoSize = True
         Me.lblVersion.ForeColor = System.Drawing.Color.Gray
-        Me.lblVersion.Location = New System.Drawing.Point(16, 450)
+        Me.lblVersion.Location = New System.Drawing.Point(16, 490)
         Me.lblVersion.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblVersion.Name = "lblVersion"
         Me.lblVersion.Size = New System.Drawing.Size(271, 16)
-        Me.lblVersion.TabIndex = 9
+        Me.lblVersion.TabIndex = 11
         Me.lblVersion.Text = "Filmtopia Cinema Management System  v1.0"
         '
         'frmSalesReport
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(694, 490)
+        Me.ClientSize = New System.Drawing.Size(694, 530)
         Me.Controls.Add(Me.lblVersion)
         Me.Controls.Add(Me.lblGrandTotal)
         Me.Controls.Add(Me.lblFoodRevenue)
         Me.Controls.Add(Me.lblTicketRevenue)
         Me.Controls.Add(Me.dgvSalesByFilm)
+        Me.Controls.Add(Me.cboReportType)
+        Me.Controls.Add(Me.lblShow)
         Me.Controls.Add(Me.btnRunReport)
         Me.Controls.Add(Me.dtpTo)
         Me.Controls.Add(Me.lblTo)
@@ -165,6 +188,8 @@ Partial Class frmSalesReport
     Friend WithEvents lblTo As Label
     Friend WithEvents dtpTo As DateTimePicker
     Friend WithEvents btnRunReport As Button
+    Friend WithEvents lblShow As Label
+    Friend WithEvents cboReportType As ComboBox
     Friend WithEvents dgvSalesByFilm As DataGridView
     Friend WithEvents lblTicketRevenue As Label
     Friend WithEvents lblFoodRevenue As Label

@@ -316,7 +316,7 @@ Public Class frmMainMenuV2
 
         If UserAccessLevel = 1 Then
             TipCard(tips, pnlCard3, lblCardTitle3, lblStat3, lblCardSub3, "How many bookings have been made. Click to make one.")
-            TipCard(tips, pnlCard4, lblCardTitle4, lblStat4, lblCardSub4, "Everything taken from ticket sales. Click for the sales report.")
+            TipCard(tips, pnlCard4, lblCardTitle4, lblStat4, lblCardSub4, "Everything taken, split into tickets and concessions. Click for the sales report.")
         Else
             TipCard(tips, pnlCard3, lblCardTitle3, lblStat3, lblCardSub3, "How many seats have been sold. Click to make a booking.")
             TipCard(tips, pnlCard4, lblCardTitle4, lblStat4, lblCardSub4, "How many food and drink items have been sold.")
@@ -525,18 +525,30 @@ Public Class frmMainMenuV2
 
                 'SUM comes back empty if there are no bookings at all so that has to be checked
                 SQLCmd.CommandText = "SELECT SUM(TotalCost) FROM tblBooking"
-                Dim takings = SQLCmd.ExecuteScalar()
-                If takings Is Nothing OrElse IsDBNull(takings) Then
-                    lblStat4.Text = FormatCurrency(0)
+                Dim takingsResult = SQLCmd.ExecuteScalar()
+                Dim takings As Double = 0
+                If takingsResult IsNot Nothing AndAlso Not IsDBNull(takingsResult) Then
+                    takings = CDbl(takingsResult)
+                End If
+
+                'the total on a booking is the tickets plus any food, so the concessions side has to
+                'be worked out on its own and taken off to leave what the tickets brought in
+                SQLCmd.CommandText = "SELECT SUM(Quantity * FoodItemPrice) " &
+                                     "FROM tblOrderItem INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID"
+                Dim foodResult = SQLCmd.ExecuteScalar()
+                Dim concessions As Double = 0
+                If foodResult IsNot Nothing AndAlso Not IsDBNull(foodResult) Then
+                    concessions = CDbl(foodResult)
+                End If
+
+                Dim tickets As Double = takings - concessions
+
+                lblStat4.Text = FormatCurrency(takings)
+                If takings = 0 Then
                     lblCardSub4.Text = "nothing taken yet"
                 Else
-                    lblStat4.Text = FormatCurrency(takings)
-                    'dividing by no bookings at all would crash so it is checked first
-                    If bookings > 0 Then
-                        lblCardSub4.Text = FormatCurrency(CDbl(takings) / bookings) & " a booking on average"
-                    Else
-                        lblCardSub4.Text = ""
-                    End If
+                    'split it so it is obvious how much of the money is tickets and how much is snacks
+                    lblCardSub4.Text = FormatCurrency(tickets) & " tickets | " & FormatCurrency(concessions) & " concessions"
                 End If
             Else
                 'staff get numbers that are useful on a shift instead of anything about money
