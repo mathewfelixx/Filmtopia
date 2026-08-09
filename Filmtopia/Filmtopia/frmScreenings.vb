@@ -219,8 +219,6 @@ Public Class frmScreenings
         ShowCount(dt)
         MarkSoldOutScreenings()
         dgvScreenings.ClearSelection()
-
-        WriteLog("SCREENING", "Screening list loaded")
     End Sub
 
     'a screening with every seat gone is worth seeing straight away, and one that nobody has
@@ -841,7 +839,6 @@ Public Class frmScreenings
     'clears the fields and the selection
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         ClearFields()
-        WriteLog("SCREENING", "Screening fields cleared")
     End Sub
 
     Private Sub ClearFields()
@@ -891,7 +888,6 @@ Public Class frmScreenings
 
         ShowWhatIsBeingEdited()
         ShowEndTime()
-        WriteLog("SCREENING", "Screening selected: " & cboFilm.Text & " on " & cboScreen.Text)
     End Sub
 
 End Class
