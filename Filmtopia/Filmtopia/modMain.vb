@@ -74,4 +74,11 @@ Module modMain
         ColourScheme(frm)
 
     End Sub
+
+    'wraps a value in quotes for a csv file, and doubles up any quotes already in it.
+    'without this a name or a film title containing a comma would be split into two columns
+    'when the file was opened in Excel. it lives here because more than one form exports now
+    Public Function CsvField(value As String) As String
+        Return """" & value.Replace("""", """""") & """"
+    End Function
 End Module

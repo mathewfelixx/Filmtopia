@@ -87,7 +87,7 @@ Public Class frmCustomers
             cn.Close()
         End If
 
-        WriteLog("CUSTOMER", "Customer added: " & txtForename.Text & " " & txtSurname.Text)
+        WriteLog("CUSTOMER", "Customer added: " & txtForename.Text & " " & txtSurname.Text, LogChange)
         LoadCustomers()
         ClearFields()
     End Sub
@@ -142,7 +142,7 @@ Public Class frmCustomers
             cn.Close()
         End If
 
-        WriteLog("CUSTOMER", "Customer updated: " & txtForename.Text & " " & txtSurname.Text)
+        WriteLog("CUSTOMER", "Customer updated: " & txtForename.Text & " " & txtSurname.Text, LogChange)
         LoadCustomers()
         ClearFields()
     End Sub
@@ -168,7 +168,7 @@ Public Class frmCustomers
             cn.Close()
         End If
 
-        WriteLog("CUSTOMER", "Customer deleted: " & txtForename.Text & " " & txtSurname.Text)
+        WriteLog("CUSTOMER", "Customer deleted: " & txtForename.Text & " " & txtSurname.Text, LogChange)
         LoadCustomers()
         ClearFields()
     End Sub

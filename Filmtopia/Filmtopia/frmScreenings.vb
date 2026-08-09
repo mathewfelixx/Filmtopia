@@ -148,7 +148,7 @@ Public Class frmScreenings
             cn.Close()
         End If
 
-        WriteLog("SCREENING", "Screening added: " & cboFilm.Text & " on " & cboScreen.Text)
+        WriteLog("SCREENING", "Screening added: " & cboFilm.Text & " on " & cboScreen.Text, LogChange)
         LoadScreenings()
         ClearFields()
     End Sub
@@ -200,7 +200,7 @@ Public Class frmScreenings
             cn.Close()
         End If
 
-        WriteLog("SCREENING", "Screening updated: " & cboFilm.Text & " on " & cboScreen.Text)
+        WriteLog("SCREENING", "Screening updated: " & cboFilm.Text & " on " & cboScreen.Text, LogChange)
         LoadScreenings()
         ClearFields()
     End Sub
@@ -226,7 +226,7 @@ Public Class frmScreenings
             cn.Close()
         End If
 
-        WriteLog("SCREENING", "Screening deleted: ScreeningID " & selectedScreeningID)
+        WriteLog("SCREENING", "Screening deleted: ScreeningID " & selectedScreeningID, LogChange)
         LoadScreenings()
         ClearFields()
     End Sub

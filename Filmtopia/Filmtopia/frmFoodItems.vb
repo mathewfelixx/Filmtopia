@@ -1,4 +1,4 @@
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 
 Public Class frmFoodItems
 
@@ -68,7 +68,7 @@ Public Class frmFoodItems
             cn.Close()
         End If
 
-        WriteLog("FOOD", "Food item added: " & txtName.Text)
+        WriteLog("FOOD", "Food item added: " & txtName.Text, LogChange)
         LoadFoodItems()
         ClearFields()
     End Sub
@@ -114,7 +114,7 @@ Public Class frmFoodItems
             cn.Close()
         End If
 
-        WriteLog("FOOD", "Food item updated: " & txtName.Text)
+        WriteLog("FOOD", "Food item updated: " & txtName.Text, LogChange)
         LoadFoodItems()
         ClearFields()
     End Sub
@@ -140,7 +140,7 @@ Public Class frmFoodItems
             cn.Close()
         End If
 
-        WriteLog("FOOD", "Food item deleted: " & txtName.Text)
+        WriteLog("FOOD", "Food item deleted: " & txtName.Text, LogChange)
         LoadFoodItems()
         ClearFields()
     End Sub

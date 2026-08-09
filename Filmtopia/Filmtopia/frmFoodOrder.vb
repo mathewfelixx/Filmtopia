@@ -121,7 +121,7 @@ Public Class frmFoodOrder
 
         'modBookings owns the money, this form just tells it something changed
         RecalculateBookingTotal(currentBookingID)
-        WriteLog("FOODORDER", "Added " & quantity & " x " & cboFoodItem.Text & " to booking " & currentBookingID)
+        WriteLog("FOODORDER", "Added " & quantity & " x " & cboFoodItem.Text & " to booking " & currentBookingID, LogChange)
         LoadOrderItems()
         txtQuantity.Text = "1"
     End Sub
@@ -153,7 +153,7 @@ Public Class frmFoodOrder
 
         'modBookings owns the money, this form just tells it something changed
         RecalculateBookingTotal(currentBookingID)
-        WriteLog("FOODORDER", "Removed order item " & selectedOrderItemID & " from booking " & currentBookingID)
+        WriteLog("FOODORDER", "Removed order item " & selectedOrderItemID & " from booking " & currentBookingID, LogChange)
         selectedOrderItemID = 0
         LoadOrderItems()
     End Sub

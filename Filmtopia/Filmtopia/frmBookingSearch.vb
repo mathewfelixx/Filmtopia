@@ -1,4 +1,4 @@
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 
 Public Class frmBookingSearch
 
@@ -207,7 +207,7 @@ Public Class frmBookingSearch
 
         'the log is written after the connection is closed because WriteLog opens it again
         If worked Then
-            WriteLog("BOOKING", "Booking " & cancelledID & " cancelled (" & cancelledWhat & "), " & seatsFreed & " seat(s) freed")
+            WriteLog("BOOKING", "Booking " & cancelledID & " cancelled (" & cancelledWhat & "), " & seatsFreed & " seat(s) freed", LogChange)
             MessageBox.Show("Booking cancelled and " & seatsFreed & " seat(s) put back on sale.", "Cancel Booking", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
 
@@ -260,13 +260,6 @@ Public Class frmBookingSearch
 
         WriteLog("BOOKING", "Door list loaded for ScreeningID " & cboDoorListScreening.SelectedValue.ToString())
     End Sub
-
-    'wraps a value in quotes for the csv file, and doubles up any quotes already in it.
-    'without this a name or film title containing a comma would be split into two columns
-    'when the file was opened in Excel
-    Private Function CsvField(value As String) As String
-        Return """" & value.Replace("""", """""") & """"
-    End Function
 
     'saves the door list grid to a csv file so it can be printed and taken to the door
     Private Sub btnExportDoorList_Click(sender As Object, e As EventArgs) Handles btnExportDoorList.Click

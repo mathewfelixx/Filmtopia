@@ -65,7 +65,7 @@ Public Class frmFilms
             cn.Close()
         End If
 
-        WriteLog("FILM", "Film added: " & txtTitle.Text)
+        WriteLog("FILM", "Film added: " & txtTitle.Text, LogChange)
         LoadFilms()
         ClearFields()
     End Sub
@@ -108,7 +108,7 @@ Public Class frmFilms
             cn.Close()
         End If
 
-        WriteLog("FILM", "Film updated: " & txtTitle.Text)
+        WriteLog("FILM", "Film updated: " & txtTitle.Text, LogChange)
         LoadFilms()
         ClearFields()
     End Sub
@@ -134,7 +134,7 @@ Public Class frmFilms
             cn.Close()
         End If
 
-        WriteLog("FILM", "Film deleted: " & txtTitle.Text)
+        WriteLog("FILM", "Film deleted: " & txtTitle.Text, LogChange)
         LoadFilms()
         ClearFields()
     End Sub
