@@ -262,8 +262,6 @@ Public Class frmFilms
 
         ShowCount(dt.Rows.Count)
         dgvFilms.ClearSelection()
-
-        WriteLog("FILM", "Film list loaded")
     End Sub
 
     'the genre that has been picked to filter by, or an empty string if the list is not being
@@ -619,7 +617,6 @@ Public Class frmFilms
     'clears the boxes and the selection
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         ClearFields()
-        WriteLog("FILM", "Film fields cleared")
     End Sub
 
     Private Sub ClearFields()
@@ -672,7 +669,6 @@ Public Class frmFilms
         txtDuration.Text = row.Cells("FilmDuration").Value.ToString()
 
         ShowWhatIsBeingEdited()
-        WriteLog("FILM", "Film selected: " & txtTitle.Text)
     End Sub
 
     'opens the screen that pulls film details out of an IMDb data file. the list is reloaded when
