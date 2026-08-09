@@ -20,6 +20,10 @@ Public Class frmMainMenuV2
     'appear as well
     Private loggingOut As Boolean = False
 
+    'set once the user has said yes to quitting, because Application.Exit makes the closing event
+    'run a second time and the message was appearing twice
+    Private shuttingDown As Boolean = False
+
     'how many screenings there are altogether, used to say how many the grid is hiding
     Private totalScreenings As Integer = 0
 
@@ -182,7 +186,7 @@ Public Class frmMainMenuV2
     'closing the menu with the X used to leave the program running in the background with no
     'window on screen, so now it asks and then shuts everything down properly
     Private Sub frmMainMenuV2_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
-        If loggingOut Then
+        If loggingOut Or shuttingDown Then
             Exit Sub
         End If
 
@@ -192,6 +196,7 @@ Public Class frmMainMenuV2
             e.Cancel = True
         Else
             WriteLog("AUTH", "User '" & frmLogin.globalusername & "' closed the program")
+            shuttingDown = True
             Application.Exit()
         End If
     End Sub
