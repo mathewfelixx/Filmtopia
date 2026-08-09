@@ -230,6 +230,8 @@ Public Class frmFoodItems
             Exit Sub
         End If
 
+        Dim saved As Boolean = False
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
@@ -240,6 +242,13 @@ Public Class frmFoodItems
             SQLCmd.Parameters.AddWithValue("@FoodItemCategory", cboCategory.Text.Trim())
             SQLCmd.ExecuteNonQuery()
             cn.Close()
+            saved = True
+        End If
+
+        'nothing was written if the database could not be opened, so it must not be
+        'logged or announced as though it had been
+        If Not saved Then
+            Exit Sub
         End If
 
         Dim savedName As String = txtName.Text.Trim()
@@ -259,6 +268,8 @@ Public Class frmFoodItems
             Exit Sub
         End If
 
+        Dim saved As Boolean = False
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
@@ -271,6 +282,13 @@ Public Class frmFoodItems
             SQLCmd.Parameters.AddWithValue("@FoodItemID", CInt(selectedFoodItemID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
+            saved = True
+        End If
+
+        'nothing was written if the database could not be opened, so it must not be
+        'logged or announced as though it had been
+        If Not saved Then
+            Exit Sub
         End If
 
         Dim savedName As String = txtName.Text.Trim()
@@ -302,6 +320,8 @@ Public Class frmFoodItems
             Exit Sub
         End If
 
+        Dim saved As Boolean = False
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
@@ -310,6 +330,13 @@ Public Class frmFoodItems
             SQLCmd.Parameters.AddWithValue("@FoodItemID", CInt(selectedFoodItemID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
+            saved = True
+        End If
+
+        'nothing was written if the database could not be opened, so it must not be
+        'logged or announced as though it had been
+        If Not saved Then
+            Exit Sub
         End If
 
         Dim savedName As String = txtName.Text.Trim()
