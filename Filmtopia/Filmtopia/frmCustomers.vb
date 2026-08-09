@@ -118,8 +118,6 @@ Public Class frmCustomers
 
         ShowCount(dt.Rows.Count)
         dgvCustomers.ClearSelection()
-
-        WriteLog("CUSTOMER", "Customer list loaded")
     End Sub
 
     'says how many customers are showing, and whether the search is hiding any
@@ -340,7 +338,6 @@ Public Class frmCustomers
     'clears the boxes and the selection
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         ClearFields()
-        WriteLog("CUSTOMER", "Customer fields cleared")
     End Sub
 
     Private Sub ClearFields()
@@ -384,7 +381,6 @@ Public Class frmCustomers
         txtPhone.Text = row.Cells("CustomerPhone").Value.ToString()
 
         ShowWhatIsBeingEdited()
-        WriteLog("CUSTOMER", "Customer selected: " & txtForename.Text & " " & txtSurname.Text)
     End Sub
 
 End Class
