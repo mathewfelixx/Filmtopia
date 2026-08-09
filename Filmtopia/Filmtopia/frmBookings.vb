@@ -648,8 +648,6 @@ Public Class frmBookings
         btnOrderFood.Enabled = False
         lblCustomerBookings.Text = "Pick a booking to add food to it"
         dgvCustomerBookings.ClearSelection()
-
-        WriteLog("BOOKING", "Sale cleared before it was completed")
     End Sub
 
     'pressing enter in the quantity box adds the item, rather than reaching for the Add button
