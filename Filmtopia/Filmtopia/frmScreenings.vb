@@ -695,6 +695,8 @@ Public Class frmScreenings
             Exit Sub
         End If
 
+        Dim saved As Boolean = False
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
@@ -707,6 +709,13 @@ Public Class frmScreenings
             SQLCmd.Parameters.AddWithValue("@TicketPrice", Val(txtTicketPrice.Text))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
+            saved = True
+        End If
+
+        'nothing was written if the database could not be opened, so it must not be
+        'logged or announced as though it had been
+        If Not saved Then
+            Exit Sub
         End If
 
         Dim savedName As String = cboFilm.Text & " on " & cboScreen.Text
@@ -743,6 +752,8 @@ Public Class frmScreenings
         'is on purpose. a booking is the price it was agreed at. if somebody paid 6.99 the cinema
         'cannot turn round later and say it was 11.99, so a new price only applies to sales made
         'after it. what each seat was charged is kept on the booking itself so this cannot change it
+        Dim saved As Boolean = False
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
@@ -757,6 +768,13 @@ Public Class frmScreenings
             SQLCmd.Parameters.AddWithValue("@ScreeningID", selectedScreeningID)
             SQLCmd.ExecuteNonQuery()
             cn.Close()
+            saved = True
+        End If
+
+        'nothing was written if the database could not be opened, so it must not be
+        'logged or announced as though it had been
+        If Not saved Then
+            Exit Sub
         End If
 
         Dim savedName As String = cboFilm.Text & " on " & cboScreen.Text
@@ -793,6 +811,8 @@ Public Class frmScreenings
             Exit Sub
         End If
 
+        Dim saved As Boolean = False
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
@@ -801,6 +821,13 @@ Public Class frmScreenings
             SQLCmd.Parameters.AddWithValue("@ScreeningID", selectedScreeningID)
             SQLCmd.ExecuteNonQuery()
             cn.Close()
+            saved = True
+        End If
+
+        'nothing was written if the database could not be opened, so it must not be
+        'logged or announced as though it had been
+        If Not saved Then
+            Exit Sub
         End If
 
         Dim savedName As String = cboFilm.Text
