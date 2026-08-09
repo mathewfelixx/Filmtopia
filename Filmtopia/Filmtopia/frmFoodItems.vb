@@ -123,8 +123,6 @@ Public Class frmFoodItems
 
         ShowCount(dt.Rows.Count)
         dgvFoodItems.ClearSelection()
-
-        WriteLog("FOOD", "Food item list loaded")
     End Sub
 
     'says how many items are showing and what the counter charges on average, which is a quick way
@@ -382,7 +380,6 @@ Public Class frmFoodItems
     'clears the boxes and the selection
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         ClearFields()
-        WriteLog("FOOD", "Food item fields cleared")
     End Sub
 
     Private Sub ClearFields()
@@ -427,7 +424,6 @@ Public Class frmFoodItems
         txtPrice.Text = Format(CDbl(row.Cells("FoodItemPrice").Value), "0.00")
 
         ShowWhatIsBeingEdited()
-        WriteLog("FOOD", "Food item selected: " & txtName.Text)
     End Sub
 
 End Class
