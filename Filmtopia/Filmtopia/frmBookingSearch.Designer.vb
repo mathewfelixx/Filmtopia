@@ -28,16 +28,16 @@ Partial Class frmBookingSearch
         Me.lblSelectedBooking = New System.Windows.Forms.Label()
         Me.btnCancelBooking = New System.Windows.Forms.Button()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
-        Me.lblRegisterScreening = New System.Windows.Forms.Label()
-        Me.cboRegisterScreening = New System.Windows.Forms.ComboBox()
-        Me.btnLoadRegister = New System.Windows.Forms.Button()
-        Me.btnExportRegister = New System.Windows.Forms.Button()
-        Me.dgvRegister = New System.Windows.Forms.DataGridView()
+        Me.lblDoorListScreening = New System.Windows.Forms.Label()
+        Me.cboDoorListScreening = New System.Windows.Forms.ComboBox()
+        Me.btnLoadDoorList = New System.Windows.Forms.Button()
+        Me.btnExportDoorList = New System.Windows.Forms.Button()
+        Me.dgvDoorList = New System.Windows.Forms.DataGridView()
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         CType(Me.dgvBookings, System.ComponentModel.ISupportInitialize).BeginInit()
-        CType(Me.dgvRegister, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.dgvDoorList, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'lblHeading
@@ -152,73 +152,73 @@ Partial Class frmBookingSearch
         '
         'GroupBox2
         '
-        Me.GroupBox2.Controls.Add(Me.lblRegisterScreening)
-        Me.GroupBox2.Controls.Add(Me.cboRegisterScreening)
-        Me.GroupBox2.Controls.Add(Me.btnLoadRegister)
-        Me.GroupBox2.Controls.Add(Me.btnExportRegister)
-        Me.GroupBox2.Controls.Add(Me.dgvRegister)
+        Me.GroupBox2.Controls.Add(Me.lblDoorListScreening)
+        Me.GroupBox2.Controls.Add(Me.cboDoorListScreening)
+        Me.GroupBox2.Controls.Add(Me.btnLoadDoorList)
+        Me.GroupBox2.Controls.Add(Me.btnExportDoorList)
+        Me.GroupBox2.Controls.Add(Me.dgvDoorList)
         Me.GroupBox2.Font = New System.Drawing.Font("Segoe UI", 9.75!)
         Me.GroupBox2.Location = New System.Drawing.Point(16, 486)
         Me.GroupBox2.Name = "GroupBox2"
         Me.GroupBox2.Size = New System.Drawing.Size(1103, 252)
         Me.GroupBox2.TabIndex = 5
         Me.GroupBox2.TabStop = False
-        Me.GroupBox2.Text = "Who is coming to a screening"
+        Me.GroupBox2.Text = "Door list - who is coming to a screening"
         '
-        'lblRegisterScreening
+        'lblDoorListScreening
         '
-        Me.lblRegisterScreening.AutoSize = True
-        Me.lblRegisterScreening.Font = New System.Drawing.Font("Segoe UI", 9.75!)
-        Me.lblRegisterScreening.Location = New System.Drawing.Point(16, 33)
-        Me.lblRegisterScreening.Name = "lblRegisterScreening"
-        Me.lblRegisterScreening.Size = New System.Drawing.Size(70, 17)
-        Me.lblRegisterScreening.TabIndex = 0
-        Me.lblRegisterScreening.Text = "Screening"
+        Me.lblDoorListScreening.AutoSize = True
+        Me.lblDoorListScreening.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.lblDoorListScreening.Location = New System.Drawing.Point(16, 33)
+        Me.lblDoorListScreening.Name = "lblDoorListScreening"
+        Me.lblDoorListScreening.Size = New System.Drawing.Size(70, 17)
+        Me.lblDoorListScreening.TabIndex = 0
+        Me.lblDoorListScreening.Text = "Screening"
         '
-        'cboRegisterScreening
+        'cboDoorListScreening
         '
-        Me.cboRegisterScreening.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboRegisterScreening.Font = New System.Drawing.Font("Segoe UI", 9.75!)
-        Me.cboRegisterScreening.Location = New System.Drawing.Point(110, 30)
-        Me.cboRegisterScreening.Name = "cboRegisterScreening"
-        Me.cboRegisterScreening.Size = New System.Drawing.Size(470, 25)
-        Me.cboRegisterScreening.TabIndex = 1
+        Me.cboDoorListScreening.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboDoorListScreening.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.cboDoorListScreening.Location = New System.Drawing.Point(110, 30)
+        Me.cboDoorListScreening.Name = "cboDoorListScreening"
+        Me.cboDoorListScreening.Size = New System.Drawing.Size(470, 25)
+        Me.cboDoorListScreening.TabIndex = 1
         '
-        'btnLoadRegister
+        'btnLoadDoorList
         '
-        Me.btnLoadRegister.Font = New System.Drawing.Font("Segoe UI", 9.75!)
-        Me.btnLoadRegister.Location = New System.Drawing.Point(596, 29)
-        Me.btnLoadRegister.Name = "btnLoadRegister"
-        Me.btnLoadRegister.Size = New System.Drawing.Size(130, 30)
-        Me.btnLoadRegister.TabIndex = 2
-        Me.btnLoadRegister.Text = "Load register"
-        Me.btnLoadRegister.UseVisualStyleBackColor = True
+        Me.btnLoadDoorList.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.btnLoadDoorList.Location = New System.Drawing.Point(596, 29)
+        Me.btnLoadDoorList.Name = "btnLoadDoorList"
+        Me.btnLoadDoorList.Size = New System.Drawing.Size(130, 30)
+        Me.btnLoadDoorList.TabIndex = 2
+        Me.btnLoadDoorList.Text = "Load door list"
+        Me.btnLoadDoorList.UseVisualStyleBackColor = True
         '
-        'btnExportRegister
+        'btnExportDoorList
         '
-        Me.btnExportRegister.Font = New System.Drawing.Font("Segoe UI", 9.75!)
-        Me.btnExportRegister.Location = New System.Drawing.Point(736, 29)
-        Me.btnExportRegister.Name = "btnExportRegister"
-        Me.btnExportRegister.Size = New System.Drawing.Size(130, 30)
-        Me.btnExportRegister.TabIndex = 3
-        Me.btnExportRegister.Text = "Export CSV"
-        Me.btnExportRegister.UseVisualStyleBackColor = True
+        Me.btnExportDoorList.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.btnExportDoorList.Location = New System.Drawing.Point(736, 29)
+        Me.btnExportDoorList.Name = "btnExportDoorList"
+        Me.btnExportDoorList.Size = New System.Drawing.Size(130, 30)
+        Me.btnExportDoorList.TabIndex = 3
+        Me.btnExportDoorList.Text = "Export CSV"
+        Me.btnExportDoorList.UseVisualStyleBackColor = True
         '
-        'dgvRegister
+        'dgvDoorList
         '
-        Me.dgvRegister.AllowUserToAddRows = False
-        Me.dgvRegister.AllowUserToDeleteRows = False
-        Me.dgvRegister.AllowUserToResizeRows = False
-        Me.dgvRegister.BorderStyle = System.Windows.Forms.BorderStyle.None
-        Me.dgvRegister.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvRegister.Location = New System.Drawing.Point(16, 70)
-        Me.dgvRegister.Name = "dgvRegister"
-        Me.dgvRegister.ReadOnly = True
-        Me.dgvRegister.RowHeadersVisible = False
-        Me.dgvRegister.RowTemplate.Height = 28
-        Me.dgvRegister.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvRegister.Size = New System.Drawing.Size(1071, 168)
-        Me.dgvRegister.TabIndex = 4
+        Me.dgvDoorList.AllowUserToAddRows = False
+        Me.dgvDoorList.AllowUserToDeleteRows = False
+        Me.dgvDoorList.AllowUserToResizeRows = False
+        Me.dgvDoorList.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.dgvDoorList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dgvDoorList.Location = New System.Drawing.Point(16, 70)
+        Me.dgvDoorList.Name = "dgvDoorList"
+        Me.dgvDoorList.ReadOnly = True
+        Me.dgvDoorList.RowHeadersVisible = False
+        Me.dgvDoorList.RowTemplate.Height = 28
+        Me.dgvDoorList.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
+        Me.dgvDoorList.Size = New System.Drawing.Size(1071, 168)
+        Me.dgvDoorList.TabIndex = 4
         '
         'lblVersion
         '
@@ -253,7 +253,7 @@ Partial Class frmBookingSearch
         Me.GroupBox2.ResumeLayout(False)
         Me.GroupBox2.PerformLayout()
         CType(Me.dgvBookings, System.ComponentModel.ISupportInitialize).EndInit()
-        CType(Me.dgvRegister, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.dgvDoorList, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -270,10 +270,10 @@ Partial Class frmBookingSearch
     Friend WithEvents lblSelectedBooking As Label
     Friend WithEvents btnCancelBooking As Button
     Friend WithEvents GroupBox2 As GroupBox
-    Friend WithEvents lblRegisterScreening As Label
-    Friend WithEvents cboRegisterScreening As ComboBox
-    Friend WithEvents btnLoadRegister As Button
-    Friend WithEvents btnExportRegister As Button
-    Friend WithEvents dgvRegister As DataGridView
+    Friend WithEvents lblDoorListScreening As Label
+    Friend WithEvents cboDoorListScreening As ComboBox
+    Friend WithEvents btnLoadDoorList As Button
+    Friend WithEvents btnExportDoorList As Button
+    Friend WithEvents dgvDoorList As DataGridView
     Friend WithEvents lblVersion As Label
 End Class

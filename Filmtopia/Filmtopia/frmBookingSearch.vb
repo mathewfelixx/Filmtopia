@@ -14,7 +14,7 @@ Public Class frmBookingSearch
         WriteLog("BOOKING", "Booking search form opened")
     End Sub
 
-    'fills the screening combo for the register section
+    'fills the screening combo for the door list section
     Private Sub LoadScreeningsCombo()
         Dim dt As New DataTable
 
@@ -28,10 +28,10 @@ Public Class frmBookingSearch
             cn.Close()
         End If
 
-        cboRegisterScreening.DataSource = dt
-        cboRegisterScreening.DisplayMember = "Info"
-        cboRegisterScreening.ValueMember = "ScreeningID"
-        cboRegisterScreening.SelectedIndex = -1
+        cboDoorListScreening.DataSource = dt
+        cboDoorListScreening.DisplayMember = "Info"
+        cboDoorListScreening.ValueMember = "ScreeningID"
+        cboDoorListScreening.SelectedIndex = -1
     End Sub
 
     'searches by booking id if a number was typed, otherwise by customer name
@@ -214,9 +214,10 @@ Public Class frmBookingSearch
         LoadBookings(txtSearch.Text.Trim())
     End Sub
 
-    'loads the register grid: who is booked onto the selected screening, their seats and ticket count
-    Private Sub btnLoadRegister_Click(sender As Object, e As EventArgs) Handles btnLoadRegister.Click
-        If cboRegisterScreening.SelectedIndex = -1 Then
+    'loads the door list grid: every seat booked on the selected screening, in seat order, with
+    'the booking number so a ticket on the door can be matched to the list
+    Private Sub btnLoadDoorList_Click(sender As Object, e As EventArgs) Handles btnLoadDoorList.Click
+        If cboDoorListScreening.SelectedIndex = -1 Then
             MessageBox.Show("Select a screening first")
             Exit Sub
         End If
@@ -226,41 +227,38 @@ Public Class frmBookingSearch
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            'join booking to customer (name), to bookingseat and seat (seat number), and to a sub-table
-            'that counts how many seats belong to each booking (tickets)
-            SQLCmd.CommandText = "SELECT CustomerForename & ' ' & CustomerSurname AS CustomerName, tblSeat.SeatRow & tblSeat.SeatNumber AS SeatNumber, BookingCounts.Tickets " &
-                                 "FROM (((tblBooking INNER JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
+            'join booking to customer (name), then to bookingseat and seat to get the seat itself
+            SQLCmd.CommandText = "SELECT tblBooking.BookingID, CustomerForename & ' ' & CustomerSurname AS CustomerName, tblSeat.SeatRow & tblSeat.SeatNumber AS SeatNumber " &
+                                 "FROM ((tblBooking INNER JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
                                  "INNER JOIN tblBookingSeat ON tblBooking.BookingID = tblBookingSeat.BookingID) " &
-                                 "INNER JOIN tblSeat ON tblBookingSeat.SeatID = tblSeat.SeatID) " &
-                                 "INNER JOIN (SELECT BookingID, COUNT(*) AS Tickets FROM tblBookingSeat GROUP BY BookingID) AS BookingCounts " &
-                                 "ON tblBooking.BookingID = BookingCounts.BookingID " &
+                                 "INNER JOIN tblSeat ON tblBookingSeat.SeatID = tblSeat.SeatID " &
                                  "WHERE tblBooking.ScreeningID = @ScreeningID " &
-                                 "ORDER BY 1"
-            SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(cboRegisterScreening.SelectedValue))
+                                 "ORDER BY tblSeat.SeatRow, tblSeat.SeatNumber"
+            SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(cboDoorListScreening.SelectedValue))
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)
             cn.Close()
         End If
 
-        dgvRegister.DataSource = dt
+        dgvDoorList.DataSource = dt
 
-        If dgvRegister.Columns.Count > 0 Then
-            dgvRegister.Columns("CustomerName").HeaderText = "Customer"
-            dgvRegister.Columns("SeatNumber").HeaderText = "Seat"
-            dgvRegister.Columns("Tickets").HeaderText = "Tickets on that booking"
-            dgvRegister.Columns("CustomerName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            dgvRegister.Columns("SeatNumber").Width = 120
-            dgvRegister.Columns("Tickets").Width = 180
+        If dgvDoorList.Columns.Count > 0 Then
+            dgvDoorList.Columns("BookingID").HeaderText = "Booking"
+            dgvDoorList.Columns("CustomerName").HeaderText = "Customer"
+            dgvDoorList.Columns("SeatNumber").HeaderText = "Seat"
+            dgvDoorList.Columns("BookingID").Width = 90
+            dgvDoorList.Columns("CustomerName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            dgvDoorList.Columns("SeatNumber").Width = 120
         End If
 
         'put the number of seats on the group box heading so it is obvious how busy it is
         If dt.Rows.Count = 0 Then
-            GroupBox2.Text = "Who is coming to a screening - nobody has booked this one yet"
+            GroupBox2.Text = "Door list - nobody has booked this one yet"
         Else
-            GroupBox2.Text = "Who is coming to a screening - " & dt.Rows.Count & " seat(s) booked"
+            GroupBox2.Text = "Door list - " & dt.Rows.Count & " seat(s) booked"
         End If
 
-        WriteLog("BOOKING", "Register loaded for ScreeningID " & cboRegisterScreening.SelectedValue.ToString())
+        WriteLog("BOOKING", "Door list loaded for ScreeningID " & cboDoorListScreening.SelectedValue.ToString())
     End Sub
 
     'wraps a value in quotes for the csv file, and doubles up any quotes already in it.
@@ -270,34 +268,34 @@ Public Class frmBookingSearch
         Return """" & value.Replace("""", """""") & """"
     End Function
 
-    'saves the register grid to a csv file so it can be printed or used as a physical register
-    Private Sub btnExportRegister_Click(sender As Object, e As EventArgs) Handles btnExportRegister.Click
-        If dgvRegister.Rows.Count = 0 Then
-            MessageBox.Show("Load a register first")
+    'saves the door list grid to a csv file so it can be printed and taken to the door
+    Private Sub btnExportDoorList_Click(sender As Object, e As EventArgs) Handles btnExportDoorList.Click
+        If dgvDoorList.Rows.Count = 0 Then
+            MessageBox.Show("Load a door list first")
             Exit Sub
         End If
 
         Dim saveDialog As New SaveFileDialog
         saveDialog.Filter = "CSV files (*.csv)|*.csv"
-        saveDialog.FileName = "Register.csv"
+        saveDialog.FileName = "DoorList.csv"
 
         If saveDialog.ShowDialog() = DialogResult.OK Then
             Dim writer As New System.IO.StreamWriter(saveDialog.FileName)
 
             'write the header row
-            writer.WriteLine("Customer Name,Seat,Tickets")
+            writer.WriteLine("Booking,Customer Name,Seat")
 
-            'write each row of the register
-            For Each row As DataGridViewRow In dgvRegister.Rows
-                writer.WriteLine(CsvField(row.Cells("CustomerName").Value.ToString()) & "," &
-                                 CsvField(row.Cells("SeatNumber").Value.ToString()) & "," &
-                                 CsvField(row.Cells("Tickets").Value.ToString()))
+            'write each row of the door list
+            For Each row As DataGridViewRow In dgvDoorList.Rows
+                writer.WriteLine(CsvField(row.Cells("BookingID").Value.ToString()) & "," &
+                                 CsvField(row.Cells("CustomerName").Value.ToString()) & "," &
+                                 CsvField(row.Cells("SeatNumber").Value.ToString()))
             Next
 
             writer.Close()
 
-            WriteLog("BOOKING", "Register exported for ScreeningID " & cboRegisterScreening.SelectedValue.ToString())
-            MessageBox.Show("Register exported")
+            WriteLog("BOOKING", "Door list exported for ScreeningID " & cboDoorListScreening.SelectedValue.ToString())
+            MessageBox.Show("Door list exported")
         End If
     End Sub
 
