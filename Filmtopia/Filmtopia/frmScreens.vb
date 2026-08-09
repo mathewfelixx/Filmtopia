@@ -98,8 +98,6 @@ Public Class frmScreens
         MarkScreensThatDoNotAddUp()
         ShowCount(dt)
         dgvScreens.ClearSelection()
-
-        WriteLog("SCREEN", "Screen list loaded")
     End Sub
 
     'a screen whose capacity does not match the seats that were actually made is a sign something
@@ -604,7 +602,6 @@ Public Class frmScreens
     'clears the boxes and the selection
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         ClearFields()
-        WriteLog("SCREEN", "Screen fields cleared")
     End Sub
 
     Private Sub ClearFields()
@@ -732,7 +729,6 @@ Public Class frmScreens
         perRowWhenPicked = CInt(row.Cells("SeatsPerRow").Value)
 
         ShowWhatIsBeingEdited()
-        WriteLog("SCREEN", "Screen selected: " & txtName.Text)
     End Sub
 
 End Class
