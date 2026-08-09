@@ -148,43 +148,52 @@ Public Class frmCustomers
     'because adding a customer and changing one both need exactly the same checks doing, and they
     'were written out twice before which meant remembering to change both of them
     Private Function DetailsAreOk() As Boolean
-        If txtForename.Text.Trim() = "" Then
+        'everything is trimmed once here and the checks below all work on those copies. before,
+        'the empty checks and the insert trimmed but the length and digit checks did not, so a
+        'phone number typed with a space on the end was 11 characters long and got as far as
+        'being told it had a letter in it
+        Dim forename As String = txtForename.Text.Trim()
+        Dim surname As String = txtSurname.Text.Trim()
+        Dim email As String = txtEmail.Text.Trim()
+        Dim phone As String = txtPhone.Text.Trim()
+
+        If forename = "" Then
             MessageBox.Show("Enter a forename", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtForename.Focus()
             Return False
         End If
 
-        If txtSurname.Text.Trim() = "" Then
+        If surname = "" Then
             MessageBox.Show("Enter a surname", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtSurname.Focus()
             Return False
         End If
 
-        If txtEmail.Text.Trim() = "" Then
+        If email = "" Then
             MessageBox.Show("Enter an email address", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtEmail.Focus()
             Return False
         End If
 
-        If Not txtEmail.Text.Contains("@") Or Not txtEmail.Text.Contains(".") Then
+        If Not email.Contains("@") Or Not email.Contains(".") Then
             MessageBox.Show("Enter a valid email address", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtEmail.Focus()
             Return False
         End If
 
-        If txtPhone.Text.Trim() = "" Then
+        If phone = "" Then
             MessageBox.Show("Enter a phone number", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtPhone.Focus()
             Return False
         End If
 
-        If txtPhone.Text.Length < 10 Or txtPhone.Text.Length > 11 Then
+        If phone.Length < 10 Or phone.Length > 11 Then
             MessageBox.Show("Phone number must be 10 or 11 digits long", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtPhone.Focus()
             Return False
         End If
 
-        If Not IsDigitsOnly(txtPhone.Text) Then
+        If Not IsDigitsOnly(phone) Then
             MessageBox.Show("Phone number must contain digits only", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtPhone.Focus()
             Return False
