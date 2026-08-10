@@ -353,7 +353,7 @@ Public Class frmCustomers
             Exit Sub
         End If
 
-        If MessageBox.Show("Delete " & txtForename.Text & " " & txtSurname.Text & "?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
+        If MessageBox.Show("Delete " & txtForename.Text & " " & txtSurname.Text & "?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) = DialogResult.No Then
             Exit Sub
         End If
 
