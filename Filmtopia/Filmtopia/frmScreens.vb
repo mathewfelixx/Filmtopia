@@ -380,7 +380,7 @@ Public Class frmScreens
             End If
 
             If MessageBox.Show("Changing the number of seats will make all of this screen's seats again." & vbCrLf &
-                               "Carry on?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
+                               "Carry on?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) = DialogResult.No Then
                 Exit Sub
             End If
         End If
@@ -477,7 +477,7 @@ Public Class frmScreens
             Exit Sub
         End If
 
-        If MessageBox.Show("Delete '" & txtName.Text & "' and all of its seats?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
+        If MessageBox.Show("Delete '" & txtName.Text & "' and all of its seats?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) = DialogResult.No Then
             Exit Sub
         End If
 
