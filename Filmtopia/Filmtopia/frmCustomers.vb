@@ -175,8 +175,14 @@ Public Class frmCustomers
             Return False
         End If
 
-        If Not email.Contains("@") Or Not email.Contains(".") Then
-            MessageBox.Show("Enter a valid email address", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        'looking for an at sign and a dot separately let things like a@. through, because both
+        'characters really were in there. the at sign has to have something in front of it, and
+        'the dot has to come after the at sign with something on both sides of it
+        Dim atPos As Integer = email.IndexOf("@")
+        Dim dotPos As Integer = email.LastIndexOf(".")
+
+        If atPos < 1 Or dotPos < atPos + 2 Or dotPos = email.Length - 1 Then
+            MessageBox.Show("Enter a valid email address, like name@example.com", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtEmail.Focus()
             Return False
         End If
