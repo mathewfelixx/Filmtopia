@@ -725,6 +725,8 @@ Public Class frmScreenings
 
     'saves the changes made to the screening selected in the grid
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
+        'this cannot normally happen, the button is switched off until a row is picked.
+        'it stays in so the sub can never run without an id, whatever calls it
         If selectedScreeningID = 0 Then
             MessageBox.Show("Select a screening in the grid first", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
@@ -784,6 +786,8 @@ Public Class frmScreenings
 
     'deletes the screening selected in the grid
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
+        'this cannot normally happen, the button is switched off until a row is picked.
+        'it stays in so the sub can never run without an id, whatever calls it
         If selectedScreeningID = 0 Then
             MessageBox.Show("Select a screening in the grid first", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
