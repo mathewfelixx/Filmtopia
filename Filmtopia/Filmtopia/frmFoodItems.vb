@@ -318,7 +318,7 @@ Public Class frmFoodItems
             Exit Sub
         End If
 
-        If MessageBox.Show("Take '" & txtName.Text & "' off the menu?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
+        If MessageBox.Show("Take '" & txtName.Text & "' off the menu?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) = DialogResult.No Then
             Exit Sub
         End If
 
