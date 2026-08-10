@@ -572,7 +572,7 @@ Public Class frmFilms
             Exit Sub
         End If
 
-        If MessageBox.Show("Delete '" & txtTitle.Text & "'?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
+        If MessageBox.Show("Delete '" & txtTitle.Text & "'?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) = DialogResult.No Then
             Exit Sub
         End If
 
