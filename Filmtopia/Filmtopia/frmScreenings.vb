@@ -743,7 +743,7 @@ Public Class frmScreenings
         If sold > 0 Then
             If MessageBox.Show(sold & " seat(s) are already booked on this screening." & vbCrLf &
                                "Changing it will not tell those customers." & vbCrLf & vbCrLf &
-                               "Carry on?", "Already booked", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) = DialogResult.No Then
+                               "Carry on?", "Already booked", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) = DialogResult.No Then
                 Exit Sub
             End If
         End If
@@ -809,7 +809,7 @@ Public Class frmScreenings
             Exit Sub
         End If
 
-        If MessageBox.Show("Delete this screening?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
+        If MessageBox.Show("Delete this screening?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) = DialogResult.No Then
             Exit Sub
         End If
 
