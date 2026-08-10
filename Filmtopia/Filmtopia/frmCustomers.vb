@@ -208,9 +208,50 @@ Public Class frmCustomers
         Return True
     End Function
 
+    'counts anybody else already on the system with the same name. the film, screen and food item
+    'screens all refuse a duplicate name outright, but two real people genuinely can be called the
+    'same thing, so this one only asks
+    Private Function SameNameCount() As Integer
+        Dim total As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblCustomer " &
+                                 "WHERE CustomerForename = @CustomerForename AND CustomerSurname = @CustomerSurname " &
+                                 "AND CustomerID <> @CustomerID"
+            SQLCmd.Parameters.AddWithValue("@CustomerForename", txtForename.Text.Trim())
+            SQLCmd.Parameters.AddWithValue("@CustomerSurname", txtSurname.Text.Trim())
+            SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(selectedCustomerID))
+            total = CInt(SQLCmd.ExecuteScalar())
+            cn.Close()
+        End If
+
+        Return total
+    End Function
+
+    'warns if the name is already on the system and lets the user decide. the one being edited is
+    'left out of the count, so saving somebody without renaming them does not warn about themselves
+    Private Function DuplicateNameIsOk() As Boolean
+        If SameNameCount() = 0 Then
+            Return True
+        End If
+
+        Dim fullName As String = txtForename.Text.Trim() & " " & txtSurname.Text.Trim()
+
+        Return MessageBox.Show("There is already somebody called " & fullName & " on the system." & vbCrLf &
+                               "Two people can genuinely have the same name, so this is only a warning." & vbCrLf & vbCrLf &
+                               "Save this one as well?",
+                               "Name already used", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes
+    End Function
+
     'adds a new customer using the values typed into the boxes
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
         If Not DetailsAreOk() Then
+            Exit Sub
+        End If
+
+        If Not DuplicateNameIsOk() Then
             Exit Sub
         End If
 
@@ -253,6 +294,10 @@ Public Class frmCustomers
         End If
 
         If Not DetailsAreOk() Then
+            Exit Sub
+        End If
+
+        If Not DuplicateNameIsOk() Then
             Exit Sub
         End If
 
