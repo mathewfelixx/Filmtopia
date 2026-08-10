@@ -245,6 +245,8 @@ Public Class frmCustomers
 
     'saves the changes made to the customer selected in the grid
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
+        'this cannot normally happen, the button is switched off until a row is picked.
+        'it stays in so the sub can never run without an id, whatever calls it
         If selectedCustomerID = 0 Then
             MessageBox.Show("Select a customer in the grid first", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
@@ -287,6 +289,8 @@ Public Class frmCustomers
 
     'deletes the customer selected in the grid
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
+        'this cannot normally happen, the button is switched off until a row is picked.
+        'it stays in so the sub can never run without an id, whatever calls it
         If selectedCustomerID = 0 Then
             MessageBox.Show("Select a customer in the grid first", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
