@@ -408,9 +408,15 @@ Public Class frmScreens
 
         'logging waits until the connection is shut, WriteLog opens its own
         If newScreenID > 0 Then
+            Dim standardSeats As Integer = 0
+            Dim premiumSeats As Integer = 0
+            Dim accessibleSeats As Integer = 0
+            CountPlannedSeats(standardSeats, premiumSeats, accessibleSeats)
+
             WriteLog("SCREEN", "Screen added: " & savedName, LogChange)
             WriteLog("SCREEN", "Seats generated for ScreenID " & newScreenID & ", " & numRows & " row(s) of " &
-                               perRow & ", " & (numRows * perRow) & " seats", LogChange)
+                               perRow & ", " & (numRows * perRow) & " seats (" & standardSeats & " standard, " &
+                               premiumSeats & " premium, " & accessibleSeats & " accessible)", LogChange)
         End If
 
         LoadScreens()
@@ -475,6 +481,20 @@ Public Class frmScreens
             End If
         End If
 
+        'changing the plan on a room that is already selling is allowed, but it is worth saying
+        'what it does. tickets already sold keep the price they were sold at, that is stored on
+        'the booking, so this only changes what the seat costs from now on
+        If planChanged And Not capacityChanged Then
+            If BookedSeatsOnScreen(selectedScreenID) > 0 Then
+                If MessageBox.Show("This screen has seats already booked." & vbCrLf &
+                                   "Changing what sort a seat is changes what it costs from now on. Tickets " &
+                                   "already sold keep the price they were sold at." & vbCrLf & vbCrLf &
+                                   "Carry on?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                                   MessageBoxDefaultButton.Button2) = DialogResult.No Then
+                    Exit Sub
+                End If
+            End If
+        End If
 
         'this is the most damaging thing the program can do. resizing a screen throws all of its
         'seats away and makes them again, and that used to happen on three separate connections, so
@@ -500,10 +520,14 @@ Public Class frmScreens
                 SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
                 SQLCmd.ExecuteNonQuery()
 
-                'only remake the seats if the layout actually changed, not if just the name did
+                'only remake the seats if the layout actually changed, not if just the name did.
+                'if the room is the same size but the plan has been marked out differently, the
+                'seats stay exactly where they are and only the sort on each one is written
                 If capacityChanged Then
                     DeleteSeats(SQLCmd, selectedScreenID)
                     GenerateSeats(SQLCmd, selectedScreenID, newRows, newPerRow)
+                ElseIf planChanged Then
+                    SaveSeatTypes(SQLCmd, selectedScreenID, newRows, newPerRow)
                 End If
 
                 trans.Commit()
@@ -526,6 +550,14 @@ Public Class frmScreens
             If capacityChanged Then
                 WriteLog("SCREEN", "Seats generated for ScreenID " & selectedScreenID & ", " & newRows & " row(s) of " &
                                    newPerRow & ", " & (newRows * newPerRow) & " seats", LogChange)
+            ElseIf planChanged Then
+                Dim standardSeats As Integer = 0
+                Dim premiumSeats As Integer = 0
+                Dim accessibleSeats As Integer = 0
+                CountPlannedSeats(standardSeats, premiumSeats, accessibleSeats)
+                WriteLog("SCREEN", "Seat plan changed for ScreenID " & selectedScreenID & ", now " &
+                                   standardSeats & " standard, " & premiumSeats & " premium, " &
+                                   accessibleSeats & " accessible", LogChange)
             End If
         End If
 
@@ -788,11 +820,13 @@ Public Class frmScreens
         SQLCmd.Parameters.AddWithValue("@SeatNumber", 0)
         SQLCmd.Parameters.AddWithValue("@SeatTypeID", 0)
 
+        'the sort is now looked up a seat at a time rather than a row at a time, because the plan
+        'on the seat plan tab can have premium and accessible seats anywhere in the room
         For rowIndex As Integer = 0 To numRows - 1
             Dim rowLetter As String = Chr(65 + rowIndex)
-            Dim typeID As Long = TypeIDFromTable(dtTypes, SeatTypeForRow(rowIndex, numRows))
 
             For seatNum As Integer = 1 To perRow
+                Dim typeID As Long = TypeIDFromTable(dtTypes, PlannedTypeFor(rowIndex, seatNum - 1, numRows))
                 SQLCmd.Parameters("@SeatRow").Value = rowLetter
                 SQLCmd.Parameters("@SeatNumber").Value = seatNum
                 SQLCmd.Parameters("@SeatTypeID").Value = CInt(typeID)
@@ -1655,6 +1689,39 @@ Public Class frmScreens
         ShowSeatPlanKey()
         ShowLayoutPreview()
         pnlSeatPlan.Invalidate()
+    End Sub
+
+    'writes the plan onto seats that already exist. this is the path taken when the room is still
+    'the same size, so the seats must not be thrown away and made again - anything already booked
+    'is pointing at them. only the sort on each seat changes, the seats themselves stay put.
+    'the command comes in inside a transaction like the other seat routines do
+    Private Sub SaveSeatTypes(SQLCmd As OleDbCommand, screenID As Long, numRows As Integer, perRow As Integer)
+        SQLCmd.CommandText = "SELECT SeatTypeID, SeatTypeName FROM tblSeatType"
+        SQLCmd.Parameters.Clear()
+        Dim dtTypes As New DataTable
+        Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+        dtTypes.Load(rs)
+        rs.Close()
+
+        SQLCmd.CommandText = "UPDATE tblSeat SET SeatTypeID = @SeatTypeID " &
+                             "WHERE ScreenID = @ScreenID AND SeatRow = @SeatRow AND SeatNumber = @SeatNumber"
+        SQLCmd.Parameters.Clear()
+        SQLCmd.Parameters.AddWithValue("@SeatTypeID", 0)
+        SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
+        SQLCmd.Parameters.AddWithValue("@SeatRow", "")
+        SQLCmd.Parameters.AddWithValue("@SeatNumber", 0)
+
+        For rowIndex As Integer = 0 To numRows - 1
+            Dim rowLetter As String = Chr(65 + rowIndex)
+
+            For seatNum As Integer = 1 To perRow
+                Dim typeID As Long = TypeIDFromTable(dtTypes, PlannedTypeFor(rowIndex, seatNum - 1, numRows))
+                SQLCmd.Parameters("@SeatTypeID").Value = CInt(typeID)
+                SQLCmd.Parameters("@SeatRow").Value = rowLetter
+                SQLCmd.Parameters("@SeatNumber").Value = seatNum
+                SQLCmd.ExecuteNonQuery()
+            Next
+        Next
     End Sub
 
     '=============================================================================
