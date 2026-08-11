@@ -1,4 +1,4 @@
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 
 Public Class frmScreens
 
@@ -16,6 +16,19 @@ Public Class frmScreens
 
     'true while a row is being copied into the boxes, so filling them in does not count as typing
     Private fillingBoxes As Boolean = False
+
+    'whether the screen showing in the panel on the right is open for business, and why it was
+    'taken out of service if it is not. both come off the grid row that was clicked
+    Private selectedStatus As String = ScreenInService
+    Private selectedReason As String = ""
+
+    'how many times each seat in the selected screen has been sold, laid out the same way the
+    'room is. heatCounts(rowIndex, seatIndex) so heatCounts(0, 0) is seat A1. it is filled in
+    'when a screen is picked and the panel just draws whatever is in it
+    Private heatCounts(,) As Integer
+    Private heatRows As Integer = 0
+    Private heatPerRow As Integer = 0
+    Private heatBusiest As Integer = 0
 
     Private Sub frmScreens_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         If UserAccessLevel <> 1 Then
@@ -54,7 +67,8 @@ Public Class frmScreens
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT ScreenID, ScreenName, ScreenCapacity, ScreenRows, SeatsPerRow " &
+            SQLCmd.CommandText = "SELECT ScreenID, ScreenName, ScreenCapacity, ScreenRows, SeatsPerRow, " &
+                                 "ScreenStatus, ScreenStatusReason " &
                                  "FROM tblScreen ORDER BY ScreenName, ScreenID"
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)
@@ -80,6 +94,7 @@ Public Class frmScreens
         If dgvScreens.Columns.Contains("ScreenID") Then
             dgvScreens.Columns("ScreenID").HeaderText = "ID"
             dgvScreens.Columns("ScreenName").HeaderText = "Screen"
+            dgvScreens.Columns("ScreenStatus").HeaderText = "Status"
             dgvScreens.Columns("ScreenCapacity").HeaderText = "Capacity"
             dgvScreens.Columns("Rows").HeaderText = "Layout"
             dgvScreens.Columns("Seats").HeaderText = "Seats made"
@@ -90,12 +105,16 @@ Public Class frmScreens
             dgvScreens.Columns("ScreenRows").Visible = False
             dgvScreens.Columns("SeatsPerRow").Visible = False
 
-            dgvScreens.Columns("ScreenID").Width = 50
+            'the reason is only worth reading one screen at a time, it is far too long for a column
+            dgvScreens.Columns("ScreenStatusReason").Visible = False
+
+            dgvScreens.Columns("ScreenID").Width = 42
             dgvScreens.Columns("ScreenName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            dgvScreens.Columns("ScreenCapacity").Width = 90
-            dgvScreens.Columns("Rows").Width = 140
-            dgvScreens.Columns("Seats").Width = 100
-            dgvScreens.Columns("Screenings").Width = 100
+            dgvScreens.Columns("ScreenStatus").Width = 96
+            dgvScreens.Columns("ScreenCapacity").Width = 72
+            dgvScreens.Columns("Rows").Width = 116
+            dgvScreens.Columns("Seats").Width = 84
+            dgvScreens.Columns("Screenings").Width = 82
 
             dgvScreens.Columns("ScreenCapacity").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
             dgvScreens.Columns("Seats").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
@@ -103,6 +122,11 @@ Public Class frmScreens
         End If
 
         MarkScreensThatDoNotAddUp()
+
+        'done second on purpose. a screen can be the wrong size and shut at the same time, and
+        'being shut is the more important of the two to see, so it paints over the other one
+        MarkScreensOutOfService()
+
         ShowCount(dt)
         dgvScreens.ClearSelection()
     End Sub
@@ -123,6 +147,37 @@ Public Class frmScreens
         Next
     End Sub
 
+    'a screen that has been taken out of service is coloured so it stands out in the list.
+    'without this the only sign would be one word in a column, and somebody scheduling a film
+    'would not notice it until the save was refused
+    Private Sub MarkScreensOutOfService()
+        For Each row As DataGridViewRow In dgvScreens.Rows
+            If StatusOfRow(row) = ScreenOutOfService Then
+                If DarkModeOn Then
+                    row.DefaultCellStyle.BackColor = Color.FromArgb(74, 40, 40)
+                    row.DefaultCellStyle.ForeColor = Color.White
+                Else
+                    row.DefaultCellStyle.BackColor = Color.FromArgb(250, 226, 226)
+                    row.DefaultCellStyle.ForeColor = Color.FromArgb(140, 40, 40)
+                End If
+            End If
+        Next
+    End Sub
+
+    'reads the status off a grid row. a screen that was made before the status column existed has
+    'nothing in that cell, and an empty one counts as open so nothing that used to work stops
+    Private Function StatusOfRow(row As DataGridViewRow) As String
+        If row.Cells("ScreenStatus").Value Is Nothing OrElse IsDBNull(row.Cells("ScreenStatus").Value) Then
+            Return ScreenInService
+        End If
+
+        If row.Cells("ScreenStatus").Value.ToString().Trim() = "" Then
+            Return ScreenInService
+        End If
+
+        Return row.Cells("ScreenStatus").Value.ToString()
+    End Function
+
     'says how many screens there are and how many seats that is altogether
     Private Sub ShowCount(dt As DataTable)
         Dim seats As Integer = 0
@@ -131,7 +186,21 @@ Public Class frmScreens
             seats = seats + CInt(row("Seats"))
         Next
 
+        'the shut ones are counted separately, because "300 seats in the building" is not true
+        'if one of the rooms is closed
+        Dim shut As Integer = 0
+
+        For Each row As DataGridViewRow In dgvScreens.Rows
+            If StatusOfRow(row) = ScreenOutOfService Then
+                shut = shut + 1
+            End If
+        Next
+
         lblGridCount.Text = dt.Rows.Count & " screen(s), " & seats & " seats in the building"
+
+        If shut > 0 Then
+            lblGridCount.Text = lblGridCount.Text & ", " & shut & " shut"
+        End If
     End Sub
 
     'describes a screen's layout in words, e.g. 4 rows of 12, A to D
@@ -652,6 +721,9 @@ Public Class frmScreens
         fillingBoxes = False
         boxesChanged = False
 
+        selectedStatus = ScreenInService
+        selectedReason = ""
+
         dgvScreens.ClearSelection()
         ShowWhatIsBeingEdited()
         ShowLayoutPreview()
@@ -775,10 +847,35 @@ Public Class frmScreens
         rowsWhenPicked = CInt(row.Cells("ScreenRows").Value)
         perRowWhenPicked = CInt(row.Cells("SeatsPerRow").Value)
 
+        selectedStatus = StatusOfRow(row)
+        selectedReason = ReasonOfRow(row)
+
         fillingBoxes = False
         boxesChanged = False
 
         ShowWhatIsBeingEdited()
+    End Sub
+
+    'reads the out of service reason off a grid row, empty if there is not one
+    Private Function ReasonOfRow(row As DataGridViewRow) As String
+        If row.Cells("ScreenStatusReason").Value Is Nothing OrElse IsDBNull(row.Cells("ScreenStatusReason").Value) Then
+            Return ""
+        End If
+
+        Return row.Cells("ScreenStatusReason").Value.ToString()
+    End Function
+
+    'puts the grid selection back on a screen after the grid has been reloaded, so changing a
+    'screen's status does not throw away what is showing in the panel on the right
+    Private Sub SelectScreenInGrid(screenID As Long)
+        For Each row As DataGridViewRow In dgvScreens.Rows
+            If CLng(row.Cells("ScreenID").Value) = screenID Then
+                row.Selected = True
+                selectedStatus = StatusOfRow(row)
+                selectedReason = ReasonOfRow(row)
+                Exit For
+            End If
+        Next
     End Sub
 
 End Class
