@@ -44,6 +44,9 @@ Partial Class frmScreens
         Me.lblHeatmapInfo = New System.Windows.Forms.Label()
         Me.pnlHeatmap = New System.Windows.Forms.Panel()
         Me.lblHeatmapKey = New System.Windows.Forms.Label()
+        Me.tabScreenings = New System.Windows.Forms.TabPage()
+        Me.dgvScreenings = New System.Windows.Forms.DataGridView()
+        Me.lblScreeningsInfo = New System.Windows.Forms.Label()
         Me.lblSaved = New System.Windows.Forms.Label()
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.GroupBox1.SuspendLayout()
@@ -52,6 +55,8 @@ Partial Class frmScreens
         Me.tabScreen.SuspendLayout()
         Me.tabOverview.SuspendLayout()
         Me.tabHeatmap.SuspendLayout()
+        Me.tabScreenings.SuspendLayout()
+        CType(Me.dgvScreenings, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgvScreens, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -274,6 +279,7 @@ Partial Class frmScreens
         '
         Me.tabScreen.Controls.Add(Me.tabOverview)
         Me.tabScreen.Controls.Add(Me.tabHeatmap)
+        Me.tabScreen.Controls.Add(Me.tabScreenings)
         Me.tabScreen.Location = New System.Drawing.Point(12, 52)
         Me.tabScreen.Name = "tabScreen"
         Me.tabScreen.SelectedIndex = 0
@@ -338,6 +344,42 @@ Partial Class frmScreens
         Me.lblHeatmapKey.Size = New System.Drawing.Size(424, 104)
         Me.lblHeatmapKey.Text = ""
         '
+        'tabScreenings
+        '
+        Me.tabScreenings.Controls.Add(Me.dgvScreenings)
+        Me.tabScreenings.Controls.Add(Me.lblScreeningsInfo)
+        Me.tabScreenings.Location = New System.Drawing.Point(4, 25)
+        Me.tabScreenings.Name = "tabScreenings"
+        Me.tabScreenings.Padding = New System.Windows.Forms.Padding(3)
+        Me.tabScreenings.Size = New System.Drawing.Size(448, 477)
+        Me.tabScreenings.TabIndex = 2
+        Me.tabScreenings.Text = "What is on"
+        Me.tabScreenings.UseVisualStyleBackColor = True
+        '
+        'dgvScreenings
+        '
+        Me.dgvScreenings.AllowUserToAddRows = False
+        Me.dgvScreenings.AllowUserToDeleteRows = False
+        Me.dgvScreenings.AllowUserToResizeRows = False
+        Me.dgvScreenings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dgvScreenings.Location = New System.Drawing.Point(12, 10)
+        Me.dgvScreenings.MultiSelect = False
+        Me.dgvScreenings.Name = "dgvScreenings"
+        Me.dgvScreenings.ReadOnly = True
+        Me.dgvScreenings.RowHeadersVisible = False
+        Me.dgvScreenings.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
+        Me.dgvScreenings.Size = New System.Drawing.Size(424, 384)
+        Me.dgvScreenings.TabIndex = 0
+        '
+        'lblScreeningsInfo
+        '
+        Me.lblScreeningsInfo.AutoSize = False
+        Me.lblScreeningsInfo.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblScreeningsInfo.Location = New System.Drawing.Point(12, 400)
+        Me.lblScreeningsInfo.Name = "lblScreeningsInfo"
+        Me.lblScreeningsInfo.Size = New System.Drawing.Size(424, 70)
+        Me.lblScreeningsInfo.Text = ""
+        '
         'lblSaved
         '
         Me.lblSaved.AutoSize = False
@@ -381,6 +423,8 @@ Partial Class frmScreens
         Me.tabOverview.ResumeLayout(False)
         Me.tabOverview.PerformLayout()
         Me.tabHeatmap.ResumeLayout(False)
+        Me.tabScreenings.ResumeLayout(False)
+        CType(Me.dgvScreenings, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.dgvScreens, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
@@ -414,6 +458,9 @@ Partial Class frmScreens
     Friend WithEvents lblHeatmapInfo As Label
     Friend WithEvents pnlHeatmap As Panel
     Friend WithEvents lblHeatmapKey As Label
+    Friend WithEvents tabScreenings As TabPage
+    Friend WithEvents dgvScreenings As DataGridView
+    Friend WithEvents lblScreeningsInfo As Label
     Friend WithEvents lblSaved As Label
     Friend WithEvents lblVersion As Label
 End Class

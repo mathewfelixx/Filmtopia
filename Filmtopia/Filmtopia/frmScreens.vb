@@ -901,6 +901,7 @@ Public Class frmScreens
 
         LoadOverview()
         LoadHeatmap()
+        LoadScreeningsForScreen()
     End Sub
 
     'empties the right hand panel when nothing is picked, so it never shows numbers belonging to
@@ -910,6 +911,8 @@ Public Class frmScreens
         lblOverview.Text = ""
         lblHeatmapInfo.Text = ""
         lblHeatmapKey.Text = ""
+        lblScreeningsInfo.Text = ""
+        dgvScreenings.DataSource = Nothing
 
         heatRows = 0
         heatPerRow = 0
@@ -1287,6 +1290,99 @@ Public Class frmScreens
         Dim blue As Integer = CInt(160 + ((45 - 160) * howHot))
 
         Return Color.FromArgb(red, green, blue)
+    End Function
+
+    '=============================================================================
+    'what is on in this screen
+    '=============================================================================
+
+    'lists the screenings still to come in this screen, with how full each one is. it is read only
+    'on purpose, the screenings form is still the place they get changed. it is here so that
+    'whoever is about to shut a screen can see what they would be disrupting
+    Private Sub LoadScreeningsForScreen()
+        Dim dt As New DataTable
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, ScreeningDate, ScreeningTime, FilmTitle " &
+                                 "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
+                                 "WHERE tblScreening.ScreenID = @ScreenID AND ScreeningDate >= @Today " &
+                                 "ORDER BY ScreeningDate, ScreeningTime"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
+            SQLCmd.Parameters.AddWithValue("@Today", Date.Today)
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            da.Fill(dt)
+            cn.Close()
+        End If
+
+        Dim capacity As Integer = SeatsOnScreen(selectedScreenID)
+
+        'a second table is built to show, with its columns already in the order they should read.
+        'putting the made up columns on the end of the first one and then shuffling them about
+        'afterwards came out in the wrong order, because the hidden columns are still in the way
+        Dim dtShow As New DataTable
+        dtShow.Columns.Add("When", GetType(String))
+        dtShow.Columns.Add("Film", GetType(String))
+        dtShow.Columns.Add("Sold", GetType(String))
+
+        Dim withBookings As Integer = 0
+
+        For Each row As DataRow In dt.Rows
+            Dim soldHere As Integer = SeatsSoldOnScreening(CLng(row("ScreeningID")))
+            Dim showRow As DataRow = dtShow.NewRow()
+
+            showRow("When") = CDate(row("ScreeningDate")).ToString("ddd dd MMM") & "  " & row("ScreeningTime").ToString()
+            showRow("Film") = row("FilmTitle").ToString()
+
+            If capacity > 0 Then
+                showRow("Sold") = soldHere & "/" & capacity & " (" & CInt(soldHere * 100.0 / capacity) & "%)"
+            Else
+                showRow("Sold") = soldHere.ToString()
+            End If
+
+            dtShow.Rows.Add(showRow)
+
+            If soldHere > 0 Then
+                withBookings = withBookings + 1
+            End If
+        Next
+
+        dgvScreenings.DataSource = dtShow
+
+        If dgvScreenings.Columns.Contains("When") Then
+            dgvScreenings.Columns("When").Width = 116
+            dgvScreenings.Columns("Film").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            dgvScreenings.Columns("Sold").Width = 88
+        End If
+
+        If dtShow.Rows.Count = 0 Then
+            lblScreeningsInfo.Text = "Nothing is booked into this screen from" & vbCrLf &
+                                     "today onwards, so taking it out of service" & vbCrLf &
+                                     "would not disrupt anybody."
+        Else
+            lblScreeningsInfo.Text = dtShow.Rows.Count & " screening(s) still to come, " & withBookings & " with" & vbCrLf &
+                                     "tickets sold. Screenings are changed on the" & vbCrLf &
+                                     "screenings form, this list is only context."
+        End If
+    End Sub
+
+    'counts the seats sold for one screening. tblBookingSeat carries the ScreeningID itself, so
+    'this does not need to go back through tblBooking, and cancelling deletes these rows so there
+    'is nothing to filter out
+    Private Function SeatsSoldOnScreening(screeningID As Long) As Integer
+        Dim total As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBookingSeat WHERE ScreeningID = @ScreeningID"
+            SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(screeningID))
+            total = CInt(SQLCmd.ExecuteScalar())
+            cn.Close()
+        End If
+
+        Return total
     End Function
 
 End Class
