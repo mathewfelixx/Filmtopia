@@ -7,6 +7,38 @@ Module modMain
     Public LogedIn As Boolean = False
     Public UserAccessLevel As Integer = 99  ' indicates the prvilage level the user has 99 for customers
     Public CurrentLoginID As Long = 0  ' the LoginID of whoever is logged in, 0 means nobody is
+
+    'the two states a screen can be in. a screen that is having work done to it is not deleted,
+    'it is marked, the same way a cancelled booking is marked instead of being thrown away. that
+    'matters because a deleted screen would take its seats and its history with it, and the
+    'screenings that have already been on in it still have to add up in the sales report
+    Public Const ScreenInService As String = "In service"
+    Public Const ScreenOutOfService As String = "Out of service"
+
+    'says whether a screen is open for business. it is asked before a screening is scheduled, so
+    'the marking on the screens form actually stops something rather than just being a colour
+    Public Function ScreenIsInService(screenID As Long) As Boolean
+        Dim status As String = ScreenInService
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT ScreenStatus FROM tblScreen WHERE ScreenID = @ScreenID"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
+            Dim answer As Object = SQLCmd.ExecuteScalar()
+
+            'a screen made before the status column existed has nothing in it, and an empty one
+            'is treated as open rather than shut so nothing that used to work suddenly stops
+            If answer IsNot Nothing AndAlso Not IsDBNull(answer) Then
+                status = answer.ToString()
+            End If
+
+            cn.Close()
+        End If
+
+        Return status <> ScreenOutOfService
+    End Function
+
     Public Function DbConnect() As Boolean
         Try
             cn = New OleDbConnection(DatabasePath)
