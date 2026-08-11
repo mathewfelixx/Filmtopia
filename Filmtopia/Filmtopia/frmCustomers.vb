@@ -9,6 +9,13 @@ Public Class frmCustomers
     'before everything is ready
     Private stillLoading As Boolean = True
 
+    'true once something has been typed into the boxes that has not been saved yet. it is what
+    'the warning before another row replaces it is based on
+    Private boxesChanged As Boolean = False
+
+    'true while a row is being copied into the boxes, so filling them in does not count as typing
+    Private fillingBoxes As Boolean = False
+
     Private Sub frmCustomers_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup(Me)
 
@@ -415,7 +422,32 @@ Public Class frmCustomers
         ClearFields()
     End Sub
 
+    'anything changed in the boxes by hand counts as an unsaved change
+    Private Sub Details_Changed(sender As Object, e As EventArgs) Handles txtForename.TextChanged, txtSurname.TextChanged,
+        txtEmail.TextChanged, txtPhone.TextChanged
+        If fillingBoxes Then
+            Exit Sub
+        End If
+
+        boxesChanged = True
+    End Sub
+
+    'asks before typing that has not been saved gets thrown away. it only asks when something has
+    'actually been changed, so clicking down a list of rows to read them never interrupts
+    Private Function ChangesCanBeLost() As Boolean
+        If Not boxesChanged Then
+            Return True
+        End If
+
+        Return MessageBox.Show("There are changes in the boxes that have not been saved." & vbCrLf &
+                               "Throw them away?", "Unsaved changes",
+                               MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                               MessageBoxDefaultButton.Button2) = DialogResult.Yes
+    End Function
+
     Private Sub ClearFields()
+        fillingBoxes = True
+
         'the confirmation only lasts until the next thing is started
         lblSaved.Text = ""
         selectedCustomerID = 0
@@ -423,6 +455,9 @@ Public Class frmCustomers
         txtSurname.Text = ""
         txtEmail.Text = ""
         txtPhone.Text = ""
+        fillingBoxes = False
+        boxesChanged = False
+
         dgvCustomers.ClearSelection()
         ShowWhatIsBeingEdited()
     End Sub
@@ -448,12 +483,23 @@ Public Class frmCustomers
     Private Sub dgvCustomers_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvCustomers.CellClick
         If e.RowIndex < 0 Then Exit Sub
 
+        'clicking a row replaces whatever is in the boxes, so anything typed and not saved
+        'would have gone without a word. the selection is left alone if the answer is no
+        If Not ChangesCanBeLost() Then
+            Exit Sub
+        End If
+
+        fillingBoxes = True
+
         Dim row As DataGridViewRow = dgvCustomers.Rows(e.RowIndex)
         selectedCustomerID = CLng(row.Cells("CustomerID").Value)
         txtForename.Text = row.Cells("CustomerForename").Value.ToString()
         txtSurname.Text = row.Cells("CustomerSurname").Value.ToString()
         txtEmail.Text = row.Cells("CustomerEmail").Value.ToString()
         txtPhone.Text = row.Cells("CustomerPhone").Value.ToString()
+
+        fillingBoxes = False
+        boxesChanged = False
 
         ShowWhatIsBeingEdited()
     End Sub
