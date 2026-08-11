@@ -727,6 +727,7 @@ Public Class frmScreens
         dgvScreens.ClearSelection()
         ShowWhatIsBeingEdited()
         ShowLayoutPreview()
+        ClearScreenDetail()
     End Sub
 
     'the heading over the boxes says whether a new screen is being typed in or an existing one is
@@ -854,6 +855,7 @@ Public Class frmScreens
         boxesChanged = False
 
         ShowWhatIsBeingEdited()
+        ShowScreenDetail()
     End Sub
 
     'reads the out of service reason off a grid row, empty if there is not one
@@ -877,5 +879,209 @@ Public Class frmScreens
             End If
         Next
     End Sub
+
+    '=============================================================================
+    'everything below here is the panel on the right, which is about looking after a screen that
+    'already exists rather than making a new one. the boxes on the left change what a screen is,
+    'this side says how it is doing and whether it is open
+    '=============================================================================
+
+    'fills the whole right hand panel in for whichever screen is picked in the grid
+    Private Sub ShowScreenDetail()
+        If selectedScreenID = 0 Then
+            ClearScreenDetail()
+            Exit Sub
+        End If
+
+        lblPickedScreen.Text = txtName.Text
+
+        LoadOverview()
+    End Sub
+
+    'empties the right hand panel when nothing is picked, so it never shows numbers belonging to
+    'a screen that is no longer selected
+    Private Sub ClearScreenDetail()
+        lblPickedScreen.Text = "Pick a screen in the grid"
+        lblOverview.Text = ""
+    End Sub
+
+    'the block of numbers at the top of the overview tab
+    Private Sub LoadOverview()
+        Dim seatsMade As Integer = SeatsOnScreen(selectedScreenID)
+        Dim screenings As Integer = ScreeningsOnScreen(selectedScreenID)
+        Dim upcoming As Integer = UpcomingScreeningsOnScreen(selectedScreenID)
+        Dim sold As Integer = BookedSeatsOnScreen(selectedScreenID)
+        Dim takings As Double = TakingsOnScreen(selectedScreenID)
+
+        'how full the room usually gets. every screening put the whole room on sale, so the seats
+        'that could have been sold is the number of screenings times the size of the room
+        Dim couldHaveSold As Integer = screenings * seatsMade
+        Dim howFull As String = "no screenings yet"
+
+        If couldHaveSold > 0 Then
+            howFull = Math.Round(sold * 100.0 / couldHaveSold, 1) & "% full on average"
+        End If
+
+        'a tab character does not line up in a label the way it does in a text box, so each line
+        'names the thing it is showing instead of trying to make two columns out of it
+        Dim lines As String = ""
+        lines = lines & "Layout:  " & RowsAsText(SafeInt(txtRows.Text), SafeInt(txtPerRow.Text)) & vbCrLf
+        lines = lines & "Seats made:  " & seatsMade & vbCrLf
+        lines = lines & "Screenings:  " & screenings & " altogether, " & upcoming & " to come" & vbCrLf & vbCrLf
+        lines = lines & "Tickets sold:  " & sold & vbCrLf
+        lines = lines & "Ticket takings:  " & Format(takings, "Currency") & vbCrLf
+        lines = lines & "How full:  " & howFull & vbCrLf
+        lines = lines & "Busiest time:  " & BusiestTimeSlot(selectedScreenID) & vbCrLf & vbCrLf
+        lines = lines & "Sold and takings count live bookings only." & vbCrLf
+        lines = lines & "A cancelled booking gives its seats back."
+
+        lblOverview.Text = lines
+    End Sub
+
+    'counts the screenings in a screen that have not been on yet
+    Private Function UpcomingScreeningsOnScreen(screenID As Long) As Integer
+        Dim total As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblScreening " &
+                                 "WHERE ScreenID = @ScreenID AND ScreeningDate >= @Today"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
+            SQLCmd.Parameters.AddWithValue("@Today", Date.Today)
+            total = CInt(SQLCmd.ExecuteScalar())
+            cn.Close()
+        End If
+
+        Return total
+    End Function
+
+    'adds up what the tickets sold in a screen actually took. it sums SeatPricePaid off the seat
+    'rows rather than working the price out again, because a ticket is the price it was sold at
+    'and a later price change must not reach back and rewrite what a screen took last month
+    Private Function TakingsOnScreen(screenID As Long) As Double
+        Dim total As Double = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT SUM(SeatPricePaid) FROM tblBookingSeat " &
+                                 "INNER JOIN tblSeat ON tblBookingSeat.SeatID = tblSeat.SeatID " &
+                                 "WHERE tblSeat.ScreenID = @ScreenID"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
+            Dim answer As Object = SQLCmd.ExecuteScalar()
+
+            'SUM comes back empty rather than zero when there is nothing to add up
+            If answer IsNot Nothing AndAlso Not IsDBNull(answer) Then
+                total = CDbl(answer)
+            End If
+
+            cn.Close()
+        End If
+
+        Return total
+    End Function
+
+    'works out which time of day fills this screen up the best. the screenings and the seats sold
+    'are read in two goes and then matched up by hand, because what is wanted is an average per
+    'time of day and there is no one query that gives that without getting clever
+    Private Function BusiestTimeSlot(screenID As Long) As String
+        Dim dtScreenings As New DataTable
+        Dim dtSold As New DataTable
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT ScreeningID, ScreeningTime FROM tblScreening " &
+                                 "WHERE ScreenID = @ScreenID"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            da.Fill(dtScreenings)
+            cn.Close()
+        End If
+
+        If dtScreenings.Rows.Count = 0 Then
+            Return "nothing has been on yet"
+        End If
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            'tblBookingSeat carries the ScreeningID itself, so the seats sold can be counted
+            'without joining back through the booking
+            SQLCmd.CommandText = "SELECT tblBookingSeat.ScreeningID FROM tblBookingSeat " &
+                                 "INNER JOIN tblScreening ON tblBookingSeat.ScreeningID = tblScreening.ScreeningID " &
+                                 "WHERE tblScreening.ScreenID = @ScreenID"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            da.Fill(dtSold)
+            cn.Close()
+        End If
+
+        'one entry per time of day. slotTimes holds the time, slotSold how many seats went at that
+        'time altogether and slotShows how many screenings there were, so an average can be worked
+        'out at the end. three arrays kept side by side, the same position in each is the same slot
+        Dim slotTimes(0) As String
+        Dim slotSold(0) As Integer
+        Dim slotShows(0) As Integer
+        Dim slotCount As Integer = 0
+
+        For Each screening As DataRow In dtScreenings.Rows
+            Dim thisTime As String = screening("ScreeningTime").ToString()
+            Dim thisID As Long = CLng(screening("ScreeningID"))
+
+            'count the seats sold for this screening by going through the sold rows
+            Dim soldHere As Integer = 0
+
+            For Each seat As DataRow In dtSold.Rows
+                If CLng(seat("ScreeningID")) = thisID Then
+                    soldHere = soldHere + 1
+                End If
+            Next
+
+            'find the slot this time already has, or start a new one for it
+            Dim slot As Integer = -1
+
+            For i As Integer = 0 To slotCount - 1
+                If slotTimes(i) = thisTime Then
+                    slot = i
+                    Exit For
+                End If
+            Next
+
+            If slot = -1 Then
+                slot = slotCount
+                slotCount = slotCount + 1
+                ReDim Preserve slotTimes(slotCount)
+                ReDim Preserve slotSold(slotCount)
+                ReDim Preserve slotShows(slotCount)
+                slotTimes(slot) = thisTime
+                slotSold(slot) = 0
+                slotShows(slot) = 0
+            End If
+
+            slotSold(slot) = slotSold(slot) + soldHere
+            slotShows(slot) = slotShows(slot) + 1
+        Next
+
+        'now pick whichever slot sold the most seats per screening
+        Dim bestSlot As Integer = -1
+        Dim bestAverage As Double = -1
+
+        For i As Integer = 0 To slotCount - 1
+            Dim average As Double = slotSold(i) / slotShows(i)
+
+            If average > bestAverage Then
+                bestAverage = average
+                bestSlot = i
+            End If
+        Next
+
+        If bestSlot = -1 Or bestAverage <= 0 Then
+            Return "nothing sold yet"
+        End If
+
+        Return slotTimes(bestSlot) & ", " & Math.Round(bestAverage, 1) & " seats a showing"
+    End Function
 
 End Class

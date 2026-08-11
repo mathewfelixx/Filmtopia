@@ -1,4 +1,4 @@
-<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class frmScreens
     Inherits System.Windows.Forms.Form
 
@@ -35,10 +35,18 @@ Partial Class frmScreens
         Me.btnUpdate = New System.Windows.Forms.Button()
         Me.btnDelete = New System.Windows.Forms.Button()
         Me.btnClear = New System.Windows.Forms.Button()
+        Me.GroupBox3 = New System.Windows.Forms.GroupBox()
+        Me.lblPickedScreen = New System.Windows.Forms.Label()
+        Me.tabScreen = New System.Windows.Forms.TabControl()
+        Me.tabOverview = New System.Windows.Forms.TabPage()
+        Me.lblOverview = New System.Windows.Forms.Label()
         Me.lblSaved = New System.Windows.Forms.Label()
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
+        Me.GroupBox3.SuspendLayout()
+        Me.tabScreen.SuspendLayout()
+        Me.tabOverview.SuspendLayout()
         CType(Me.dgvScreens, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -78,9 +86,9 @@ Partial Class frmScreens
         'lblGridCount
         '
         Me.lblGridCount.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.lblGridCount.Location = New System.Drawing.Point(500, 28)
+        Me.lblGridCount.Location = New System.Drawing.Point(440, 28)
         Me.lblGridCount.Name = "lblGridCount"
-        Me.lblGridCount.Size = New System.Drawing.Size(352, 17)
+        Me.lblGridCount.Size = New System.Drawing.Size(412, 17)
         Me.lblGridCount.TabIndex = 1
         Me.lblGridCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight
         '
@@ -236,6 +244,56 @@ Partial Class frmScreens
         Me.btnClear.Text = "Clear the boxes"
         Me.btnClear.UseVisualStyleBackColor = True
         '
+        'GroupBox3
+        '
+        Me.GroupBox3.Controls.Add(Me.lblPickedScreen)
+        Me.GroupBox3.Controls.Add(Me.tabScreen)
+        Me.GroupBox3.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.GroupBox3.Location = New System.Drawing.Point(900, 46)
+        Me.GroupBox3.Name = "GroupBox3"
+        Me.GroupBox3.Size = New System.Drawing.Size(480, 570)
+        Me.GroupBox3.TabIndex = 4
+        Me.GroupBox3.TabStop = False
+        Me.GroupBox3.Text = "Looking after a screen"
+        '
+        'lblPickedScreen
+        '
+        Me.lblPickedScreen.AutoSize = False
+        Me.lblPickedScreen.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
+        Me.lblPickedScreen.Location = New System.Drawing.Point(14, 26)
+        Me.lblPickedScreen.Name = "lblPickedScreen"
+        Me.lblPickedScreen.Size = New System.Drawing.Size(452, 20)
+        Me.lblPickedScreen.Text = "Pick a screen in the grid"
+        '
+        'tabScreen
+        '
+        Me.tabScreen.Controls.Add(Me.tabOverview)
+        Me.tabScreen.Location = New System.Drawing.Point(12, 52)
+        Me.tabScreen.Name = "tabScreen"
+        Me.tabScreen.SelectedIndex = 0
+        Me.tabScreen.Size = New System.Drawing.Size(456, 506)
+        Me.tabScreen.TabIndex = 0
+        '
+        'tabOverview
+        '
+        Me.tabOverview.Controls.Add(Me.lblOverview)
+        Me.tabOverview.Location = New System.Drawing.Point(4, 25)
+        Me.tabOverview.Name = "tabOverview"
+        Me.tabOverview.Padding = New System.Windows.Forms.Padding(3)
+        Me.tabOverview.Size = New System.Drawing.Size(448, 477)
+        Me.tabOverview.TabIndex = 0
+        Me.tabOverview.Text = "Overview"
+        Me.tabOverview.UseVisualStyleBackColor = True
+        '
+        'lblOverview
+        '
+        Me.lblOverview.AutoSize = False
+        Me.lblOverview.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblOverview.Location = New System.Drawing.Point(12, 10)
+        Me.lblOverview.Name = "lblOverview"
+        Me.lblOverview.Size = New System.Drawing.Size(424, 228)
+        Me.lblOverview.Text = ""
+        '
         'lblSaved
         '
         Me.lblSaved.AutoSize = False
@@ -258,9 +316,10 @@ Partial Class frmScreens
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(900, 655)
+        Me.ClientSize = New System.Drawing.Size(1396, 655)
         Me.Controls.Add(Me.lblSaved)
         Me.Controls.Add(Me.lblVersion)
+        Me.Controls.Add(Me.GroupBox3)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)
         Me.Controls.Add(Me.lblHeading)
@@ -273,6 +332,10 @@ Partial Class frmScreens
         Me.GroupBox1.PerformLayout()
         Me.GroupBox2.ResumeLayout(False)
         Me.GroupBox2.PerformLayout()
+        Me.GroupBox3.ResumeLayout(False)
+        Me.tabScreen.ResumeLayout(False)
+        Me.tabOverview.ResumeLayout(False)
+        Me.tabOverview.PerformLayout()
         CType(Me.dgvScreens, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
@@ -297,6 +360,11 @@ Partial Class frmScreens
     Friend WithEvents btnUpdate As Button
     Friend WithEvents btnDelete As Button
     Friend WithEvents btnClear As Button
+    Friend WithEvents GroupBox3 As GroupBox
+    Friend WithEvents lblPickedScreen As Label
+    Friend WithEvents tabScreen As TabControl
+    Friend WithEvents tabOverview As TabPage
+    Friend WithEvents lblOverview As Label
     Friend WithEvents lblSaved As Label
     Friend WithEvents lblVersion As Label
 End Class
