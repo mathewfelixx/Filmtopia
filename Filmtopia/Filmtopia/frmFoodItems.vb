@@ -9,6 +9,13 @@ Public Class frmFoodItems
     'before everything is ready
     Private stillLoading As Boolean = True
 
+    'true once something has been typed into the boxes that has not been saved yet. it is what
+    'the warning before another row replaces it is based on
+    Private boxesChanged As Boolean = False
+
+    'true while a row is being copied into the boxes, so filling them in does not count as typing
+    Private fillingBoxes As Boolean = False
+
     Private Sub frmFoodItems_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         If UserAccessLevel <> 1 Then
             MessageBox.Show("Only a manager can change what is on the menu.", "Food Items", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -386,7 +393,32 @@ Public Class frmFoodItems
         ClearFields()
     End Sub
 
+    'anything changed in the boxes by hand counts as an unsaved change
+    Private Sub Details_Changed(sender As Object, e As EventArgs) Handles txtName.TextChanged, txtPrice.TextChanged,
+        cboCategory.TextChanged
+        If fillingBoxes Then
+            Exit Sub
+        End If
+
+        boxesChanged = True
+    End Sub
+
+    'asks before typing that has not been saved gets thrown away. it only asks when something has
+    'actually been changed, so clicking down a list of rows to read them never interrupts
+    Private Function ChangesCanBeLost() As Boolean
+        If Not boxesChanged Then
+            Return True
+        End If
+
+        Return MessageBox.Show("There are changes in the boxes that have not been saved." & vbCrLf &
+                               "Throw them away?", "Unsaved changes",
+                               MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                               MessageBoxDefaultButton.Button2) = DialogResult.Yes
+    End Function
+
     Private Sub ClearFields()
+        fillingBoxes = True
+
         'the confirmation only lasts until the next thing is started
         lblSaved.Text = ""
         selectedFoodItemID = 0
@@ -394,6 +426,9 @@ Public Class frmFoodItems
         txtPrice.Text = ""
         cboCategory.SelectedIndex = -1
         cboCategory.Text = ""
+        fillingBoxes = False
+        boxesChanged = False
+
         dgvFoodItems.ClearSelection()
         ShowWhatIsBeingEdited()
     End Sub
@@ -419,6 +454,14 @@ Public Class frmFoodItems
     Private Sub dgvFoodItems_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvFoodItems.CellClick
         If e.RowIndex < 0 Then Exit Sub
 
+        'clicking a row replaces whatever is in the boxes, so anything typed and not saved
+        'would have gone without a word. the selection is left alone if the answer is no
+        If Not ChangesCanBeLost() Then
+            Exit Sub
+        End If
+
+        fillingBoxes = True
+
         Dim row As DataGridViewRow = dgvFoodItems.Rows(e.RowIndex)
         selectedFoodItemID = CLng(row.Cells("FoodItemID").Value)
         txtName.Text = row.Cells("FoodItemName").Value.ToString()
@@ -426,6 +469,9 @@ Public Class frmFoodItems
 
         'the grid shows the price with a pound sign in front of it, the box wants the plain number
         txtPrice.Text = Format(CDbl(row.Cells("FoodItemPrice").Value), "0.00")
+
+        fillingBoxes = False
+        boxesChanged = False
 
         ShowWhatIsBeingEdited()
     End Sub
