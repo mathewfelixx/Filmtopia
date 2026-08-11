@@ -627,6 +627,18 @@ Public Class frmScreenings
             Return False
         End If
 
+        'a screen that has been taken out of service on the screens form is not available. the
+        'combo still lists every screen on purpose, otherwise an old screening already sitting in
+        'a shut room could not be opened and corrected. it is stopped here, at the save, instead
+        If Not ScreenIsInService(CLng(cboScreen.SelectedValue)) Then
+            MessageBox.Show("'" & cboScreen.Text & "' is out of service at the moment, so nothing can be " &
+                            "scheduled in it." & vbCrLf & vbCrLf &
+                            "Put it back in service on the screens form, or pick a different screen.",
+                            "Screen is out of service", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            WriteLog("SCREENING", "Refused, " & cboScreen.Text & " is out of service", LogWarning)
+            Return False
+        End If
+
         'a new screening in the past is a mistake, but an old one that is being corrected has to
         'be allowed to stay where it is
         If isNew And dtpScreeningDate.Value.Date < Date.Today Then
