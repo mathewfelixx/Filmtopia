@@ -40,6 +40,12 @@ Partial Class frmScreens
         Me.tabScreen = New System.Windows.Forms.TabControl()
         Me.tabOverview = New System.Windows.Forms.TabPage()
         Me.lblOverview = New System.Windows.Forms.Label()
+        Me.lblScreenState = New System.Windows.Forms.Label()
+        Me.lblReason = New System.Windows.Forms.Label()
+        Me.txtReason = New System.Windows.Forms.TextBox()
+        Me.btnOutOfService = New System.Windows.Forms.Button()
+        Me.btnBackInService = New System.Windows.Forms.Button()
+        Me.lblStatusHint = New System.Windows.Forms.Label()
         Me.tabHeatmap = New System.Windows.Forms.TabPage()
         Me.lblHeatmapInfo = New System.Windows.Forms.Label()
         Me.pnlHeatmap = New System.Windows.Forms.Panel()
@@ -289,6 +295,12 @@ Partial Class frmScreens
         'tabOverview
         '
         Me.tabOverview.Controls.Add(Me.lblOverview)
+        Me.tabOverview.Controls.Add(Me.lblScreenState)
+        Me.tabOverview.Controls.Add(Me.lblReason)
+        Me.tabOverview.Controls.Add(Me.txtReason)
+        Me.tabOverview.Controls.Add(Me.btnOutOfService)
+        Me.tabOverview.Controls.Add(Me.btnBackInService)
+        Me.tabOverview.Controls.Add(Me.lblStatusHint)
         Me.tabOverview.Location = New System.Drawing.Point(4, 25)
         Me.tabOverview.Name = "tabOverview"
         Me.tabOverview.Padding = New System.Windows.Forms.Padding(3)
@@ -305,6 +317,62 @@ Partial Class frmScreens
         Me.lblOverview.Name = "lblOverview"
         Me.lblOverview.Size = New System.Drawing.Size(424, 228)
         Me.lblOverview.Text = ""
+        '
+        'lblScreenState
+        '
+        Me.lblScreenState.AutoSize = False
+        Me.lblScreenState.Font = New System.Drawing.Font("Segoe UI", 9.75!, System.Drawing.FontStyle.Bold)
+        Me.lblScreenState.Location = New System.Drawing.Point(12, 244)
+        Me.lblScreenState.Name = "lblScreenState"
+        Me.lblScreenState.Size = New System.Drawing.Size(424, 60)
+        Me.lblScreenState.Text = ""
+        '
+        'lblReason
+        '
+        Me.lblReason.AutoSize = False
+        Me.lblReason.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblReason.Location = New System.Drawing.Point(12, 310)
+        Me.lblReason.Name = "lblReason"
+        Me.lblReason.Size = New System.Drawing.Size(424, 22)
+        Me.lblReason.Text = "Why is it coming out of service?"
+        '
+        'txtReason
+        '
+        Me.txtReason.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.txtReason.Location = New System.Drawing.Point(12, 334)
+        Me.txtReason.MaxLength = 100
+        Me.txtReason.Name = "txtReason"
+        Me.txtReason.Size = New System.Drawing.Size(424, 23)
+        Me.txtReason.TabIndex = 1
+        '
+        'btnOutOfService
+        '
+        Me.btnOutOfService.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.btnOutOfService.Location = New System.Drawing.Point(12, 366)
+        Me.btnOutOfService.Name = "btnOutOfService"
+        Me.btnOutOfService.Size = New System.Drawing.Size(204, 34)
+        Me.btnOutOfService.TabIndex = 2
+        Me.btnOutOfService.Text = "Take out of service"
+        Me.btnOutOfService.UseVisualStyleBackColor = True
+        '
+        'btnBackInService
+        '
+        Me.btnBackInService.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.btnBackInService.Location = New System.Drawing.Point(230, 366)
+        Me.btnBackInService.Name = "btnBackInService"
+        Me.btnBackInService.Size = New System.Drawing.Size(204, 34)
+        Me.btnBackInService.TabIndex = 3
+        Me.btnBackInService.Text = "Put back in service"
+        Me.btnBackInService.UseVisualStyleBackColor = True
+        '
+        'lblStatusHint
+        '
+        Me.lblStatusHint.AutoSize = False
+        Me.lblStatusHint.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblStatusHint.Location = New System.Drawing.Point(12, 408)
+        Me.lblStatusHint.Name = "lblStatusHint"
+        Me.lblStatusHint.Size = New System.Drawing.Size(424, 64)
+        Me.lblStatusHint.Text = ""
         '
         'tabHeatmap
         '
@@ -454,6 +522,12 @@ Partial Class frmScreens
     Friend WithEvents tabScreen As TabControl
     Friend WithEvents tabOverview As TabPage
     Friend WithEvents lblOverview As Label
+    Friend WithEvents lblScreenState As Label
+    Friend WithEvents lblReason As Label
+    Friend WithEvents txtReason As TextBox
+    Friend WithEvents btnOutOfService As Button
+    Friend WithEvents btnBackInService As Button
+    Friend WithEvents lblStatusHint As Label
     Friend WithEvents tabHeatmap As TabPage
     Friend WithEvents lblHeatmapInfo As Label
     Friend WithEvents pnlHeatmap As Panel

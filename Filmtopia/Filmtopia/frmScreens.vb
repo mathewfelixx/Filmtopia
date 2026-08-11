@@ -902,6 +902,7 @@ Public Class frmScreens
         LoadOverview()
         LoadHeatmap()
         LoadScreeningsForScreen()
+        ShowStatusButtons()
     End Sub
 
     'empties the right hand panel when nothing is picked, so it never shows numbers belonging to
@@ -909,10 +910,17 @@ Public Class frmScreens
     Private Sub ClearScreenDetail()
         lblPickedScreen.Text = "Pick a screen in the grid"
         lblOverview.Text = ""
+        lblScreenState.Text = ""
+        lblStatusHint.Text = ""
         lblHeatmapInfo.Text = ""
         lblHeatmapKey.Text = ""
         lblScreeningsInfo.Text = ""
+        txtReason.Text = ""
         dgvScreenings.DataSource = Nothing
+
+        btnOutOfService.Enabled = False
+        btnBackInService.Enabled = False
+        txtReason.Enabled = False
 
         heatRows = 0
         heatPerRow = 0
@@ -1378,6 +1386,186 @@ Public Class frmScreens
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBookingSeat WHERE ScreeningID = @ScreeningID"
             SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(screeningID))
+            total = CInt(SQLCmd.ExecuteScalar())
+            cn.Close()
+        End If
+
+        Return total
+    End Function
+
+    '=============================================================================
+    'taking a screen out of service and putting it back
+    '=============================================================================
+
+    'sets up the two buttons and the words above them for whichever screen is picked
+    Private Sub ShowStatusButtons()
+        If selectedStatus = ScreenOutOfService Then
+            lblScreenState.Text = "This screen is OUT OF SERVICE" & vbCrLf & "Reason: " & selectedReason
+            lblScreenState.ForeColor = Color.FromArgb(170, 40, 40)
+
+            btnOutOfService.Enabled = False
+            btnBackInService.Enabled = True
+            txtReason.Enabled = False
+            txtReason.Text = selectedReason
+
+            lblStatusHint.Text = "Nothing new can be scheduled here until it" & vbCrLf &
+                                 "is put back. Screenings already in it have" & vbCrLf &
+                                 "been left alone."
+        Else
+            lblScreenState.Text = "This screen is in service"
+            lblScreenState.ForeColor = AccentFore
+
+            btnOutOfService.Enabled = True
+            btnBackInService.Enabled = False
+            txtReason.Enabled = True
+            txtReason.Text = ""
+
+            lblStatusHint.Text = "Taking a screen out of service stops new" & vbCrLf &
+                                 "screenings going in it. The screen, its seats" & vbCrLf &
+                                 "and its history all stay as they are."
+        End If
+    End Sub
+
+    'takes a screen out of service, which is a repair, a refit or anything else that means it
+    'cannot be used for a while. it is deliberately not a delete, because deleting would take the
+    'seats and everything that has ever been sold in the room with it
+    Private Sub btnOutOfService_Click(sender As Object, e As EventArgs) Handles btnOutOfService.Click
+        If selectedScreenID = 0 Then
+            MessageBox.Show("Select a screen in the grid first", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        If txtReason.Text.Trim() = "" Then
+            MessageBox.Show("Say why the screen is coming out of service." & vbCrLf &
+                            "Somebody looking at it next week needs to know whether it is a broken projector " &
+                            "or a refit that is going to take a month.",
+                            "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtReason.Focus()
+            Exit Sub
+        End If
+
+        'a screening that people have already bought tickets for cannot just be left in a room that
+        'is shut. those bookings have to be dealt with first, so the screen will not go out
+        Dim bookedAhead As Integer = BookedSeatsAhead(selectedScreenID)
+
+        If bookedAhead > 0 Then
+            MessageBox.Show("There are " & bookedAhead & " ticket(s) already sold for screenings still to come " &
+                            "in this screen." & vbCrLf & vbCrLf &
+                            "Shutting the room would leave those customers with seats in a screen that is not " &
+                            "open. Cancel or move those bookings first, then it can go out of service.",
+                            "Cannot take this screen out of service", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            WriteLog("SCREEN", "Out of service refused for '" & txtName.Text & "', " & bookedAhead & " ticket(s) sold ahead", LogWarning)
+            Exit Sub
+        End If
+
+        'screenings with nothing sold are not a reason to stop, but they are worth saying out loud
+        Dim upcoming As Integer = UpcomingScreeningsOnScreen(selectedScreenID)
+        Dim question As String = "Take '" & txtName.Text & "' out of service?"
+
+        If upcoming > 0 Then
+            question = question & vbCrLf & vbCrLf &
+                       "It still has " & upcoming & " screening(s) scheduled in it. Nothing has been sold for " &
+                       "them, but they will be sitting in a screen that is shut until they are moved or removed."
+        End If
+
+        If MessageBox.Show(question, "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                           MessageBoxDefaultButton.Button2) = DialogResult.No Then
+            Exit Sub
+        End If
+
+        SetScreenStatus(ScreenOutOfService, txtReason.Text.Trim())
+    End Sub
+
+    'puts a screen back on after whatever was wrong with it has been sorted out
+    Private Sub btnBackInService_Click(sender As Object, e As EventArgs) Handles btnBackInService.Click
+        If selectedScreenID = 0 Then
+            MessageBox.Show("Select a screen in the grid first", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        'a room with no seats in it cannot take a booking, so putting it back would only mean the
+        'seat map came up empty with nothing to explain why
+        Dim seatsMade As Integer = SeatsOnScreen(selectedScreenID)
+
+        If seatsMade = 0 Then
+            MessageBox.Show("'" & txtName.Text & "' has no seats made for it, so nothing could be sold in it " &
+                            "anyway." & vbCrLf & vbCrLf &
+                            "Set its rows and seats per row in the boxes on the left and save, which makes the " &
+                            "seats, then put it back in service.",
+                            "Cannot put this screen back", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        If MessageBox.Show("Put '" & txtName.Text & "' back in service?" & vbCrLf &
+                           "Films can be scheduled in it again straight away.",
+                           "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
+            Exit Sub
+        End If
+
+        SetScreenStatus(ScreenInService, "")
+    End Sub
+
+    'writes the new status onto the screen. the reason and the date go with it so the list is not
+    'just a word, it says why and since when
+    Private Sub SetScreenStatus(newStatus As String, reason As String)
+        Dim saved As Boolean = False
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "UPDATE tblScreen " &
+                                 "SET ScreenStatus = @ScreenStatus, ScreenStatusReason = @ScreenStatusReason, " &
+                                 "ScreenStatusDate = @ScreenStatusDate " &
+                                 "WHERE ScreenID = @ScreenID"
+            SQLCmd.Parameters.AddWithValue("@ScreenStatus", newStatus)
+            SQLCmd.Parameters.AddWithValue("@ScreenStatusReason", reason)
+            SQLCmd.Parameters.AddWithValue("@ScreenStatusDate", Date.Now)
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
+            SQLCmd.ExecuteNonQuery()
+            saved = True
+            cn.Close()
+        End If
+
+        Dim screenName As String = txtName.Text.Trim()
+
+        'a room being shut or opened changes what the whole program will let people do, so it is
+        'worth more than an ordinary change entry in the log
+        If saved Then
+            If newStatus = ScreenOutOfService Then
+                WriteLog("SCREEN", "Screen taken out of service: " & screenName & " (" & reason & ")", LogWarning)
+            Else
+                WriteLog("SCREEN", "Screen put back in service: " & screenName, LogChange)
+            End If
+        End If
+
+        Dim keepOnThisScreen As Long = selectedScreenID
+
+        LoadScreens()
+        SelectScreenInGrid(keepOnThisScreen)
+        ShowStatusButtons()
+
+        If saved Then
+            If newStatus = ScreenOutOfService Then
+                SayDone(lblSaved, "'" & screenName & "' is now out of service")
+            Else
+                SayDone(lblSaved, "'" & screenName & "' is back in service")
+            End If
+        End If
+    End Sub
+
+    'counts the tickets already sold for screenings in this screen that have not been on yet.
+    'this is the thing that decides whether a screen is allowed to be shut
+    Private Function BookedSeatsAhead(screenID As Long) As Integer
+        Dim total As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBookingSeat " &
+                                 "INNER JOIN tblScreening ON tblBookingSeat.ScreeningID = tblScreening.ScreeningID " &
+                                 "WHERE tblScreening.ScreenID = @ScreenID AND tblScreening.ScreeningDate >= @Today"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
+            SQLCmd.Parameters.AddWithValue("@Today", Date.Today)
             total = CInt(SQLCmd.ExecuteScalar())
             cn.Close()
         End If
