@@ -17,6 +17,7 @@ Partial Class frmFilms
 
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
         Me.lblHeading = New System.Windows.Forms.Label()
         Me.btnImportFromFile = New System.Windows.Forms.Button()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
@@ -48,6 +49,7 @@ Partial Class frmFilms
         Me.btnExport = New System.Windows.Forms.Button()
         Me.lblSaved = New System.Windows.Forms.Label()
         Me.lblVersion = New System.Windows.Forms.Label()
+        Me.timerSearch = New System.Windows.Forms.Timer(Me.components)
         Me.GroupBox1.SuspendLayout()
         CType(Me.dgvFilms, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBox2.SuspendLayout()
@@ -377,6 +379,10 @@ Partial Class frmFilms
         Me.lblVersion.TabIndex = 3
         Me.lblVersion.Text = "Filmtopia Cinema Management System  v1.0"
         '
+        'timerSearch
+        '
+        Me.timerSearch.Interval = 300
+        '
         'frmFilms
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
@@ -435,4 +441,5 @@ Partial Class frmFilms
     Friend WithEvents btnExport As Button
     Friend WithEvents lblSaved As Label
     Friend WithEvents lblVersion As Label
+    Friend WithEvents timerSearch As Timer
 End Class

@@ -346,6 +346,17 @@ Public Class frmFilms
             Exit Sub
         End If
 
+        'the grid used to reload on every single key press, so typing an eight letter film name
+        'was eight separate trips to the database and eight rebuilds of the grid. the timer is
+        'restarted instead, and only when it has been quiet for a moment does the search run,
+        'so typing straight through only searches once
+        timerSearch.Stop()
+        timerSearch.Start()
+    End Sub
+
+    'runs a fraction of a second after the last key press in the search box
+    Private Sub timerSearch_Tick(sender As Object, e As EventArgs) Handles timerSearch.Tick
+        timerSearch.Stop()
         LoadFilms()
     End Sub
 
