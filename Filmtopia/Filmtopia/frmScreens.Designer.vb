@@ -40,6 +40,10 @@ Partial Class frmScreens
         Me.tabScreen = New System.Windows.Forms.TabControl()
         Me.tabOverview = New System.Windows.Forms.TabPage()
         Me.lblOverview = New System.Windows.Forms.Label()
+        Me.tabHeatmap = New System.Windows.Forms.TabPage()
+        Me.lblHeatmapInfo = New System.Windows.Forms.Label()
+        Me.pnlHeatmap = New System.Windows.Forms.Panel()
+        Me.lblHeatmapKey = New System.Windows.Forms.Label()
         Me.lblSaved = New System.Windows.Forms.Label()
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.GroupBox1.SuspendLayout()
@@ -47,6 +51,7 @@ Partial Class frmScreens
         Me.GroupBox3.SuspendLayout()
         Me.tabScreen.SuspendLayout()
         Me.tabOverview.SuspendLayout()
+        Me.tabHeatmap.SuspendLayout()
         CType(Me.dgvScreens, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -268,6 +273,7 @@ Partial Class frmScreens
         'tabScreen
         '
         Me.tabScreen.Controls.Add(Me.tabOverview)
+        Me.tabScreen.Controls.Add(Me.tabHeatmap)
         Me.tabScreen.Location = New System.Drawing.Point(12, 52)
         Me.tabScreen.Name = "tabScreen"
         Me.tabScreen.SelectedIndex = 0
@@ -293,6 +299,44 @@ Partial Class frmScreens
         Me.lblOverview.Name = "lblOverview"
         Me.lblOverview.Size = New System.Drawing.Size(424, 228)
         Me.lblOverview.Text = ""
+        '
+        'tabHeatmap
+        '
+        Me.tabHeatmap.Controls.Add(Me.lblHeatmapInfo)
+        Me.tabHeatmap.Controls.Add(Me.pnlHeatmap)
+        Me.tabHeatmap.Controls.Add(Me.lblHeatmapKey)
+        Me.tabHeatmap.Location = New System.Drawing.Point(4, 25)
+        Me.tabHeatmap.Name = "tabHeatmap"
+        Me.tabHeatmap.Padding = New System.Windows.Forms.Padding(3)
+        Me.tabHeatmap.Size = New System.Drawing.Size(448, 477)
+        Me.tabHeatmap.TabIndex = 1
+        Me.tabHeatmap.Text = "Seat popularity"
+        Me.tabHeatmap.UseVisualStyleBackColor = True
+        '
+        'lblHeatmapInfo
+        '
+        Me.lblHeatmapInfo.AutoSize = False
+        Me.lblHeatmapInfo.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblHeatmapInfo.Location = New System.Drawing.Point(12, 8)
+        Me.lblHeatmapInfo.Name = "lblHeatmapInfo"
+        Me.lblHeatmapInfo.Size = New System.Drawing.Size(424, 46)
+        Me.lblHeatmapInfo.Text = ""
+        '
+        'pnlHeatmap
+        '
+        Me.pnlHeatmap.Location = New System.Drawing.Point(12, 58)
+        Me.pnlHeatmap.Name = "pnlHeatmap"
+        Me.pnlHeatmap.Size = New System.Drawing.Size(424, 292)
+        Me.pnlHeatmap.TabIndex = 0
+        '
+        'lblHeatmapKey
+        '
+        Me.lblHeatmapKey.AutoSize = False
+        Me.lblHeatmapKey.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblHeatmapKey.Location = New System.Drawing.Point(12, 358)
+        Me.lblHeatmapKey.Name = "lblHeatmapKey"
+        Me.lblHeatmapKey.Size = New System.Drawing.Size(424, 104)
+        Me.lblHeatmapKey.Text = ""
         '
         'lblSaved
         '
@@ -336,6 +380,7 @@ Partial Class frmScreens
         Me.tabScreen.ResumeLayout(False)
         Me.tabOverview.ResumeLayout(False)
         Me.tabOverview.PerformLayout()
+        Me.tabHeatmap.ResumeLayout(False)
         CType(Me.dgvScreens, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
@@ -365,6 +410,10 @@ Partial Class frmScreens
     Friend WithEvents tabScreen As TabControl
     Friend WithEvents tabOverview As TabPage
     Friend WithEvents lblOverview As Label
+    Friend WithEvents tabHeatmap As TabPage
+    Friend WithEvents lblHeatmapInfo As Label
+    Friend WithEvents pnlHeatmap As Panel
+    Friend WithEvents lblHeatmapKey As Label
     Friend WithEvents lblSaved As Label
     Friend WithEvents lblVersion As Label
 End Class

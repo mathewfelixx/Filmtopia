@@ -43,6 +43,10 @@ Public Class frmScreens
         'lets the form see escape before the box that has focus does
         Me.KeyPreview = True
 
+        'the seat popularity map is drawn rather than made out of buttons. it cannot be clicked
+        'on, so five hundred buttons would be five hundred controls doing nothing
+        pnlHeatmap.BackColor = Color.White
+
         LoadScreens()
         ClearFields()
         txtName.Focus()
@@ -896,6 +900,7 @@ Public Class frmScreens
         lblPickedScreen.Text = txtName.Text
 
         LoadOverview()
+        LoadHeatmap()
     End Sub
 
     'empties the right hand panel when nothing is picked, so it never shows numbers belonging to
@@ -903,6 +908,13 @@ Public Class frmScreens
     Private Sub ClearScreenDetail()
         lblPickedScreen.Text = "Pick a screen in the grid"
         lblOverview.Text = ""
+        lblHeatmapInfo.Text = ""
+        lblHeatmapKey.Text = ""
+
+        heatRows = 0
+        heatPerRow = 0
+        heatBusiest = 0
+        pnlHeatmap.Invalidate()
     End Sub
 
     'the block of numbers at the top of the overview tab
@@ -1082,6 +1094,199 @@ Public Class frmScreens
         End If
 
         Return slotTimes(bestSlot) & ", " & Math.Round(bestAverage, 1) & " seats a showing"
+    End Function
+
+    '=============================================================================
+    'the seat popularity map
+    '=============================================================================
+
+    'counts how many times every seat in the screen has been sold and puts the answers into
+    'heatCounts, laid out the same way the room is. the seats and the sold rows are read in two
+    'goes and matched up in a loop rather than being counted with a GROUP BY, because every seat
+    'has to end up in the grid, including the ones nobody has ever picked
+    Private Sub LoadHeatmap()
+        Dim dtSeats As New DataTable
+        Dim dtSold As New DataTable
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT SeatID, SeatRow, SeatNumber FROM tblSeat " &
+                                 "WHERE ScreenID = @ScreenID ORDER BY SeatRow, SeatNumber"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            da.Fill(dtSeats)
+            cn.Close()
+        End If
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT tblBookingSeat.SeatID FROM tblBookingSeat " &
+                                 "INNER JOIN tblSeat ON tblBookingSeat.SeatID = tblSeat.SeatID " &
+                                 "WHERE tblSeat.ScreenID = @ScreenID"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            da.Fill(dtSold)
+            cn.Close()
+        End If
+
+        heatRows = SafeInt(txtRows.Text)
+        heatPerRow = SafeInt(txtPerRow.Text)
+        heatBusiest = 0
+
+        If heatRows <= 0 Or heatPerRow <= 0 Or dtSeats.Rows.Count = 0 Then
+            heatRows = 0
+            heatPerRow = 0
+            lblHeatmapInfo.Text = "This screen has no seats made for it yet."
+            lblHeatmapKey.Text = ""
+            pnlHeatmap.Invalidate()
+            Exit Sub
+        End If
+
+        ReDim heatCounts(heatRows - 1, heatPerRow - 1)
+
+        'go through every seat in the room and count how many of the sold rows point at it.
+        'it is a loop inside a loop, which is slower than letting the database group it, but a
+        'screen is a few hundred seats at most and this way the seats nobody booked are still there
+        Dim totalSold As Integer = 0
+
+        For Each seat As DataRow In dtSeats.Rows
+            Dim seatID As Long = CLng(seat("SeatID"))
+            Dim rowIndex As Integer = Asc(seat("SeatRow").ToString().ToUpper()) - 65
+            Dim seatIndex As Integer = CInt(seat("SeatNumber")) - 1
+
+            'a seat left over from an older, bigger layout would fall outside the grid
+            If rowIndex >= 0 And rowIndex < heatRows And seatIndex >= 0 And seatIndex < heatPerRow Then
+                Dim timesSold As Integer = 0
+
+                For Each soldRow As DataRow In dtSold.Rows
+                    If CLng(soldRow("SeatID")) = seatID Then
+                        timesSold = timesSold + 1
+                    End If
+                Next
+
+                heatCounts(rowIndex, seatIndex) = timesSold
+                totalSold = totalSold + timesSold
+
+                If timesSold > heatBusiest Then
+                    heatBusiest = timesSold
+                End If
+            End If
+        Next
+
+        lblHeatmapInfo.Text = "How often each seat has been sold, across" & vbCrLf &
+                              "every screening. " & totalSold & " ticket(s) altogether."
+
+        If heatBusiest = 0 Then
+            lblHeatmapKey.Text = "Nothing has been sold in this screen yet," & vbCrLf &
+                                 "so every seat is grey." & vbCrLf &
+                                 "Cancelled tickets are not counted, their" & vbCrLf &
+                                 "seats went back on sale."
+        Else
+            lblHeatmapKey.Text = "Grey means never sold. The colour warms" & vbCrLf &
+                                 "towards red the more often a seat has gone." & vbCrLf &
+                                 "The busiest seat here has gone " & heatBusiest & " time(s)." & vbCrLf &
+                                 "Cancelled tickets are not counted."
+        End If
+
+        pnlHeatmap.Invalidate()
+    End Sub
+
+    'draws the seat popularity map. it is painted rather than made out of buttons because nothing
+    'on it can be clicked, so there is no reason for it to be hundreds of controls
+    Private Sub pnlHeatmap_Paint(sender As Object, e As PaintEventArgs) Handles pnlHeatmap.Paint
+        Dim g As Graphics = e.Graphics
+        g.Clear(Color.White)
+
+        If heatRows <= 0 Or heatPerRow <= 0 Then
+            g.DrawString("No seats to show", New Font("Segoe UI", 9), Brushes.Gray, 10, 10)
+            Exit Sub
+        End If
+
+        'room is left down the side for the row letters and along the top for the screen
+        Dim letterWidth As Integer = 22
+        Dim screenBar As Integer = 22
+        Dim usableWidth As Integer = pnlHeatmap.Width - letterWidth - 6
+        Dim usableHeight As Integer = pnlHeatmap.Height - screenBar - 6
+
+        'every seat is the same size, so the size is whichever of the two directions runs out first
+        Dim cellSize As Integer = usableWidth \ heatPerRow
+
+        If usableHeight \ heatRows < cellSize Then
+            cellSize = usableHeight \ heatRows
+        End If
+
+        If cellSize < 4 Then
+            g.DrawString("This screen is too big to draw here", New Font("Segoe UI", 9), Brushes.Gray, 10, 10)
+            Exit Sub
+        End If
+
+        'a gap between the seats, but not on the tiny ones or there would be nothing left
+        Dim gap As Integer = 2
+
+        If cellSize < 14 Then
+            gap = 1
+        End If
+
+        'the block of seats is centred both ways, otherwise a small screen sits in the corner
+        'with a lot of empty white underneath it
+        Dim startX As Integer = letterWidth + (usableWidth - (heatPerRow * cellSize)) \ 2
+        Dim startY As Integer = screenBar + 4 + (usableHeight - (heatRows * cellSize)) \ 2
+
+        'the screen itself goes along the top, because row A is the front row
+        Dim barWidth As Integer = heatPerRow * cellSize - gap
+        g.FillRectangle(New SolidBrush(Color.FromArgb(70, 70, 78)), startX, startY - 20, barWidth, 14)
+        g.DrawString("SCREEN", New Font("Segoe UI", 7.5), Brushes.White,
+                     startX + (barWidth \ 2) - 24, startY - 19)
+
+        Dim letterFont As New Font("Segoe UI", 7.5)
+        Dim countFont As New Font("Segoe UI", 7.5)
+
+        For rowIndex As Integer = 0 To heatRows - 1
+            Dim y As Integer = startY + (rowIndex * cellSize)
+
+            'the row letter down the left so a hot patch can be pointed at
+            g.DrawString(Chr(65 + rowIndex), letterFont, Brushes.Gray, 4, y + 1)
+
+            For seatIndex As Integer = 0 To heatPerRow - 1
+                Dim x As Integer = startX + (seatIndex * cellSize)
+                Dim timesSold As Integer = heatCounts(rowIndex, seatIndex)
+
+                g.FillRectangle(New SolidBrush(HeatColour(timesSold)), x, y, cellSize - gap, cellSize - gap)
+
+                'the number only goes on when the seats are drawn big enough to read it
+                If cellSize >= 26 And timesSold > 0 Then
+                    Dim fore As Brush = Brushes.Black
+
+                    If heatBusiest > 0 AndAlso timesSold > heatBusiest \ 2 Then
+                        fore = Brushes.White
+                    End If
+
+                    g.DrawString(timesSold.ToString(), countFont, fore, x + 3, y + 2)
+                End If
+            Next
+        Next
+    End Sub
+
+    'picks the colour for a seat from how many times it has been sold. a seat nobody has ever
+    'picked is grey, and everything else fades from pale yellow up to deep red depending on how
+    'it compares with the busiest seat in the room. working from the busiest seat rather than a
+    'fixed number means a quiet screen still shows which of its seats people prefer
+    Private Function HeatColour(timesSold As Integer) As Color
+        If timesSold <= 0 Or heatBusiest <= 0 Then
+            Return Color.FromArgb(224, 224, 228)
+        End If
+
+        Dim howHot As Double = timesSold / heatBusiest
+
+        'the pale end is 255,236,160 and the hot end is 190,30,45, so each part of the colour is
+        'moved that far along depending on how hot the seat is
+        Dim red As Integer = CInt(255 + ((190 - 255) * howHot))
+        Dim green As Integer = CInt(236 + ((30 - 236) * howHot))
+        Dim blue As Integer = CInt(160 + ((45 - 160) * howHot))
+
+        Return Color.FromArgb(red, green, blue)
     End Function
 
 End Class
