@@ -30,6 +30,18 @@ Public Class frmScreens
     Private heatPerRow As Integer = 0
     Private heatBusiest As Integer = 0
 
+    'what sort each seat in the room being edited is meant to be, laid out the same way the room
+    'is. planTypes(rowIndex, seatIndex) holds "Standard", "Premium" or "Accessible", so
+    'planTypes(0, 0) is seat A1. it is what the seat plan tab draws and what the seats get made
+    'from, and it means the premium and accessible seats no longer have to be whole fixed rows
+    Private planTypes(,) As String
+    Private planRows As Integer = 0
+    Private planPerRow As Integer = 0
+
+    'true once a seat on the plan has been changed and not saved yet. it is kept separate from
+    'boxesChanged because saving uses it to decide whether the seats need writing to at all
+    Private planChanged As Boolean = False
+
     Private Sub frmScreens_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         If UserAccessLevel <> 1 Then
             MessageBox.Show("Only a manager can open the screens screen.", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -46,6 +58,10 @@ Public Class frmScreens
         'the seat popularity map is drawn rather than made out of buttons. it cannot be clicked
         'on, so five hundred buttons would be five hundred controls doing nothing
         pnlHeatmap.BackColor = Color.White
+
+        'the seat plan is drawn the same way, but this one does get clicked on. it is one panel
+        'with the seats painted into it, and the click is worked out from where it landed
+        pnlSeatPlan.BackColor = Color.White
 
         LoadScreens()
         ClearFields()
@@ -275,6 +291,8 @@ Public Class frmScreens
     'as either box is typed in it says what the screen will come out as, so the size and the mix of
     'seats can be seen before anything is saved
     Private Sub Layout_TextChanged(sender As Object, e As EventArgs) Handles txtRows.TextChanged, txtPerRow.TextChanged
+        'the plan is rebuilt first, because the line under the boxes counts the seats up off it
+        BuildSeatPlan()
         ShowLayoutPreview()
     End Sub
 
@@ -303,33 +321,25 @@ Public Class frmScreens
             Exit Sub
         End If
 
-        'count how the rows split between the three sorts so the mix can be shown
-        Dim standardRows As Integer = 0
-        Dim premiumRows As Integer = 0
-        Dim accessibleRows As Integer = 0
+        'count how the seats split between the three sorts so the mix can be shown. it is counted
+        'off the plan rather than off the row rule, because the plan is what actually gets made
+        Dim standardSeats As Integer = 0
+        Dim premiumSeats As Integer = 0
+        Dim accessibleSeats As Integer = 0
+        CountPlannedSeats(standardSeats, premiumSeats, accessibleSeats)
 
-        For rowIndex As Integer = 0 To numRows - 1
-            Dim thisType As String = SeatTypeForRow(rowIndex, numRows)
-            If thisType = SeatPremium Then
-                premiumRows = premiumRows + 1
-            ElseIf thisType = SeatAccessible Then
-                accessibleRows = accessibleRows + 1
-            Else
-                standardRows = standardRows + 1
-            End If
-        Next
-
-        Dim mix As String = standardRows & " standard"
-        If premiumRows > 0 Then
-            mix = mix & ", " & premiumRows & " premium"
+        Dim mix As String = standardSeats & " standard"
+        If premiumSeats > 0 Then
+            mix = mix & ", " & premiumSeats & " premium"
         End If
-        If accessibleRows > 0 Then
-            mix = mix & ", " & accessibleRows & " accessible"
+        If accessibleSeats > 0 Then
+            mix = mix & ", " & accessibleSeats & " accessible"
         End If
 
         lblLayout.Text = "That makes " & (numRows * perRow) & " seats, numbered A1 to " &
                          Chr(64 + numRows) & perRow & "." & vbCrLf &
-                         "Rows: " & mix & "."
+                         "Seats: " & mix & "." & vbCrLf &
+                         "Use the seat plan tab to move the premium and accessible ones about."
     End Sub
 
     'adds a new screen and makes its seats
@@ -464,6 +474,7 @@ Public Class frmScreens
                 Exit Sub
             End If
         End If
+
 
         'this is the most damaging thing the program can do. resizing a screen throws all of its
         'seats away and makes them again, and that used to happen on three separate connections, so
@@ -724,12 +735,14 @@ Public Class frmScreens
         txtPerRow.Text = ""
         fillingBoxes = False
         boxesChanged = False
+        planChanged = False
 
         selectedStatus = ScreenInService
         selectedReason = ""
 
         dgvScreens.ClearSelection()
         ShowWhatIsBeingEdited()
+        BuildSeatPlan()
         ShowLayoutPreview()
         ClearScreenDetail()
     End Sub
@@ -901,6 +914,7 @@ Public Class frmScreens
 
         LoadOverview()
         LoadHeatmap()
+        LoadSeatPlanFromScreen()
         LoadScreeningsForScreen()
         ShowStatusButtons()
     End Sub
@@ -1299,6 +1313,349 @@ Public Class frmScreens
 
         Return Color.FromArgb(red, green, blue)
     End Function
+
+    '=============================================================================
+    'the seat plan, where the premium and accessible seats get put
+    '=============================================================================
+
+    'builds the plan to match whatever is in the two boxes. anything already picked is kept if it
+    'still fits, so nudging the seats per row up by one does not throw away all the marking out
+    'that has already been done. new squares start on whatever the usual layout would give them
+    Private Sub BuildSeatPlan()
+        Dim numRows As Integer = SafeInt(txtRows.Text)
+        Dim perRow As Integer = SafeInt(txtPerRow.Text)
+
+        If numRows <= 0 Or perRow <= 0 Or numRows > 26 Then
+            planRows = 0
+            planPerRow = 0
+            ShowSeatPlanKey()
+            pnlSeatPlan.Invalidate()
+            Exit Sub
+        End If
+
+        'hold on to what is there now, because the ReDim below empties the array
+        Dim oldTypes(,) As String = planTypes
+        Dim oldRows As Integer = planRows
+        Dim oldPerRow As Integer = planPerRow
+
+        ReDim planTypes(numRows - 1, perRow - 1)
+        planRows = numRows
+        planPerRow = perRow
+
+        For rowIndex As Integer = 0 To planRows - 1
+            For seatIndex As Integer = 0 To planPerRow - 1
+                If rowIndex < oldRows And seatIndex < oldPerRow Then
+                    planTypes(rowIndex, seatIndex) = oldTypes(rowIndex, seatIndex)
+                Else
+                    planTypes(rowIndex, seatIndex) = SeatTypeForRow(rowIndex, planRows)
+                End If
+            Next
+        Next
+
+        ShowSeatPlanKey()
+        pnlSeatPlan.Invalidate()
+    End Sub
+
+    'what sort of seat the plan says a square is. anything the plan does not cover falls back on
+    'the usual layout, so seat making still works even if the plan was never drawn
+    Private Function PlannedTypeFor(rowIndex As Integer, seatIndex As Integer, numRows As Integer) As String
+        If rowIndex < 0 Or seatIndex < 0 Or rowIndex >= planRows Or seatIndex >= planPerRow Then
+            Return SeatTypeForRow(rowIndex, numRows)
+        End If
+
+        If planTypes(rowIndex, seatIndex) = "" Then
+            Return SeatTypeForRow(rowIndex, numRows)
+        End If
+
+        Return planTypes(rowIndex, seatIndex)
+    End Function
+
+    'clicking a seat moves it on to the next sort, and round again from the end
+    Private Function NextSeatType(thisType As String) As String
+        If thisType = SeatStandard Then
+            Return SeatPremium
+        End If
+
+        If thisType = SeatPremium Then
+            Return SeatAccessible
+        End If
+
+        Return SeatStandard
+    End Function
+
+    'the colour each sort of seat is drawn in on the plan
+    Private Function PlanColour(seatType As String) As Color
+        If seatType = SeatPremium Then
+            Return Color.FromArgb(212, 175, 55)
+        End If
+
+        If seatType = SeatAccessible Then
+            Return Color.FromArgb(60, 120, 200)
+        End If
+
+        Return Color.FromArgb(190, 195, 205)
+    End Function
+
+    'works out how big to draw the seats and where the block of them starts. the drawing and the
+    'clicking both need these numbers, so they are worked out in one place rather than twice,
+    'which is what would let a click land on a different seat from the one drawn there
+    Private Sub SeatPlanGeometry(ByRef cellSize As Integer, ByRef startX As Integer, ByRef startY As Integer)
+        Dim letterWidth As Integer = 22
+        Dim screenBar As Integer = 22
+        Dim usableWidth As Integer = pnlSeatPlan.Width - letterWidth - 6
+        Dim usableHeight As Integer = pnlSeatPlan.Height - screenBar - 6
+
+        cellSize = usableWidth \ planPerRow
+
+        If usableHeight \ planRows < cellSize Then
+            cellSize = usableHeight \ planRows
+        End If
+
+        startX = letterWidth + (usableWidth - (planPerRow * cellSize)) \ 2
+        startY = screenBar + 4 + (usableHeight - (planRows * cellSize)) \ 2
+    End Sub
+
+    'draws the plan of the room. it is painted rather than made out of buttons because a big
+    'screen would be several hundred controls, and all it has to do is show a colour per seat
+    Private Sub pnlSeatPlan_Paint(sender As Object, e As PaintEventArgs) Handles pnlSeatPlan.Paint
+        Dim g As Graphics = e.Graphics
+        g.Clear(Color.White)
+
+        If planRows <= 0 Or planPerRow <= 0 Then
+            g.DrawString("Type how many rows and seats first", New Font("Segoe UI", 9), Brushes.Gray, 10, 10)
+            Exit Sub
+        End If
+
+        Dim cellSize As Integer = 0
+        Dim startX As Integer = 0
+        Dim startY As Integer = 0
+        SeatPlanGeometry(cellSize, startX, startY)
+
+        If cellSize < 6 Then
+            g.DrawString("This screen is too big to draw here", New Font("Segoe UI", 9), Brushes.Gray, 10, 10)
+            Exit Sub
+        End If
+
+        'a gap between the seats, but a smaller one on the little ones or there is nothing left
+        Dim gap As Integer = 2
+
+        If cellSize < 14 Then
+            gap = 1
+        End If
+
+        'the screen itself goes along the top, because row A is the front row
+        Dim barWidth As Integer = planPerRow * cellSize - gap
+        g.FillRectangle(New SolidBrush(Color.FromArgb(70, 70, 78)), startX, startY - 20, barWidth, 14)
+        g.DrawString("SCREEN", New Font("Segoe UI", 7.5), Brushes.White,
+                     startX + (barWidth \ 2) - 24, startY - 19)
+
+        Dim letterFont As New Font("Segoe UI", 7.5)
+        Dim markFont As New Font("Segoe UI", 7.5, FontStyle.Bold)
+
+        For rowIndex As Integer = 0 To planRows - 1
+            Dim y As Integer = startY + (rowIndex * cellSize)
+
+            'the row letter down the left. clicking it changes the whole row at once
+            g.DrawString(Chr(65 + rowIndex), letterFont, Brushes.Gray, 4, y + 1)
+
+            For seatIndex As Integer = 0 To planPerRow - 1
+                Dim x As Integer = startX + (seatIndex * cellSize)
+                Dim thisType As String = planTypes(rowIndex, seatIndex)
+
+                g.FillRectangle(New SolidBrush(PlanColour(thisType)), x, y, cellSize - gap, cellSize - gap)
+
+                'a letter on the seat as well as the colour, so the plan can still be read when
+                'it is printed in black and white for the write up
+                If cellSize >= 14 And thisType <> SeatStandard Then
+                    Dim mark As String = "P"
+
+                    If thisType = SeatAccessible Then
+                        mark = "A"
+                    End If
+
+                    g.DrawString(mark, markFont, Brushes.White, x + 2, y + 1)
+                End If
+            Next
+        Next
+    End Sub
+
+    'clicking a seat changes what sort it is, and clicking the row letter changes the whole row
+    Private Sub pnlSeatPlan_MouseDown(sender As Object, e As MouseEventArgs) Handles pnlSeatPlan.MouseDown
+        If planRows <= 0 Or planPerRow <= 0 Then
+            Exit Sub
+        End If
+
+        Dim cellSize As Integer = 0
+        Dim startX As Integer = 0
+        Dim startY As Integer = 0
+        SeatPlanGeometry(cellSize, startX, startY)
+
+        If cellSize < 6 Then
+            Exit Sub
+        End If
+
+        'above the first row is not a click on a seat at all. it has to be checked before the
+        'divide, because a negative divided down still comes out as row 0
+        If e.Y < startY Then
+            Exit Sub
+        End If
+
+        Dim rowIndex As Integer = (e.Y - startY) \ cellSize
+
+        If rowIndex >= planRows Then
+            Exit Sub
+        End If
+
+        If e.X < startX Then
+            'the row letter, so the whole row goes to whatever the first seat in it would become
+            Dim newType As String = NextSeatType(planTypes(rowIndex, 0))
+
+            For seatIndex As Integer = 0 To planPerRow - 1
+                planTypes(rowIndex, seatIndex) = newType
+            Next
+        Else
+            Dim seatIndex As Integer = (e.X - startX) \ cellSize
+
+            If seatIndex >= planPerRow Then
+                Exit Sub
+            End If
+
+            planTypes(rowIndex, seatIndex) = NextSeatType(planTypes(rowIndex, seatIndex))
+        End If
+
+        'marking seats out counts as an unsaved change the same as typing in the boxes does
+        planChanged = True
+        boxesChanged = True
+
+        ShowSeatPlanKey()
+        ShowLayoutPreview()
+        pnlSeatPlan.Invalidate()
+    End Sub
+
+    'puts the plan back to the usual layout, front row accessible and the back two premium
+    Private Sub btnPlanDefault_Click(sender As Object, e As EventArgs) Handles btnPlanDefault.Click
+        If planRows <= 0 Then
+            Exit Sub
+        End If
+
+        For rowIndex As Integer = 0 To planRows - 1
+            For seatIndex As Integer = 0 To planPerRow - 1
+                planTypes(rowIndex, seatIndex) = SeatTypeForRow(rowIndex, planRows)
+            Next
+        Next
+
+        planChanged = True
+        boxesChanged = True
+        ShowSeatPlanKey()
+        ShowLayoutPreview()
+        pnlSeatPlan.Invalidate()
+    End Sub
+
+    'wipes the plan back to a room with nothing special in it
+    Private Sub btnPlanAllStandard_Click(sender As Object, e As EventArgs) Handles btnPlanAllStandard.Click
+        If planRows <= 0 Then
+            Exit Sub
+        End If
+
+        For rowIndex As Integer = 0 To planRows - 1
+            For seatIndex As Integer = 0 To planPerRow - 1
+                planTypes(rowIndex, seatIndex) = SeatStandard
+            Next
+        Next
+
+        planChanged = True
+        boxesChanged = True
+        ShowSeatPlanKey()
+        ShowLayoutPreview()
+        pnlSeatPlan.Invalidate()
+    End Sub
+
+    'the wording above and below the plan, including how many of each sort there are
+    Private Sub ShowSeatPlanKey()
+        If planRows <= 0 Or planPerRow <= 0 Then
+            lblSeatPlanInfo.Text = "Type how many rows and how many seats in each row first," & vbCrLf &
+                                   "then the plan of the room can be marked out here."
+            lblSeatPlanKey.Text = ""
+            Exit Sub
+        End If
+
+        lblSeatPlanInfo.Text = "Click a seat to change what sort it is. Standard, then" & vbCrLf &
+                               "premium, then accessible, then round again." & vbCrLf &
+                               "Clicking a row letter changes that whole row."
+
+        Dim standardSeats As Integer = 0
+        Dim premiumSeats As Integer = 0
+        Dim accessibleSeats As Integer = 0
+        CountPlannedSeats(standardSeats, premiumSeats, accessibleSeats)
+
+        lblSeatPlanKey.Text = "Grey is standard, gold is premium (P), blue is" & vbCrLf &
+                              "accessible (A). What a seat costs comes from its sort." & vbCrLf &
+                              standardSeats & " standard, " & premiumSeats & " premium, " &
+                              accessibleSeats & " accessible."
+    End Sub
+
+    'counts the plan up into the three sorts. the line under the boxes and the key under the
+    'plan both want the same three numbers, so they get counted once here
+    Private Sub CountPlannedSeats(ByRef standardSeats As Integer, ByRef premiumSeats As Integer, ByRef accessibleSeats As Integer)
+        standardSeats = 0
+        premiumSeats = 0
+        accessibleSeats = 0
+
+        For rowIndex As Integer = 0 To planRows - 1
+            For seatIndex As Integer = 0 To planPerRow - 1
+                Dim thisType As String = planTypes(rowIndex, seatIndex)
+
+                If thisType = SeatPremium Then
+                    premiumSeats = premiumSeats + 1
+                ElseIf thisType = SeatAccessible Then
+                    accessibleSeats = accessibleSeats + 1
+                Else
+                    standardSeats = standardSeats + 1
+                End If
+            Next
+        Next
+    End Sub
+
+    'reads the sort of every seat in the selected screen back into the plan, so an existing room
+    'comes up marked out the way it really is rather than the way the usual layout would have it
+    Private Sub LoadSeatPlanFromScreen()
+        BuildSeatPlan()
+
+        If planRows <= 0 Or selectedScreenID = 0 Then
+            Exit Sub
+        End If
+
+        Dim dtSeats As New DataTable
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT tblSeat.SeatRow, tblSeat.SeatNumber, tblSeatType.SeatTypeName " &
+                                 "FROM tblSeat INNER JOIN tblSeatType ON tblSeat.SeatTypeID = tblSeatType.SeatTypeID " &
+                                 "WHERE tblSeat.ScreenID = @ScreenID"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            da.Fill(dtSeats)
+            cn.Close()
+        End If
+
+        For Each seat As DataRow In dtSeats.Rows
+            Dim rowIndex As Integer = Asc(seat("SeatRow").ToString().ToUpper()) - 65
+            Dim seatIndex As Integer = CInt(seat("SeatNumber")) - 1
+
+            'a seat left over from an older, bigger layout would fall outside the plan
+            If rowIndex >= 0 And rowIndex < planRows And seatIndex >= 0 And seatIndex < planPerRow Then
+                planTypes(rowIndex, seatIndex) = seat("SeatTypeName").ToString()
+            End If
+        Next
+
+        'what has just been read is what is already saved, so there is nothing to write back yet
+        planChanged = False
+
+        ShowSeatPlanKey()
+        ShowLayoutPreview()
+        pnlSeatPlan.Invalidate()
+    End Sub
 
     '=============================================================================
     'what is on in this screen
