@@ -1937,13 +1937,17 @@ Public Class frmScreens
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
+            'the date goes in with Now() in the query rather than as a parameter, the same way the
+            'cancel on the booking search does it. a date with a time on it through AddWithValue
+            'carries the milliseconds with it, and an Access date field has no room for those, so
+            'the whole update comes back as a data type mismatch. every other date in the program
+            'is a midnight one, which is why this is the only place it bit
             SQLCmd.CommandText = "UPDATE tblScreen " &
                                  "SET ScreenStatus = @ScreenStatus, ScreenStatusReason = @ScreenStatusReason, " &
-                                 "ScreenStatusDate = @ScreenStatusDate " &
+                                 "ScreenStatusDate = Now() " &
                                  "WHERE ScreenID = @ScreenID"
             SQLCmd.Parameters.AddWithValue("@ScreenStatus", newStatus)
             SQLCmd.Parameters.AddWithValue("@ScreenStatusReason", reason)
-            SQLCmd.Parameters.AddWithValue("@ScreenStatusDate", Date.Now)
             SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
             SQLCmd.ExecuteNonQuery()
             saved = True
