@@ -23,6 +23,13 @@ Public Class frmScreenings
     'before everything is ready
     Private stillLoading As Boolean = True
 
+    'true once something has been typed into the boxes that has not been saved yet. it is what
+    'the warning before another row replaces it is based on
+    Private boxesChanged As Boolean = False
+
+    'true while a row is being copied into the boxes, so filling them in does not count as typing
+    Private fillingBoxes As Boolean = False
+
     Private Sub frmScreenings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup(Me)
 
@@ -845,7 +852,32 @@ Public Class frmScreenings
         ClearFields()
     End Sub
 
+    'anything changed in the boxes by hand counts as an unsaved change
+    Private Sub Details_Changed(sender As Object, e As EventArgs) Handles cboFilm.SelectedIndexChanged, cboScreen.SelectedIndexChanged,
+        dtpScreeningDate.ValueChanged, txtScreeningTime.TextChanged, txtTicketPrice.TextChanged
+        If fillingBoxes Then
+            Exit Sub
+        End If
+
+        boxesChanged = True
+    End Sub
+
+    'asks before typing that has not been saved gets thrown away. it only asks when something has
+    'actually been changed, so clicking down a list of rows to read them never interrupts
+    Private Function ChangesCanBeLost() As Boolean
+        If Not boxesChanged Then
+            Return True
+        End If
+
+        Return MessageBox.Show("There are changes in the boxes that have not been saved." & vbCrLf &
+                               "Throw them away?", "Unsaved changes",
+                               MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                               MessageBoxDefaultButton.Button2) = DialogResult.Yes
+    End Function
+
     Private Sub ClearFields()
+        fillingBoxes = True
+
         'the confirmation only lasts until the next thing is started
         lblSaved.Text = ""
         selectedScreeningID = 0
@@ -854,6 +886,9 @@ Public Class frmScreenings
         dtpScreeningDate.Value = Date.Now
         txtScreeningTime.Text = ""
         txtTicketPrice.Text = ""
+        fillingBoxes = False
+        boxesChanged = False
+
         dgvScreenings.ClearSelection()
         ShowWhatIsBeingEdited()
         ShowEndTime()
@@ -880,6 +915,14 @@ Public Class frmScreenings
     Private Sub dgvScreenings_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvScreenings.CellClick
         If e.RowIndex < 0 Then Exit Sub
 
+        'clicking a row replaces whatever is in the boxes, so anything typed and not saved
+        'would have gone without a word. the selection is left alone if the answer is no
+        If Not ChangesCanBeLost() Then
+            Exit Sub
+        End If
+
+        fillingBoxes = True
+
         Dim row As DataGridViewRow = dgvScreenings.Rows(e.RowIndex)
         selectedScreeningID = CInt(row.Cells("ScreeningID").Value)
         cboFilm.SelectedValue = CInt(row.Cells("FilmID").Value)
@@ -889,6 +932,9 @@ Public Class frmScreenings
 
         'the grid shows the price with a pound sign in front of it, the box wants the plain number
         txtTicketPrice.Text = Format(CDbl(row.Cells("TicketPrice").Value), "0.00")
+
+        fillingBoxes = False
+        boxesChanged = False
 
         ShowWhatIsBeingEdited()
         ShowEndTime()
