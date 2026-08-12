@@ -54,6 +54,9 @@ Partial Class frmScreenings
         Me.btnDelete = New System.Windows.Forms.Button()
         Me.btnClear = New System.Windows.Forms.Button()
         Me.btnSuggest = New System.Windows.Forms.Button()
+        Me.lblCancelReason = New System.Windows.Forms.Label()
+        Me.txtCancelReason = New System.Windows.Forms.TextBox()
+        Me.btnCancelScreening = New System.Windows.Forms.Button()
         Me.lblRepeatUntil = New System.Windows.Forms.Label()
         Me.dtpRepeatUntil = New System.Windows.Forms.DateTimePicker()
         Me.btnRepeat = New System.Windows.Forms.Button()
@@ -271,6 +274,9 @@ Partial Class frmScreenings
         Me.GroupBox2.Controls.Add(Me.btnUpdate)
         Me.GroupBox2.Controls.Add(Me.btnDelete)
         Me.GroupBox2.Controls.Add(Me.btnClear)
+        Me.GroupBox2.Controls.Add(Me.lblCancelReason)
+        Me.GroupBox2.Controls.Add(Me.txtCancelReason)
+        Me.GroupBox2.Controls.Add(Me.btnCancelScreening)
         Me.GroupBox2.Controls.Add(Me.lblRepeatUntil)
         Me.GroupBox2.Controls.Add(Me.dtpRepeatUntil)
         Me.GroupBox2.Controls.Add(Me.btnRepeat)
@@ -278,7 +284,7 @@ Partial Class frmScreenings
         Me.GroupBox2.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.GroupBox2.Location = New System.Drawing.Point(16, 456)
         Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(1036, 252)
+        Me.GroupBox2.Size = New System.Drawing.Size(1036, 294)
         Me.GroupBox2.TabIndex = 2
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Put a film on, or change a screening that is already there"
@@ -449,6 +455,35 @@ Partial Class frmScreenings
         Me.btnClear.Text = "Clear the boxes"
         Me.btnClear.UseVisualStyleBackColor = True
         '
+        'lblCancelReason
+        '
+        Me.lblCancelReason.AutoSize = True
+        Me.lblCancelReason.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblCancelReason.Location = New System.Drawing.Point(16, 254)
+        Me.lblCancelReason.Name = "lblCancelReason"
+        Me.lblCancelReason.Size = New System.Drawing.Size(150, 15)
+        Me.lblCancelReason.TabIndex = 21
+        Me.lblCancelReason.Text = "Reason for pulling it"
+        '
+        'txtCancelReason
+        '
+        Me.txtCancelReason.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.txtCancelReason.Location = New System.Drawing.Point(180, 250)
+        Me.txtCancelReason.MaxLength = 100
+        Me.txtCancelReason.Name = "txtCancelReason"
+        Me.txtCancelReason.Size = New System.Drawing.Size(500, 23)
+        Me.txtCancelReason.TabIndex = 22
+        '
+        'btnCancelScreening
+        '
+        Me.btnCancelScreening.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.btnCancelScreening.Location = New System.Drawing.Point(700, 248)
+        Me.btnCancelScreening.Name = "btnCancelScreening"
+        Me.btnCancelScreening.Size = New System.Drawing.Size(320, 30)
+        Me.btnCancelScreening.TabIndex = 23
+        Me.btnCancelScreening.Text = "Cancel this screening"
+        Me.btnCancelScreening.UseVisualStyleBackColor = True
+        '
         'lblRepeatUntil
         '
         Me.lblRepeatUntil.AutoSize = True
@@ -499,7 +534,7 @@ Partial Class frmScreenings
         'lblSaved
         '
         Me.lblSaved.AutoSize = False
-        Me.lblSaved.Location = New System.Drawing.Point(360, 721)
+        Me.lblSaved.Location = New System.Drawing.Point(360, 763)
         Me.lblSaved.Name = "lblSaved"
         Me.lblSaved.Size = New System.Drawing.Size(692, 16)
         Me.lblSaved.Text = ""
@@ -508,7 +543,7 @@ Partial Class frmScreenings
         '
         Me.lblVersion.AutoSize = True
         Me.lblVersion.ForeColor = System.Drawing.Color.Gray
-        Me.lblVersion.Location = New System.Drawing.Point(16, 721)
+        Me.lblVersion.Location = New System.Drawing.Point(16, 763)
         Me.lblVersion.Name = "lblVersion"
         Me.lblVersion.Size = New System.Drawing.Size(271, 16)
         Me.lblVersion.TabIndex = 3
@@ -518,7 +553,7 @@ Partial Class frmScreenings
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1068, 750)
+        Me.ClientSize = New System.Drawing.Size(1068, 792)
         Me.Controls.Add(Me.btnExport)
         Me.Controls.Add(Me.lblSaved)
         Me.Controls.Add(Me.lblVersion)
@@ -580,6 +615,9 @@ Partial Class frmScreenings
     Friend WithEvents btnUpdate As Button
     Friend WithEvents btnDelete As Button
     Friend WithEvents btnClear As Button
+    Friend WithEvents lblCancelReason As Label
+    Friend WithEvents txtCancelReason As TextBox
+    Friend WithEvents btnCancelScreening As Button
     Friend WithEvents lblRepeatUntil As Label
     Friend WithEvents dtpRepeatUntil As DateTimePicker
     Friend WithEvents btnRepeat As Button

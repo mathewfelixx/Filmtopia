@@ -55,6 +55,7 @@ Public Class frmScreenings
     Private timelineTitle() As String
     Private timelineSold() As Integer
     Private timelineCapacity() As Integer
+    Private timelineCancelled() As Boolean
     Private timelineCount As Integer = 0
 
     'the tooltip shown when the mouse is over a showing on the timeline. one is made for the whole
@@ -264,7 +265,7 @@ Public Class frmScreenings
             'every screening on the grid. it only looks at tblBookingSeat, no join inside it, which
             'is exactly what the ScreeningID on the seat row is there for
             Dim baseQuery As String = "SELECT tblScreening.ScreeningID, FilmTitle, ScreenName, ScreeningDate, ScreeningTime, TicketPrice, " &
-                                      "FilmDuration, ScreenCapacity, tblScreening.FilmID, tblScreening.ScreenID, " &
+                                      "FilmDuration, ScreenCapacity, tblScreening.FilmID, tblScreening.ScreenID, ScreeningStatus, " &
                                       "(SELECT COUNT(*) FROM tblBookingSeat AS bs WHERE bs.ScreeningID = tblScreening.ScreeningID) AS SeatsBooked " &
                                       "FROM (tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID) " &
                                       "INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID"
@@ -367,6 +368,7 @@ Public Class frmScreenings
             dgvScreenings.Columns("FilmDuration").Visible = False
             dgvScreenings.Columns("ScreenCapacity").Visible = False
             dgvScreenings.Columns("SeatsBooked").Visible = False
+            dgvScreenings.Columns("ScreeningStatus").Visible = False
 
             dgvScreenings.Columns("ScreeningID").HeaderText = "ID"
             dgvScreenings.Columns("FilmTitle").HeaderText = "Film"
@@ -421,6 +423,27 @@ Public Class frmScreenings
     Private Sub MarkTheGrid()
         MarkSoldOutScreenings()
         ColourOccupancy()
+        'last, so a cancelled screening is greyed out whatever else it would have been coloured.
+        'a sold out screening that has since been pulled is not a good news story
+        GreyOutCancelled()
+    End Sub
+
+    'a cancelled screening stays on the list, because it is still a thing that happened and
+    'somebody looking for it should find it, but it is greyed so it cannot be read as still on
+    Private Sub GreyOutCancelled()
+        For Each row As DataGridViewRow In dgvScreenings.Rows
+            If row.Cells("ScreeningStatus").Value IsNot Nothing AndAlso
+               Not IsDBNull(row.Cells("ScreeningStatus").Value) AndAlso
+               row.Cells("ScreeningStatus").Value.ToString() = ScreeningCancelled Then
+
+                row.DefaultCellStyle.BackColor = Color.Empty
+                row.DefaultCellStyle.ForeColor = PastFore
+                row.Cells("PercentFull").Style.ForeColor = PastFore
+                row.Cells("PercentFull").Style.SelectionForeColor = PastFore
+                row.Cells("PercentFull").Style.Font = Nothing
+                row.Cells("SoldText").Value = "Cancelled"
+            End If
+        Next
     End Sub
 
     'sorting moves the rows about but leaves the colouring where it was, so the wrong rows end up
@@ -566,7 +589,7 @@ Public Class frmScreenings
             'then everything on that day, with how full each one is, so a busy showing can be
             'told from an empty one at a glance
             SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, tblScreening.ScreenID, FilmTitle, ScreeningTime, " &
-                                 "FilmDuration, ScreenCapacity, " &
+                                 "FilmDuration, ScreenCapacity, ScreeningStatus, " &
                                  "(SELECT COUNT(*) FROM tblBookingSeat AS bs WHERE bs.ScreeningID = tblScreening.ScreeningID) AS SeatsBooked " &
                                  "FROM (tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID) " &
                                  "INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID " &
@@ -585,6 +608,7 @@ Public Class frmScreenings
             ReDim timelineTitle(dtDay.Rows.Count)
             ReDim timelineSold(dtDay.Rows.Count)
             ReDim timelineCapacity(dtDay.Rows.Count)
+            ReDim timelineCancelled(dtDay.Rows.Count)
 
             For Each dayRow As DataRow In dtDay.Rows
                 Dim startsAt As Integer = TimeAsMinutes(dayRow("ScreeningTime").ToString())
@@ -601,6 +625,8 @@ Public Class frmScreenings
                     timelineTitle(timelineCount) = dayRow("FilmTitle").ToString()
                     timelineSold(timelineCount) = CInt(dayRow("SeatsBooked"))
                     timelineCapacity(timelineCount) = CInt(dayRow("ScreenCapacity"))
+                    timelineCancelled(timelineCount) = (Not IsDBNull(dayRow("ScreeningStatus"))) AndAlso
+                                                       dayRow("ScreeningStatus").ToString() = ScreeningCancelled
                     timelineCount = timelineCount + 1
                 End If
             Next
@@ -775,6 +801,40 @@ Public Class frmScreenings
         Dim filmBrush As New SolidBrush(TimelineBlockColour(timelineSold(i), timelineCapacity(i)))
         Dim edgePen As New Pen(BorderCol)
 
+        'a cancelled showing is drawn as an outline with nothing filled in and no trailers or
+        'turnaround on it, because the room is genuinely free again at that time. it is still
+        'drawn at all so that somebody can see a film was meant to be on and has been pulled
+        If timelineCancelled(i) Then
+            Dim goneBrush As New SolidBrush(FormBack)
+            Dim gonePen As New Pen(PastFore)
+            gonePen.DashStyle = Drawing2D.DashStyle.Dash
+
+            g.FillRectangle(goneBrush, filmX, blockY, cleanX - filmX, blockHeight)
+            g.DrawRectangle(gonePen, filmX, blockY, cleanX - filmX, blockHeight)
+
+            If cleanX - filmX > 45 Then
+                Dim goneText As New SolidBrush(PastFore)
+                Dim goneClip As New Rectangle(filmX + 3, blockY + 2, cleanX - filmX - 6, blockHeight - 4)
+                Dim keepClip As Region = g.Clip
+                g.SetClip(goneClip)
+                'OFF goes on the front, not the end. a narrow block gets cut off at the right
+                'hand side, and the one word that must not be cut off is the one saying it is
+                'not happening
+                g.DrawString("OFF " & MinutesAsTime(timelineStart(i)) & " " & timelineTitle(i),
+                             pnlTimeline.Font, goneText, filmX + 4, blockY + (blockHeight \ 2) - 8)
+                g.Clip = keepClip
+                goneText.Dispose()
+            End If
+
+            goneBrush.Dispose()
+            gonePen.Dispose()
+            trailerBrush.Dispose()
+            cleanBrush.Dispose()
+            filmBrush.Dispose()
+            edgePen.Dispose()
+            Exit Sub
+        End If
+
         If filmX > trailerX Then
             g.FillRectangle(trailerBrush, trailerX, blockY, filmX - trailerX, blockHeight)
             g.DrawRectangle(edgePen, trailerX, blockY, filmX - trailerX, blockHeight)
@@ -942,8 +1002,14 @@ Public Class frmScreenings
         Dim finish As Integer = timelineStart(hit) + TrailerMinutes + timelineDuration(hit)
         Dim clear As Integer = timelineStart(hit) + ScreenTimeNeeded(timelineDuration(hit))
 
+        Dim heading As String = timelineTitle(hit)
+
+        If timelineCancelled(hit) Then
+            heading = heading & " - CANCELLED"
+        End If
+
         timelineTips.SetToolTip(pnlTimeline,
-            timelineTitle(hit) & vbCrLf &
+            heading & vbCrLf &
             "Starts " & MinutesAsTime(timelineStart(hit)) & ", film ends " & MinutesAsTime(finish) & vbCrLf &
             "Screen free at " & MinutesAsTime(clear) & vbCrLf &
             timelineSold(hit) & " of " & timelineCapacity(hit) & " seats sold")
@@ -1130,9 +1196,12 @@ Public Class frmScreenings
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             'everything on in that screen on that day, and how long each one runs for
+            'a cancelled screening is left out. it is not being shown, so the room really is free
+            'again at that time and something else can be put in
             SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, FilmTitle, ScreeningTime, FilmDuration " &
                                  "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
-                                 "WHERE tblScreening.ScreenID = @ScreenID AND ScreeningDate = @ScreeningDate"
+                                 "WHERE tblScreening.ScreenID = @ScreenID AND ScreeningDate = @ScreeningDate " &
+                                 "AND (ScreeningStatus IS NULL OR ScreeningStatus <> 'Cancelled')"
             SQLCmd.Parameters.AddWithValue("@ScreenID", screenID)
             SQLCmd.Parameters.AddWithValue("@ScreeningDate", theDate)
             Dim da As New OleDbDataAdapter(SQLCmd)
@@ -1323,6 +1392,124 @@ Public Class frmScreenings
 
         Return ""
     End Function
+
+    'how many seats have been sold on a screening, used to say what cancelling would actually
+    'cost. it is separate from SeatsSold only in that it also counts the bookings
+    Private Sub CountWhatCancellingHits(screeningID As Integer, ByRef bookings As Integer, ByRef seats As Integer)
+        bookings = BookingsOnScreening(screeningID)
+        seats = SeatsSold(screeningID)
+    End Sub
+
+    'pulls a screening. deleting is still there for one nobody has booked, but once a ticket has
+    'been sold the screening cannot be thrown away, because the sale has to stay on record for
+    'the refund to add up. so it is marked instead, exactly the way a cancelled booking is, and
+    'the bookings on it are cancelled at the same time
+    Private Sub btnCancelScreening_Click(sender As Object, e As EventArgs) Handles btnCancelScreening.Click
+        If selectedScreeningID = 0 Then
+            MessageBox.Show("Pick the screening to cancel from the list first", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        If Not ScreeningIsOn(selectedScreeningID) Then
+            MessageBox.Show("That screening has already been cancelled", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Exit Sub
+        End If
+
+        If txtCancelReason.Text.Trim() = "" Then
+            MessageBox.Show("Say why it is being pulled. It goes on the screening and into the log, and " &
+                            "somebody will want to know later why a film that was advertised did not go on.",
+                            "Give a reason", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtCancelReason.Focus()
+            Exit Sub
+        End If
+
+        Dim bookings As Integer
+        Dim seats As Integer
+        CountWhatCancellingHits(selectedScreeningID, bookings, seats)
+
+        Dim damage As String = "Nobody has booked onto it."
+
+        If bookings > 0 Then
+            damage = bookings & " booking(s) and " & seats & " seat(s) will be cancelled." & vbCrLf &
+                     "Customers are not told automatically, somebody has to ring them."
+        End If
+
+        If MessageBox.Show("Cancel " & cboFilm.Text & " in " & cboScreen.Text & " on " &
+                           dtpScreeningDate.Value.ToString("dd/MM/yyyy") & " at " & txtScreeningTime.Text & "?" & vbCrLf & vbCrLf &
+                           damage & vbCrLf & vbCrLf & "This cannot be undone.",
+                           "Cancel a screening", MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
+                           MessageBoxDefaultButton.Button2) = DialogResult.No Then
+            Exit Sub
+        End If
+
+        Dim cancelledIt As Boolean = False
+
+        If DbConnect() Then
+            Dim trans As OleDbTransaction = cn.BeginTransaction()
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.Transaction = trans
+
+            Try
+                'the screening itself. Now() is written into the query rather than passed in as a
+                'value, because it carries the milliseconds and an access date field has no room
+                'for them, which throws the whole update out with a data type mismatch. the same
+                'thing bit the booking cancellation and the screen status before this
+                SQLCmd.CommandText = "UPDATE tblScreening SET ScreeningStatus = @Status, " &
+                                     "ScreeningCancelReason = @Reason, ScreeningCancelDate = Now() " &
+                                     "WHERE ScreeningID = @ScreeningID"
+                SQLCmd.Parameters.AddWithValue("@Status", ScreeningCancelled)
+                SQLCmd.Parameters.AddWithValue("@Reason", txtCancelReason.Text.Trim())
+                SQLCmd.Parameters.AddWithValue("@ScreeningID", selectedScreeningID)
+                SQLCmd.ExecuteNonQuery()
+
+                'every booking on it goes with it. they are marked, not deleted, so the money
+                'already taken still shows up as a refund rather than quietly disappearing
+                SQLCmd.Parameters.Clear()
+                SQLCmd.CommandText = "UPDATE tblBooking SET BookingStatus = @BookingStatus, CancelledDate = Now() " &
+                                     "WHERE ScreeningID = @ScreeningID AND BookingStatus <> @AlreadyCancelled"
+                SQLCmd.Parameters.AddWithValue("@BookingStatus", BookingCancelled)
+                SQLCmd.Parameters.AddWithValue("@ScreeningID", selectedScreeningID)
+                SQLCmd.Parameters.AddWithValue("@AlreadyCancelled", BookingCancelled)
+                SQLCmd.ExecuteNonQuery()
+
+                'the seat rows really are deleted, unlike the bookings. they have to be, because
+                'the unique index on screening and seat would otherwise hold those seats off sale
+                'for ever. what was paid for them is not lost, it is on the booking total
+                SQLCmd.Parameters.Clear()
+                SQLCmd.CommandText = "DELETE FROM tblBookingSeat WHERE ScreeningID = @ScreeningID"
+                SQLCmd.Parameters.AddWithValue("@ScreeningID", selectedScreeningID)
+                SQLCmd.ExecuteNonQuery()
+
+                'the food ordered against those bookings is kept, which is the same rule the
+                'booking cancellation already follows
+
+                trans.Commit()
+                cancelledIt = True
+            Catch ex As Exception
+                trans.Rollback()
+                MessageBox.Show("Nothing was changed, it was all put back." & vbCrLf & vbCrLf & ex.Message,
+                                "Could not cancel it", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+
+            cn.Close()
+        End If
+
+        If Not cancelledIt Then
+            Exit Sub
+        End If
+
+        Dim savedName As String = cboFilm.Text
+
+        'after the connection is shut, because writing a log opens one of its own
+        WriteLog("SCREENING", "Screening " & selectedScreeningID & " cancelled: " & txtCancelReason.Text.Trim() &
+                              ", " & bookings & " booking(s) and " & seats & " seat(s) affected", LogWarning)
+        txtCancelReason.Text = ""
+        LoadScreenings()
+        RefreshTimelineIfShowing()
+        ClearFields()
+        SayDone(lblSaved, "Cancelled the '" & savedName & "' screening")
+    End Sub
 
     'writes one screening using a command that is already part of a transaction, so a whole run
     'of them either all save or none of them do. it takes the command in rather than making its
@@ -1659,10 +1846,12 @@ Public Class frmScreenings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
+            'one that has been cancelled is not a duplicate, the same film can be put back on
             SQLCmd.CommandText = "SELECT COUNT(*) FROM tblScreening " &
                                  "WHERE FilmID = @FilmID AND ScreenID = @ScreenID " &
                                  "AND ScreeningDate = @ScreeningDate AND ScreeningTime = @ScreeningTime " &
-                                 "AND ScreeningID <> @ScreeningID"
+                                 "AND ScreeningID <> @ScreeningID " &
+                                 "AND (ScreeningStatus IS NULL OR ScreeningStatus <> 'Cancelled')"
             SQLCmd.Parameters.AddWithValue("@FilmID", CInt(cboFilm.SelectedValue))
             SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(cboScreen.SelectedValue))
             SQLCmd.Parameters.AddWithValue("@ScreeningDate", dtpScreeningDate.Value.Date)
