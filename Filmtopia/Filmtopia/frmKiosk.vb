@@ -1,4 +1,4 @@
-'the self service screen customers use themselves, so nothing on here is meant for a member of
+﻿'the self service screen customers use themselves, so nothing on here is meant for a member of
 'staff. it is one window with no border that fills the whole screen, and everything on it is made
 'big enough to be pressed with a finger rather than clicked with a mouse
 Imports System.Data.OleDb
@@ -36,11 +36,6 @@ Public Class frmKiosk
     'the most tickets one person can buy at the machine in one go. anybody wanting more than this
     'is a party booking and is better off talking to somebody at the desk
     Private Const MaxSeatsPerSale As Integer = 8
-
-    'the edge put round a seat that is not a standard one. blue is used for accessible rather than
-    'a theme colour because it has to mean the same thing in light mode and dark mode, and because
-    'it is the colour that already means accessible everywhere else people see it
-    Private ReadOnly AccessibleEdge As Color = Color.FromArgb(45, 125, 210)
 
     'how much of the seat step is taken up by the list of what has been picked so far, the map
     'gets what is left over
@@ -851,12 +846,15 @@ Public Class frmKiosk
             'accessible seats used to get nothing at all because they are the same price as a
             'standard one, and the marking was going off the price rather than what sort of seat it
             'is, which is exactly the wrong thing to hang it on
+            'the two edge colours come from the theme now, the same two the booking form uses.
+            'this had its own blue sitting on the form and used the theme accent for premium,
+            'which meant the till and the booking screen marked the same seat differently
             If seatType = SeatPremium Then
                 b.FlatAppearance.BorderSize = 3
-                b.FlatAppearance.BorderColor = AccentFore
+                b.FlatAppearance.BorderColor = SeatPremiumEdge
             ElseIf seatType = SeatAccessible Then
                 b.FlatAppearance.BorderSize = 3
-                b.FlatAppearance.BorderColor = AccessibleEdge
+                b.FlatAppearance.BorderColor = SeatAccessibleEdge
             End If
 
             If dtTaken.Select("SeatID = " & seatID).Length > 0 Then
