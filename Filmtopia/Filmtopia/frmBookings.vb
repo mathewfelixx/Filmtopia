@@ -44,6 +44,29 @@ Public Class frmBookings
         lblSwatchAvailable.BackColor = availableColour
         lblSwatchSelected.BackColor = selectedColour
         lblSwatchTaken.BackColor = takenColour
+
+        'the two sort swatches are a free seat with the border on, because that is exactly what
+        'they are showing. the border itself is drawn in the paint below
+        lblSwatchPremium.BackColor = availableColour
+        lblSwatchAccessible.BackColor = availableColour
+        lblSwatchPremium.Invalidate()
+        lblSwatchAccessible.Invalidate()
+    End Sub
+
+    'draws the border on the two seat sort swatches in the key. they are painted rather than just
+    'filled in like the other three, because what they are showing is the edge round a seat and
+    'not the colour of the seat itself
+    Private Sub SeatTypeSwatch_Paint(sender As Object, e As PaintEventArgs) Handles lblSwatchPremium.Paint,
+        lblSwatchAccessible.Paint
+        Dim swatch As Label = CType(sender, Label)
+        Dim edge As Color = SeatPremiumEdge
+
+        If swatch Is lblSwatchAccessible Then
+            edge = SeatAccessibleEdge
+        End If
+
+        Dim edgePen As New Pen(edge, 2)
+        e.Graphics.DrawRectangle(edgePen, 1, 1, swatch.Width - 3, swatch.Height - 3)
     End Sub
 
     Private Sub frmBookings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -389,13 +412,21 @@ Public Class frmBookings
             Dim rowIndex As Integer = Asc(seatRow) - 65
             b.Location = New Point((seatNumber - 1) * 45 + 10, rowIndex * 45 + 10)
 
-            'a seat that costs more than a standard one gets a border round it so the difference can
-            'be seen on the map. the background is left to show whether it is free, picked or gone,
-            'so the two things do not fight each other for the same colour
-            If multiplier <> 1 Then
+            'the sort of seat gets a border round it, a different colour for each, so it can be
+            'seen on the map. the background is left to show whether it is free, picked or gone,
+            'so the two things do not fight each other for the same colour.
+            'this used to key off the price multiplier instead of the sort, which meant an
+            'accessible seat looked exactly like a standard one, because it is charged at the
+            'standard price. that was survivable while accessible always meant the front row, but
+            'the seat plan can put them anywhere now, so there was nothing left saying where they were
+            If seatType = SeatPremium Then
                 b.FlatStyle = FlatStyle.Flat
                 b.FlatAppearance.BorderSize = 2
-                b.FlatAppearance.BorderColor = AccentFore
+                b.FlatAppearance.BorderColor = SeatPremiumEdge
+            ElseIf seatType = SeatAccessible Then
+                b.FlatStyle = FlatStyle.Flat
+                b.FlatAppearance.BorderSize = 2
+                b.FlatAppearance.BorderColor = SeatAccessibleEdge
             End If
 
             'say what sort of seat it is and what it costs when the mouse rests on it

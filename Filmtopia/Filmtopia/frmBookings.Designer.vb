@@ -29,6 +29,10 @@ Partial Class frmBookings
         Me.lblSwatchSelected = New System.Windows.Forms.Label()
         Me.lblLegendSelected = New System.Windows.Forms.Label()
         Me.lblSwatchTaken = New System.Windows.Forms.Label()
+        Me.lblSwatchPremium = New System.Windows.Forms.Label()
+        Me.lblLegendPremium = New System.Windows.Forms.Label()
+        Me.lblSwatchAccessible = New System.Windows.Forms.Label()
+        Me.lblLegendAccessible = New System.Windows.Forms.Label()
         Me.lblLegendTaken = New System.Windows.Forms.Label()
         Me.lblTotal = New System.Windows.Forms.Label()
         Me.btnCreateBooking = New System.Windows.Forms.Button()
@@ -160,6 +164,10 @@ Partial Class frmBookings
         Me.GroupBox2.Controls.Add(Me.lblLegendSelected)
         Me.GroupBox2.Controls.Add(Me.lblSwatchTaken)
         Me.GroupBox2.Controls.Add(Me.lblLegendTaken)
+        Me.GroupBox2.Controls.Add(Me.lblSwatchPremium)
+        Me.GroupBox2.Controls.Add(Me.lblLegendPremium)
+        Me.GroupBox2.Controls.Add(Me.lblSwatchAccessible)
+        Me.GroupBox2.Controls.Add(Me.lblLegendAccessible)
         Me.GroupBox2.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.GroupBox2.Location = New System.Drawing.Point(522, 136)
         Me.GroupBox2.Name = "GroupBox2"
@@ -189,7 +197,7 @@ Partial Class frmBookings
         'lblSwatchSelected
         '
         Me.lblSwatchSelected.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.lblSwatchSelected.Location = New System.Drawing.Point(170, 30)
+        Me.lblSwatchSelected.Location = New System.Drawing.Point(129, 30)
         Me.lblSwatchSelected.Name = "lblSwatchSelected"
         Me.lblSwatchSelected.Size = New System.Drawing.Size(16, 16)
         Me.lblSwatchSelected.TabIndex = 2
@@ -198,7 +206,7 @@ Partial Class frmBookings
         '
         Me.lblLegendSelected.AutoSize = True
         Me.lblLegendSelected.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.lblLegendSelected.Location = New System.Drawing.Point(194, 31)
+        Me.lblLegendSelected.Location = New System.Drawing.Point(153, 31)
         Me.lblLegendSelected.Name = "lblLegendSelected"
         Me.lblLegendSelected.Size = New System.Drawing.Size(55, 15)
         Me.lblLegendSelected.TabIndex = 3
@@ -207,7 +215,7 @@ Partial Class frmBookings
         'lblSwatchTaken
         '
         Me.lblSwatchTaken.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.lblSwatchTaken.Location = New System.Drawing.Point(320, 30)
+        Me.lblSwatchTaken.Location = New System.Drawing.Point(243, 30)
         Me.lblSwatchTaken.Name = "lblSwatchTaken"
         Me.lblSwatchTaken.Size = New System.Drawing.Size(16, 16)
         Me.lblSwatchTaken.TabIndex = 4
@@ -216,11 +224,45 @@ Partial Class frmBookings
         '
         Me.lblLegendTaken.AutoSize = True
         Me.lblLegendTaken.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.lblLegendTaken.Location = New System.Drawing.Point(344, 31)
+        Me.lblLegendTaken.Location = New System.Drawing.Point(267, 31)
         Me.lblLegendTaken.Name = "lblLegendTaken"
         Me.lblLegendTaken.Size = New System.Drawing.Size(80, 15)
         Me.lblLegendTaken.TabIndex = 5
         Me.lblLegendTaken.Text = "Already taken"
+        '
+        'lblSwatchPremium
+        '
+        Me.lblSwatchPremium.Location = New System.Drawing.Point(389, 30)
+        Me.lblSwatchPremium.Name = "lblSwatchPremium"
+        Me.lblSwatchPremium.Size = New System.Drawing.Size(16, 16)
+        Me.lblSwatchPremium.TabIndex = 6
+        '
+        'lblLegendPremium
+        '
+        Me.lblLegendPremium.AutoSize = True
+        Me.lblLegendPremium.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblLegendPremium.Location = New System.Drawing.Point(413, 31)
+        Me.lblLegendPremium.Name = "lblLegendPremium"
+        Me.lblLegendPremium.Size = New System.Drawing.Size(55, 15)
+        Me.lblLegendPremium.TabIndex = 7
+        Me.lblLegendPremium.Text = "Premium"
+        '
+        'lblSwatchAccessible
+        '
+        Me.lblSwatchAccessible.Location = New System.Drawing.Point(509, 30)
+        Me.lblSwatchAccessible.Name = "lblSwatchAccessible"
+        Me.lblSwatchAccessible.Size = New System.Drawing.Size(16, 16)
+        Me.lblSwatchAccessible.TabIndex = 8
+        '
+        'lblLegendAccessible
+        '
+        Me.lblLegendAccessible.AutoSize = True
+        Me.lblLegendAccessible.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblLegendAccessible.Location = New System.Drawing.Point(533, 31)
+        Me.lblLegendAccessible.Name = "lblLegendAccessible"
+        Me.lblLegendAccessible.Size = New System.Drawing.Size(65, 15)
+        Me.lblLegendAccessible.TabIndex = 9
+        Me.lblLegendAccessible.Text = "Accessible"
         '
         'lblTotal
         '
@@ -476,6 +518,10 @@ Partial Class frmBookings
     Friend WithEvents lblLegendSelected As Label
     Friend WithEvents lblSwatchTaken As Label
     Friend WithEvents lblLegendTaken As Label
+    Friend WithEvents lblSwatchPremium As Label
+    Friend WithEvents lblLegendPremium As Label
+    Friend WithEvents lblSwatchAccessible As Label
+    Friend WithEvents lblLegendAccessible As Label
     Friend WithEvents lblTotal As Label
     Friend WithEvents btnCreateBooking As Button
     Friend WithEvents btnClear As Button
