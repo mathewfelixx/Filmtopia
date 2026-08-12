@@ -6,10 +6,22 @@ Imports System.Data.OleDb
 Public Class frmKiosk
 
     'how big one film tile is drawn. a finger is a lot less accurate than a mouse pointer, so these
-    'are deliberately much bigger than anything on the staff screens
-    Private Const TileWidth As Integer = 300
+    'are deliberately much bigger than anything on the staff screens.
+    'the tile went from 300 to 380 wide when the poster went on it, so the title still gets about
+    'the same room it had before rather than being squeezed into whatever the picture left over
+    Private Const TileWidth As Integer = 380
     Private Const TileHeight As Integer = 170
     Private Const TileGap As Integer = 20
+
+    'the poster down the left of a film tile. a poster is a tall shape rather than a wide one, so
+    'these are roughly two by three the way a real one is, with a bit of room above and below it
+    Private Const PosterWidth As Integer = 92
+    Private Const PosterHeight As Integer = 142
+
+    'where the writing on a tile starts. it moves across to make room when there is a poster and
+    'stays where it always was when there is not
+    Private Const TextLeftWithPoster As Integer = 126
+    Private Const TextLeftNoPoster As Integer = 26
 
     'a food tile only has a name, a price and how many have been added
     Private Const FoodTileWidth As Integer = 220
@@ -409,7 +421,7 @@ Public Class frmKiosk
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             'DISTINCT because a film on three times in a day should still only be one tile
-            SQLCmd.CommandText = "SELECT DISTINCT tblFilm.FilmID, FilmTitle, FilmAgeRating, FilmDuration " &
+            SQLCmd.CommandText = "SELECT DISTINCT tblFilm.FilmID, FilmTitle, FilmAgeRating, FilmDuration, FilmPoster " &
                                  "FROM tblFilm INNER JOIN tblScreening ON tblFilm.FilmID = tblScreening.FilmID " &
                                  "WHERE ScreeningDate = @Day AND ScreeningTime >= @EarliestTime " &
                                  "ORDER BY FilmTitle"
@@ -537,7 +549,7 @@ Public Class frmKiosk
     'makes one tile per film. they are built here rather than being put in the designer because
     'how many there are depends on what is on that day
     Private Sub BuildFilmTiles(dtFilms As DataTable)
-        pnlFilmList.Controls.Clear()
+        ClearFilmTiles()
 
         Dim i As Integer
         For i = 0 To dtFilms.Rows.Count - 1
@@ -545,6 +557,16 @@ Public Class frmKiosk
             Dim title As String = dtFilms.Rows(i)("FilmTitle").ToString()
             Dim rating As String = dtFilms.Rows(i)("FilmAgeRating").ToString()
             Dim duration As Integer = CInt(dtFilms.Rows(i)("FilmDuration"))
+
+            'a film that has not been given a poster yet, or one whose picture has been moved, gets
+            'the tile it always had with the writing starting at the left. on a machine a customer
+            'is looking at that is a lot better than an empty box where a picture should be
+            Dim poster As Image = PosterImage(dtFilms.Rows(i)("FilmPoster").ToString())
+            Dim textLeft As Integer = TextLeftNoPoster
+
+            If poster IsNot Nothing Then
+                textLeft = TextLeftWithPoster
+            End If
 
             'the tile itself. it is called pnlCard... so the theme treats it the same way it treats
             'the cards on the main menu, which means it changes with dark mode without extra code
@@ -563,12 +585,28 @@ Public Class frmKiosk
             strip.BackColor = HighlightBack
             tile.Controls.Add(strip)
 
+            'the poster sits between the accent strip and the writing, stood on its end the way it
+            'would be outside the cinema. Zoom keeps it the shape it really is instead of stretching
+            'it to fill the box, so a picture that is not quite two by three still looks right
+            If poster IsNot Nothing Then
+                Dim picFilm As New PictureBox
+                picFilm.Name = "picFilm" & filmID
+                picFilm.Location = New Point(20, (TileHeight - PosterHeight) \ 2)
+                picFilm.Size = New Size(PosterWidth, PosterHeight)
+                picFilm.SizeMode = PictureBoxSizeMode.Zoom
+                picFilm.Image = poster
+                picFilm.Cursor = Cursors.Hand
+                picFilm.Tag = filmID
+                AddHandler picFilm.Click, AddressOf FilmTile_Click
+                tile.Controls.Add(picFilm)
+            End If
+
             'the title is allowed two or three lines, film titles get long and cutting one off
             'halfway is no help to somebody deciding what to watch
             Dim lblTitle As New Label
             lblTitle.AutoSize = False
-            lblTitle.Location = New Point(26, 20)
-            lblTitle.Size = New Size(TileWidth - 50, 84)
+            lblTitle.Location = New Point(textLeft, 20)
+            lblTitle.Size = New Size(TileWidth - textLeft - 24, 84)
             lblTitle.Font = New Font("Segoe UI", 15, FontStyle.Bold)
             lblTitle.ForeColor = TextFore
             lblTitle.Text = title
@@ -577,7 +615,7 @@ Public Class frmKiosk
 
             Dim lblMeta As New Label
             lblMeta.AutoSize = True
-            lblMeta.Location = New Point(26, TileHeight - 44)
+            lblMeta.Location = New Point(textLeft, TileHeight - 44)
             lblMeta.Font = New Font("Segoe UI", 11)
             lblMeta.ForeColor = SubtleFore
             lblMeta.Text = rating & "   -   " & RunningTime(duration)
@@ -594,6 +632,31 @@ Public Class frmKiosk
         Next
 
         ArrangeFilmTiles()
+    End Sub
+
+    'throws the film tiles away, and the posters on them with them. clearing the panel gets rid of
+    'the tiles but not of the picture each one is holding, and a picture that is not let go of keeps
+    'a handle that does not come back until the program is shut. flicking between the days would
+    'lose one for every film on screen, which on a machine left running all day adds up
+    Private Sub ClearFilmTiles()
+        Dim tile As Control
+
+        For Each tile In pnlFilmList.Controls
+            Dim inner As Control
+
+            For Each inner In tile.Controls
+                If TypeOf inner Is PictureBox Then
+                    Dim picFilm As PictureBox = CType(inner, PictureBox)
+
+                    If picFilm.Image IsNot Nothing Then
+                        picFilm.Image.Dispose()
+                        picFilm.Image = Nothing
+                    End If
+                End If
+            Next
+        Next
+
+        pnlFilmList.Controls.Clear()
     End Sub
 
     'works out where each tile in a list goes. how many fit on a row depends on how wide the screen
