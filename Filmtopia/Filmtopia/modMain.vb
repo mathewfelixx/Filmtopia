@@ -39,6 +39,42 @@ Module modMain
         Return status <> ScreenOutOfService
     End Function
 
+    'the two states a screening can be in. a screening that is pulled is marked rather than
+    'deleted, for the same reason a cancelled booking is. deleting it would take the sale that
+    'was made on it with it, and the refund on record still has to add up in the sales report.
+    'it also means the reason it was pulled is kept, which a deleted row could not do
+    Public Const ScreeningScheduled As String = "Scheduled"
+    Public Const ScreeningCancelled As String = "Cancelled"
+
+    'every query that lists what is on has to leave the cancelled ones out, and they all spell
+    'the condition out in full rather than building it from the constant above. that is on
+    'purpose. the script that checks the queries reads them straight out of the code as text, so
+    'anything glued on by a function is invisible to it and the query would go unchecked. the
+    'IS NULL half is there so a screening written before the column existed still counts as on:
+    'AND (ScreeningStatus IS NULL OR ScreeningStatus <> 'Cancelled')
+
+    'says whether a screening is still going ahead. a blank status is one written before the
+    'column existed, and those are all going ahead
+    Public Function ScreeningIsOn(screeningID As Long) As Boolean
+        Dim status As String = ScreeningScheduled
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT ScreeningStatus FROM tblScreening WHERE ScreeningID = @ScreeningID"
+            SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(screeningID))
+            Dim answer As Object = SQLCmd.ExecuteScalar()
+
+            If answer IsNot Nothing AndAlso Not IsDBNull(answer) Then
+                status = answer.ToString()
+            End If
+
+            cn.Close()
+        End If
+
+        Return status <> ScreeningCancelled
+    End Function
+
     Public Function DbConnect() As Boolean
         Try
             cn = New OleDbConnection(DatabasePath)
