@@ -50,8 +50,14 @@ Partial Class frmFilms
         Me.lblSaved = New System.Windows.Forms.Label()
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.timerSearch = New System.Windows.Forms.Timer(Me.components)
+        Me.lblPoster = New System.Windows.Forms.Label()
+        Me.picPoster = New System.Windows.Forms.PictureBox()
+        Me.lblNoPoster = New System.Windows.Forms.Label()
+        Me.btnChoosePoster = New System.Windows.Forms.Button()
+        Me.btnRemovePoster = New System.Windows.Forms.Button()
         Me.GroupBox1.SuspendLayout()
         CType(Me.dgvFilms, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.picPoster, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBox2.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -68,7 +74,7 @@ Partial Class frmFilms
         'btnImportFromFile
         '
         Me.btnImportFromFile.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.btnImportFromFile.Location = New System.Drawing.Point(830, 10)
+        Me.btnImportFromFile.Location = New System.Drawing.Point(1022, 10)
         Me.btnImportFromFile.Name = "btnImportFromFile"
         Me.btnImportFromFile.Size = New System.Drawing.Size(220, 28)
         Me.btnImportFromFile.TabIndex = 4
@@ -87,7 +93,7 @@ Partial Class frmFilms
         Me.GroupBox1.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.GroupBox1.Location = New System.Drawing.Point(16, 46)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(1036, 400)
+        Me.GroupBox1.Size = New System.Drawing.Size(1228, 400)
         Me.GroupBox1.TabIndex = 1
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "The films on the system"
@@ -143,7 +149,7 @@ Partial Class frmFilms
         'lblGridCount
         '
         Me.lblGridCount.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.lblGridCount.Location = New System.Drawing.Point(790, 28)
+        Me.lblGridCount.Location = New System.Drawing.Point(982, 28)
         Me.lblGridCount.Name = "lblGridCount"
         Me.lblGridCount.Size = New System.Drawing.Size(230, 20)
         Me.lblGridCount.TabIndex = 2
@@ -163,11 +169,62 @@ Partial Class frmFilms
         Me.dgvFilms.RowHeadersWidth = 51
         Me.dgvFilms.RowTemplate.Height = 44
         Me.dgvFilms.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvFilms.Size = New System.Drawing.Size(1004, 330)
+        Me.dgvFilms.Size = New System.Drawing.Size(1196, 330)
         Me.dgvFilms.TabIndex = 3
+        '
+        'lblPoster
+        '
+        Me.lblPoster.AutoSize = True
+        Me.lblPoster.Location = New System.Drawing.Point(1060, 8)
+        Me.lblPoster.Name = "lblPoster"
+        Me.lblPoster.Size = New System.Drawing.Size(50, 20)
+        Me.lblPoster.TabIndex = 40
+        Me.lblPoster.Text = "Poster"
+        '
+        'picPoster
+        '
+        Me.picPoster.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.picPoster.Location = New System.Drawing.Point(1060, 42)
+        Me.picPoster.Name = "picPoster"
+        Me.picPoster.Size = New System.Drawing.Size(140, 150)
+        Me.picPoster.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
+        Me.picPoster.TabIndex = 41
+        Me.picPoster.TabStop = False
+        '
+        'lblNoPoster
+        '
+        Me.lblNoPoster.Location = New System.Drawing.Point(1062, 107)
+        Me.lblNoPoster.Name = "lblNoPoster"
+        Me.lblNoPoster.Size = New System.Drawing.Size(136, 20)
+        Me.lblNoPoster.TabIndex = 42
+        Me.lblNoPoster.Text = "No poster"
+        Me.lblNoPoster.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'btnChoosePoster
+        '
+        Me.btnChoosePoster.Location = New System.Drawing.Point(1060, 206)
+        Me.btnChoosePoster.Name = "btnChoosePoster"
+        Me.btnChoosePoster.Size = New System.Drawing.Size(140, 26)
+        Me.btnChoosePoster.TabIndex = 43
+        Me.btnChoosePoster.Text = "Choose picture..."
+        Me.btnChoosePoster.UseVisualStyleBackColor = True
+        '
+        'btnRemovePoster
+        '
+        Me.btnRemovePoster.Location = New System.Drawing.Point(1060, 236)
+        Me.btnRemovePoster.Name = "btnRemovePoster"
+        Me.btnRemovePoster.Size = New System.Drawing.Size(140, 26)
+        Me.btnRemovePoster.TabIndex = 44
+        Me.btnRemovePoster.Text = "Remove poster"
+        Me.btnRemovePoster.UseVisualStyleBackColor = True
         '
         'GroupBox2
         '
+        Me.GroupBox2.Controls.Add(Me.lblPoster)
+        Me.GroupBox2.Controls.Add(Me.lblNoPoster)
+        Me.GroupBox2.Controls.Add(Me.picPoster)
+        Me.GroupBox2.Controls.Add(Me.btnChoosePoster)
+        Me.GroupBox2.Controls.Add(Me.btnRemovePoster)
         Me.GroupBox2.Controls.Add(Me.lblStatus)
         Me.GroupBox2.Controls.Add(Me.lblTitle)
         Me.GroupBox2.Controls.Add(Me.txtTitle)
@@ -188,7 +245,7 @@ Partial Class frmFilms
         Me.GroupBox2.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.GroupBox2.Location = New System.Drawing.Point(16, 456)
         Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(1036, 220)
+        Me.GroupBox2.Size = New System.Drawing.Size(1228, 270)
         Me.GroupBox2.TabIndex = 2
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Add a film or change one that is already there"
@@ -355,7 +412,7 @@ Partial Class frmFilms
         '
         'btnExport
         '
-        Me.btnExport.Location = New System.Drawing.Point(680, 10)
+        Me.btnExport.Location = New System.Drawing.Point(872, 10)
         Me.btnExport.Name = "btnExport"
         Me.btnExport.Size = New System.Drawing.Size(140, 28)
         Me.btnExport.Text = "Export to CSV"
@@ -364,7 +421,7 @@ Partial Class frmFilms
         'lblSaved
         '
         Me.lblSaved.AutoSize = False
-        Me.lblSaved.Location = New System.Drawing.Point(360, 684)
+        Me.lblSaved.Location = New System.Drawing.Point(360, 734)
         Me.lblSaved.Name = "lblSaved"
         Me.lblSaved.Size = New System.Drawing.Size(692, 16)
         Me.lblSaved.Text = ""
@@ -373,7 +430,7 @@ Partial Class frmFilms
         '
         Me.lblVersion.AutoSize = True
         Me.lblVersion.ForeColor = System.Drawing.Color.Gray
-        Me.lblVersion.Location = New System.Drawing.Point(16, 684)
+        Me.lblVersion.Location = New System.Drawing.Point(16, 734)
         Me.lblVersion.Name = "lblVersion"
         Me.lblVersion.Size = New System.Drawing.Size(271, 16)
         Me.lblVersion.TabIndex = 3
@@ -387,7 +444,7 @@ Partial Class frmFilms
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1068, 710)
+        Me.ClientSize = New System.Drawing.Size(1260, 760)
         Me.Controls.Add(Me.btnExport)
         Me.Controls.Add(Me.lblSaved)
         Me.Controls.Add(Me.lblVersion)
@@ -397,6 +454,7 @@ Partial Class frmFilms
         Me.Controls.Add(Me.lblHeading)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.MaximizeBox = False
+        CType(Me.picPoster, System.ComponentModel.ISupportInitialize).EndInit()
         Me.Name = "frmFilms"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Films"
@@ -440,6 +498,11 @@ Partial Class frmFilms
     Friend WithEvents btnClear As Button
     Friend WithEvents btnExport As Button
     Friend WithEvents lblSaved As Label
+    Friend WithEvents lblPoster As Label
+    Friend WithEvents picPoster As PictureBox
+    Friend WithEvents lblNoPoster As Label
+    Friend WithEvents btnChoosePoster As Button
+    Friend WithEvents btnRemovePoster As Button
     Friend WithEvents lblVersion As Label
     Friend WithEvents timerSearch As Timer
 End Class

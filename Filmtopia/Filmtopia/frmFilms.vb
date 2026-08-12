@@ -1,4 +1,4 @@
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 
 Public Class frmFilms
 
@@ -15,6 +15,18 @@ Public Class frmFilms
 
     'true while a row is being copied into the boxes, so filling them in does not count as typing
     Private fillingBoxes As Boolean = False
+
+    'the poster file name held against the film in the database, empty if it has not got one
+    Private posterFileName As String = ""
+
+    'what the poster was when the row was picked, so an old picture can be tidied up once a new
+    'name is safely saved. it is kept separate because posterFileName changes as soon as the
+    'poster is swapped on screen, which is before anything has been written
+    Private posterOriginalName As String = ""
+
+    'a picture chosen off the computer that has not been saved yet. it is a full path rather than
+    'a file name, because until the film is saved the picture is still sat wherever it came from
+    Private posterSourceFile As String = ""
 
     Private Sub frmFilms_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         'the menu hides the button that opens this from anybody who is not a manager, but the form
@@ -89,6 +101,14 @@ Public Class frmFilms
     'remembers the genre filter for next time. it is saved when the form is shut rather than every
     'time the box is changed, so flicking through the genres is not a write to the database each time
     Private Sub frmFilms_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        'the picture on screen is let go of on the way out as well. it is done before the check
+        'below, because the form shutting itself on somebody who is not a manager still went
+        'through here and would have left the last picture behind
+        If picPoster.Image IsNot Nothing Then
+            picPoster.Image.Dispose()
+            picPoster.Image = Nothing
+        End If
+
         'an empty box means the form shut itself before it had filled anything in, which happens
         'when somebody who is not a manager gets in here. saving that would wipe what was remembered
         If cboGenreFilter.Text = "" Then
@@ -131,7 +151,7 @@ Public Class frmFilms
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
 
-            Dim baseQuery As String = "SELECT FilmID, FilmTitle, FilmYear, FilmAgeRating, FilmDuration, FilmGenres, FilmDescription " &
+            Dim baseQuery As String = "SELECT FilmID, FilmTitle, FilmYear, FilmAgeRating, FilmDuration, FilmGenres, FilmDescription, FilmPoster " &
                                       "FROM tblFilm"
 
             'there are two things that can narrow the list now, so the conditions are built up into
@@ -207,6 +227,10 @@ Public Class frmFilms
 
             'the minutes are still there to be read back when a row is clicked, just not shown
             dgvFilms.Columns("FilmDuration").Visible = False
+
+            'same for the poster. it is only the name of a file, which means nothing to look at,
+            'but it has to come back with the row so the picture can be found when one is clicked
+            dgvFilms.Columns("FilmPoster").Visible = False
 
             'the running time column is worked out after the others so it comes back off the end of
             'the table, which would put it on the right hand side of the grid after the description.
@@ -492,6 +516,9 @@ Public Class frmFilms
 
         Dim saved As Boolean = False
 
+        'the id Access gives the new row, needed to name its poster after
+        Dim newFilmID As Long = 0
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
@@ -504,6 +531,14 @@ Public Class frmFilms
             SQLCmd.Parameters.AddWithValue("@FilmGenres", txtGenres.Text.Trim())
             SQLCmd.Parameters.AddWithValue("@FilmDescription", txtDescription.Text.Trim())
             SQLCmd.ExecuteNonQuery()
+
+            'the poster file is named after the film, so the film has to exist before its picture
+            'can be saved. the id Access has just given the new row is asked for here while the
+            'connection is still open
+            SQLCmd.CommandText = "SELECT @@IDENTITY"
+            SQLCmd.Parameters.Clear()
+            newFilmID = CLng(SQLCmd.ExecuteScalar())
+
             cn.Close()
             saved = True
         End If
@@ -512,6 +547,17 @@ Public Class frmFilms
         'logged or announced as though it had been
         If Not saved Then
             Exit Sub
+        End If
+
+        'the picture is copied in and the row pointed at it now the film has an id. this is a
+        'second write rather than part of the insert, and it deliberately is not wrapped up with
+        'it, because a file copy cannot be undone by a transaction the way a row can. if it fails
+        'the film is still added and simply has no poster, which is far better than losing it
+        If posterSourceFile <> "" AndAlso newFilmID > 0 Then
+            Dim addedPoster As String = SavePosterFile(posterSourceFile, newFilmID)
+            If addedPoster <> "" Then
+                SavePosterName(newFilmID, addedPoster)
+            End If
         End If
 
         Dim savedName As String = txtTitle.Text.Trim()
@@ -534,13 +580,24 @@ Public Class frmFilms
             Exit Sub
         End If
 
+        'a picture that has just been picked is copied into the posters folder first, so the name
+        'about to go in the database is the name of a file that is really there. the film already
+        'has an id, so unlike adding one this can be done before the row is written
+        If posterSourceFile <> "" Then
+            Dim newPoster As String = SavePosterFile(posterSourceFile, selectedFilmID)
+            If newPoster <> "" Then
+                posterFileName = newPoster
+                posterSourceFile = ""
+            End If
+        End If
+
         Dim saved As Boolean = False
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "UPDATE tblFilm " &
-                                 "SET FilmTitle = @FilmTitle, FilmYear = @FilmYear, FilmAgeRating = @FilmAgeRating, FilmDuration = @FilmDuration, FilmGenres = @FilmGenres, FilmDescription = @FilmDescription " &
+                                 "SET FilmTitle = @FilmTitle, FilmYear = @FilmYear, FilmAgeRating = @FilmAgeRating, FilmDuration = @FilmDuration, FilmGenres = @FilmGenres, FilmDescription = @FilmDescription, FilmPoster = @FilmPoster " &
                                  "WHERE FilmID = @FilmID"
             SQLCmd.Parameters.AddWithValue("@FilmTitle", txtTitle.Text.Trim())
             SQLCmd.Parameters.AddWithValue("@FilmYear", YearForDatabase())
@@ -548,6 +605,7 @@ Public Class frmFilms
             SQLCmd.Parameters.AddWithValue("@FilmDuration", Val(txtDuration.Text))
             SQLCmd.Parameters.AddWithValue("@FilmGenres", txtGenres.Text.Trim())
             SQLCmd.Parameters.AddWithValue("@FilmDescription", txtDescription.Text.Trim())
+            SQLCmd.Parameters.AddWithValue("@FilmPoster", posterFileName)
             SQLCmd.Parameters.AddWithValue("@FilmID", CInt(selectedFilmID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
@@ -558,6 +616,15 @@ Public Class frmFilms
         'logged or announced as though it had been
         If Not saved Then
             Exit Sub
+        End If
+
+        'the picture that was on the film before is only deleted once the new name is safely in
+        'the database. a film keeps its id, so a new jpg usually writes straight over the old one
+        'and there is nothing left over to tidy up. this is for when the poster is taken off
+        'altogether, or when a png replaces a jpg and the old file is left with nothing pointing
+        'at it
+        If posterOriginalName <> "" AndAlso posterOriginalName <> posterFileName Then
+            DeletePosterFile(posterOriginalName)
         End If
 
         Dim savedName As String = txtTitle.Text.Trim()
@@ -677,6 +744,12 @@ Public Class frmFilms
         txtDuration.Text = ""
         txtGenres.Text = ""
         txtDescription.Text = ""
+
+        posterFileName = ""
+        posterOriginalName = ""
+        posterSourceFile = ""
+        ShowPoster()
+
         fillingBoxes = False
         boxesChanged = False
 
@@ -726,10 +799,92 @@ Public Class frmFilms
         'version that is on show
         txtDuration.Text = row.Cells("FilmDuration").Value.ToString()
 
+        'anything half picked on the film before this one is dropped, the poster now on screen is
+        'the one this film actually has
+        posterFileName = row.Cells("FilmPoster").Value.ToString()
+        posterOriginalName = posterFileName
+        posterSourceFile = ""
+        ShowPoster()
+
         fillingBoxes = False
         boxesChanged = False
 
         ShowWhatIsBeingEdited()
+    End Sub
+
+    'puts the film's poster on screen. whatever was showing is thrown away first, because a picture
+    'box left holding the old one keeps a handle that is not given back until the program is shut,
+    'and clicking down a list of films would lose one every time
+    Private Sub ShowPoster()
+        If picPoster.Image IsNot Nothing Then
+            picPoster.Image.Dispose()
+            picPoster.Image = Nothing
+        End If
+
+        'a picture that has been picked but not saved yet is still sat wherever it was chosen from,
+        'so it is read from there. once it has been saved it comes out of the posters folder
+        If posterSourceFile <> "" Then
+            picPoster.Image = PictureFromFile(posterSourceFile)
+        Else
+            picPoster.Image = PosterImage(posterFileName)
+        End If
+
+        'the words only show when there is no picture in front of them
+        lblNoPoster.Visible = (picPoster.Image Is Nothing)
+    End Sub
+
+    'picks a picture off the computer to use as the poster. nothing is copied anywhere yet, it is
+    'only remembered and shown, so choosing one and then not saving leaves nothing behind
+    Private Sub btnChoosePoster_Click(sender As Object, e As EventArgs) Handles btnChoosePoster.Click
+        Dim openDialog As New OpenFileDialog
+        openDialog.Filter = "Pictures (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png"
+        openDialog.Title = "Choose a poster"
+        'without this the whole program is left sat in whatever folder was last opened
+        openDialog.RestoreDirectory = True
+
+        If openDialog.ShowDialog() <> DialogResult.OK Then
+            Exit Sub
+        End If
+
+        'a picture that cannot be read is refused here rather than being copied in and then showing
+        'as an empty box afterwards with no telling why
+        Dim check As Image = PictureFromFile(openDialog.FileName)
+        If check Is Nothing Then
+            MessageBox.Show("That file could not be read as a picture.", "Poster", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+        check.Dispose()
+
+        posterSourceFile = openDialog.FileName
+        boxesChanged = True
+        ShowPoster()
+    End Sub
+
+    'takes the poster off the film. the file itself is not deleted until the change is saved, so
+    'pressing this and then not saving changes nothing
+    Private Sub btnRemovePoster_Click(sender As Object, e As EventArgs) Handles btnRemovePoster.Click
+        If posterSourceFile = "" AndAlso posterFileName = "" Then
+            Exit Sub
+        End If
+
+        posterSourceFile = ""
+        posterFileName = ""
+        boxesChanged = True
+        ShowPoster()
+    End Sub
+
+    'writes which picture belongs to a film. it is its own sub because adding a film has to do it
+    'as a second step, once Access has given the new row an id to name the file after
+    Private Sub SavePosterName(filmID As Long, fileName As String)
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "UPDATE tblFilm SET FilmPoster = @FilmPoster WHERE FilmID = @FilmID"
+            SQLCmd.Parameters.AddWithValue("@FilmPoster", fileName)
+            SQLCmd.Parameters.AddWithValue("@FilmID", CInt(filmID))
+            SQLCmd.ExecuteNonQuery()
+            cn.Close()
+        End If
     End Sub
 
     'opens the screen that pulls film details out of an IMDb data file. the list is reloaded when
