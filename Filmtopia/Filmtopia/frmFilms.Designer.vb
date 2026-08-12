@@ -54,6 +54,7 @@ Partial Class frmFilms
         Me.picPoster = New System.Windows.Forms.PictureBox()
         Me.lblNoPoster = New System.Windows.Forms.Label()
         Me.btnChoosePoster = New System.Windows.Forms.Button()
+        Me.btnFetchPoster = New System.Windows.Forms.Button()
         Me.btnRemovePoster = New System.Windows.Forms.Button()
         Me.GroupBox1.SuspendLayout()
         CType(Me.dgvFilms, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -200,9 +201,18 @@ Partial Class frmFilms
         Me.lblNoPoster.Text = "No poster"
         Me.lblNoPoster.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
+        'btnFetchPoster
+        '
+        Me.btnFetchPoster.Location = New System.Drawing.Point(1060, 198)
+        Me.btnFetchPoster.Name = "btnFetchPoster"
+        Me.btnFetchPoster.Size = New System.Drawing.Size(140, 26)
+        Me.btnFetchPoster.TabIndex = 45
+        Me.btnFetchPoster.Text = "Fetch poster"
+        Me.btnFetchPoster.UseVisualStyleBackColor = True
+        '
         'btnChoosePoster
         '
-        Me.btnChoosePoster.Location = New System.Drawing.Point(1060, 206)
+        Me.btnChoosePoster.Location = New System.Drawing.Point(1060, 228)
         Me.btnChoosePoster.Name = "btnChoosePoster"
         Me.btnChoosePoster.Size = New System.Drawing.Size(140, 26)
         Me.btnChoosePoster.TabIndex = 43
@@ -211,7 +221,7 @@ Partial Class frmFilms
         '
         'btnRemovePoster
         '
-        Me.btnRemovePoster.Location = New System.Drawing.Point(1060, 236)
+        Me.btnRemovePoster.Location = New System.Drawing.Point(1060, 258)
         Me.btnRemovePoster.Name = "btnRemovePoster"
         Me.btnRemovePoster.Size = New System.Drawing.Size(140, 26)
         Me.btnRemovePoster.TabIndex = 44
@@ -223,6 +233,7 @@ Partial Class frmFilms
         Me.GroupBox2.Controls.Add(Me.lblPoster)
         Me.GroupBox2.Controls.Add(Me.lblNoPoster)
         Me.GroupBox2.Controls.Add(Me.picPoster)
+        Me.GroupBox2.Controls.Add(Me.btnFetchPoster)
         Me.GroupBox2.Controls.Add(Me.btnChoosePoster)
         Me.GroupBox2.Controls.Add(Me.btnRemovePoster)
         Me.GroupBox2.Controls.Add(Me.lblStatus)
@@ -245,7 +256,7 @@ Partial Class frmFilms
         Me.GroupBox2.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.GroupBox2.Location = New System.Drawing.Point(16, 456)
         Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(1228, 270)
+        Me.GroupBox2.Size = New System.Drawing.Size(1228, 300)
         Me.GroupBox2.TabIndex = 2
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Add a film or change one that is already there"
@@ -421,7 +432,7 @@ Partial Class frmFilms
         'lblSaved
         '
         Me.lblSaved.AutoSize = False
-        Me.lblSaved.Location = New System.Drawing.Point(360, 734)
+        Me.lblSaved.Location = New System.Drawing.Point(360, 764)
         Me.lblSaved.Name = "lblSaved"
         Me.lblSaved.Size = New System.Drawing.Size(692, 16)
         Me.lblSaved.Text = ""
@@ -430,7 +441,7 @@ Partial Class frmFilms
         '
         Me.lblVersion.AutoSize = True
         Me.lblVersion.ForeColor = System.Drawing.Color.Gray
-        Me.lblVersion.Location = New System.Drawing.Point(16, 734)
+        Me.lblVersion.Location = New System.Drawing.Point(16, 764)
         Me.lblVersion.Name = "lblVersion"
         Me.lblVersion.Size = New System.Drawing.Size(271, 16)
         Me.lblVersion.TabIndex = 3
@@ -444,7 +455,7 @@ Partial Class frmFilms
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1260, 760)
+        Me.ClientSize = New System.Drawing.Size(1260, 790)
         Me.Controls.Add(Me.btnExport)
         Me.Controls.Add(Me.lblSaved)
         Me.Controls.Add(Me.lblVersion)
@@ -501,6 +512,7 @@ Partial Class frmFilms
     Friend WithEvents lblPoster As Label
     Friend WithEvents picPoster As PictureBox
     Friend WithEvents lblNoPoster As Label
+    Friend WithEvents btnFetchPoster As Button
     Friend WithEvents btnChoosePoster As Button
     Friend WithEvents btnRemovePoster As Button
     Friend WithEvents lblVersion As Label

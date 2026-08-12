@@ -860,6 +860,40 @@ Public Class frmFilms
         ShowPoster()
     End Sub
 
+    'asks TMDB for the poster instead of going and finding one by hand. it is only a quicker way of
+    'doing what Choose picture already does, so it ends up in exactly the same place, the picture is
+    'remembered and shown and nothing is written until the film is saved
+    Private Sub btnFetchPoster_Click(sender As Object, e As EventArgs) Handles btnFetchPoster.Click
+        If txtTitle.Text.Trim() = "" Then
+            MessageBox.Show("Type the film title in first, that is what TMDB is asked for.", "Fetch poster",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        'this goes off to the internet and waits for the answer, so the form sits still while it
+        'happens. it is only a second or two for one film, but with no cursor it looks like nothing
+        'has happened and the button gets pressed again
+        Me.Cursor = Cursors.WaitCursor
+        Dim matchedAs As String = ""
+        Dim fetched As String = FetchPosterFromTmdb(txtTitle.Text.Trim(), txtYear.Text.Trim(), matchedAs)
+        Me.Cursor = Cursors.Default
+
+        'anything that went wrong has already been said on screen by now
+        If fetched = "" Then
+            Exit Sub
+        End If
+
+        posterSourceFile = fetched
+        boxesChanged = True
+        ShowPoster()
+
+        'what TMDB thought the film was is worth saying out loud. searching by title and year is not
+        'exact, a remake or a documentary with the same name can come back instead, and the picture
+        'on its own is not always enough to tell. nothing has been saved yet either way
+        SayDone(lblSaved, "Found " & matchedAs & " - check it is right, then save")
+        WriteLog("FILM", "Poster fetched from TMDB for '" & txtTitle.Text.Trim() & "', matched as " & matchedAs)
+    End Sub
+
     'takes the poster off the film. the file itself is not deleted until the change is saved, so
     'pressing this and then not saving changes nothing
     Private Sub btnRemovePoster_Click(sender As Object, e As EventArgs) Handles btnRemovePoster.Click
