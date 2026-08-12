@@ -200,4 +200,92 @@ Module modMain
         writer.Close()
         Return True
     End Function
+
+    'where the poster pictures are kept. they sit in a folder next to the program the same way the
+    'database does, so all that is stored in the database is the name of the file to look for. the
+    'folder is made the first time it is asked for, so a fresh copy of the program does not fall
+    'over the first time somebody picks a poster
+    Public Function PosterFolder() As String
+        Dim folder As String = Application.StartupPath & "\Posters"
+
+        If Not System.IO.Directory.Exists(folder) Then
+            System.IO.Directory.CreateDirectory(folder)
+        End If
+
+        Return folder
+    End Function
+
+    'reads a picture off disk ready to be put on screen. nothing comes back if the file is not
+    'there or is not really a picture, and whatever asked for it decides what to show instead
+    '
+    'the file is read into memory and the picture copied out of it rather than using
+    'Image.FromFile. FromFile keeps the file open for as long as the picture is on screen, so
+    'picking one film and then trying to give an earlier one a different poster failed saying the
+    'file was in use by another process. it looked like a permissions problem and was not one
+    Public Function PictureFromFile(fullPath As String) As Image
+        If Not System.IO.File.Exists(fullPath) Then
+            Return Nothing
+        End If
+
+        'a file that is not a picture, or one that was only half copied, throws when it is read.
+        'that is treated the same as having no picture at all rather than bringing the form down
+        Try
+            Dim stream As New System.IO.MemoryStream(System.IO.File.ReadAllBytes(fullPath))
+            Dim loaded As Image = Image.FromStream(stream)
+            Dim copy As Image = New Bitmap(loaded)
+            loaded.Dispose()
+            stream.Close()
+            Return copy
+        Catch ex As Exception
+            Return Nothing
+        End Try
+    End Function
+
+    'loads the poster for a film out of the posters folder. the name comes from the film's
+    'FilmPoster column, and an empty one just means that film has not been given a poster yet
+    Public Function PosterImage(fileName As String) As Image
+        If fileName Is Nothing OrElse fileName.Trim() = "" Then
+            Return Nothing
+        End If
+
+        Return PictureFromFile(PosterFolder() & "\" & fileName)
+    End Function
+
+    'copies a picture somebody picked into the posters folder and hands back the name it was saved
+    'under, or an empty string if it did not work. the file is named after the film, so two films
+    'can never end up sharing a picture and giving a film a new poster writes over its old one
+    Public Function SavePosterFile(sourceFile As String, filmID As Long) As String
+        If Not System.IO.File.Exists(sourceFile) Then
+            MessageBox.Show("That picture could not be found.", "Poster", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return ""
+        End If
+
+        'the extension is kept so the file is still a jpg or a png afterwards rather than being
+        'renamed into something the picture box cannot read
+        Dim newName As String = filmID & System.IO.Path.GetExtension(sourceFile).ToLower()
+
+        Try
+            System.IO.File.Copy(sourceFile, PosterFolder() & "\" & newName, True)
+            Return newName
+        Catch ex As Exception
+            MessageBox.Show("Could not save the poster. " & ex.Message, "Poster", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return ""
+        End Try
+    End Function
+
+    'removes a poster file. it does not complain if the file has already gone, because the only
+    'thing that matters is that it is not there afterwards
+    Public Sub DeletePosterFile(fileName As String)
+        If fileName Is Nothing OrElse fileName.Trim() = "" Then
+            Exit Sub
+        End If
+
+        Try
+            System.IO.File.Delete(PosterFolder() & "\" & fileName)
+        Catch ex As Exception
+            'a poster that will not delete is not worth stopping the save for. it is left where it
+            'is and nothing points at it any more
+        End Try
+    End Sub
+
 End Module
