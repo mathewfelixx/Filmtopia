@@ -99,8 +99,10 @@ Public Class frmFoodOrder
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            'join order item to food item so we can show the name and price
-            SQLCmd.CommandText = "SELECT tblOrderItem.OrderItemID, FoodItemName, FoodItemPrice, Quantity, FoodItemPrice * Quantity AS Subtotal " &
+            'the price and the subtotal come off the order line, because that is what this order was
+            'actually charged. the join is only still here to fetch the name to show, since the line
+            'itself only keeps the id
+            SQLCmd.CommandText = "SELECT tblOrderItem.OrderItemID, FoodItemName, ItemPricePaid, Quantity, ItemPricePaid * Quantity AS Subtotal " &
                                  "FROM tblOrderItem INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID " &
                                  "WHERE BookingID = @BookingID"
             SQLCmd.Parameters.AddWithValue("@BookingID", CInt(currentBookingID))
@@ -117,16 +119,16 @@ Public Class frmFoodOrder
         'the two money columns were coming out as plain numbers, so 4.5 next to a total that said
         'four pounds fifty. same currency format the rest of the grids use
         dgvOrderItems.Columns("FoodItemName").HeaderText = "Item"
-        dgvOrderItems.Columns("FoodItemPrice").HeaderText = "Price"
+        dgvOrderItems.Columns("ItemPricePaid").HeaderText = "Price"
         dgvOrderItems.Columns("Quantity").HeaderText = "Qty"
         dgvOrderItems.Columns("Subtotal").HeaderText = "Subtotal"
 
         dgvOrderItems.Columns("FoodItemName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-        dgvOrderItems.Columns("FoodItemPrice").Width = 90
+        dgvOrderItems.Columns("ItemPricePaid").Width = 90
         dgvOrderItems.Columns("Quantity").Width = 60
         dgvOrderItems.Columns("Subtotal").Width = 100
 
-        dgvOrderItems.Columns("FoodItemPrice").DefaultCellStyle.Format = "C"
+        dgvOrderItems.Columns("ItemPricePaid").DefaultCellStyle.Format = "C"
         dgvOrderItems.Columns("Subtotal").DefaultCellStyle.Format = "C"
         dgvOrderItems.Columns("Quantity").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
 
@@ -158,14 +160,20 @@ Public Class frmFoodOrder
             Exit Sub
         End If
 
+        'what it is being sold for right now. the price goes onto the line and is never worked out
+        'again, so a line added today keeps today's price even if the menu changes tomorrow
+        Dim chosen As DataRowView = CType(cboFoodItem.SelectedItem, DataRowView)
+        Dim pricePaid As Double = CDbl(chosen("FoodItemPrice"))
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "INSERT INTO tblOrderItem (BookingID, FoodItemID, Quantity) " &
-                                 "VALUES (@BookingID, @FoodItemID, @Quantity)"
+            SQLCmd.CommandText = "INSERT INTO tblOrderItem (BookingID, FoodItemID, Quantity, ItemPricePaid) " &
+                                 "VALUES (@BookingID, @FoodItemID, @Quantity, @ItemPricePaid)"
             SQLCmd.Parameters.AddWithValue("@BookingID", CInt(currentBookingID))
             SQLCmd.Parameters.AddWithValue("@FoodItemID", CInt(cboFoodItem.SelectedValue))
             SQLCmd.Parameters.AddWithValue("@Quantity", quantity)
+            SQLCmd.Parameters.AddWithValue("@ItemPricePaid", pricePaid)
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If

@@ -179,9 +179,11 @@ Public Class frmSalesReport
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            'join order item to food item (for the name and price) and to booking (for the date).
+            'join order item to food item (for the name) and to booking (for the date). the money is
+            'summed off ItemPricePaid, which is what each line was actually charged, so putting a
+            'price up on the menu cannot reach back and rewrite last month's takings.
             'the food on a cancelled booking is left out, it was refunded so it is not takings
-            SQLCmd.CommandText = "SELECT FoodItemName, SUM(Quantity) AS Sold, SUM(Quantity * FoodItemPrice) AS FoodRevenue " &
+            SQLCmd.CommandText = "SELECT FoodItemName, SUM(Quantity) AS Sold, SUM(Quantity * ItemPricePaid) AS FoodRevenue " &
                                  "FROM (tblOrderItem INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID) " &
                                  "INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID " &
                                  "WHERE tblBooking.BookingDate BETWEEN @FromDate AND @ToDate " &
@@ -302,9 +304,11 @@ Public Class frmSalesReport
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            'cancelled bookings are left out, the same as on the concessions report
-            SQLCmd.CommandText = "SELECT FilmTitle, SUM(Quantity * FoodItemPrice) AS FoodRevenue " &
-                                 "FROM (((tblOrderItem INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID) " &
+            'cancelled bookings are left out, the same as on the concessions report. this used to join
+            'tblFoodItem as well, but that was only ever there to get the price, and the price is on
+            'the order line itself now, so it is one table and one set of brackets lighter
+            SQLCmd.CommandText = "SELECT FilmTitle, SUM(Quantity * ItemPricePaid) AS FoodRevenue " &
+                                 "FROM ((tblOrderItem " &
                                  "INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID) " &
                                  "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
                                  "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &

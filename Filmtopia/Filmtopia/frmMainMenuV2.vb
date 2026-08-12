@@ -559,8 +559,8 @@ Public Class frmMainMenuV2
                 'be worked out on its own and taken off to leave what the tickets brought in.
                 'the food rows are deliberately kept on a cancelled booking, so this has to go back
                 'to tblBooking to leave the refunded ones out
-                SQLCmd.CommandText = "SELECT SUM(Quantity * FoodItemPrice) " &
-                                     "FROM (tblOrderItem INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID) " &
+                SQLCmd.CommandText = "SELECT SUM(Quantity * ItemPricePaid) " &
+                                     "FROM tblOrderItem " &
                                      "INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID " &
                                      "WHERE tblBooking.BookingStatus <> @Cancelled"
                 SQLCmd.Parameters.Clear()
