@@ -288,12 +288,38 @@ Module modMain
         End Try
     End Sub
 
-    'the key that lets the program ask TMDB for a poster. it is written into the code here, which is
-    'not how a real system would do it, a real one would keep it somewhere it could be changed
-    'without rebuilding and somewhere it could not be read straight out of the source. it is a known
-    'limitation and it is written up as one, the same way the encryption is. left empty the fetching
-    'simply says it has not been set up and the posters can still be chosen off the computer by hand
-    Public Const TmdbApiKey As String = ""
+    'reads a setting that belongs to the whole program rather than to one person. tblUserSettings
+    'already holds the things each user picks for themselves, like the theme, and every row in it
+    'hangs off a LoginID. this is for the settings that are the same whoever is signed in, so it is
+    'its own table with no user on it. an empty string comes back if it has never been written
+    Public Function SystemSetting(settingName As String) As String
+        Dim value As String = ""
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT SettingValue FROM tblSystemSetting WHERE SettingName = @SettingName"
+            SQLCmd.Parameters.AddWithValue("@SettingName", settingName)
+            Dim found As Object = SQLCmd.ExecuteScalar()
+
+            If found IsNot Nothing AndAlso Not IsDBNull(found) Then
+                value = found.ToString()
+            End If
+
+            cn.Close()
+        End If
+
+        Return value
+    End Function
+
+    'the key that lets the program ask TMDB for a poster. it is deliberately not typed into the code.
+    'the source of this program is kept in version control and pushed somewhere public, so a key
+    'written in here would be published along with it for anybody to pick up and use. it goes in the
+    'database instead, which is not something that gets shared. left unset the fetching just says it
+    'has not been set up, and a poster can still be chosen off the computer by hand
+    Public Function TmdbKey() As String
+        Return SystemSetting("TmdbApiKey")
+    End Function
 
     'where TMDB is asked about a film, and where the pictures themselves come from. w500 is the
     'middle size they offer, plenty for a poster drawn 92 wide on the kiosk without pulling down a
@@ -341,7 +367,9 @@ Module modMain
     Public Function FetchPosterFromTmdb(filmTitle As String, filmYear As String, ByRef matchedAs As String) As String
         matchedAs = ""
 
-        If TmdbApiKey = "" Then
+        Dim apiKey As String = TmdbKey()
+
+        If apiKey = "" Then
             MessageBox.Show("Fetching posters has not been set up yet, so there is no key to ask TMDB with." & vbCrLf &
                             "A poster can still be chosen off this computer with Choose picture.",
                             "Fetch poster", MessageBoxButtons.OK, MessageBoxIcon.Information)
@@ -350,7 +378,7 @@ Module modMain
 
         'the title goes into a web address, so anything in it that means something in an address has
         'to be written the safe way. film titles are full of spaces, colons and the odd ampersand
-        Dim url As String = TmdbSearchUrl & "?api_key=" & TmdbApiKey &
+        Dim url As String = TmdbSearchUrl & "?api_key=" & apiKey &
                             "&query=" & Uri.EscapeDataString(filmTitle)
 
         'the year narrows it down a lot. there are three films called The Italian Job and the year
@@ -386,7 +414,21 @@ Module modMain
         End If
 
         Dim posterPath As String = JsonTextValue(json, "poster_path", atPoster)
-        Dim foundTitle As String = JsonTextValue(json, "title", atPoster)
+
+        'the title and the date are both wanted off the same result as the poster, but TMDB put the
+        'title before the poster in their reply and the date after it, so they have to be looked for
+        'in opposite directions. searching forwards for the title steps straight over the one
+        'belonging to this film and picks up the next result's instead, which is how the wrong film
+        'ended up being named on screen the first time this was tried
+        Dim atTitle As Integer = InStrRev(json, """title"":""", atPoster)
+
+        'InStr will not start from nothing, and a reply with no title in it at all is not worth
+        'falling over for
+        If atTitle = 0 Then
+            atTitle = 1
+        End If
+
+        Dim foundTitle As String = JsonTextValue(json, "title", atTitle)
         Dim foundDate As String = JsonTextValue(json, "release_date", atPoster)
 
         If posterPath = "" Then
