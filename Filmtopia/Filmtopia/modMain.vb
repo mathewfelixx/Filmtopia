@@ -288,4 +288,136 @@ Module modMain
         End Try
     End Sub
 
+    'the key that lets the program ask TMDB for a poster. it is written into the code here, which is
+    'not how a real system would do it, a real one would keep it somewhere it could be changed
+    'without rebuilding and somewhere it could not be read straight out of the source. it is a known
+    'limitation and it is written up as one, the same way the encryption is. left empty the fetching
+    'simply says it has not been set up and the posters can still be chosen off the computer by hand
+    Public Const TmdbApiKey As String = ""
+
+    'where TMDB is asked about a film, and where the pictures themselves come from. w500 is the
+    'middle size they offer, plenty for a poster drawn 92 wide on the kiosk without pulling down a
+    'file far bigger than anything here needs
+    Private Const TmdbSearchUrl As String = "https://api.themoviedb.org/3/search/movie"
+    Private Const TmdbImageUrl As String = "https://image.tmdb.org/t/p/w500"
+
+    'pulls one piece of text out of a lump of JSON. TMDB answers in JSON and the only way to read it
+    'properly would be to bring in an outside library, which is a lot to add when three pieces of
+    'text are wanted out of the whole reply. so it is done by hand instead. it looks for the field
+    'name in quotes followed by a colon and a quote, and takes everything up to the next quote
+    '
+    'this is not a real JSON reader and does not pretend to be one. it would not cope with a value
+    'that had a quote mark inside it, and it does not understand numbers or true and false at all.
+    'the three fields it is used on are a file path, a date and a title, and none of those come back
+    'with a quote in them, so for what it is being asked to do it is enough
+    Public Function JsonTextValue(json As String, fieldName As String, startAt As Integer) As String
+        'the quote on the front matters. without it, looking for title would also find the
+        'original_title that sits a few fields earlier and the wrong one would come back
+        Dim marker As String = """" & fieldName & """:"""
+        Dim atField As Integer = InStr(startAt, json, marker)
+
+        If atField = 0 Then
+            Return ""
+        End If
+
+        Dim valueStart As Integer = atField + Len(marker)
+        Dim valueEnd As Integer = InStr(valueStart, json, """")
+
+        If valueEnd = 0 Then
+            Return ""
+        End If
+
+        Return Mid(json, valueStart, valueEnd - valueStart)
+    End Function
+
+    'asks TMDB for a film and downloads the poster of the best match into a temporary file, handing
+    'back where it was put. an empty string means no poster was got, and the reason has already been
+    'said on screen by then. matchedAs comes back with what TMDB thought the film was, so the person
+    'pressing the button can see whether it has found the right one
+    '
+    'nothing about this is needed for the program to work. it is a quicker way of doing something
+    'that can already be done by choosing a file, so every way it can fail ends in a message and the
+    'film is left exactly as it was
+    Public Function FetchPosterFromTmdb(filmTitle As String, filmYear As String, ByRef matchedAs As String) As String
+        matchedAs = ""
+
+        If TmdbApiKey = "" Then
+            MessageBox.Show("Fetching posters has not been set up yet, so there is no key to ask TMDB with." & vbCrLf &
+                            "A poster can still be chosen off this computer with Choose picture.",
+                            "Fetch poster", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Return ""
+        End If
+
+        'the title goes into a web address, so anything in it that means something in an address has
+        'to be written the safe way. film titles are full of spaces, colons and the odd ampersand
+        Dim url As String = TmdbSearchUrl & "?api_key=" & TmdbApiKey &
+                            "&query=" & Uri.EscapeDataString(filmTitle)
+
+        'the year narrows it down a lot. there are three films called The Italian Job and the year
+        'is the only thing in the boxes that tells them apart
+        If filmYear.Trim() <> "" Then
+            url = url & "&year=" & Uri.EscapeDataString(filmYear.Trim())
+        End If
+
+        Dim json As String = ""
+
+        'no internet, a blocked address, a key that has been turned off, TMDB being down. all of it
+        'comes out here and none of it is worth bringing the program down over
+        Try
+            Dim client As New System.Net.WebClient
+            client.Encoding = System.Text.Encoding.UTF8
+            json = client.DownloadString(url)
+            client.Dispose()
+        Catch ex As Exception
+            MessageBox.Show("Could not reach TMDB to look the film up. " & ex.Message, "Fetch poster",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return ""
+        End Try
+
+        'the results come back best match first, so the first poster in the reply is the one wanted.
+        'everything is read from where that poster was found rather than from the start of the reply,
+        'because the title and the date are wanted off the same result and not off a later one
+        Dim atPoster As Integer = InStr(json, """poster_path"":""")
+
+        If atPoster = 0 Then
+            MessageBox.Show("TMDB has no poster for a film matching that title and year.", "Fetch poster",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Return ""
+        End If
+
+        Dim posterPath As String = JsonTextValue(json, "poster_path", atPoster)
+        Dim foundTitle As String = JsonTextValue(json, "title", atPoster)
+        Dim foundDate As String = JsonTextValue(json, "release_date", atPoster)
+
+        If posterPath = "" Then
+            MessageBox.Show("TMDB answered but the reply could not be read.", "Fetch poster",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return ""
+        End If
+
+        'the date comes back as yyyy-mm-dd and only the year is any use here
+        If foundDate.Length >= 4 Then
+            matchedAs = foundTitle & " (" & Mid(foundDate, 1, 4) & ")"
+        Else
+            matchedAs = foundTitle
+        End If
+
+        'it goes to a temporary file rather than straight into the posters folder, because at this
+        'point nothing has been saved and the film might not be kept. it is copied into the posters
+        'folder by the same code that copies a picture chosen off the computer, once the film is saved
+        Dim tempFile As String = System.IO.Path.GetTempPath() & "filmtopia_poster.jpg"
+
+        Try
+            Dim client As New System.Net.WebClient
+            client.DownloadFile(TmdbImageUrl & posterPath, tempFile)
+            client.Dispose()
+        Catch ex As Exception
+            MessageBox.Show("Found the film but could not download the picture. " & ex.Message, "Fetch poster",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return ""
+        End Try
+
+        Return tempFile
+    End Function
+
 End Module
