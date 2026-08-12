@@ -286,8 +286,21 @@ Public Class frmKiosk
         lblKeySelected.Top = lblKeyAvailable.Top
         lblKeyTaken.Top = lblKeyAvailable.Top
 
+        'the two seat sorts go on a second line under the three states, because they are saying a
+        'different thing. the states say whether a seat can be picked, the sorts say what it is
+        lblSwatchPremium.Left = pnlSeatMap.Left
+        lblKeyPremium.Left = lblSwatchPremium.Right + 12
+        lblSwatchAccessible.Left = lblKeyPremium.Right + 40
+        lblKeyAccessible.Left = lblSwatchAccessible.Right + 12
+
+        lblSwatchPremium.Top = lblSwatchAvailable.Bottom + 12
+        lblSwatchAccessible.Top = lblSwatchPremium.Top
+
+        lblKeyPremium.Top = lblSwatchPremium.Top + 2
+        lblKeyAccessible.Top = lblKeyPremium.Top
+
         lblSeatKeyTypes.Left = pnlSeatMap.Left
-        lblSeatKeyTypes.Top = lblKeyAvailable.Bottom + 10
+        lblSeatKeyTypes.Top = lblKeyPremium.Bottom + 10
     End Sub
 
     'gives one step panel the whole of the space between the header and the footer
@@ -785,6 +798,30 @@ Public Class frmKiosk
         lblSwatchAvailable.BackColor = SeatAvailable
         lblSwatchSelected.BackColor = SeatSelected
         lblSwatchTaken.BackColor = SeatTaken
+
+        'the two sort swatches are a free seat with the edge on, because that is what they show
+        lblSwatchPremium.BackColor = SeatAvailable
+        lblSwatchAccessible.BackColor = SeatAvailable
+        lblSwatchPremium.Invalidate()
+        lblSwatchAccessible.Invalidate()
+    End Sub
+
+    'draws the edge on the two seat sort swatches. they are painted rather than just filled in
+    'like the other three, because what they are showing is the edge round a seat and not the
+    'colour of the seat itself. it also means the key can never say a colour the map is not
+    'using, which is what the line underneath it used to do when it named the colours in words
+    Private Sub SeatTypeSwatch_Paint(sender As Object, e As PaintEventArgs) Handles lblSwatchPremium.Paint,
+        lblSwatchAccessible.Paint
+        Dim swatch As Label = CType(sender, Label)
+        Dim edge As Color = SeatPremiumEdge
+
+        If swatch Is lblSwatchAccessible Then
+            edge = SeatAccessibleEdge
+        End If
+
+        'the same thickness the seats on the map get, so the swatch matches what it stands for
+        Dim edgePen As New Pen(edge, 3)
+        e.Graphics.DrawRectangle(edgePen, 1, 1, swatch.Width - 3, swatch.Height - 3)
     End Sub
 
     'draws a button for every seat in the screen this showing is in and greys out the ones that
@@ -887,8 +924,10 @@ Public Class frmKiosk
 
         lblScreen.Top = lblSeatsShowing.Bottom + 24
         Dim mapTop As Integer = lblScreen.Bottom + 16
-        'the key and the line about the seat edges both sit under the map, so that much is kept back
-        Dim spaceDown As Integer = pnlSeats.Height - mapTop - 115
+        'the key and the line about the seat sorts both sit under the map, so that much is kept
+        'back. it went up when the key grew a second row for premium and accessible, otherwise
+        'the map would have drawn straight over the top of it
+        Dim spaceDown As Integer = pnlSeats.Height - mapTop - 155
 
         'the whole room has to fit on the screen at once. a seat map you have to scroll around is
         'no use to somebody choosing where to sit, they need to see the shape of it, so when there

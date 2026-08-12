@@ -1,4 +1,4 @@
-<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class frmKiosk
     Inherits System.Windows.Forms.Form
 
@@ -51,6 +51,10 @@ Partial Class frmKiosk
         Me.lblKeySelected = New System.Windows.Forms.Label()
         Me.lblSwatchTaken = New System.Windows.Forms.Label()
         Me.lblKeyTaken = New System.Windows.Forms.Label()
+        Me.lblSwatchPremium = New System.Windows.Forms.Label()
+        Me.lblKeyPremium = New System.Windows.Forms.Label()
+        Me.lblSwatchAccessible = New System.Windows.Forms.Label()
+        Me.lblKeyAccessible = New System.Windows.Forms.Label()
         Me.lblSeatsPicked = New System.Windows.Forms.Label()
         Me.lblSeatKeyTypes = New System.Windows.Forms.Label()
         Me.pnlConfirm = New System.Windows.Forms.Panel()
@@ -311,6 +315,10 @@ Partial Class frmKiosk
         '
         Me.pnlSeats.Controls.Add(Me.lblSeatKeyTypes)
         Me.pnlSeats.Controls.Add(Me.lblSeatsPicked)
+        Me.pnlSeats.Controls.Add(Me.lblKeyAccessible)
+        Me.pnlSeats.Controls.Add(Me.lblSwatchAccessible)
+        Me.pnlSeats.Controls.Add(Me.lblKeyPremium)
+        Me.pnlSeats.Controls.Add(Me.lblSwatchPremium)
         Me.pnlSeats.Controls.Add(Me.lblKeyTaken)
         Me.pnlSeats.Controls.Add(Me.lblSwatchTaken)
         Me.pnlSeats.Controls.Add(Me.lblKeySelected)
@@ -418,6 +426,40 @@ Partial Class frmKiosk
         Me.lblKeyTaken.TabIndex = 9
         Me.lblKeyTaken.Text = "Taken"
         '
+        'lblSwatchPremium
+        '
+        Me.lblSwatchPremium.Location = New System.Drawing.Point(160, 544)
+        Me.lblSwatchPremium.Name = "lblSwatchPremium"
+        Me.lblSwatchPremium.Size = New System.Drawing.Size(28, 28)
+        Me.lblSwatchPremium.TabIndex = 12
+        '
+        'lblKeyPremium
+        '
+        Me.lblKeyPremium.AutoSize = True
+        Me.lblKeyPremium.Font = New System.Drawing.Font("Segoe UI", 11.0!)
+        Me.lblKeyPremium.Location = New System.Drawing.Point(198, 547)
+        Me.lblKeyPremium.Name = "lblKeyPremium"
+        Me.lblKeyPremium.Size = New System.Drawing.Size(90, 25)
+        Me.lblKeyPremium.TabIndex = 13
+        Me.lblKeyPremium.Text = "Premium"
+        '
+        'lblSwatchAccessible
+        '
+        Me.lblSwatchAccessible.Location = New System.Drawing.Point(320, 544)
+        Me.lblSwatchAccessible.Name = "lblSwatchAccessible"
+        Me.lblSwatchAccessible.Size = New System.Drawing.Size(28, 28)
+        Me.lblSwatchAccessible.TabIndex = 14
+        '
+        'lblKeyAccessible
+        '
+        Me.lblKeyAccessible.AutoSize = True
+        Me.lblKeyAccessible.Font = New System.Drawing.Font("Segoe UI", 11.0!)
+        Me.lblKeyAccessible.Location = New System.Drawing.Point(358, 547)
+        Me.lblKeyAccessible.Name = "lblKeyAccessible"
+        Me.lblKeyAccessible.Size = New System.Drawing.Size(100, 25)
+        Me.lblKeyAccessible.TabIndex = 15
+        Me.lblKeyAccessible.Text = "Accessible"
+        '
         'lblSeatsPicked
         '
         Me.lblSeatsPicked.Font = New System.Drawing.Font("Segoe UI", 13.0!)
@@ -436,7 +478,7 @@ Partial Class frmKiosk
         Me.lblSeatKeyTypes.Name = "lblSeatKeyTypes"
         Me.lblSeatKeyTypes.Size = New System.Drawing.Size(560, 23)
         Me.lblSeatKeyTypes.TabIndex = 11
-        Me.lblSeatKeyTypes.Text = "Seats edged in purple are premium and cost more. Seats edged in blue are accessible."
+        Me.lblSeatKeyTypes.Text = "A premium seat costs more than a standard one. An accessible seat is the standard price."
         '
         'pnlConfirm
         '
@@ -672,6 +714,10 @@ Partial Class frmKiosk
     Friend WithEvents lblKeySelected As Label
     Friend WithEvents lblSwatchTaken As Label
     Friend WithEvents lblKeyTaken As Label
+    Friend WithEvents lblSwatchPremium As Label
+    Friend WithEvents lblKeyPremium As Label
+    Friend WithEvents lblSwatchAccessible As Label
+    Friend WithEvents lblKeyAccessible As Label
     Friend WithEvents lblSeatsPicked As Label
     Friend WithEvents lblSeatKeyTypes As Label
     Friend WithEvents pnlConfirm As Panel
