@@ -17,10 +17,16 @@ Partial Class frmScreenings
 
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
         Me.lblHeading = New System.Windows.Forms.Label()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.lblShow = New System.Windows.Forms.Label()
         Me.cboShow = New System.Windows.Forms.ComboBox()
+        Me.lblScreenFilter = New System.Windows.Forms.Label()
+        Me.cboScreenFilter = New System.Windows.Forms.ComboBox()
+        Me.lblSearch = New System.Windows.Forms.Label()
+        Me.txtSearch = New System.Windows.Forms.TextBox()
+        Me.timerSearch = New System.Windows.Forms.Timer(Me.components)
         Me.lblGridCount = New System.Windows.Forms.Label()
         Me.dgvScreenings = New System.Windows.Forms.DataGridView()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
@@ -63,6 +69,10 @@ Partial Class frmScreenings
         '
         Me.GroupBox1.Controls.Add(Me.lblShow)
         Me.GroupBox1.Controls.Add(Me.cboShow)
+        Me.GroupBox1.Controls.Add(Me.lblScreenFilter)
+        Me.GroupBox1.Controls.Add(Me.cboScreenFilter)
+        Me.GroupBox1.Controls.Add(Me.lblSearch)
+        Me.GroupBox1.Controls.Add(Me.txtSearch)
         Me.GroupBox1.Controls.Add(Me.lblGridCount)
         Me.GroupBox1.Controls.Add(Me.dgvScreenings)
         Me.GroupBox1.Font = New System.Drawing.Font("Segoe UI", 9.0!)
@@ -89,16 +99,57 @@ Partial Class frmScreenings
         Me.cboShow.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.cboShow.Location = New System.Drawing.Point(78, 25)
         Me.cboShow.Name = "cboShow"
-        Me.cboShow.Size = New System.Drawing.Size(180, 23)
+        Me.cboShow.Size = New System.Drawing.Size(150, 23)
         Me.cboShow.TabIndex = 1
+        '
+        'lblScreenFilter
+        '
+        Me.lblScreenFilter.AutoSize = True
+        Me.lblScreenFilter.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblScreenFilter.Location = New System.Drawing.Point(244, 28)
+        Me.lblScreenFilter.Name = "lblScreenFilter"
+        Me.lblScreenFilter.Size = New System.Drawing.Size(55, 15)
+        Me.lblScreenFilter.TabIndex = 2
+        Me.lblScreenFilter.Text = "Screen"
+        '
+        'cboScreenFilter
+        '
+        Me.cboScreenFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboScreenFilter.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.cboScreenFilter.Location = New System.Drawing.Point(314, 25)
+        Me.cboScreenFilter.Name = "cboScreenFilter"
+        Me.cboScreenFilter.Size = New System.Drawing.Size(140, 23)
+        Me.cboScreenFilter.TabIndex = 3
+        '
+        'lblSearch
+        '
+        Me.lblSearch.AutoSize = True
+        Me.lblSearch.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblSearch.Location = New System.Drawing.Point(470, 28)
+        Me.lblSearch.Name = "lblSearch"
+        Me.lblSearch.Size = New System.Drawing.Size(55, 15)
+        Me.lblSearch.TabIndex = 4
+        Me.lblSearch.Text = "Search"
+        '
+        'txtSearch
+        '
+        Me.txtSearch.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.txtSearch.Location = New System.Drawing.Point(540, 25)
+        Me.txtSearch.Name = "txtSearch"
+        Me.txtSearch.Size = New System.Drawing.Size(170, 23)
+        Me.txtSearch.TabIndex = 5
+        '
+        'timerSearch
+        '
+        Me.timerSearch.Interval = 300
         '
         'lblGridCount
         '
         Me.lblGridCount.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.lblGridCount.Location = New System.Drawing.Point(660, 28)
+        Me.lblGridCount.Location = New System.Drawing.Point(726, 28)
         Me.lblGridCount.Name = "lblGridCount"
-        Me.lblGridCount.Size = New System.Drawing.Size(360, 17)
-        Me.lblGridCount.TabIndex = 2
+        Me.lblGridCount.Size = New System.Drawing.Size(294, 17)
+        Me.lblGridCount.TabIndex = 6
         Me.lblGridCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight
         '
         'dgvScreenings
@@ -114,7 +165,7 @@ Partial Class frmScreenings
         Me.dgvScreenings.RowHeadersVisible = False
         Me.dgvScreenings.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvScreenings.Size = New System.Drawing.Size(1004, 330)
-        Me.dgvScreenings.TabIndex = 3
+        Me.dgvScreenings.TabIndex = 7
         '
         'GroupBox2
         '
@@ -275,7 +326,7 @@ Partial Class frmScreenings
         Me.btnAdd.Location = New System.Drawing.Point(700, 58)
         Me.btnAdd.Name = "btnAdd"
         Me.btnAdd.Size = New System.Drawing.Size(320, 42)
-        Me.btnAdd.TabIndex = 12
+        Me.btnAdd.TabIndex = 13
         Me.btnAdd.Text = "PUT THIS FILM ON"
         Me.btnAdd.UseVisualStyleBackColor = True
         '
@@ -285,7 +336,7 @@ Partial Class frmScreenings
         Me.btnUpdate.Location = New System.Drawing.Point(700, 106)
         Me.btnUpdate.Name = "btnUpdate"
         Me.btnUpdate.Size = New System.Drawing.Size(155, 34)
-        Me.btnUpdate.TabIndex = 13
+        Me.btnUpdate.TabIndex = 14
         Me.btnUpdate.Text = "Save changes"
         Me.btnUpdate.UseVisualStyleBackColor = True
         '
@@ -295,7 +346,7 @@ Partial Class frmScreenings
         Me.btnDelete.Location = New System.Drawing.Point(865, 106)
         Me.btnDelete.Name = "btnDelete"
         Me.btnDelete.Size = New System.Drawing.Size(155, 34)
-        Me.btnDelete.TabIndex = 14
+        Me.btnDelete.TabIndex = 15
         Me.btnDelete.Text = "Delete screening"
         Me.btnDelete.UseVisualStyleBackColor = True
         '
@@ -305,7 +356,7 @@ Partial Class frmScreenings
         Me.btnClear.Location = New System.Drawing.Point(700, 146)
         Me.btnClear.Name = "btnClear"
         Me.btnClear.Size = New System.Drawing.Size(320, 30)
-        Me.btnClear.TabIndex = 15
+        Me.btnClear.TabIndex = 16
         Me.btnClear.Text = "Clear the boxes"
         Me.btnClear.UseVisualStyleBackColor = True
         '
@@ -365,6 +416,11 @@ Partial Class frmScreenings
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents lblShow As Label
     Friend WithEvents cboShow As ComboBox
+    Friend WithEvents lblScreenFilter As Label
+    Friend WithEvents cboScreenFilter As ComboBox
+    Friend WithEvents lblSearch As Label
+    Friend WithEvents txtSearch As TextBox
+    Friend WithEvents timerSearch As Timer
     Friend WithEvents lblGridCount As Label
     Friend WithEvents dgvScreenings As DataGridView
     Friend WithEvents GroupBox2 As GroupBox

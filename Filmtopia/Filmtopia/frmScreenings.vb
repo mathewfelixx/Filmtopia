@@ -40,6 +40,10 @@ Public Class frmScreenings
         LoadFilmsCombo()
         LoadScreensCombo()
 
+        LoadScreenFilterCombo()
+
+        cboShow.Items.Add("Today")
+        cboShow.Items.Add("This week")
         cboShow.Items.Add("Still to come")
         cboShow.Items.Add("Already been on")
         cboShow.Items.Add("Everything")
@@ -48,13 +52,20 @@ Public Class frmScreenings
         'IndexOf comes back as -1, so it falls back to still to come rather than an empty box
         cboShow.SelectedIndex = cboShow.Items.IndexOf(LastScreeningsShow)
         If cboShow.SelectedIndex = -1 Then
-            cboShow.SelectedIndex = 0
+            cboShow.SelectedIndex = cboShow.Items.IndexOf("Still to come")
         End If
 
-        'the empty grid guard still wins over what was remembered. opening on still to come when
-        'there is nothing coming up looks broken, so in that case it starts on the lot
-        If cboShow.SelectedIndex = 0 And UpcomingCount() = 0 Then
-            cboShow.SelectedIndex = 2
+        'the empty grid guard still wins over what was remembered. opening on a filter that looks
+        'forwards when there is nothing coming up looks broken, so in that case it starts on the
+        'lot. already been on is left alone, it is not looking forwards
+        If (cboShow.Text = "Today" Or cboShow.Text = "This week" Or cboShow.Text = "Still to come") And UpcomingCount() = 0 Then
+            cboShow.SelectedIndex = cboShow.Items.IndexOf("Everything")
+        End If
+
+        'and the same for the screen that was last looked at, in case it has since been deleted
+        cboScreenFilter.SelectedIndex = cboScreenFilter.FindStringExact(LastScreeningsScreen)
+        If cboScreenFilter.SelectedIndex = -1 Then
+            cboScreenFilter.SelectedIndex = 0
         End If
 
         stillLoading = False
@@ -76,6 +87,7 @@ Public Class frmScreenings
         End If
 
         LastScreeningsShow = cboShow.Text
+        LastScreeningsScreen = cboScreenFilter.Text
         SaveUserSettings()
     End Sub
 
@@ -86,13 +98,44 @@ Public Class frmScreenings
         End If
     End Sub
 
-    'escape shuts the form, same as the close button on the ones that have one
+    'escape clears the search if there is anything in it, and shuts the form if there is not.
+    'that is the way round the films form does it, and it means escape never loses a search
+    'and closes the whole screen in one press
     Private Sub frmScreenings_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
         If e.KeyCode = Keys.F5 Then
             LoadScreenings()
         ElseIf e.KeyCode = Keys.Escape Then
-            Me.Close()
+            If txtSearch.Text <> "" Then
+                txtSearch.Clear()
+            Else
+                Me.Close()
+            End If
         End If
+    End Sub
+
+    'typing in the search box does not go to the database on every letter. each key press starts
+    'the little timer off again, so the grid is only reloaded once somebody has stopped typing
+    Private Sub txtSearch_TextChanged(sender As Object, e As EventArgs) Handles txtSearch.TextChanged
+        If stillLoading Then
+            Exit Sub
+        End If
+
+        timerSearch.Stop()
+        timerSearch.Start()
+    End Sub
+
+    Private Sub timerSearch_Tick(sender As Object, e As EventArgs) Handles timerSearch.Tick
+        timerSearch.Stop()
+        LoadScreenings()
+    End Sub
+
+    'picking a screen to look at reloads the grid straight away, there is nothing to wait for
+    Private Sub cboScreenFilter_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboScreenFilter.SelectedIndexChanged
+        If stillLoading Then
+            Exit Sub
+        End If
+
+        LoadScreenings()
     End Sub
 
     'how many screenings are today or later, used to decide what the form opens on
@@ -147,8 +190,36 @@ Public Class frmScreenings
         End If
     End Sub
 
-    'loads the screenings into the grid, either the ones still to come, the ones that have been
-    'and gone, or the lot
+    'fills the screen box above the grid, which narrows the list to one room. it is a separate box
+    'from the one in the editor underneath because they are doing different jobs, one picks which
+    'screen to look at and the other picks which screen to put a film in
+    Private Sub LoadScreenFilterCombo()
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT ScreenID, ScreenName " &
+                                 "FROM tblScreen ORDER BY ScreenName"
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            Dim dt As New DataTable
+            da.Fill(dt)
+            cn.Close()
+
+            'the all screens choice goes in the table rather than being added to the box, because
+            'a box that has been given a data source will not take items added to it by hand
+            Dim allRow As DataRow = dt.NewRow()
+            allRow("ScreenID") = 0
+            allRow("ScreenName") = "All screens"
+            dt.Rows.InsertAt(allRow, 0)
+
+            cboScreenFilter.DataSource = dt
+            cboScreenFilter.DisplayMember = "ScreenName"
+            cboScreenFilter.ValueMember = "ScreenID"
+            cboScreenFilter.SelectedIndex = 0
+        End If
+    End Sub
+
+    'loads the screenings into the grid, narrowed down by the date filter, the screen box and
+    'whatever has been typed into the search box
     Private Sub LoadScreenings()
         Dim dt As New DataTable
 
@@ -167,14 +238,65 @@ Public Class frmScreenings
                                       "FROM (tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID) " &
                                       "INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID"
 
-            If cboShow.Text = "Still to come" Then
-                SQLCmd.CommandText = baseQuery & " WHERE ScreeningDate >= @Today ORDER BY ScreeningDate, ScreeningTime, ScreeningID"
-                SQLCmd.Parameters.AddWithValue("@Today", Date.Today)
+            'the where clause is built up a piece at a time from whatever the three boxes are set
+            'to. the parameters have to be added in the same order the @names appear in the
+            'finished query, because oledb matches them by position and not by name
+            Dim conditions As String = ""
+            Dim newestFirst As Boolean = False
+
+            If cboShow.Text = "Today" Then
+                conditions = "ScreeningDate = @Today"
+            ElseIf cboShow.Text = "This week" Then
+                conditions = "ScreeningDate >= @FromDate AND ScreeningDate <= @ToDate"
+            ElseIf cboShow.Text = "Still to come" Then
+                conditions = "ScreeningDate >= @Today"
             ElseIf cboShow.Text = "Already been on" Then
-                SQLCmd.CommandText = baseQuery & " WHERE ScreeningDate < @Today ORDER BY ScreeningDate DESC, ScreeningTime, ScreeningID"
-                SQLCmd.Parameters.AddWithValue("@Today", Date.Today)
+                conditions = "ScreeningDate < @Today"
+                'the most recent one that has been on is the one somebody is most likely after
+                newestFirst = True
+            End If
+
+            If cboScreenFilter.SelectedIndex > 0 Then
+                If conditions <> "" Then
+                    conditions = conditions & " AND "
+                End If
+                conditions = conditions & "tblScreening.ScreenID = @ScreenID"
+            End If
+
+            If txtSearch.Text.Trim() <> "" Then
+                If conditions <> "" Then
+                    conditions = conditions & " AND "
+                End If
+                conditions = conditions & "(FilmTitle LIKE @Search OR ScreenName LIKE @Search2)"
+            End If
+
+            Dim ordering As String = " ORDER BY ScreeningDate, ScreeningTime, ScreeningID"
+            If newestFirst Then
+                ordering = " ORDER BY ScreeningDate DESC, ScreeningTime, ScreeningID"
+            End If
+
+            If conditions = "" Then
+                SQLCmd.CommandText = baseQuery & ordering
             Else
-                SQLCmd.CommandText = baseQuery & " ORDER BY ScreeningDate, ScreeningTime, ScreeningID"
+                SQLCmd.CommandText = baseQuery & " WHERE " & conditions & ordering
+            End If
+
+            'same order as above
+            If cboShow.Text = "This week" Then
+                SQLCmd.Parameters.AddWithValue("@FromDate", Date.Today)
+                SQLCmd.Parameters.AddWithValue("@ToDate", Date.Today.AddDays(6))
+            ElseIf cboShow.Text <> "Everything" Then
+                SQLCmd.Parameters.AddWithValue("@Today", Date.Today)
+            End If
+
+            If cboScreenFilter.SelectedIndex > 0 Then
+                SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(cboScreenFilter.SelectedValue))
+            End If
+
+            If txtSearch.Text.Trim() <> "" Then
+                'the same thing twice, because a positional parameter cannot be used twice over
+                SQLCmd.Parameters.AddWithValue("@Search", "%" & txtSearch.Text.Trim() & "%")
+                SQLCmd.Parameters.AddWithValue("@Search2", "%" & txtSearch.Text.Trim() & "%")
             End If
 
             Dim da As New OleDbDataAdapter(SQLCmd)
@@ -1053,6 +1175,22 @@ Public Class frmScreenings
 
         ShowWhatIsBeingEdited()
         ShowEndTime()
+    End Sub
+
+    'double clicking a row is the same as clicking it, except it puts the cursor straight in the
+    'time box, since changing the time is far and away the most likely reason for opening one
+    Private Sub dgvScreenings_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvScreenings.CellDoubleClick
+        If e.RowIndex < 0 Then Exit Sub
+
+        'the single click has already loaded the row by the time this runs, so there is nothing
+        'to load again. if it did not load, because the unsaved changes question was answered no,
+        'the boxes must be left exactly where they are
+        If selectedScreeningID = 0 Then
+            Exit Sub
+        End If
+
+        txtScreeningTime.Focus()
+        txtScreeningTime.SelectAll()
     End Sub
 
 End Class
