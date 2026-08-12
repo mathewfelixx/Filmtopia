@@ -1112,87 +1112,97 @@ Public Class frmScreenings
         LoadScreenings()
     End Sub
 
-    'finds the earliest time the picked film could go on the picked screen on the picked day without
-    'running into anything already booked in. it reads everything already on that screen that day,
-    'sorts it into time order, then walks along the day from opening time keeping track of how far
-    'through it has got, and stops at the first gap the film actually fits in.
-    'gives back the time in minutes, or -1 if there is nowhere left to put it
-    Private Function NextFreeSlot() As Integer
-        'worked out before the connection is opened, because it opens one of its own
-        Dim needed As Integer = ScreenTimeNeeded(DurationOfPickedFilm())
-
-        Dim starts(-1) As Integer
-        Dim finishes(-1) As Integer
-        Dim howMany As Integer = 0
+    'reads everything already on that screen that day into the arrays. the three arrays line up
+    'with each other, so titles(2) belongs with starts(2) and finishes(2), and howMany says how
+    'many positions are actually filled in. the one being edited is left out, otherwise it would
+    'be treated as being in its own way and the time it already has would never be offered back.
+    'this used to be written out twice over, once for finding a free slot and once for checking
+    'for a clash, and the two copies had drifted slightly apart
+    Private Sub LoadDayOccupancy(screenID As Integer, theDate As Date, excludeID As Integer,
+                                 ByRef starts() As Integer, ByRef finishes() As Integer,
+                                 ByRef titles() As String, ByRef howMany As Integer)
+        howMany = 0
+        ReDim starts(0)
+        ReDim finishes(0)
+        ReDim titles(0)
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-
-            'how many there are first, so the arrays can be made the right size
-            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblScreening " &
-                                 "WHERE ScreenID = @ScreenID AND ScreeningDate = @ScreeningDate"
-            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(cboScreen.SelectedValue))
-            SQLCmd.Parameters.AddWithValue("@ScreeningDate", dtpScreeningDate.Value.Date)
-            Dim onThatDay As Integer = CInt(SQLCmd.ExecuteScalar())
-
-            If onThatDay > 0 Then
-                ReDim starts(onThatDay - 1)
-                ReDim finishes(onThatDay - 1)
-
-                SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, ScreeningTime, FilmDuration " &
-                                     "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
-                                     "WHERE tblScreening.ScreenID = @ScreenID AND ScreeningDate = @ScreeningDate"
-                SQLCmd.Parameters.Clear()
-                SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(cboScreen.SelectedValue))
-                SQLCmd.Parameters.AddWithValue("@ScreeningDate", dtpScreeningDate.Value.Date)
-
-                Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
-
-                While rs.Read()
-                    'the one being edited is left out, otherwise it would be treated as being in
-                    'its own way and the same time it already has would never be offered back
-                    If CInt(rs("ScreeningID")) <> selectedScreeningID Then
-                        Dim thisStart As Integer = TimeAsMinutes(rs("ScreeningTime").ToString())
-
-                        If thisStart >= 0 Then
-                            starts(howMany) = thisStart
-                            finishes(howMany) = thisStart + ScreenTimeNeeded(CInt(rs("FilmDuration")))
-                            howMany = howMany + 1
-                        End If
-                    End If
-                End While
-
-                rs.Close()
-            End If
-
+            'everything on in that screen on that day, and how long each one runs for
+            SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, FilmTitle, ScreeningTime, FilmDuration " &
+                                 "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
+                                 "WHERE tblScreening.ScreenID = @ScreenID AND ScreeningDate = @ScreeningDate"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", screenID)
+            SQLCmd.Parameters.AddWithValue("@ScreeningDate", theDate)
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            Dim dt As New DataTable
+            da.Fill(dt)
+            'closed before anything else is worked out, because the connection is shared and the
+            'callers of this go on to ask the database other things
             cn.Close()
-        End If
 
-        'put them in start time order. an insertion sort is plenty here because a screen only has a
-        'handful of showings in a day, and doing the sort here rather than in the query means the
-        'walk below does not quietly depend on what order the database hands the rows back in
-        Dim i As Integer
-        For i = 1 To howMany - 1
+            ReDim starts(dt.Rows.Count)
+            ReDim finishes(dt.Rows.Count)
+            ReDim titles(dt.Rows.Count)
+
+            For Each row As DataRow In dt.Rows
+                If CInt(row("ScreeningID")) <> excludeID Then
+                    Dim thisStart As Integer = TimeAsMinutes(row("ScreeningTime").ToString())
+
+                    'a time that does not read as HH:MM cannot be placed on the day at all, so it
+                    'is left out rather than being put somewhere wrong
+                    If thisStart >= 0 Then
+                        starts(howMany) = thisStart
+                        finishes(howMany) = thisStart + ScreenTimeNeeded(CInt(row("FilmDuration")))
+                        titles(howMany) = row("FilmTitle").ToString()
+                        howMany = howMany + 1
+                    End If
+                End If
+            Next
+        End If
+    End Sub
+
+    'puts the day into start time order. an insertion sort is plenty here because a screen only
+    'has a handful of showings in a day, and doing the sort here rather than in the query means
+    'the walk along the day does not quietly depend on what order the database hands rows back in.
+    'all three arrays are moved together so they carry on lining up with each other
+    Private Sub SortDayByStart(ByRef starts() As Integer, ByRef finishes() As Integer,
+                               ByRef titles() As String, howMany As Integer)
+        For i As Integer = 1 To howMany - 1
             Dim keyStart As Integer = starts(i)
             Dim keyFinish As Integer = finishes(i)
+            Dim keyTitle As String = titles(i)
             Dim j As Integer = i - 1
 
             While j >= 0 AndAlso starts(j) > keyStart
                 starts(j + 1) = starts(j)
                 finishes(j + 1) = finishes(j)
+                titles(j + 1) = titles(j)
                 j = j - 1
             End While
 
             starts(j + 1) = keyStart
             finishes(j + 1) = keyFinish
+            titles(j + 1) = keyTitle
         Next
+    End Sub
 
-        'walk the day. earliest is how far through the day we have got so far, and each showing
-        'either leaves a big enough gap in front of it or pushes earliest along past itself
-        Dim earliest As Integer = FirstShowMinutes
+    'walks along a day that has already been sorted and gives back the first time at or after
+    '"after" where a film needing "needed" minutes would fit. earliest is how far through the day
+    'we have got so far, and each showing either leaves a big enough gap in front of it or pushes
+    'earliest along past itself. -1 means there is nowhere left.
+    'taking the starting point as a parameter rather than always beginning at opening time is what
+    'lets the same walk be used over and over to fill a whole day up
+    Private Function FirstFitFrom(after As Integer, needed As Integer, starts() As Integer,
+                                  finishes() As Integer, howMany As Integer) As Integer
+        Dim earliest As Integer = after
 
-        For i = 0 To howMany - 1
+        If earliest < FirstShowMinutes Then
+            earliest = FirstShowMinutes
+        End If
+
+        For i As Integer = 0 To howMany - 1
             'the gap has to be big enough AND the start has to be one we are allowed to use.
             'without the second half a gap late on could be offered after the last start time
             If earliest + needed <= starts(i) And earliest <= LastShowMinutes Then
@@ -1212,15 +1222,57 @@ Public Class frmScreenings
         Return -1
     End Function
 
-    'fills the time box in with the first time the film would actually fit
-    Private Sub btnSuggest_Click(sender As Object, e As EventArgs) Handles btnSuggest.Click
+    'finds the earliest time the picked film could go on the picked screen on the picked day
+    'without running into anything already booked in.
+    'gives back the time in minutes, or -1 if there is nowhere left to put it
+    Private Function NextFreeSlot() As Integer
+        'worked out first, because it asks the database how long the film is and the connection
+        'is shared
+        Dim needed As Integer = ScreenTimeNeeded(DurationOfPickedFilm())
+
+        'given a size here rather than left empty, because they are handed straight over to be
+        'filled in and the compiler cannot see that happening from this side
+        Dim starts(0) As Integer
+        Dim finishes(0) As Integer
+        Dim titles(0) As String
+        Dim howMany As Integer
+
+        LoadDayOccupancy(CInt(cboScreen.SelectedValue), dtpScreeningDate.Value.Date, selectedScreeningID,
+                         starts, finishes, titles, howMany)
+        SortDayByStart(starts, finishes, titles, howMany)
+
+        Return FirstFitFrom(FirstShowMinutes, needed, starts, finishes, howMany)
+    End Function
+
+    'the checks the three scheduling buttons all need doing before they can work anything out.
+    'they all need a film, because that is where the running time comes from, and a screen that
+    'is actually open. saying no here rather than at the save is a lot less annoying than being
+    'offered a time in a room that has been shut
+    Private Function CanWorkOutTimes() As Boolean
         If cboFilm.SelectedIndex = -1 Then
             MessageBox.Show("Pick a film first, otherwise there is no way to know how long it needs", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            Exit Sub
+            Return False
         End If
 
         If cboScreen.SelectedIndex = -1 Then
             MessageBox.Show("Pick a screen first", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return False
+        End If
+
+        If Not ScreenIsInService(CLng(cboScreen.SelectedValue)) Then
+            MessageBox.Show("'" & cboScreen.Text & "' is out of service at the moment, so nothing can be " &
+                            "scheduled in it." & vbCrLf & vbCrLf &
+                            "Put it back in service on the screens form, or pick a different screen.",
+                            "Screen is out of service", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return False
+        End If
+
+        Return True
+    End Function
+
+    'fills the time box in with the first time the film would actually fit
+    Private Sub btnSuggest_Click(sender As Object, e As EventArgs) Handles btnSuggest.Click
+        If Not CanWorkOutTimes() Then
             Exit Sub
         End If
 
@@ -1245,43 +1297,351 @@ Public Class frmScreenings
     Private Function ClashingScreening() As String
         Dim startMinutes As Integer = TimeAsMinutes(txtScreeningTime.Text)
         Dim endMinutes As Integer = startMinutes + ScreenTimeNeeded(DurationOfPickedFilm())
-        Dim clash As String = ""
+
+        'given a size here rather than left empty, because they are handed straight over to be
+        'filled in and the compiler cannot see that happening from this side
+        Dim starts(0) As Integer
+        Dim finishes(0) As Integer
+        Dim titles(0) As String
+        Dim howMany As Integer
+
+        LoadDayOccupancy(CInt(cboScreen.SelectedValue), dtpScreeningDate.Value.Date, selectedScreeningID,
+                         starts, finishes, titles, howMany)
+        SortDayByStart(starts, finishes, titles, howMany)
+
+        For i As Integer = 0 To howMany - 1
+            'they overlap if this one starts before the other finishes and the other starts
+            'before this one finishes
+            If startMinutes < finishes(i) And starts(i) < endMinutes Then
+                'the first one found is now the earliest one of the day, because the day has been
+                'put in order. before, it kept going and ended up naming whichever one the
+                'database happened to hand back last, which was not necessarily the useful one
+                Return titles(i) & " at " & MinutesAsTime(starts(i)) &
+                       ", which is not finished and cleared until " & MinutesAsTime(finishes(i))
+            End If
+        Next
+
+        Return ""
+    End Function
+
+    'writes one screening using a command that is already part of a transaction, so a whole run
+    'of them either all save or none of them do. it takes the command in rather than making its
+    'own, the same way the seat making on the screens form does
+    Private Sub InsertScreening(SQLCmd As OleDbCommand, filmID As Integer, screenID As Integer,
+                                theDate As Date, timeText As String, price As Double)
+        SQLCmd.Parameters.Clear()
+        SQLCmd.CommandText = "INSERT INTO tblScreening (FilmID, ScreenID, ScreeningDate, ScreeningTime, TicketPrice) " &
+                             "VALUES (@FilmID, @ScreenID, @ScreeningDate, @ScreeningTime, @TicketPrice)"
+        SQLCmd.Parameters.AddWithValue("@FilmID", filmID)
+        SQLCmd.Parameters.AddWithValue("@ScreenID", screenID)
+        SQLCmd.Parameters.AddWithValue("@ScreeningDate", theDate)
+        SQLCmd.Parameters.AddWithValue("@ScreeningTime", timeText)
+        SQLCmd.Parameters.AddWithValue("@TicketPrice", price)
+        SQLCmd.ExecuteNonQuery()
+    End Sub
+
+    'the checks the time and the price boxes need before either of the two bulk buttons runs.
+    'the full check cannot be used because that one also looks for a clash on the one day showing
+    'in the boxes, and both of these are about a lot of days or a lot of times at once
+    Private Function TimeAndPriceAreOk(needTime As Boolean) As Boolean
+        If needTime Then
+            If txtScreeningTime.Text.Trim() = "" Then
+                MessageBox.Show("Enter a screening time (HH:MM)", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                txtScreeningTime.Focus()
+                Return False
+            End If
+
+            If Not IsValidScreeningTime(txtScreeningTime.Text) Then
+                MessageBox.Show("Screening time must be in HH:MM format, e.g. 14:30", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                txtScreeningTime.Focus()
+                Return False
+            End If
+        End If
+
+        If Not IsNumeric(txtTicketPrice.Text) Or Val(txtTicketPrice.Text) <= 0 Or Val(txtTicketPrice.Text) > 50 Then
+            MessageBox.Show("Enter a ticket price in pounds, more than 0 and no more than 50", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtTicketPrice.Focus()
+            Return False
+        End If
+
+        Return True
+    End Function
+
+    'puts the film in the boxes on at the same time every day from the date in the boxes up to
+    'the repeat until date. a day that already has something in the way is skipped rather than
+    'stopping the whole thing, because one busy tuesday should not stop the rest of the week
+    Private Sub btnRepeat_Click(sender As Object, e As EventArgs) Handles btnRepeat.Click
+        If Not CanWorkOutTimes() Then
+            Exit Sub
+        End If
+
+        If Not TimeAndPriceAreOk(True) Then
+            Exit Sub
+        End If
+
+        Dim firstDay As Date = dtpScreeningDate.Value.Date
+        Dim lastDay As Date = dtpRepeatUntil.Value.Date
+
+        If lastDay < firstDay Then
+            MessageBox.Show("The repeat until date is before the date the run starts on", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        If firstDay < Date.Today Then
+            MessageBox.Show("A run cannot start in the past", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        'a month at a time is plenty. without a limit a mistyped year would try to put a film on
+        'every day for the next eighty years
+        Dim howManyDays As Integer = DateDiff(DateInterval.Day, firstDay, lastDay) + 1
+
+        If howManyDays > 31 Then
+            MessageBox.Show("That is " & howManyDays & " days. A run can be up to 31 days at a time.", "Too long a run", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        'work out what would happen before anything is written, so it can be said plainly and
+        'turned down. going day by day, each one gets the same clash check a single screening does
+        Dim startMinutes As Integer = TimeAsMinutes(txtScreeningTime.Text)
+        Dim needed As Integer = ScreenTimeNeeded(DurationOfPickedFilm())
+        Dim screenID As Integer = CInt(cboScreen.SelectedValue)
+
+        Dim goodDays(howManyDays) As Date
+        Dim goodCount As Integer = 0
+        Dim skipped As String = ""
+        Dim skippedCount As Integer = 0
+
+        For dayNumber As Integer = 0 To howManyDays - 1
+            Dim thisDay As Date = firstDay.AddDays(dayNumber)
+
+            Dim starts(0) As Integer
+            Dim finishes(0) As Integer
+            Dim titles(0) As String
+            Dim howMany As Integer
+
+            LoadDayOccupancy(screenID, thisDay, 0, starts, finishes, titles, howMany)
+            SortDayByStart(starts, finishes, titles, howMany)
+
+            Dim clashes As Boolean = False
+
+            For i As Integer = 0 To howMany - 1
+                If startMinutes < finishes(i) And starts(i) < startMinutes + needed Then
+                    clashes = True
+                End If
+            Next
+
+            If clashes Then
+                skippedCount = skippedCount + 1
+
+                'only the first few are named, a list of twenty dates in a message box is not
+                'something anybody reads
+                If skippedCount <= 4 Then
+                    If skipped <> "" Then
+                        skipped = skipped & ", "
+                    End If
+                    skipped = skipped & thisDay.ToString("ddd d MMM")
+                End If
+            Else
+                goodDays(goodCount) = thisDay
+                goodCount = goodCount + 1
+            End If
+        Next
+
+        If goodCount = 0 Then
+            MessageBox.Show("There is something already on at " & txtScreeningTime.Text & " in " & cboScreen.Text &
+                            " on every one of those " & howManyDays & " days." & vbCrLf & vbCrLf &
+                            "Try another time, another screen, or use Find me a free time.",
+                            "Nothing could be added", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            WriteLog("SCREENING", "Run refused, " & cboFilm.Text & " clashes on all " & howManyDays & " days", LogWarning)
+            Exit Sub
+        End If
+
+        Dim question As String = "Put " & cboFilm.Text & " on in " & cboScreen.Text & " at " &
+                                 txtScreeningTime.Text & " on " & goodCount & " day(s)?"
+
+        If skippedCount > 0 Then
+            question = question & vbCrLf & vbCrLf & "Skipping " & skipped
+            If skippedCount > 4 Then
+                question = question & " and " & (skippedCount - 4) & " more"
+            End If
+            question = question & ", something else is already on."
+        End If
+
+        If MessageBox.Show(question, "Put a run on", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) = DialogResult.No Then
+            Exit Sub
+        End If
+
+        Dim added As Integer = SaveManyScreenings(goodDays, goodCount, txtScreeningTime.Text, screenID)
+
+        If added = 0 Then
+            Exit Sub
+        End If
+
+        WriteLog("SCREENING", "Run added: " & cboFilm.Text & " in " & cboScreen.Text & " at " &
+                              txtScreeningTime.Text & ", " & added & " screenings", LogChange)
+        LoadScreenings()
+        RefreshTimelineIfShowing()
+        SayDone(lblSaved, "Put " & cboFilm.Text & " on " & added & " time(s)")
+    End Sub
+
+    'lays the film in the boxes out as many times as it will fit on the chosen day, working round
+    'whatever is already in that screen. it is a first fit, walk from opening time to the first
+    'gap that takes it, mark that gap as used, then look again from the end of it
+    Private Sub btnFillDay_Click(sender As Object, e As EventArgs) Handles btnFillDay.Click
+        If Not CanWorkOutTimes() Then
+            Exit Sub
+        End If
+
+        If Not TimeAndPriceAreOk(False) Then
+            Exit Sub
+        End If
+
+        Dim theDay As Date = dtpScreeningDate.Value.Date
+
+        If theDay < Date.Today Then
+            MessageBox.Show("That day has already been, there is no point filling it up", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        Dim needed As Integer = ScreenTimeNeeded(DurationOfPickedFilm())
+        Dim screenID As Integer = CInt(cboScreen.SelectedValue)
+
+        Dim starts(0) As Integer
+        Dim finishes(0) As Integer
+        Dim titles(0) As String
+        Dim howMany As Integer
+
+        LoadDayOccupancy(screenID, theDay, 0, starts, finishes, titles, howMany)
+        SortDayByStart(starts, finishes, titles, howMany)
+
+        'no more than this many in one go. a short film in an empty room would otherwise come back
+        'with a list nobody wants to read, and eight showings is already a long day
+        Const MostInOneDay As Integer = 8
+
+        'the arrays came back only as big as the day already was, and each showing worked out
+        'below gets added into them so the next time round can see it. without making room first
+        'that would run off the end of the array
+        ReDim Preserve starts(howMany + MostInOneDay)
+        ReDim Preserve finishes(howMany + MostInOneDay)
+        ReDim Preserve titles(howMany + MostInOneDay)
+
+        Dim newTimes(MostInOneDay) As Integer
+        Dim newCount As Integer = 0
+        Dim cursor As Integer = FirstShowMinutes
+
+        While newCount < MostInOneDay
+            Dim slot As Integer = FirstFitFrom(cursor, needed, starts, finishes, howMany)
+
+            If slot < 0 Then
+                Exit While
+            End If
+
+            newTimes(newCount) = slot
+            newCount = newCount + 1
+
+            'the gap just taken has to go into the day before it is looked at again, otherwise
+            'the next time round would hand back exactly the same slot for ever
+            starts(howMany) = slot
+            finishes(howMany) = slot + needed
+            titles(howMany) = cboFilm.Text
+            howMany = howMany + 1
+            SortDayByStart(starts, finishes, titles, howMany)
+
+            cursor = slot + needed
+        End While
+
+        If newCount = 0 Then
+            MessageBox.Show("There is no room left for " & cboFilm.Text & " in " & cboScreen.Text & " that day.",
+                            "Nothing free", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Exit Sub
+        End If
+
+        Dim timeList As String = ""
+        For i As Integer = 0 To newCount - 1
+            If timeList <> "" Then
+                timeList = timeList & ", "
+            End If
+            timeList = timeList & MinutesAsTime(newTimes(i))
+        Next
+
+        Dim question As String = "Put " & cboFilm.Text & " on " & newCount & " time(s) in " & cboScreen.Text &
+                                 " on " & theDay.ToString("ddd d MMM") & "?" & vbCrLf & vbCrLf & timeList
+
+        If MessageBox.Show(question, "Fill the day", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) = DialogResult.No Then
+            Exit Sub
+        End If
+
+        Dim added As Integer = SaveDayOfScreenings(theDay, newTimes, newCount, screenID)
+
+        If added = 0 Then
+            Exit Sub
+        End If
+
+        WriteLog("SCREENING", "Day filled: " & cboFilm.Text & " in " & cboScreen.Text & " on " &
+                              theDay.ToString("dd/MM/yyyy") & ", " & added & " screenings", LogChange)
+        LoadScreenings()
+        RefreshTimelineIfShowing()
+        SayDone(lblSaved, "Put " & cboFilm.Text & " on " & added & " time(s) that day")
+    End Sub
+
+    'the same day at a lot of different times, all in one transaction
+    Private Function SaveDayOfScreenings(theDay As Date, times() As Integer, howMany As Integer, screenID As Integer) As Integer
+        Dim theDays(howMany) As Date
+        Dim theTimes(howMany) As String
+
+        For i As Integer = 0 To howMany - 1
+            theDays(i) = theDay
+            theTimes(i) = MinutesAsTime(times(i))
+        Next
+
+        Return SaveScreeningRun(theDays, theTimes, howMany, screenID)
+    End Function
+
+    'the same time on a lot of different days, all in one transaction
+    Private Function SaveManyScreenings(theDays() As Date, howMany As Integer, timeText As String, screenID As Integer) As Integer
+        Dim theTimes(howMany) As String
+
+        For i As Integer = 0 To howMany - 1
+            theTimes(i) = timeText
+        Next
+
+        Return SaveScreeningRun(theDays, theTimes, howMany, screenID)
+    End Function
+
+    'writes the whole lot in one transaction. either every screening in the run saves or none of
+    'them do, because half a run put on is worse than none of it, nobody would know where it got
+    'to. gives back how many were written, or 0 if it had to be rolled back
+    Private Function SaveScreeningRun(theDays() As Date, theTimes() As String, howMany As Integer, screenID As Integer) As Integer
+        Dim written As Integer = 0
 
         If DbConnect() Then
+            Dim trans As OleDbTransaction = cn.BeginTransaction()
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            'everything else on in that screen on that day, and how long each one runs for
-            SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, FilmTitle, ScreeningTime, FilmDuration " &
-                                 "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
-                                 "WHERE tblScreening.ScreenID = @ScreenID AND ScreeningDate = @ScreeningDate"
-            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(cboScreen.SelectedValue))
-            SQLCmd.Parameters.AddWithValue("@ScreeningDate", dtpScreeningDate.Value.Date)
+            SQLCmd.Transaction = trans
 
-            Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+            Try
+                Dim filmID As Integer = CInt(cboFilm.SelectedValue)
+                Dim price As Double = PriceFromBox()
 
-            While rs.Read()
-                'a screening never clashes with itself when it is being changed
-                If CInt(rs("ScreeningID")) <> selectedScreeningID Then
-                    Dim otherStart As Integer = TimeAsMinutes(rs("ScreeningTime").ToString())
+                For i As Integer = 0 To howMany - 1
+                    InsertScreening(SQLCmd, filmID, screenID, theDays(i), theTimes(i), price)
+                    written = written + 1
+                Next
 
-                    If otherStart >= 0 Then
-                        Dim otherEnd As Integer = otherStart + ScreenTimeNeeded(CInt(rs("FilmDuration")))
+                trans.Commit()
+            Catch ex As Exception
+                trans.Rollback()
+                written = 0
+                MessageBox.Show("Nothing was saved, the whole run was put back." & vbCrLf & vbCrLf & ex.Message,
+                                "Could not save the run", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
 
-                        'they overlap if this one starts before the other finishes and the other
-                        'starts before this one finishes
-                        If startMinutes < otherEnd And otherStart < endMinutes Then
-                            clash = rs("FilmTitle").ToString() & " at " & rs("ScreeningTime").ToString() &
-                                    ", which is not finished and cleared until " & MinutesAsTime(otherEnd)
-                        End If
-                    End If
-                End If
-            End While
-
-            rs.Close()
             cn.Close()
         End If
 
-        Return clash
+        Return written
     End Function
 
     'the ticket price as it should be stored. money only goes to two decimal places, and without
@@ -1606,6 +1966,8 @@ Public Class frmScreenings
         cboFilm.SelectedIndex = -1
         cboScreen.SelectedIndex = -1
         dtpScreeningDate.Value = Date.Now
+        'a week is the length of run somebody nearly always wants, so it starts there
+        dtpRepeatUntil.Value = Date.Today.AddDays(6)
         txtScreeningTime.Text = ""
         txtTicketPrice.Text = ""
         fillingBoxes = False

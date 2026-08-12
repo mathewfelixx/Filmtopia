@@ -54,6 +54,10 @@ Partial Class frmScreenings
         Me.btnDelete = New System.Windows.Forms.Button()
         Me.btnClear = New System.Windows.Forms.Button()
         Me.btnSuggest = New System.Windows.Forms.Button()
+        Me.lblRepeatUntil = New System.Windows.Forms.Label()
+        Me.dtpRepeatUntil = New System.Windows.Forms.DateTimePicker()
+        Me.btnRepeat = New System.Windows.Forms.Button()
+        Me.btnFillDay = New System.Windows.Forms.Button()
         Me.btnExport = New System.Windows.Forms.Button()
         Me.lblSaved = New System.Windows.Forms.Label()
         Me.lblVersion = New System.Windows.Forms.Label()
@@ -267,10 +271,14 @@ Partial Class frmScreenings
         Me.GroupBox2.Controls.Add(Me.btnUpdate)
         Me.GroupBox2.Controls.Add(Me.btnDelete)
         Me.GroupBox2.Controls.Add(Me.btnClear)
+        Me.GroupBox2.Controls.Add(Me.lblRepeatUntil)
+        Me.GroupBox2.Controls.Add(Me.dtpRepeatUntil)
+        Me.GroupBox2.Controls.Add(Me.btnRepeat)
+        Me.GroupBox2.Controls.Add(Me.btnFillDay)
         Me.GroupBox2.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.GroupBox2.Location = New System.Drawing.Point(16, 456)
         Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(1036, 200)
+        Me.GroupBox2.Size = New System.Drawing.Size(1036, 252)
         Me.GroupBox2.TabIndex = 2
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Put a film on, or change a screening that is already there"
@@ -441,6 +449,45 @@ Partial Class frmScreenings
         Me.btnClear.Text = "Clear the boxes"
         Me.btnClear.UseVisualStyleBackColor = True
         '
+        'lblRepeatUntil
+        '
+        Me.lblRepeatUntil.AutoSize = True
+        Me.lblRepeatUntil.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblRepeatUntil.Location = New System.Drawing.Point(16, 210)
+        Me.lblRepeatUntil.Name = "lblRepeatUntil"
+        Me.lblRepeatUntil.Size = New System.Drawing.Size(100, 15)
+        Me.lblRepeatUntil.TabIndex = 17
+        Me.lblRepeatUntil.Text = "Repeat until"
+        '
+        'dtpRepeatUntil
+        '
+        Me.dtpRepeatUntil.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.dtpRepeatUntil.Format = System.Windows.Forms.DateTimePickerFormat.Short
+        Me.dtpRepeatUntil.Location = New System.Drawing.Point(130, 206)
+        Me.dtpRepeatUntil.Name = "dtpRepeatUntil"
+        Me.dtpRepeatUntil.Size = New System.Drawing.Size(140, 23)
+        Me.dtpRepeatUntil.TabIndex = 18
+        '
+        'btnRepeat
+        '
+        Me.btnRepeat.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.btnRepeat.Location = New System.Drawing.Point(290, 206)
+        Me.btnRepeat.Name = "btnRepeat"
+        Me.btnRepeat.Size = New System.Drawing.Size(230, 30)
+        Me.btnRepeat.TabIndex = 19
+        Me.btnRepeat.Text = "Put it on every day up to then"
+        Me.btnRepeat.UseVisualStyleBackColor = True
+        '
+        'btnFillDay
+        '
+        Me.btnFillDay.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.btnFillDay.Location = New System.Drawing.Point(540, 206)
+        Me.btnFillDay.Name = "btnFillDay"
+        Me.btnFillDay.Size = New System.Drawing.Size(230, 30)
+        Me.btnFillDay.TabIndex = 20
+        Me.btnFillDay.Text = "Fill the rest of that day with it"
+        Me.btnFillDay.UseVisualStyleBackColor = True
+        '
         'btnExport
         '
         Me.btnExport.Location = New System.Drawing.Point(910, 10)
@@ -452,7 +499,7 @@ Partial Class frmScreenings
         'lblSaved
         '
         Me.lblSaved.AutoSize = False
-        Me.lblSaved.Location = New System.Drawing.Point(360, 666)
+        Me.lblSaved.Location = New System.Drawing.Point(360, 721)
         Me.lblSaved.Name = "lblSaved"
         Me.lblSaved.Size = New System.Drawing.Size(692, 16)
         Me.lblSaved.Text = ""
@@ -461,7 +508,7 @@ Partial Class frmScreenings
         '
         Me.lblVersion.AutoSize = True
         Me.lblVersion.ForeColor = System.Drawing.Color.Gray
-        Me.lblVersion.Location = New System.Drawing.Point(16, 666)
+        Me.lblVersion.Location = New System.Drawing.Point(16, 721)
         Me.lblVersion.Name = "lblVersion"
         Me.lblVersion.Size = New System.Drawing.Size(271, 16)
         Me.lblVersion.TabIndex = 3
@@ -471,7 +518,7 @@ Partial Class frmScreenings
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1068, 695)
+        Me.ClientSize = New System.Drawing.Size(1068, 750)
         Me.Controls.Add(Me.btnExport)
         Me.Controls.Add(Me.lblSaved)
         Me.Controls.Add(Me.lblVersion)
@@ -533,6 +580,10 @@ Partial Class frmScreenings
     Friend WithEvents btnUpdate As Button
     Friend WithEvents btnDelete As Button
     Friend WithEvents btnClear As Button
+    Friend WithEvents lblRepeatUntil As Label
+    Friend WithEvents dtpRepeatUntil As DateTimePicker
+    Friend WithEvents btnRepeat As Button
+    Friend WithEvents btnFillDay As Button
     Friend WithEvents btnExport As Button
     Friend WithEvents lblSaved As Label
     Friend WithEvents lblVersion As Label
