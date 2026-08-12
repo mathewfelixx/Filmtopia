@@ -244,6 +244,7 @@ Partial Class frmScreenings
         '
         Me.txtTicketPrice.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.txtTicketPrice.Location = New System.Drawing.Point(605, 95)
+        Me.txtTicketPrice.MaxLength = 6
         Me.txtTicketPrice.Name = "txtTicketPrice"
         Me.txtTicketPrice.Size = New System.Drawing.Size(75, 23)
         Me.txtTicketPrice.TabIndex = 10

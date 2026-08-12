@@ -30,6 +30,10 @@ Public Class frmScreenings
     'true while a row is being copied into the boxes, so filling them in does not count as typing
     Private fillingBoxes As Boolean = False
 
+    'made once and reused for the nearly full rows. making a new font for every row every time the
+    'grid is coloured in would be throwing fonts away by the hundred
+    Private rowBoldFont As New Font("Segoe UI", 9, FontStyle.Bold)
+
     Private Sub frmScreenings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup(Me)
 
@@ -153,9 +157,13 @@ Public Class frmScreenings
             SQLCmd.Connection = cn
 
             'join screening to film (for the title and how long it runs) and to screen (for the
-            'name and how many seats it holds)
+            'name and how many seats it holds). the seats sold come back in the same query as a
+            'subquery instead of a count per row, which used to be one trip to the database for
+            'every screening on the grid. it only looks at tblBookingSeat, no join inside it, which
+            'is exactly what the ScreeningID on the seat row is there for
             Dim baseQuery As String = "SELECT tblScreening.ScreeningID, FilmTitle, ScreenName, ScreeningDate, ScreeningTime, TicketPrice, " &
-                                      "FilmDuration, ScreenCapacity, tblScreening.FilmID, tblScreening.ScreenID " &
+                                      "FilmDuration, ScreenCapacity, tblScreening.FilmID, tblScreening.ScreenID, " &
+                                      "(SELECT COUNT(*) FROM tblBookingSeat AS bs WHERE bs.ScreeningID = tblScreening.ScreeningID) AS SeatsBooked " &
                                       "FROM (tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID) " &
                                       "INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID"
 
@@ -174,16 +182,26 @@ Public Class frmScreenings
             cn.Close()
         End If
 
-        'how full each screening is, worked out one at a time. it is the most useful thing on the
-        'whole screen, it says at a glance which showings are selling and which are not
+        'how full each screening is. it is the most useful thing on the whole screen, it says at a
+        'glance which showings are selling and which are not. the numbers come from the query now,
+        'this only turns them into something to read
         dt.Columns.Add("SoldText", GetType(String))
+        dt.Columns.Add("PercentFull", GetType(Integer))
         dt.Columns.Add("EndsAt", GetType(String))
 
         For Each row As DataRow In dt.Rows
-            Dim sold As Integer = SeatsSold(CInt(row("ScreeningID")))
+            Dim sold As Integer = CInt(row("SeatsBooked"))
             Dim capacity As Integer = CInt(row("ScreenCapacity"))
 
             row("SoldText") = sold & " of " & capacity
+
+            'a screen with no seats in it would be a divide by zero, so it is checked first
+            If capacity > 0 Then
+                row("PercentFull") = CInt(sold * 100 / capacity)
+            Else
+                row("PercentFull") = 0
+            End If
+
             row("EndsAt") = EndTimeText(row("ScreeningTime").ToString(), CInt(row("FilmDuration")))
         Next
 
@@ -195,6 +213,7 @@ Public Class frmScreenings
             dgvScreenings.Columns("ScreenID").Visible = False
             dgvScreenings.Columns("FilmDuration").Visible = False
             dgvScreenings.Columns("ScreenCapacity").Visible = False
+            dgvScreenings.Columns("SeatsBooked").Visible = False
 
             dgvScreenings.Columns("ScreeningID").HeaderText = "ID"
             dgvScreenings.Columns("FilmTitle").HeaderText = "Film"
@@ -204,6 +223,7 @@ Public Class frmScreenings
             dgvScreenings.Columns("EndsAt").HeaderText = "Ends"
             dgvScreenings.Columns("TicketPrice").HeaderText = "Ticket"
             dgvScreenings.Columns("SoldText").HeaderText = "Seats sold"
+            dgvScreenings.Columns("PercentFull").HeaderText = "Full"
 
             dgvScreenings.Columns("ScreeningID").Width = 50
             dgvScreenings.Columns("FilmTitle").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
@@ -213,19 +233,71 @@ Public Class frmScreenings
             dgvScreenings.Columns("EndsAt").Width = 70
             dgvScreenings.Columns("TicketPrice").Width = 80
             dgvScreenings.Columns("SoldText").Width = 100
+            dgvScreenings.Columns("PercentFull").Width = 60
+
+            'the working out columns are tacked on the end of the table, so without this the ends
+            'time would sit after the seats sold instead of next to the time it belongs with
+            dgvScreenings.Columns("ScreeningID").DisplayIndex = 0
+            dgvScreenings.Columns("FilmTitle").DisplayIndex = 1
+            dgvScreenings.Columns("ScreenName").DisplayIndex = 2
+            dgvScreenings.Columns("ScreeningDate").DisplayIndex = 3
+            dgvScreenings.Columns("ScreeningTime").DisplayIndex = 4
+            dgvScreenings.Columns("EndsAt").DisplayIndex = 5
+            dgvScreenings.Columns("TicketPrice").DisplayIndex = 6
+            dgvScreenings.Columns("SoldText").DisplayIndex = 7
+            dgvScreenings.Columns("PercentFull").DisplayIndex = 8
 
             dgvScreenings.Columns("ScreeningDate").DefaultCellStyle.Format = "dd/MM/yyyy"
             dgvScreenings.Columns("TicketPrice").DefaultCellStyle.Format = "C"
+            'the quotes round the percent sign stop it being treated as multiply by a hundred
+            dgvScreenings.Columns("PercentFull").DefaultCellStyle.Format = "0'%'"
             dgvScreenings.Columns("ScreeningTime").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
             dgvScreenings.Columns("EndsAt").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
             dgvScreenings.Columns("SoldText").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+            dgvScreenings.Columns("PercentFull").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
         End If
 
-        'counting up has to happen before the sold out rows are relabelled, because relabelling
-        'them replaces the numbers that are being counted
         ShowCount(dt)
-        MarkSoldOutScreenings()
+        MarkTheGrid()
         dgvScreenings.ClearSelection()
+    End Sub
+
+    'everything that colours the grid in, in one place. it is separate from loading because
+    'clicking a column header re-orders the rows underneath the colours, so it all has to be
+    'done again afterwards
+    Private Sub MarkTheGrid()
+        MarkSoldOutScreenings()
+        ColourOccupancy()
+    End Sub
+
+    'sorting moves the rows about but leaves the colouring where it was, so the wrong rows end up
+    'looking sold out. doing it again once the sort has finished puts it back on the right ones
+    Private Sub dgvScreenings_Sorted(sender As Object, e As EventArgs) Handles dgvScreenings.Sorted
+        MarkTheGrid()
+    End Sub
+
+    'makes a screening that is filling up stand out, red for nearly full and amber for half full
+    Private Sub ColourOccupancy()
+        For Each row As DataGridViewRow In dgvScreenings.Rows
+            Dim cell As DataGridViewCell = row.Cells("PercentFull")
+            Dim percent As Integer = CInt(cell.Value)
+
+            If percent >= 80 Then
+                cell.Style.ForeColor = OccupancyHigh
+                cell.Style.SelectionForeColor = OccupancyHigh
+                cell.Style.Font = rowBoldFont
+            ElseIf percent >= 50 Then
+                cell.Style.ForeColor = OccupancyMed
+                cell.Style.SelectionForeColor = OccupancyMed
+                cell.Style.Font = Nothing
+            Else
+                'an empty colour means use the grids normal one. it has to be set back like this
+                'in case this cell was coloured in before the user sorted a column
+                cell.Style.ForeColor = Color.Empty
+                cell.Style.SelectionForeColor = Color.Empty
+                cell.Style.Font = Nothing
+            End If
+        Next
     End Sub
 
     'a screening with every seat gone is worth seeing straight away, and one that nobody has
@@ -233,7 +305,9 @@ Public Class frmScreenings
     Private Sub MarkSoldOutScreenings()
         For Each row As DataGridViewRow In dgvScreenings.Rows
             Dim capacity As Integer = CInt(row.Cells("ScreenCapacity").Value)
-            Dim sold As Integer = SoldFromText(row.Cells("SoldText").Value.ToString())
+            'read off the hidden number rather than picking it back out of the 12 of 80 text,
+            'which stopped working the moment the text had been replaced with SOLD OUT
+            Dim sold As Integer = CInt(row.Cells("SeatsBooked").Value)
 
             If capacity > 0 And sold >= capacity Then
                 If DarkModeOn Then
@@ -244,27 +318,14 @@ Public Class frmScreenings
                     row.DefaultCellStyle.ForeColor = Color.FromArgb(27, 94, 32)
                 End If
                 row.Cells("SoldText").Value = "SOLD OUT"
+            Else
+                'sorting moves rows around underneath the colours, so a row that is not sold out
+                'has to be put back to the grids normal colours in case it used to be one that was
+                row.DefaultCellStyle.BackColor = Color.Empty
+                row.DefaultCellStyle.ForeColor = Color.Empty
             End If
         Next
     End Sub
-
-    'pulls the number sold back out of the 12 of 80 text
-    Private Function SoldFromText(soldText As String) As Integer
-        Dim spacePos As Integer = soldText.IndexOf(" ")
-
-        If spacePos < 1 Then
-            Return 0
-        End If
-
-        Dim firstBit As String = soldText.Substring(0, spacePos)
-
-        'a row that has already been relabelled as SOLD OUT has no number on the front of it
-        If Not IsNumeric(firstBit) Then
-            Return 0
-        End If
-
-        Return CInt(firstBit)
-    End Function
 
     'counts how many seats have been booked on a screening
     Private Function SeatsSold(screeningID As Integer) As Integer
@@ -311,7 +372,7 @@ Public Class frmScreenings
 
         Dim sold As Integer = 0
         For Each row As DataRow In dt.Rows
-            sold = sold + SoldFromText(row("SoldText").ToString())
+            sold = sold + CInt(row("SeatsBooked"))
         Next
 
         lblGridCount.Text = dt.Rows.Count & " screening(s), " & sold & " seat(s) sold between them"
@@ -619,6 +680,37 @@ Public Class frmScreenings
         Return clash
     End Function
 
+    'the ticket price as it should be stored. money only goes to two decimal places, and without
+    'the rounding something typed in as 6.999 was being saved exactly as it was typed
+    Private Function PriceFromBox() As Double
+        Return Math.Round(Val(txtTicketPrice.Text), 2)
+    End Function
+
+    'true if the very same film is already on in the very same screen at the very same time on the
+    'same day. the one being edited is left out, otherwise changing the price on a screening would
+    'be reported as a duplicate of itself
+    Private Function SameScreeningExists() As Boolean
+        Dim found As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblScreening " &
+                                 "WHERE FilmID = @FilmID AND ScreenID = @ScreenID " &
+                                 "AND ScreeningDate = @ScreeningDate AND ScreeningTime = @ScreeningTime " &
+                                 "AND ScreeningID <> @ScreeningID"
+            SQLCmd.Parameters.AddWithValue("@FilmID", CInt(cboFilm.SelectedValue))
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(cboScreen.SelectedValue))
+            SQLCmd.Parameters.AddWithValue("@ScreeningDate", dtpScreeningDate.Value.Date)
+            SQLCmd.Parameters.AddWithValue("@ScreeningTime", txtScreeningTime.Text)
+            SQLCmd.Parameters.AddWithValue("@ScreeningID", selectedScreeningID)
+            found = CInt(SQLCmd.ExecuteScalar())
+            cn.Close()
+        End If
+
+        Return found > 0
+    End Function
+
     'checks what has been picked and typed in before it goes anywhere near the database. it is in
     'one place because adding a screening and changing one both need the same checks doing
     Private Function DetailsAreOk(isNew As Boolean) As Boolean
@@ -682,6 +774,17 @@ Public Class frmScreenings
             Return False
         End If
 
+        'the exact same showing twice is really a clash, but the clash message talks about the
+        'screen already showing something else, which reads oddly when it is the same film at the
+        'same time. it is worth catching first and saying plainly what has happened
+        If SameScreeningExists() Then
+            MessageBox.Show("That screening is already on the system." & vbCrLf & vbCrLf &
+                            cboFilm.Text & " is already showing in " & cboScreen.Text & " at " &
+                            txtScreeningTime.Text & " on " & dtpScreeningDate.Value.ToString("dd/MM/yyyy") & ".",
+                            "Already scheduled", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return False
+        End If
+
         'two films cannot be on in the same room at the same time
         Dim clash As String = ClashingScreening()
 
@@ -723,7 +826,7 @@ Public Class frmScreenings
             SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(cboScreen.SelectedValue))
             SQLCmd.Parameters.AddWithValue("@ScreeningDate", dtpScreeningDate.Value.Date)
             SQLCmd.Parameters.AddWithValue("@ScreeningTime", txtScreeningTime.Text)
-            SQLCmd.Parameters.AddWithValue("@TicketPrice", Val(txtTicketPrice.Text))
+            SQLCmd.Parameters.AddWithValue("@TicketPrice", PriceFromBox())
             SQLCmd.ExecuteNonQuery()
             cn.Close()
             saved = True
@@ -783,7 +886,7 @@ Public Class frmScreenings
             SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(cboScreen.SelectedValue))
             SQLCmd.Parameters.AddWithValue("@ScreeningDate", dtpScreeningDate.Value.Date)
             SQLCmd.Parameters.AddWithValue("@ScreeningTime", txtScreeningTime.Text)
-            SQLCmd.Parameters.AddWithValue("@TicketPrice", Val(txtTicketPrice.Text))
+            SQLCmd.Parameters.AddWithValue("@TicketPrice", PriceFromBox())
             SQLCmd.Parameters.AddWithValue("@ScreeningID", selectedScreeningID)
             SQLCmd.ExecuteNonQuery()
             cn.Close()
