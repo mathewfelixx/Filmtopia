@@ -19,6 +19,12 @@ Public Class frmScreenings
     Private Const FirstShowMinutes As Integer = 10 * 60
     Private Const LastShowMinutes As Integer = 23 * 60
 
+    'how tall one screen's lane is on the timeline, and the strip across the top the hours are
+    'written in. the hours are drawn in that strip without the scrolling taken off, so they stay
+    'put while the lanes underneath them move
+    Private Const TimelineLaneHeight As Integer = 32
+    Private Const TimelineHeaderHeight As Integer = 22
+
     'true while the form is setting itself up, so filling the show box does not load the grid
     'before everything is ready
     Private stillLoading As Boolean = True
@@ -33,6 +39,31 @@ Public Class frmScreenings
     'made once and reused for the nearly full rows. making a new font for every row every time the
     'grid is coloured in would be throwing fonts away by the hundred
     Private rowBoldFont As New Font("Segoe UI", 9, FontStyle.Bold)
+
+    'one lane down the timeline for each screen. these two are the same length and line up with
+    'each other, so laneName(2) is the name of the screen whose id is in laneScreenID(2)
+    Private laneScreenID() As Integer
+    Private laneName() As String
+    Private laneCount As Integer = 0
+
+    'everything on the day the timeline is showing. all of these line up with each other the same
+    'way, one position per screening, and timelineCount says how many of them are filled in
+    Private timelineID() As Integer
+    Private timelineLane() As Integer
+    Private timelineStart() As Integer
+    Private timelineDuration() As Integer
+    Private timelineTitle() As String
+    Private timelineSold() As Integer
+    Private timelineCapacity() As Integer
+    Private timelineCount As Integer = 0
+
+    'the tooltip shown when the mouse is over a showing on the timeline. one is made for the whole
+    'form rather than one per block, the same way the seat map on the booking screen does it
+    Private timelineTips As New ToolTip
+
+    'which showing the tooltip is currently describing, so it is not set again on every single
+    'mouse move, which makes it flicker
+    Private tipShowingFor As Integer = -1
 
     Private Sub frmScreenings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup(Me)
@@ -500,6 +531,457 @@ Public Class frmScreenings
         lblGridCount.Text = dt.Rows.Count & " screening(s), " & sold & " seat(s) sold between them"
     End Sub
 
+    '=== the day timeline ===================================================================
+    'the grid says what is on. the timeline says what the day actually looks like, one lane per
+    'screen with the showings drawn along it in time order, so a gap big enough to put another
+    'film in is something you can see rather than something you have to work out
+
+    'reads the screens into the lanes, and everything on the chosen day into the arrays that get
+    'drawn. it is all read up front rather than during the paint, because a paint can happen many
+    'times over and must never be waiting on the database
+    Private Sub LoadTimelineDay()
+        laneCount = 0
+        timelineCount = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+
+            'the lanes first. every screen gets one whether anything is on in it or not, an empty
+            'room is exactly the thing somebody looking for space wants to see
+            SQLCmd.CommandText = "SELECT ScreenID, ScreenName FROM tblScreen ORDER BY ScreenName"
+            Dim daScreens As New OleDbDataAdapter(SQLCmd)
+            Dim dtScreens As New DataTable
+            daScreens.Fill(dtScreens)
+
+            ReDim laneScreenID(dtScreens.Rows.Count)
+            ReDim laneName(dtScreens.Rows.Count)
+
+            For Each screenRow As DataRow In dtScreens.Rows
+                laneScreenID(laneCount) = CInt(screenRow("ScreenID"))
+                laneName(laneCount) = screenRow("ScreenName").ToString()
+                laneCount = laneCount + 1
+            Next
+
+            'then everything on that day, with how full each one is, so a busy showing can be
+            'told from an empty one at a glance
+            SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, tblScreening.ScreenID, FilmTitle, ScreeningTime, " &
+                                 "FilmDuration, ScreenCapacity, " &
+                                 "(SELECT COUNT(*) FROM tblBookingSeat AS bs WHERE bs.ScreeningID = tblScreening.ScreeningID) AS SeatsBooked " &
+                                 "FROM (tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID) " &
+                                 "INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID " &
+                                 "WHERE ScreeningDate = @ScreeningDate " &
+                                 "ORDER BY ScreeningTime, tblScreening.ScreeningID"
+            SQLCmd.Parameters.AddWithValue("@ScreeningDate", dtpTimelineDate.Value.Date)
+            Dim daDay As New OleDbDataAdapter(SQLCmd)
+            Dim dtDay As New DataTable
+            daDay.Fill(dtDay)
+            cn.Close()
+
+            ReDim timelineID(dtDay.Rows.Count)
+            ReDim timelineLane(dtDay.Rows.Count)
+            ReDim timelineStart(dtDay.Rows.Count)
+            ReDim timelineDuration(dtDay.Rows.Count)
+            ReDim timelineTitle(dtDay.Rows.Count)
+            ReDim timelineSold(dtDay.Rows.Count)
+            ReDim timelineCapacity(dtDay.Rows.Count)
+
+            For Each dayRow As DataRow In dtDay.Rows
+                Dim startsAt As Integer = TimeAsMinutes(dayRow("ScreeningTime").ToString())
+                Dim lane As Integer = LaneForScreen(CInt(dayRow("ScreenID")))
+
+                'a time that does not read as HH:MM cannot be placed on the day, and a screening
+                'in a screen that is not in the list has nowhere to go. both are skipped rather
+                'than drawn somewhere wrong
+                If startsAt >= 0 And lane >= 0 Then
+                    timelineID(timelineCount) = CInt(dayRow("ScreeningID"))
+                    timelineLane(timelineCount) = lane
+                    timelineStart(timelineCount) = startsAt
+                    timelineDuration(timelineCount) = CInt(dayRow("FilmDuration"))
+                    timelineTitle(timelineCount) = dayRow("FilmTitle").ToString()
+                    timelineSold(timelineCount) = CInt(dayRow("SeatsBooked"))
+                    timelineCapacity(timelineCount) = CInt(dayRow("ScreenCapacity"))
+                    timelineCount = timelineCount + 1
+                End If
+            Next
+        End If
+
+        SetTimelineScrollSize()
+        pnlTimeline.Invalidate()
+    End Sub
+
+    'which lane a screen is drawn in, or -1 if that screen is not in the list at all
+    Private Function LaneForScreen(screenID As Integer) As Integer
+        For i As Integer = 0 To laneCount - 1
+            If laneScreenID(i) = screenID Then
+                Return i
+            End If
+        Next
+
+        Return -1
+    End Function
+
+    'the last minute of the day that has to fit on the picture. normally midnight, but a late
+    'showing of a long film runs past it and drawing it half missing would be a lie
+    Private Function TimelineLastMinute() As Integer
+        Dim latest As Integer = 24 * 60
+
+        For i As Integer = 0 To timelineCount - 1
+            Dim finish As Integer = timelineStart(i) + ScreenTimeNeeded(timelineDuration(i))
+
+            If finish > latest Then
+                latest = finish
+            End If
+        Next
+
+        'round it up to the next whole hour so the last hour line is not sat right on the edge
+        If latest Mod 60 <> 0 Then
+            latest = latest + (60 - (latest Mod 60))
+        End If
+
+        Return latest
+    End Function
+
+    'works out where everything goes. the drawing and the clicking both call this rather than
+    'each working it out for themselves, because if they ever disagreed a click would land on a
+    'different showing from the one drawn under the mouse
+    Private Sub TimelineGeometry(ByRef leftEdge As Integer, ByRef topEdge As Integer,
+                                 ByRef laneHeight As Integer, ByRef minuteWidth As Double,
+                                 ByRef firstMinute As Integer, ByRef lastMinute As Integer)
+        'room down the left for the screen names, and a strip across the top for the hours
+        leftEdge = 92
+        laneHeight = TimelineLaneHeight
+        firstMinute = FirstShowMinutes
+        lastMinute = TimelineLastMinute()
+
+        'the lanes are a fixed height and the panel scrolls when there are more of them than fit.
+        'squeezing every screen into the space instead sounds tidier but with eight rooms it left
+        'the lanes too thin to put a film title in at all. AutoScrollPosition is zero or negative,
+        'so adding it here moves the lanes up by however far they have been scrolled, and because
+        'the clicking asks the same question it stays pointing at the right showing
+        topEdge = TimelineHeaderHeight + pnlTimeline.AutoScrollPosition.Y
+
+        'the right hand margin is wide enough for the last hour to be written under it, since
+        'that label is drawn centred on the line and would otherwise run off the edge
+        Dim usableWidth As Integer = pnlTimeline.ClientSize.Width - leftEdge - 26
+        minuteWidth = usableWidth / (lastMinute - firstMinute)
+    End Sub
+
+    'how tall the whole picture wants to be, which is what the panel scrolls against
+    Private Sub SetTimelineScrollSize()
+        pnlTimeline.AutoScroll = True
+        'no width given, so it only ever scrolls up and down and the day always fits across
+        pnlTimeline.AutoScrollMinSize = New Size(0, TimelineHeaderHeight + (laneCount * TimelineLaneHeight) + 6)
+    End Sub
+
+    Private Sub pnlTimeline_Paint(sender As Object, e As PaintEventArgs) Handles pnlTimeline.Paint
+        Dim g As Graphics = e.Graphics
+        g.Clear(FormBack)
+
+        If laneCount = 0 Then
+            g.DrawString("There are no screens set up yet", pnlTimeline.Font, New SolidBrush(SubtleFore), 10, 10)
+            Exit Sub
+        End If
+
+        Dim leftEdge, topEdge, laneHeight As Integer
+        Dim firstMinute, lastMinute As Integer
+        Dim minuteWidth As Double
+        TimelineGeometry(leftEdge, topEdge, laneHeight, minuteWidth, firstMinute, lastMinute)
+
+        Dim linePen As New Pen(BorderCol)
+        Dim subtleBrush As New SolidBrush(SubtleFore)
+        Dim textBrush As New SolidBrush(TextFore)
+        Dim bandBrush As New SolidBrush(AltRowBack)
+
+        Dim dayWidth As Integer = CInt((lastMinute - firstMinute) * minuteWidth)
+        Dim lanesBottom As Integer = topEdge + (laneHeight * laneCount)
+
+        'the lanes, one per screen, with every other one shaded so the eye can follow a long row
+        For lane As Integer = 0 To laneCount - 1
+            Dim laneY As Integer = topEdge + (lane * laneHeight)
+
+            If lane Mod 2 = 1 Then
+                g.FillRectangle(bandBrush, leftEdge, laneY, dayWidth, laneHeight)
+            End If
+
+            g.DrawLine(linePen, leftEdge, laneY, leftEdge + dayWidth, laneY)
+            g.DrawString(laneName(lane), pnlTimeline.Font, textBrush, 4, laneY + (laneHeight \ 2) - 8)
+        Next
+
+        'and the line along the very bottom, which the loop above stops short of
+        g.DrawLine(linePen, leftEdge, lanesBottom, leftEdge + dayWidth, lanesBottom)
+
+        'the hour lines, drawn over the shading but under the showings
+        Dim hour As Integer = firstMinute
+        While hour <= lastMinute
+            Dim hourX As Integer = leftEdge + CInt((hour - firstMinute) * minuteWidth)
+            g.DrawLine(linePen, hourX, topEdge, hourX, lanesBottom)
+            hour = hour + 60
+        End While
+
+        For i As Integer = 0 To timelineCount - 1
+            DrawOneShowing(g, i, leftEdge, topEdge, laneHeight, minuteWidth, firstMinute)
+        Next
+
+        'a line down where we are now, but only when the day being looked at is actually today
+        If dtpTimelineDate.Value.Date = Date.Today Then
+            Dim nowMinutes As Integer = (Date.Now.Hour * 60) + Date.Now.Minute
+
+            If nowMinutes >= firstMinute And nowMinutes <= lastMinute Then
+                Dim nowPen As New Pen(OccupancyHigh, 2)
+                Dim nowX As Integer = leftEdge + CInt((nowMinutes - firstMinute) * minuteWidth)
+                g.DrawLine(nowPen, nowX, topEdge, nowX, lanesBottom)
+                nowPen.Dispose()
+            End If
+        End If
+
+        'the hours go on last, in a strip across the top that is painted over whatever has been
+        'scrolled up underneath it, so the times stay readable however far down the screens go
+        Dim headerBrush As New SolidBrush(FormBack)
+        g.FillRectangle(headerBrush, 0, 0, pnlTimeline.ClientSize.Width, TimelineHeaderHeight - 1)
+        g.DrawLine(linePen, 0, TimelineHeaderHeight - 1, pnlTimeline.ClientSize.Width, TimelineHeaderHeight - 1)
+
+        hour = firstMinute
+        While hour <= lastMinute
+            Dim hourX As Integer = leftEdge + CInt((hour - firstMinute) * minuteWidth)
+            g.DrawString(MinutesAsTime(hour), pnlTimeline.Font, subtleBrush, hourX - 14, 3)
+            hour = hour + 60
+        End While
+
+        headerBrush.Dispose()
+        linePen.Dispose()
+        subtleBrush.Dispose()
+        textBrush.Dispose()
+        bandBrush.Dispose()
+    End Sub
+
+    'draws one showing as three strips joined together, the trailers, the film itself, and the
+    'turnaround afterwards. drawing it that way is the whole point of the picture, it shows that a
+    'screening ties the room up for a good deal longer than the film runs for
+    Private Sub DrawOneShowing(g As Graphics, i As Integer, leftEdge As Integer, topEdge As Integer,
+                               laneHeight As Integer, minuteWidth As Double, firstMinute As Integer)
+        Dim blockY As Integer = topEdge + (timelineLane(i) * laneHeight) + 3
+        Dim blockHeight As Integer = laneHeight - 7
+
+        Dim trailerX As Integer = leftEdge + CInt((timelineStart(i) - firstMinute) * minuteWidth)
+        Dim filmX As Integer = leftEdge + CInt((timelineStart(i) + TrailerMinutes - firstMinute) * minuteWidth)
+        Dim cleanX As Integer = leftEdge + CInt((timelineStart(i) + TrailerMinutes + timelineDuration(i) - firstMinute) * minuteWidth)
+        Dim endX As Integer = leftEdge + CInt((timelineStart(i) + ScreenTimeNeeded(timelineDuration(i)) - firstMinute) * minuteWidth)
+
+        'the trailers and the turnaround are hatched rather than filled in, because the room is
+        'taken but the film is not on, and they should not be mistaken for the showing itself
+        Dim trailerBrush As New Drawing2D.HatchBrush(Drawing2D.HatchStyle.LightUpwardDiagonal, SubtleFore, FormBack)
+        Dim cleanBrush As New Drawing2D.HatchBrush(Drawing2D.HatchStyle.LightDownwardDiagonal, SubtleFore, FormBack)
+        Dim filmBrush As New SolidBrush(TimelineBlockColour(timelineSold(i), timelineCapacity(i)))
+        Dim edgePen As New Pen(BorderCol)
+
+        If filmX > trailerX Then
+            g.FillRectangle(trailerBrush, trailerX, blockY, filmX - trailerX, blockHeight)
+            g.DrawRectangle(edgePen, trailerX, blockY, filmX - trailerX, blockHeight)
+        End If
+
+        If endX > cleanX Then
+            g.FillRectangle(cleanBrush, cleanX, blockY, endX - cleanX, blockHeight)
+            g.DrawRectangle(edgePen, cleanX, blockY, endX - cleanX, blockHeight)
+        End If
+
+        If cleanX > filmX Then
+            g.FillRectangle(filmBrush, filmX, blockY, cleanX - filmX, blockHeight)
+            g.DrawRectangle(edgePen, filmX, blockY, cleanX - filmX, blockHeight)
+
+            'only worth writing in if there is room for it to be read. a title cut off after two
+            'letters tells nobody anything, the tooltip is there for the narrow ones
+            If cleanX - filmX > 45 Then
+                Dim caption As String = MinutesAsTime(timelineStart(i)) & " " & timelineTitle(i)
+                Dim clip As New Rectangle(filmX + 3, blockY + 2, cleanX - filmX - 6, blockHeight - 4)
+                Dim oldClip As Region = g.Clip
+                g.SetClip(clip)
+                g.DrawString(caption, pnlTimeline.Font, New SolidBrush(SeatFore), filmX + 4, blockY + (blockHeight \ 2) - 8)
+                g.Clip = oldClip
+            End If
+        End If
+
+        trailerBrush.Dispose()
+        cleanBrush.Dispose()
+        filmBrush.Dispose()
+        edgePen.Dispose()
+    End Sub
+
+    'the colour a showing is filled in with, going by how full it is. it is the same eighty and
+    'fifty percent rule the grid and the main menu use, so all three agree
+    Private Function TimelineBlockColour(sold As Integer, capacity As Integer) As Color
+        If capacity <= 0 Then
+            Return SeatAvailable
+        End If
+
+        Dim percent As Integer = CInt(sold * 100 / capacity)
+
+        If percent >= 80 Then
+            Return OccupancyHigh
+        ElseIf percent >= 50 Then
+            Return OccupancyMed
+        End If
+
+        Return SeatAvailable
+    End Function
+
+    'which showing is under a point on the picture, or -1 for an empty part of a lane. it uses
+    'exactly the same geometry the drawing does, which is why that is worked out in one place
+    Private Function ShowingAt(mouseX As Integer, mouseY As Integer) As Integer
+        Dim leftEdge, topEdge, laneHeight As Integer
+        Dim firstMinute, lastMinute As Integer
+        Dim minuteWidth As Double
+        TimelineGeometry(leftEdge, topEdge, laneHeight, minuteWidth, firstMinute, lastMinute)
+
+        'the hours strip across the top belongs to no lane at all
+        If mouseY < TimelineHeaderHeight Then
+            Return -1
+        End If
+
+        'checked before the divide, because a negative divided by a positive comes out as 0 in
+        'whole number division and would say the click was in the top lane when it was above it
+        If mouseY < topEdge Or mouseX < leftEdge Then
+            Return -1
+        End If
+
+        Dim lane As Integer = (mouseY - topEdge) \ laneHeight
+
+        If lane < 0 Or lane > laneCount - 1 Then
+            Return -1
+        End If
+
+        Dim minute As Integer = firstMinute + CInt((mouseX - leftEdge) / minuteWidth)
+
+        For i As Integer = 0 To timelineCount - 1
+            If timelineLane(i) = lane Then
+                If minute >= timelineStart(i) And minute < timelineStart(i) + ScreenTimeNeeded(timelineDuration(i)) Then
+                    Return i
+                End If
+            End If
+        Next
+
+        Return -1
+    End Function
+
+    'clicking a showing opens it in the boxes underneath. clicking an empty part of a lane fills
+    'the boxes in with that screen, that day and roughly that time, which is the quickest way
+    'there is of putting a film into a gap somebody has just spotted
+    Private Sub pnlTimeline_MouseDown(sender As Object, e As MouseEventArgs) Handles pnlTimeline.MouseDown
+        Dim hit As Integer = ShowingAt(e.X, e.Y)
+
+        If Not ChangesCanBeLost() Then
+            Exit Sub
+        End If
+
+        If hit >= 0 Then
+            LoadScreeningIntoBoxes(timelineID(hit))
+            Exit Sub
+        End If
+
+        StartNewScreeningAt(e.X, e.Y)
+    End Sub
+
+    'fills the boxes in ready for a new screening in the lane and at the time that was clicked
+    Private Sub StartNewScreeningAt(mouseX As Integer, mouseY As Integer)
+        Dim leftEdge, topEdge, laneHeight As Integer
+        Dim firstMinute, lastMinute As Integer
+        Dim minuteWidth As Double
+        TimelineGeometry(leftEdge, topEdge, laneHeight, minuteWidth, firstMinute, lastMinute)
+
+        If mouseY < TimelineHeaderHeight Or mouseY < topEdge Or mouseX < leftEdge Then
+            Exit Sub
+        End If
+
+        Dim lane As Integer = (mouseY - topEdge) \ laneHeight
+
+        If lane < 0 Or lane > laneCount - 1 Then
+            Exit Sub
+        End If
+
+        Dim minute As Integer = firstMinute + CInt((mouseX - leftEdge) / minuteWidth)
+
+        'nobody schedules a film at 14:23, so it is dropped back to the five minutes before it
+        minute = minute - (minute Mod 5)
+
+        If minute > LastShowMinutes Then
+            minute = LastShowMinutes
+        End If
+
+        fillingBoxes = True
+        selectedScreeningID = 0
+        cboScreen.SelectedValue = laneScreenID(lane)
+        dtpScreeningDate.Value = dtpTimelineDate.Value.Date
+        txtScreeningTime.Text = MinutesAsTime(minute)
+        fillingBoxes = False
+
+        'this one counts as typing, because it really is the start of a new screening being made
+        boxesChanged = True
+
+        ShowWhatIsBeingEdited()
+        ShowEndTime()
+        SayDone(lblSaved, "Started a new screening in " & laneName(lane) & " at " & MinutesAsTime(minute))
+    End Sub
+
+    'the tooltip over a showing, which is where the detail lives for the blocks too narrow to
+    'write in. it is only set when the mouse moves onto a different one, otherwise setting it
+    'over and over makes it flicker
+    Private Sub pnlTimeline_MouseMove(sender As Object, e As MouseEventArgs) Handles pnlTimeline.MouseMove
+        Dim hit As Integer = ShowingAt(e.X, e.Y)
+
+        If hit = tipShowingFor Then
+            Exit Sub
+        End If
+
+        tipShowingFor = hit
+
+        If hit < 0 Then
+            timelineTips.SetToolTip(pnlTimeline, "")
+            Exit Sub
+        End If
+
+        Dim finish As Integer = timelineStart(hit) + TrailerMinutes + timelineDuration(hit)
+        Dim clear As Integer = timelineStart(hit) + ScreenTimeNeeded(timelineDuration(hit))
+
+        timelineTips.SetToolTip(pnlTimeline,
+            timelineTitle(hit) & vbCrLf &
+            "Starts " & MinutesAsTime(timelineStart(hit)) & ", film ends " & MinutesAsTime(finish) & vbCrLf &
+            "Screen free at " & MinutesAsTime(clear) & vbCrLf &
+            timelineSold(hit) & " of " & timelineCapacity(hit) & " seats sold")
+    End Sub
+
+    'scrolling only repaints the part that has come into view, which would drag the hours strip
+    'down the picture with it, so the whole thing is drawn again
+    Private Sub pnlTimeline_Scroll(sender As Object, e As ScrollEventArgs) Handles pnlTimeline.Scroll
+        pnlTimeline.Invalidate()
+    End Sub
+
+    Private Sub dtpTimelineDate_ValueChanged(sender As Object, e As EventArgs) Handles dtpTimelineDate.ValueChanged
+        If stillLoading Then
+            Exit Sub
+        End If
+
+        LoadTimelineDay()
+    End Sub
+
+    'the timeline is only worth reading again when it is the tab being looked at
+    Private Sub tabView_SelectedIndexChanged(sender As Object, e As EventArgs) Handles tabView.SelectedIndexChanged
+        If stillLoading Then
+            Exit Sub
+        End If
+
+        If tabView.SelectedTab Is tabTimeline Then
+            LoadTimelineDay()
+        End If
+    End Sub
+
+    'called after anything is saved or deleted. the grid is always reloaded, the timeline only
+    'when it is on show, so a change made from the list does not cost a query nobody will look at
+    Private Sub RefreshTimelineIfShowing()
+        If tabView.SelectedTab Is tabTimeline Then
+            LoadTimelineDay()
+        End If
+    End Sub
+
     'turns HH:MM into the number of minutes since midnight, which makes the times easy to compare.
     'comparing them as text would say 09:00 is later than 10:00 in some cases
     Private Function TimeAsMinutes(timeText As String) As Integer
@@ -963,6 +1445,7 @@ Public Class frmScreenings
         Dim savedName As String = cboFilm.Text & " on " & cboScreen.Text
         WriteLog("SCREENING", "Screening added: " & cboFilm.Text & " on " & cboScreen.Text, LogChange)
         LoadScreenings()
+        RefreshTimelineIfShowing()
         ClearFields()
         SayDone(lblSaved, "Added '" & savedName & "'")
     End Sub
@@ -1024,6 +1507,7 @@ Public Class frmScreenings
         Dim savedName As String = cboFilm.Text & " on " & cboScreen.Text
         WriteLog("SCREENING", "Screening updated: " & cboFilm.Text & " on " & cboScreen.Text, LogChange)
         LoadScreenings()
+        RefreshTimelineIfShowing()
         ClearFields()
         SayDone(lblSaved, "Saved changes to '" & savedName & "'")
     End Sub
@@ -1080,6 +1564,7 @@ Public Class frmScreenings
 
         WriteLog("SCREENING", "Screening deleted: ScreeningID " & selectedScreeningID, LogChange)
         LoadScreenings()
+        RefreshTimelineIfShowing()
         ClearFields()
         SayDone(lblSaved, "Deleted the '" & savedName & "' screening")
     End Sub
@@ -1172,6 +1657,39 @@ Public Class frmScreenings
 
         fillingBoxes = False
         boxesChanged = False
+
+        ShowWhatIsBeingEdited()
+        ShowEndTime()
+    End Sub
+
+    'loads one screening into the boxes by its id. the grid can fill them in from the row that was
+    'clicked because it already holds everything, but the timeline only keeps what it needs to
+    'draw with, so it reads the screening back rather than carrying the price around to draw a
+    'picture that never shows it
+    Private Sub LoadScreeningIntoBoxes(screeningID As Integer)
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT FilmID, ScreenID, ScreeningDate, ScreeningTime, TicketPrice " &
+                                 "FROM tblScreening WHERE ScreeningID = @ScreeningID"
+            SQLCmd.Parameters.AddWithValue("@ScreeningID", screeningID)
+            Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+
+            If rs.Read() Then
+                fillingBoxes = True
+                selectedScreeningID = screeningID
+                cboFilm.SelectedValue = CInt(rs("FilmID"))
+                cboScreen.SelectedValue = CInt(rs("ScreenID"))
+                dtpScreeningDate.Value = CDate(rs("ScreeningDate"))
+                txtScreeningTime.Text = rs("ScreeningTime").ToString()
+                txtTicketPrice.Text = Format(CDbl(rs("TicketPrice")), "0.00")
+                fillingBoxes = False
+                boxesChanged = False
+            End If
+
+            rs.Close()
+            cn.Close()
+        End If
 
         ShowWhatIsBeingEdited()
         ShowEndTime()

@@ -28,7 +28,14 @@ Partial Class frmScreenings
         Me.txtSearch = New System.Windows.Forms.TextBox()
         Me.timerSearch = New System.Windows.Forms.Timer(Me.components)
         Me.lblGridCount = New System.Windows.Forms.Label()
+        Me.tabView = New System.Windows.Forms.TabControl()
+        Me.tabGrid = New System.Windows.Forms.TabPage()
         Me.dgvScreenings = New System.Windows.Forms.DataGridView()
+        Me.tabTimeline = New System.Windows.Forms.TabPage()
+        Me.lblTimelineDate = New System.Windows.Forms.Label()
+        Me.dtpTimelineDate = New System.Windows.Forms.DateTimePicker()
+        Me.lblTimelineHint = New System.Windows.Forms.Label()
+        Me.pnlTimeline = New System.Windows.Forms.Panel()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
         Me.lblStatus = New System.Windows.Forms.Label()
         Me.lblFilm = New System.Windows.Forms.Label()
@@ -51,6 +58,9 @@ Partial Class frmScreenings
         Me.lblSaved = New System.Windows.Forms.Label()
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.GroupBox1.SuspendLayout()
+        Me.tabView.SuspendLayout()
+        Me.tabGrid.SuspendLayout()
+        Me.tabTimeline.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         CType(Me.dgvScreenings, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -74,7 +84,7 @@ Partial Class frmScreenings
         Me.GroupBox1.Controls.Add(Me.lblSearch)
         Me.GroupBox1.Controls.Add(Me.txtSearch)
         Me.GroupBox1.Controls.Add(Me.lblGridCount)
-        Me.GroupBox1.Controls.Add(Me.dgvScreenings)
+        Me.GroupBox1.Controls.Add(Me.tabView)
         Me.GroupBox1.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.GroupBox1.Location = New System.Drawing.Point(16, 46)
         Me.GroupBox1.Name = "GroupBox1"
@@ -158,14 +168,85 @@ Partial Class frmScreenings
         Me.dgvScreenings.AllowUserToDeleteRows = False
         Me.dgvScreenings.AllowUserToResizeRows = False
         Me.dgvScreenings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvScreenings.Location = New System.Drawing.Point(16, 58)
+        Me.dgvScreenings.Location = New System.Drawing.Point(6, 6)
         Me.dgvScreenings.MultiSelect = False
         Me.dgvScreenings.Name = "dgvScreenings"
         Me.dgvScreenings.ReadOnly = True
         Me.dgvScreenings.RowHeadersVisible = False
         Me.dgvScreenings.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvScreenings.Size = New System.Drawing.Size(1004, 330)
-        Me.dgvScreenings.TabIndex = 7
+        Me.dgvScreenings.Size = New System.Drawing.Size(984, 290)
+        Me.dgvScreenings.TabIndex = 0
+        '
+        'tabTimeline
+        '
+        Me.tabTimeline.Controls.Add(Me.lblTimelineDate)
+        Me.tabTimeline.Controls.Add(Me.dtpTimelineDate)
+        Me.tabTimeline.Controls.Add(Me.lblTimelineHint)
+        Me.tabTimeline.Controls.Add(Me.pnlTimeline)
+        Me.tabTimeline.Location = New System.Drawing.Point(4, 24)
+        Me.tabTimeline.Name = "tabTimeline"
+        Me.tabTimeline.Padding = New System.Windows.Forms.Padding(3)
+        Me.tabTimeline.Size = New System.Drawing.Size(996, 302)
+        Me.tabTimeline.TabIndex = 1
+        Me.tabTimeline.Text = "Day timeline"
+        Me.tabTimeline.UseVisualStyleBackColor = True
+        '
+        'lblTimelineDate
+        '
+        Me.lblTimelineDate.AutoSize = True
+        Me.lblTimelineDate.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblTimelineDate.Location = New System.Drawing.Point(8, 12)
+        Me.lblTimelineDate.Name = "lblTimelineDate"
+        Me.lblTimelineDate.Size = New System.Drawing.Size(45, 15)
+        Me.lblTimelineDate.TabIndex = 0
+        Me.lblTimelineDate.Text = "Day"
+        '
+        'dtpTimelineDate
+        '
+        Me.dtpTimelineDate.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.dtpTimelineDate.Format = System.Windows.Forms.DateTimePickerFormat.Short
+        Me.dtpTimelineDate.Location = New System.Drawing.Point(70, 8)
+        Me.dtpTimelineDate.Name = "dtpTimelineDate"
+        Me.dtpTimelineDate.Size = New System.Drawing.Size(140, 23)
+        Me.dtpTimelineDate.TabIndex = 1
+        '
+        'lblTimelineHint
+        '
+        Me.lblTimelineHint.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblTimelineHint.Location = New System.Drawing.Point(226, 12)
+        Me.lblTimelineHint.Name = "lblTimelineHint"
+        Me.lblTimelineHint.Size = New System.Drawing.Size(760, 17)
+        Me.lblTimelineHint.TabIndex = 2
+        Me.lblTimelineHint.Text = "Click a showing to open it, or click an empty part of a row to start a new one there"
+        '
+        'pnlTimeline
+        '
+        Me.pnlTimeline.Location = New System.Drawing.Point(6, 38)
+        Me.pnlTimeline.Name = "pnlTimeline"
+        Me.pnlTimeline.Size = New System.Drawing.Size(984, 258)
+        Me.pnlTimeline.TabIndex = 3
+        '
+        'tabView
+        '
+        Me.tabView.Controls.Add(Me.tabGrid)
+        Me.tabView.Controls.Add(Me.tabTimeline)
+        Me.tabView.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.tabView.Location = New System.Drawing.Point(16, 58)
+        Me.tabView.Name = "tabView"
+        Me.tabView.SelectedIndex = 0
+        Me.tabView.Size = New System.Drawing.Size(1004, 330)
+        Me.tabView.TabIndex = 7
+        '
+        'tabGrid
+        '
+        Me.tabGrid.Controls.Add(Me.dgvScreenings)
+        Me.tabGrid.Location = New System.Drawing.Point(4, 24)
+        Me.tabGrid.Name = "tabGrid"
+        Me.tabGrid.Padding = New System.Windows.Forms.Padding(3)
+        Me.tabGrid.Size = New System.Drawing.Size(996, 302)
+        Me.tabGrid.TabIndex = 0
+        Me.tabGrid.Text = "List"
+        Me.tabGrid.UseVisualStyleBackColor = True
         '
         'GroupBox2
         '
@@ -404,6 +485,10 @@ Partial Class frmScreenings
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.GroupBox1.ResumeLayout(False)
         Me.GroupBox1.PerformLayout()
+        Me.tabView.ResumeLayout(False)
+        Me.tabGrid.ResumeLayout(False)
+        Me.tabTimeline.ResumeLayout(False)
+        Me.tabTimeline.PerformLayout()
         Me.GroupBox2.ResumeLayout(False)
         Me.GroupBox2.PerformLayout()
         CType(Me.dgvScreenings, System.ComponentModel.ISupportInitialize).EndInit()
@@ -422,7 +507,14 @@ Partial Class frmScreenings
     Friend WithEvents txtSearch As TextBox
     Friend WithEvents timerSearch As Timer
     Friend WithEvents lblGridCount As Label
+    Friend WithEvents tabView As TabControl
+    Friend WithEvents tabGrid As TabPage
     Friend WithEvents dgvScreenings As DataGridView
+    Friend WithEvents tabTimeline As TabPage
+    Friend WithEvents lblTimelineDate As Label
+    Friend WithEvents dtpTimelineDate As DateTimePicker
+    Friend WithEvents lblTimelineHint As Label
+    Friend WithEvents pnlTimeline As Panel
     Friend WithEvents GroupBox2 As GroupBox
     Friend WithEvents lblStatus As Label
     Friend WithEvents lblFilm As Label
