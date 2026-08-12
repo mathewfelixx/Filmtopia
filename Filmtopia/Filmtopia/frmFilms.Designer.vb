@@ -203,7 +203,7 @@ Partial Class frmFilms
         '
         'btnFetchPoster
         '
-        Me.btnFetchPoster.Location = New System.Drawing.Point(1060, 198)
+        Me.btnFetchPoster.Location = New System.Drawing.Point(1060, 200)
         Me.btnFetchPoster.Name = "btnFetchPoster"
         Me.btnFetchPoster.Size = New System.Drawing.Size(140, 26)
         Me.btnFetchPoster.TabIndex = 45
@@ -212,7 +212,7 @@ Partial Class frmFilms
         '
         'btnChoosePoster
         '
-        Me.btnChoosePoster.Location = New System.Drawing.Point(1060, 228)
+        Me.btnChoosePoster.Location = New System.Drawing.Point(1060, 234)
         Me.btnChoosePoster.Name = "btnChoosePoster"
         Me.btnChoosePoster.Size = New System.Drawing.Size(140, 26)
         Me.btnChoosePoster.TabIndex = 43
@@ -221,7 +221,7 @@ Partial Class frmFilms
         '
         'btnRemovePoster
         '
-        Me.btnRemovePoster.Location = New System.Drawing.Point(1060, 258)
+        Me.btnRemovePoster.Location = New System.Drawing.Point(1060, 268)
         Me.btnRemovePoster.Name = "btnRemovePoster"
         Me.btnRemovePoster.Size = New System.Drawing.Size(140, 26)
         Me.btnRemovePoster.TabIndex = 44
