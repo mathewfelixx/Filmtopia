@@ -93,7 +93,8 @@ Public Class frmBookings
             SQLCmd.Connection = cn
             'join screening to film so the combo can show the film title alongside the date and time
             SQLCmd.CommandText = "SELECT ScreeningID, FilmTitle & ' - ' & ScreeningDate & ' ' & ScreeningTime AS Info " &
-                                 "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID"
+                                 "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
+                                 "WHERE (ScreeningStatus IS NULL OR ScreeningStatus <> 'Cancelled')"
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)

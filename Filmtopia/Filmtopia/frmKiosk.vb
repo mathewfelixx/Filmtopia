@@ -424,6 +424,7 @@ Public Class frmKiosk
             SQLCmd.CommandText = "SELECT DISTINCT tblFilm.FilmID, FilmTitle, FilmAgeRating, FilmDuration, FilmPoster " &
                                  "FROM tblFilm INNER JOIN tblScreening ON tblFilm.FilmID = tblScreening.FilmID " &
                                  "WHERE ScreeningDate = @Day AND ScreeningTime >= @EarliestTime " &
+                                 "AND (ScreeningStatus IS NULL OR ScreeningStatus <> 'Cancelled') " &
                                  "ORDER BY FilmTitle"
             SQLCmd.Parameters.AddWithValue("@Day", currentDay)
             SQLCmd.Parameters.AddWithValue("@EarliestTime", EarliestTimeForDay())
@@ -731,6 +732,7 @@ Public Class frmKiosk
                                  "tblScreening.ScreenID, ScreenName, ScreenCapacity " &
                                  "FROM tblScreening INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID " &
                                  "WHERE FilmID = @FilmID AND ScreeningDate = @Day AND ScreeningTime >= @EarliestTime " &
+                                 "AND (ScreeningStatus IS NULL OR ScreeningStatus <> 'Cancelled') " &
                                  "ORDER BY ScreeningTime"
             SQLCmd.Parameters.AddWithValue("@FilmID", CInt(currentFilmID))
             SQLCmd.Parameters.AddWithValue("@Day", currentDay)

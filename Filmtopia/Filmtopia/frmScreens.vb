@@ -1740,6 +1740,7 @@ Public Class frmScreens
             SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, ScreeningDate, ScreeningTime, FilmTitle " &
                                  "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
                                  "WHERE tblScreening.ScreenID = @ScreenID AND ScreeningDate >= @Today " &
+                                 "AND (ScreeningStatus IS NULL OR ScreeningStatus <> 'Cancelled') " &
                                  "ORDER BY ScreeningDate, ScreeningTime"
             SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
             SQLCmd.Parameters.AddWithValue("@Today", Date.Today)

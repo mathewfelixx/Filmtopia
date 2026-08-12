@@ -525,7 +525,8 @@ Public Class frmMainMenuV2
             totalScreenings = CInt(SQLCmd.ExecuteScalar())
             lblStat2.Text = totalScreenings.ToString()
 
-            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblScreening WHERE ScreeningDate >= @Today"
+            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblScreening WHERE ScreeningDate >= @Today " &
+                                 "AND (ScreeningStatus IS NULL OR ScreeningStatus <> 'Cancelled')"
             SQLCmd.Parameters.AddWithValue("@Today", Date.Today)
             lblCardSub2.Text = SQLCmd.ExecuteScalar().ToString() & " still to come"
             'the parameter has to come off again because the queries after this one do not use it
@@ -638,7 +639,8 @@ Public Class frmMainMenuV2
 
         'every seat there is to sell, counting a screen once for each of its screenings
         SQLCmd.CommandText = "SELECT SUM(sc.ScreenCapacity) " &
-                             "FROM tblScreening AS s INNER JOIN tblScreen AS sc ON s.ScreenID = sc.ScreenID"
+                             "FROM tblScreening AS s INNER JOIN tblScreen AS sc ON s.ScreenID = sc.ScreenID " &
+                             "WHERE (s.ScreeningStatus IS NULL OR s.ScreeningStatus <> 'Cancelled')"
         Dim capacity = SQLCmd.ExecuteScalar()
 
         If capacity Is Nothing OrElse IsDBNull(capacity) OrElse CInt(capacity) = 0 Then
@@ -668,8 +670,9 @@ Public Class frmMainMenuV2
         SQLCmd.CommandText = "SELECT TOP 1 f.FilmTitle, sc.ScreenName, s.ScreeningDate, s.ScreeningTime " &
                              "FROM (tblScreening AS s INNER JOIN tblFilm AS f ON s.FilmID = f.FilmID) " &
                              "INNER JOIN tblScreen AS sc ON s.ScreenID = sc.ScreenID " &
-                             "WHERE s.ScreeningDate > @Today " &
-                             "OR (s.ScreeningDate = @Today2 AND s.ScreeningTime >= @Now) " &
+                             "WHERE (s.ScreeningDate > @Today " &
+                             "OR (s.ScreeningDate = @Today2 AND s.ScreeningTime >= @Now)) " &
+                             "AND (s.ScreeningStatus IS NULL OR s.ScreeningStatus <> 'Cancelled') " &
                              "ORDER BY s.ScreeningDate, s.ScreeningTime, s.ScreeningID"
         'the parameters go on in the order they appear in the query above, and today has to go on
         'twice because it is used twice
@@ -697,6 +700,7 @@ Public Class frmMainMenuV2
         SQLCmd.CommandText = "SELECT COUNT(*) " &
                              "FROM tblScreening AS s INNER JOIN tblScreen AS sc ON s.ScreenID = sc.ScreenID " &
                              "WHERE s.ScreeningDate >= @Today AND sc.ScreenCapacity > 0 " &
+                             "AND (s.ScreeningStatus IS NULL OR s.ScreeningStatus <> 'Cancelled') " &
                              "AND (SELECT COUNT(*) FROM tblBookingSeat AS bs " &
                              "WHERE bs.ScreeningID = s.ScreeningID) >= sc.ScreenCapacity * 0.8"
         SQLCmd.Parameters.AddWithValue("@Today", Date.Today)
@@ -748,7 +752,8 @@ Public Class frmMainMenuV2
                                  "WHERE bs2.ScreeningID = s.ScreeningID) AS SeatsLeft " &
                                  "FROM (tblScreening AS s INNER JOIN tblFilm AS f ON s.FilmID = f.FilmID) " &
                                  "INNER JOIN tblScreen AS sc ON s.ScreenID = sc.ScreenID " &
-                                 "WHERE (f.FilmTitle LIKE @Search OR sc.ScreenName LIKE @Search2)" &
+                                 "WHERE (f.FilmTitle LIKE @Search OR sc.ScreenName LIKE @Search2) " &
+                                 "AND (s.ScreeningStatus IS NULL OR s.ScreeningStatus <> 'Cancelled')" &
                                  DateFilterSQL() &
                                  " ORDER BY s.ScreeningDate, s.ScreeningTime, s.ScreeningID"
 
