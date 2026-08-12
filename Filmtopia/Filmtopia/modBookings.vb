@@ -155,15 +155,18 @@ Module modBookings
                     SQLCmd.ExecuteNonQuery()
                 Next
 
-                'the food that was added to the order while the sale was being built up
+                'the food that was added to the order while the sale was being built up. the price
+                'is written onto the line the same way the seat price is written onto the seat, so
+                'putting the price of a drink up next month cannot change what this customer paid
                 Dim f As Integer
                 For f = 0 To foodOrder.Rows.Count - 1
-                    SQLCmd.CommandText = "INSERT INTO tblOrderItem (BookingID, FoodItemID, Quantity) " &
-                                         "VALUES (@BookingID, @FoodItemID, @Quantity)"
+                    SQLCmd.CommandText = "INSERT INTO tblOrderItem (BookingID, FoodItemID, Quantity, ItemPricePaid) " &
+                                         "VALUES (@BookingID, @FoodItemID, @Quantity, @ItemPricePaid)"
                     SQLCmd.Parameters.Clear()
                     SQLCmd.Parameters.AddWithValue("@BookingID", CInt(newID))
                     SQLCmd.Parameters.AddWithValue("@FoodItemID", CInt(foodOrder.Rows(f)("FoodItemID")))
                     SQLCmd.Parameters.AddWithValue("@Quantity", CInt(foodOrder.Rows(f)("Quantity")))
+                    SQLCmd.Parameters.AddWithValue("@ItemPricePaid", CDbl(foodOrder.Rows(f)("Price")))
                     SQLCmd.ExecuteNonQuery()
                 Next
 
@@ -183,9 +186,11 @@ Module modBookings
     End Function
 
     'works out what a booking costs and saves it onto the booking.
-    'the tickets are whatever they were actually charged at when the sale was made, which is read
-    'straight off the seat rows and never worked out again. only the food is added up fresh, because
-    'that is the part that can still change after the sale. this is the only place TotalCost is set
+    'both halves are whatever they were actually charged at when the sale was made, the tickets off
+    'the seat rows and the food off the order lines, and neither is ever worked out again from
+    'today's prices. the food total is still added up fresh every time because lines can be added to
+    'an order or taken off it after the sale, but a price change no longer moves it.
+    'this is the only place TotalCost is set
     Public Sub RecalculateBookingTotal(bookingID As Long)
         Dim ticketTotal As Double = 0
         Dim foodTotal As Double = 0
@@ -203,9 +208,10 @@ Module modBookings
                 ticketTotal = CDbl(ticketResult)
             End If
 
-            'what the food comes to, this comes back empty if nothing has been ordered
-            SQLCmd.CommandText = "SELECT SUM(Quantity * FoodItemPrice) " &
-                                 "FROM tblOrderItem INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID " &
+            'what the food comes to, this comes back empty if nothing has been ordered. the price is
+            'on the order line itself now so this no longer has to go anywhere near tblFoodItem
+            SQLCmd.CommandText = "SELECT SUM(Quantity * ItemPricePaid) " &
+                                 "FROM tblOrderItem " &
                                  "WHERE BookingID = @BookingID"
             SQLCmd.Parameters.Clear()
             SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
