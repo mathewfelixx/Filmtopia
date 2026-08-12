@@ -13,6 +13,7 @@ Module modSettings
     'be added to later and a saved position would then point at the wrong genre
     Public LastGenreFilter As String = "All genres"
     Public LastScreeningsShow As String = "Still to come"
+    Public LastScreeningsScreen As String = "All screens"
 
     'the colours the rest of the program uses, these get filled in by SetThemeColours
     Public FormBack As Color
@@ -282,6 +283,7 @@ Module modSettings
         DarkModeOn = False
         LastGenreFilter = "All genres"
         LastScreeningsShow = "Still to come"
+        LastScreeningsScreen = "All screens"
     End Sub
 
     'takes one row out of tblUserSettings and puts it in the right variable
@@ -296,6 +298,10 @@ Module modSettings
 
         If settingName.ToUpper() = "SCREENINGSSHOW" Then
             LastScreeningsShow = settingValue
+        End If
+
+        If settingName.ToUpper() = "SCREENINGSSCREEN" Then
+            LastScreeningsScreen = settingValue
         End If
         'any new settings get read here
     End Sub
@@ -369,6 +375,7 @@ Module modSettings
             End If
             SaveOneSetting("GENREFILTER", LastGenreFilter)
             SaveOneSetting("SCREENINGSSHOW", LastScreeningsShow)
+            SaveOneSetting("SCREENINGSSCREEN", LastScreeningsScreen)
             'any new settings get saved here
 
             cn.Close()
