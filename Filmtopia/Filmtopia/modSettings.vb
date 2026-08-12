@@ -39,6 +39,11 @@ Module modSettings
     Public SeatTaken As Color
     Public SeatFore As Color
     Public SeatTakenFore As Color
+
+    'the border round a seat on the map, which is how the sort of seat is shown. the background
+    'is already saying whether it is free, picked or gone, so the sort has to go somewhere else
+    Public SeatPremiumEdge As Color
+    Public SeatAccessibleEdge As Color
     'used on the dashboard to show how full a screening is
     Public OccupancyHigh As Color
     Public OccupancyMed As Color
@@ -80,6 +85,8 @@ Module modSettings
             SeatTaken = Color.FromArgb(92, 43, 62)
             SeatFore = Color.FromArgb(232, 232, 232)
             SeatTakenFore = Color.FromArgb(168, 128, 143)
+            SeatPremiumEdge = Color.FromArgb(255, 202, 40)
+            SeatAccessibleEdge = Color.FromArgb(100, 181, 246)
             OccupancyHigh = Color.FromArgb(255, 107, 107)
             OccupancyMed = Color.FromArgb(255, 183, 77)
             AltRowBack = Color.FromArgb(56, 56, 61)
@@ -105,6 +112,8 @@ Module modSettings
             SeatTaken = Color.FromArgb(255, 192, 255)
             SeatFore = Color.Black
             SeatTakenFore = Color.Black
+            SeatPremiumEdge = Color.FromArgb(184, 134, 11)
+            SeatAccessibleEdge = Color.FromArgb(21, 101, 192)
             OccupancyHigh = Color.FromArgb(198, 40, 40)
             OccupancyMed = Color.FromArgb(239, 108, 0)
             AltRowBack = Color.FromArgb(245, 245, 248)
