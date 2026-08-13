@@ -559,9 +559,11 @@ Public Class frmBookings
             customerID = CLng(cboCustomer.SelectedValue)
         End If
 
-        'one transaction writes the customer, the booking, the seats and the food together
+        'one transaction writes the customer, the booking, the seats and the food together.
+        'whoever is signed in is stood at the till, so the sale goes down as theirs
         Dim newBookingID As Long = CompleteSale(customerID, chkWalkIn.Checked, currentScreeningID,
-                                                GetSelectedSeatIDs(), pendingFood, totalCost)
+                                                GetSelectedSeatIDs(), pendingFood, totalCost,
+                                                CurrentLoginID)
 
         If newBookingID = 0 Then
             'nothing was saved, the message has already been shown, so leave the sale on screen

@@ -1,4 +1,4 @@
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 
 'all the rules about what a booking is are kept in here rather than being spread across the
 'forms. before this, the booking form and the food form each worked the money out in their own
@@ -35,7 +35,8 @@ Module modBookings
     'can no longer be half finished bookings or customers left lying about in the database.
     'returns the new BookingID, or 0 if it did not work
     Public Function CompleteSale(customerID As Long, isWalkIn As Boolean, screeningID As Long,
-                                 seatIDs() As Long, foodOrder As DataTable, totalCost As Double) As Long
+                                 seatIDs() As Long, foodOrder As DataTable, totalCost As Double,
+                                 soldByLoginID As Long) As Long
         Dim newID As Long = 0
 
         If DbConnect() Then
@@ -98,15 +99,29 @@ Module modBookings
                 End If
 
                 'the booking itself, with the total that was on the screen. a new sale always starts
-                'off active, it only becomes cancelled if somebody cancels it later
-                SQLCmd.CommandText = "INSERT INTO tblBooking (CustomerID, ScreeningID, BookingDate, TotalCost, BookingStatus) " &
-                                     "VALUES (@CustomerID, @ScreeningID, @BookingDate, @TotalCost, @BookingStatus)"
+                'off active, it only becomes cancelled if somebody cancels it later.
+                'who was on the till goes on it as well. up to now the booking said who the ticket
+                'was for but never who sold it, so there was no way of telling what any one person
+                'had taken. the date is still just a date with no time on it on purpose, putting a
+                'time on it would break every BookingDate <= @To range on the sales report
+                SQLCmd.CommandText = "INSERT INTO tblBooking (CustomerID, ScreeningID, BookingDate, TotalCost, BookingStatus, LoginID) " &
+                                     "VALUES (@CustomerID, @ScreeningID, @BookingDate, @TotalCost, @BookingStatus, @LoginID)"
                 SQLCmd.Parameters.Clear()
                 SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(saleCustomerID))
                 SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(screeningID))
                 SQLCmd.Parameters.AddWithValue("@BookingDate", Date.Now.Date)
                 SQLCmd.Parameters.AddWithValue("@TotalCost", totalCost)
                 SQLCmd.Parameters.AddWithValue("@BookingStatus", BookingActive)
+
+                'nobody signed in means the customer served themselves at the kiosk. that has to go
+                'in as a real null and not a zero, because there is no login 0 for the key to point
+                'at and access would refuse the whole sale
+                If soldByLoginID = 0 Then
+                    SQLCmd.Parameters.AddWithValue("@LoginID", DBNull.Value)
+                Else
+                    SQLCmd.Parameters.AddWithValue("@LoginID", CInt(soldByLoginID))
+                End If
+
                 SQLCmd.ExecuteNonQuery()
 
                 SQLCmd.CommandText = "SELECT @@IDENTITY"

@@ -1674,7 +1674,9 @@ Public Class frmKiosk
         'the kiosk does not know who anybody is, so every sale it makes is a walk-in. the food goes
         'in with it, and if nothing was added the table is simply empty
         Dim total As Double = OrderTotal()
-        Dim newBookingID As Long = CompleteSale(0, True, currentScreeningID, PickedSeatIDs(), pendingFood, total)
+        'a zero for who sold it, because nobody did. crediting it to whoever put the machine into
+        'kiosk mode would make the per person figures say things that never happened
+        Dim newBookingID As Long = CompleteSale(0, True, currentScreeningID, PickedSeatIDs(), pendingFood, total, 0)
 
         If newBookingID = 0 Then
             'nothing was saved and CompleteSale has already said why. the most likely reason is
