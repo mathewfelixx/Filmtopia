@@ -26,6 +26,7 @@ Public Class frmLogin
         If txtPassword.Text = retrievedPassword Then
             attempts = 0
             LogedIn = True
+            SessionStarted = Date.Now
             WriteLog("AUTH", "User '" & txtUsername.Text & "' logged in successfully", LogSecurity)
             'each user has their own settings so they get loaded once we know who has logged in
             LoadUserSettings(CurrentLoginID)
