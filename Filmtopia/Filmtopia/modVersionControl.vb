@@ -74,6 +74,7 @@ Module modVersionControl
         frmMainMenuV2.lblVersion.Text = GetVersion()
         frmLogs.lblVersion.Text = GetVersion()
         frmKiosk.lblVersion.Text = GetVersion()
+        frmUserOverview.lblVersion.Text = GetVersion()
 
     End Sub
 
