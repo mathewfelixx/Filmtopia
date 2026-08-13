@@ -52,12 +52,29 @@ Partial Class frmUserOverview
         Me.tabSales = New System.Windows.Forms.TabPage()
         Me.tabPattern = New System.Windows.Forms.TabPage()
         Me.tabSettings = New System.Windows.Forms.TabPage()
+        Me.lblActFrom = New System.Windows.Forms.Label()
+        Me.dtpActFrom = New System.Windows.Forms.DateTimePicker()
+        Me.lblActTo = New System.Windows.Forms.Label()
+        Me.dtpActTo = New System.Windows.Forms.DateTimePicker()
+        Me.lblActArea = New System.Windows.Forms.Label()
+        Me.cboActType = New System.Windows.Forms.ComboBox()
+        Me.lblActLevel = New System.Windows.Forms.Label()
+        Me.cboActSeverity = New System.Windows.Forms.ComboBox()
+        Me.lblActSearch = New System.Windows.Forms.Label()
+        Me.txtActSearch = New System.Windows.Forms.TextBox()
+        Me.btnActApply = New System.Windows.Forms.Button()
+        Me.btnActClear = New System.Windows.Forms.Button()
+        Me.btnActExport = New System.Windows.Forms.Button()
+        Me.dgvActivity = New System.Windows.Forms.DataGridView()
+        Me.lblGridCount = New System.Windows.Forms.Label()
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.pnlCard1.SuspendLayout()
         Me.pnlCard2.SuspendLayout()
         Me.pnlCard3.SuspendLayout()
         Me.pnlCard4.SuspendLayout()
         Me.tabMe.SuspendLayout()
+        Me.tabActivity.SuspendLayout()
+        CType(Me.dgvActivity, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'lblHeading
@@ -318,6 +335,21 @@ Partial Class frmUserOverview
         '
         'tabActivity
         '
+        Me.tabActivity.Controls.Add(Me.lblGridCount)
+        Me.tabActivity.Controls.Add(Me.dgvActivity)
+        Me.tabActivity.Controls.Add(Me.btnActExport)
+        Me.tabActivity.Controls.Add(Me.btnActClear)
+        Me.tabActivity.Controls.Add(Me.btnActApply)
+        Me.tabActivity.Controls.Add(Me.txtActSearch)
+        Me.tabActivity.Controls.Add(Me.lblActSearch)
+        Me.tabActivity.Controls.Add(Me.cboActSeverity)
+        Me.tabActivity.Controls.Add(Me.lblActLevel)
+        Me.tabActivity.Controls.Add(Me.cboActType)
+        Me.tabActivity.Controls.Add(Me.lblActArea)
+        Me.tabActivity.Controls.Add(Me.dtpActTo)
+        Me.tabActivity.Controls.Add(Me.lblActTo)
+        Me.tabActivity.Controls.Add(Me.dtpActFrom)
+        Me.tabActivity.Controls.Add(Me.lblActFrom)
         Me.tabActivity.Location = New System.Drawing.Point(4, 24)
         Me.tabActivity.Name = "tabActivity"
         Me.tabActivity.Padding = New System.Windows.Forms.Padding(3)
@@ -355,6 +387,160 @@ Partial Class frmUserOverview
         Me.tabSettings.TabIndex = 3
         Me.tabSettings.Text = "My settings"
         Me.tabSettings.UseVisualStyleBackColor = True
+        '
+        'lblActFrom
+        '
+        Me.lblActFrom.AutoSize = True
+        Me.lblActFrom.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.lblActFrom.Location = New System.Drawing.Point(12, 12)
+        Me.lblActFrom.Name = "lblActFrom"
+        Me.lblActFrom.Size = New System.Drawing.Size(37, 17)
+        Me.lblActFrom.TabIndex = 0
+        Me.lblActFrom.Text = "From"
+        '
+        'dtpActFrom
+        '
+        Me.dtpActFrom.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.dtpActFrom.Format = System.Windows.Forms.DateTimePickerFormat.Short
+        Me.dtpActFrom.Location = New System.Drawing.Point(12, 36)
+        Me.dtpActFrom.Name = "dtpActFrom"
+        Me.dtpActFrom.Size = New System.Drawing.Size(120, 25)
+        Me.dtpActFrom.TabIndex = 1
+        '
+        'lblActTo
+        '
+        Me.lblActTo.AutoSize = True
+        Me.lblActTo.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.lblActTo.Location = New System.Drawing.Point(144, 12)
+        Me.lblActTo.Name = "lblActTo"
+        Me.lblActTo.Size = New System.Drawing.Size(22, 17)
+        Me.lblActTo.TabIndex = 0
+        Me.lblActTo.Text = "To"
+        '
+        'dtpActTo
+        '
+        Me.dtpActTo.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.dtpActTo.Format = System.Windows.Forms.DateTimePickerFormat.Short
+        Me.dtpActTo.Location = New System.Drawing.Point(144, 36)
+        Me.dtpActTo.Name = "dtpActTo"
+        Me.dtpActTo.Size = New System.Drawing.Size(120, 25)
+        Me.dtpActTo.TabIndex = 2
+        '
+        'lblActArea
+        '
+        Me.lblActArea.AutoSize = True
+        Me.lblActArea.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.lblActArea.Location = New System.Drawing.Point(276, 12)
+        Me.lblActArea.Name = "lblActArea"
+        Me.lblActArea.Size = New System.Drawing.Size(33, 17)
+        Me.lblActArea.TabIndex = 0
+        Me.lblActArea.Text = "Area"
+        '
+        'cboActType
+        '
+        Me.cboActType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboActType.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.cboActType.FormattingEnabled = True
+        Me.cboActType.Location = New System.Drawing.Point(276, 36)
+        Me.cboActType.Name = "cboActType"
+        Me.cboActType.Size = New System.Drawing.Size(140, 25)
+        Me.cboActType.TabIndex = 3
+        '
+        'lblActLevel
+        '
+        Me.lblActLevel.AutoSize = True
+        Me.lblActLevel.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.lblActLevel.Location = New System.Drawing.Point(428, 12)
+        Me.lblActLevel.Name = "lblActLevel"
+        Me.lblActLevel.Size = New System.Drawing.Size(38, 17)
+        Me.lblActLevel.TabIndex = 0
+        Me.lblActLevel.Text = "Level"
+        '
+        'cboActSeverity
+        '
+        Me.cboActSeverity.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboActSeverity.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.cboActSeverity.FormattingEnabled = True
+        Me.cboActSeverity.Location = New System.Drawing.Point(428, 36)
+        Me.cboActSeverity.Name = "cboActSeverity"
+        Me.cboActSeverity.Size = New System.Drawing.Size(170, 25)
+        Me.cboActSeverity.TabIndex = 4
+        '
+        'lblActSearch
+        '
+        Me.lblActSearch.AutoSize = True
+        Me.lblActSearch.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.lblActSearch.Location = New System.Drawing.Point(610, 12)
+        Me.lblActSearch.Name = "lblActSearch"
+        Me.lblActSearch.Size = New System.Drawing.Size(45, 17)
+        Me.lblActSearch.TabIndex = 0
+        Me.lblActSearch.Text = "Search"
+        '
+        'txtActSearch
+        '
+        Me.txtActSearch.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.txtActSearch.Location = New System.Drawing.Point(610, 36)
+        Me.txtActSearch.MaxLength = 100
+        Me.txtActSearch.Name = "txtActSearch"
+        Me.txtActSearch.Size = New System.Drawing.Size(180, 25)
+        Me.txtActSearch.TabIndex = 5
+        '
+        'btnActApply
+        '
+        Me.btnActApply.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.btnActApply.Location = New System.Drawing.Point(800, 35)
+        Me.btnActApply.Name = "btnActApply"
+        Me.btnActApply.Size = New System.Drawing.Size(80, 27)
+        Me.btnActApply.TabIndex = 6
+        Me.btnActApply.Text = "Apply"
+        Me.btnActApply.UseVisualStyleBackColor = True
+        '
+        'btnActClear
+        '
+        Me.btnActClear.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.btnActClear.Location = New System.Drawing.Point(888, 35)
+        Me.btnActClear.Name = "btnActClear"
+        Me.btnActClear.Size = New System.Drawing.Size(95, 27)
+        Me.btnActClear.TabIndex = 7
+        Me.btnActClear.Text = "Clear filters"
+        Me.btnActClear.UseVisualStyleBackColor = True
+        '
+        'btnActExport
+        '
+        Me.btnActExport.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.btnActExport.Location = New System.Drawing.Point(991, 35)
+        Me.btnActExport.Name = "btnActExport"
+        Me.btnActExport.Size = New System.Drawing.Size(90, 27)
+        Me.btnActExport.TabIndex = 8
+        Me.btnActExport.Text = "Export"
+        Me.btnActExport.UseVisualStyleBackColor = True
+        '
+        'dgvActivity
+        '
+        Me.dgvActivity.AllowUserToAddRows = False
+        Me.dgvActivity.AllowUserToDeleteRows = False
+        Me.dgvActivity.AllowUserToResizeRows = False
+        Me.dgvActivity.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.dgvActivity.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dgvActivity.Location = New System.Drawing.Point(12, 74)
+        Me.dgvActivity.MultiSelect = False
+        Me.dgvActivity.Name = "dgvActivity"
+        Me.dgvActivity.ReadOnly = True
+        Me.dgvActivity.RowHeadersVisible = False
+        Me.dgvActivity.RowTemplate.Height = 28
+        Me.dgvActivity.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
+        Me.dgvActivity.Size = New System.Drawing.Size(1069, 300)
+        Me.dgvActivity.TabIndex = 9
+        '
+        'lblGridCount
+        '
+        Me.lblGridCount.AutoSize = True
+        Me.lblGridCount.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.lblGridCount.Location = New System.Drawing.Point(12, 382)
+        Me.lblGridCount.Name = "lblGridCount"
+        Me.lblGridCount.Size = New System.Drawing.Size(0, 17)
+        Me.lblGridCount.TabIndex = 0
+        Me.lblGridCount.Text = ""
         '
         'lblVersion
         '
@@ -396,6 +582,9 @@ Partial Class frmUserOverview
         Me.pnlCard3.PerformLayout()
         Me.pnlCard4.ResumeLayout(False)
         Me.pnlCard4.PerformLayout()
+        Me.tabActivity.ResumeLayout(False)
+        Me.tabActivity.PerformLayout()
+        CType(Me.dgvActivity, System.ComponentModel.ISupportInitialize).EndInit()
         Me.tabMe.ResumeLayout(False)
         Me.ResumeLayout(False)
         Me.PerformLayout()
@@ -432,5 +621,20 @@ Partial Class frmUserOverview
     Friend WithEvents tabSales As TabPage
     Friend WithEvents tabPattern As TabPage
     Friend WithEvents tabSettings As TabPage
+    Friend WithEvents lblActFrom As Label
+    Friend WithEvents dtpActFrom As DateTimePicker
+    Friend WithEvents lblActTo As Label
+    Friend WithEvents dtpActTo As DateTimePicker
+    Friend WithEvents lblActArea As Label
+    Friend WithEvents cboActType As ComboBox
+    Friend WithEvents lblActLevel As Label
+    Friend WithEvents cboActSeverity As ComboBox
+    Friend WithEvents lblActSearch As Label
+    Friend WithEvents txtActSearch As TextBox
+    Friend WithEvents btnActApply As Button
+    Friend WithEvents btnActClear As Button
+    Friend WithEvents btnActExport As Button
+    Friend WithEvents dgvActivity As DataGridView
+    Friend WithEvents lblGridCount As Label
     Friend WithEvents lblVersion As Label
 End Class
