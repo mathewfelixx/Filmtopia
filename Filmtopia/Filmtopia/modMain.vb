@@ -7,6 +7,9 @@ Module modMain
     Public LogedIn As Boolean = False
     Public UserAccessLevel As Integer = 99  ' indicates the prvilage level the user has 99 for customers
     Public CurrentLoginID As Long = 0  ' the LoginID of whoever is logged in, 0 means nobody is
+    'when the current person signed in. the account screen says how long they have been on,
+    'and there is nowhere in the database that would know it, a session is not a saved thing
+    Public SessionStarted As Date = Date.MinValue
 
     'the two states a screen can be in. a screen that is having work done to it is not deleted,
     'it is marked, the same way a cancelled booking is marked instead of being thrown away. that

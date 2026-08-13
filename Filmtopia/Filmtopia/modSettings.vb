@@ -202,11 +202,13 @@ Module modSettings
 
         ElseIf TypeOf ctrl Is Label Then
             'the version label is meant to be faint, and the welcome message and the big numbers
-            'on the dashboard cards use the accent colour so they stand out
+            'on the dashboard cards use the accent colour so they stand out.
+            'anything named lblSub something is a faint line under a heading, its a prefix rather
+            'than one name now so a new screen can have as many of them as it needs
             If ctrl.Name = "lblScreen" Then
                 'the screen bar on the booking form is purple in both modes so it keeps white text
                 ctrl.ForeColor = PanelFore
-            ElseIf ctrl.Name = "lblVersion" Or ctrl.Name = "lblSubtitle" Or
+            ElseIf ctrl.Name = "lblVersion" Or ctrl.Name.StartsWith("lblSub") Or
                    ctrl.Name = "lblGridCount" Or ctrl.Name = "lblNoRows" Or
                    ctrl.Name = "lblNoPoster" Or ctrl.Name = "lblNoPicture" Or
                    ctrl.Name.StartsWith("lblCardSub") Then
