@@ -208,6 +208,7 @@ Module modSettings
                 ctrl.ForeColor = PanelFore
             ElseIf ctrl.Name = "lblVersion" Or ctrl.Name = "lblSubtitle" Or
                    ctrl.Name = "lblGridCount" Or ctrl.Name = "lblNoRows" Or
+                   ctrl.Name = "lblNoPoster" Or ctrl.Name = "lblNoPicture" Or
                    ctrl.Name.StartsWith("lblCardSub") Then
                 ctrl.ForeColor = SubtleFore
             ElseIf ctrl.Name = "lblWelcome" Or ctrl.Name.StartsWith("lblStat") Then
@@ -230,7 +231,13 @@ Module modSettings
             End If
 
         ElseIf TypeOf ctrl Is PictureBox Then
-            'left alone because these hold the logo
+            'the two called PictureBox1 hold the logo on the startup and login screens and are
+            'left alone. the ones that were given a name are the poster on the films form and the
+            'picture on the food form, and those are empty boxes most of the time, so in dark mode
+            'they were sat there as white squares until something was put in them
+            If ctrl.Name.StartsWith("pic") Then
+                ctrl.BackColor = InputBack
+            End If
 
         ElseIf TypeOf ctrl Is DateTimePicker Then
             'windows draws these itself so changing the colours does nothing, they are left alone
@@ -268,6 +275,10 @@ Module modSettings
         dgv.DefaultCellStyle.ForeColor = InputFore
         dgv.DefaultCellStyle.SelectionBackColor = HighlightBack
         dgv.DefaultCellStyle.SelectionForeColor = HighlightFore
+
+        'this was being set on the main menu grid and nowhere else, so switching to dark mode left
+        'that grid with its light stripe until the next time it was filled in
+        dgv.AlternatingRowsDefaultCellStyle.BackColor = AltRowBack
 
         dgv.ColumnHeadersDefaultCellStyle.BackColor = PanelBack
         dgv.ColumnHeadersDefaultCellStyle.ForeColor = PanelFore

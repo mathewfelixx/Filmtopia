@@ -243,9 +243,11 @@ Module modMain
         Dim writer As New System.IO.StreamWriter(saveDialog.FileName)
         Dim line As String = ""
 
-        'the headings come off the grid so the file says the same as the screen does
+        'the headings come off the grid so the file says the same as the screen does. a column of
+        'pictures is skipped, there is nothing sensible to write in a text file for one and asking
+        'the cell for its text gives back the name of the class instead of anything readable
         For Each col As DataGridViewColumn In dgv.Columns
-            If col.Visible Then
+            If col.Visible AndAlso Not TypeOf col Is DataGridViewImageColumn Then
                 If line <> "" Then
                     line = line & ","
                 End If
@@ -257,7 +259,7 @@ Module modMain
         For Each row As DataGridViewRow In dgv.Rows
             line = ""
             For Each col As DataGridViewColumn In dgv.Columns
-                If col.Visible Then
+                If col.Visible AndAlso Not TypeOf col Is DataGridViewImageColumn Then
                     If line <> "" Then
                         line = line & ","
                     End If
