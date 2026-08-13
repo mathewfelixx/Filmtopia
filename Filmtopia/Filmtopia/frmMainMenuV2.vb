@@ -42,6 +42,7 @@ Public Class frmMainMenuV2
         btnReports.BackColor = Color.Transparent
         btnLogs.BackColor = Color.Transparent
         btnSettings.BackColor = Color.Transparent
+        btnMyAccount.BackColor = Color.Transparent
         btnKiosk.BackColor = Color.Transparent
     End Sub
 
@@ -54,7 +55,7 @@ Public Class frmMainMenuV2
     Private Sub NavButton_MouseEnter(sender As Object, e As EventArgs) Handles btnBookings.MouseEnter,
         btnFindBooking.MouseEnter, btnScreenings.MouseEnter, btnCustomers.MouseEnter, btnFilms.MouseEnter,
         btnScreens.MouseEnter, btnFood.MouseEnter, btnReports.MouseEnter, btnLogs.MouseEnter, btnSettings.MouseEnter,
-        btnKiosk.MouseEnter
+        btnKiosk.MouseEnter, btnMyAccount.MouseEnter
 
         Dim btn As Button = CType(sender, Button)
         If btn.BackColor <> HighlightBack Then
@@ -66,7 +67,7 @@ Public Class frmMainMenuV2
     Private Sub NavButton_MouseLeave(sender As Object, e As EventArgs) Handles btnBookings.MouseLeave,
         btnFindBooking.MouseLeave, btnScreenings.MouseLeave, btnCustomers.MouseLeave, btnFilms.MouseLeave,
         btnScreens.MouseLeave, btnFood.MouseLeave, btnReports.MouseLeave, btnLogs.MouseLeave, btnSettings.MouseLeave,
-        btnKiosk.MouseLeave
+        btnKiosk.MouseLeave, btnMyAccount.MouseLeave
 
         Dim btn As Button = CType(sender, Button)
         If btn.BackColor <> HighlightBack Then
@@ -155,6 +156,11 @@ Public Class frmMainMenuV2
 
     Private Sub btnLogs_Click(sender As Object, e As EventArgs) Handles btnLogs.Click
         OpenForm(frmLogs, btnLogs)
+    End Sub
+
+    'the one screen nobody is refused, because it is about them rather than about the cinema
+    Private Sub btnMyAccount_Click(sender As Object, e As EventArgs) Handles btnMyAccount.Click
+        OpenForm(frmUserOverview, btnMyAccount)
     End Sub
 
     Private Sub btnSettings_Click(sender As Object, e As EventArgs) Handles btnSettings.Click
@@ -257,6 +263,7 @@ Public Class frmMainMenuV2
 
     'makes the cards that actually go somewhere show the hand pointer
     Private Sub SetCardCursors()
+        lblWelcome.Cursor = Cursors.Hand
         HandCard(pnlCard2, lblCardTitle2, lblStat2, lblCardSub2)
         HandCard(pnlCard3, lblCardTitle3, lblStat3, lblCardSub3)
 
@@ -352,8 +359,16 @@ Public Class frmMainMenuV2
         tips.SetToolTip(btnReports, "View the sales report")
         tips.SetToolTip(btnKiosk, "Hand the screen over to a customer to serve themselves")
         tips.SetToolTip(btnLogs, "See a history of what has been done")
+        tips.SetToolTip(btnMyAccount, "What you have sold and done, and when you tend to be on")
+        tips.SetToolTip(lblWelcome, "Your own sales, your own history and your settings")
         tips.SetToolTip(btnSettings, "Backups, password and appearance")
         tips.SetToolTip(btnLogout, "Log out and go back to the login screen")
+    End Sub
+
+    'the greeting is the obvious thing to press if you want to know about yourself, so it
+    'opens the account screen the same way the cards open the screen they are about
+    Private Sub lblWelcome_Click(sender As Object, e As EventArgs) Handles lblWelcome.Click
+        OpenForm(frmUserOverview, btnMyAccount)
     End Sub
 
     Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
@@ -1018,6 +1033,7 @@ Public Class frmMainMenuV2
             btnReports.Visible = True
             btnLogs.Visible = True
             lblNavManage.Visible = True
+            btnMyAccount.Visible = True
         Else
             'staff get a reminder instead of the manager blurb, and the two cards on the right
             'swap to things they can actually use instead of anything about money
@@ -1032,6 +1048,8 @@ Public Class frmMainMenuV2
             btnLogs.Visible = False
             'the heading would be sat above nothing if the buttons under it are all hidden
             lblNavManage.Visible = False
+            'the account screen stays, it is the one thing on here that is theirs
+            btnMyAccount.Visible = True
         End If
     End Sub
 

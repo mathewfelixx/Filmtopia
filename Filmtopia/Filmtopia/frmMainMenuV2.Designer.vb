@@ -33,6 +33,7 @@ Partial Class frmMainMenuV2
         Me.btnLogs = New System.Windows.Forms.Button()
         Me.btnKiosk = New System.Windows.Forms.Button()
         Me.lblNavSystem = New System.Windows.Forms.Label()
+        Me.btnMyAccount = New System.Windows.Forms.Button()
         Me.btnSettings = New System.Windows.Forms.Button()
         Me.btnLogout = New System.Windows.Forms.Button()
         Me.lblWelcome = New System.Windows.Forms.Label()
@@ -148,6 +149,7 @@ Partial Class frmMainMenuV2
         Me.flpNav.Controls.Add(Me.btnReports)
         Me.flpNav.Controls.Add(Me.btnLogs)
         Me.flpNav.Controls.Add(Me.lblNavSystem)
+        Me.flpNav.Controls.Add(Me.btnMyAccount)
         Me.flpNav.Controls.Add(Me.btnSettings)
         Me.flpNav.FlowDirection = System.Windows.Forms.FlowDirection.TopDown
         Me.flpNav.Location = New System.Drawing.Point(0, 14)
@@ -363,6 +365,23 @@ Partial Class frmMainMenuV2
         Me.lblNavSystem.TabIndex = 11
         Me.lblNavSystem.Text = "SYSTEM"
         '
+        'btnMyAccount
+        '
+        Me.btnMyAccount.BackColor = System.Drawing.Color.Transparent
+        Me.btnMyAccount.FlatAppearance.BorderSize = 0
+        Me.btnMyAccount.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnMyAccount.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.btnMyAccount.ForeColor = System.Drawing.Color.White
+        Me.btnMyAccount.Location = New System.Drawing.Point(21, 603)
+        Me.btnMyAccount.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
+        Me.btnMyAccount.Name = "btnMyAccount"
+        Me.btnMyAccount.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
+        Me.btnMyAccount.Size = New System.Drawing.Size(237, 49)
+        Me.btnMyAccount.TabIndex = 12
+        Me.btnMyAccount.Text = "My Account"
+        Me.btnMyAccount.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnMyAccount.UseVisualStyleBackColor = False
+        '
         'btnSettings
         '
         Me.btnSettings.BackColor = System.Drawing.Color.Transparent
@@ -370,12 +389,12 @@ Partial Class frmMainMenuV2
         Me.btnSettings.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.btnSettings.Font = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.btnSettings.ForeColor = System.Drawing.Color.White
-        Me.btnSettings.Location = New System.Drawing.Point(21, 603)
+        Me.btnSettings.Location = New System.Drawing.Point(21, 659)
         Me.btnSettings.Margin = New System.Windows.Forms.Padding(21, 0, 0, 7)
         Me.btnSettings.Name = "btnSettings"
         Me.btnSettings.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
         Me.btnSettings.Size = New System.Drawing.Size(237, 49)
-        Me.btnSettings.TabIndex = 12
+        Me.btnSettings.TabIndex = 13
         Me.btnSettings.Text = "Settings"
         Me.btnSettings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnSettings.UseVisualStyleBackColor = False
@@ -872,5 +891,6 @@ Partial Class frmMainMenuV2
     Friend WithEvents btnLogs As Button
     Friend WithEvents btnKiosk As Button
     Friend WithEvents lblNavSystem As Label
+    Friend WithEvents btnMyAccount As Button
     Friend WithEvents btnSettings As Button
 End Class
