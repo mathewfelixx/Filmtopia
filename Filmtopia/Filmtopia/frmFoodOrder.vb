@@ -73,7 +73,7 @@ Public Class frmFoodOrder
             'an item taken off the menu must not be sellable, but it is only hidden from what is
             'being offered now. the lines already on an order still read back fine, they join to
             'this table for the name and the row is still there
-            SQLCmd.CommandText = "SELECT FoodItemID, FoodItemName, FoodItemPrice " &
+            SQLCmd.CommandText = "SELECT FoodItemID, FoodItemName, FoodItemPrice, FoodItemCategory, FoodItemImage " &
                                  "FROM tblFoodItem " &
                                  "WHERE (FoodItemStatus IS NULL OR FoodItemStatus <> @Withdrawn) " &
                                  "ORDER BY FoodItemCategory, FoodItemName"
@@ -89,15 +89,44 @@ Public Class frmFoodOrder
         End If
     End Sub
 
-    'shows the price of the food item picked in the combo
+    'shows the price, the category and the picture of the food item picked in the combo. a name in
+    'a drop down is not much to go on when somebody is being served at a counter, the picture is
+    'the quickest way of telling a medium popcorn from a large one
     Private Sub cboFoodItem_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboFoodItem.SelectedIndexChanged
         If cboFoodItem.SelectedIndex = -1 Then
             lblPrice.Text = ""
+            lblItemCategory.Text = ""
+            ShowItemPicture("")
             Exit Sub
         End If
 
         Dim row As DataRowView = CType(cboFoodItem.SelectedItem, DataRowView)
         lblPrice.Text = FormatCurrency(row("FoodItemPrice"))
+        lblItemCategory.Text = row("FoodItemCategory").ToString()
+        ShowItemPicture(row("FoodItemImage").ToString())
+    End Sub
+
+    'puts the picked item's picture on screen. whatever was showing is thrown away first, because
+    'a picture box left holding the old one keeps a handle that is not given back until the
+    'program is shut, and clicking down the drop down would lose one for every item looked at
+    Private Sub ShowItemPicture(fileName As String)
+        If picFoodItem.Image IsNot Nothing Then
+            picFoodItem.Image.Dispose()
+            picFoodItem.Image = Nothing
+        End If
+
+        picFoodItem.Image = FoodImage(fileName)
+
+        'the words only show when there is no picture in front of them
+        lblNoPicture.Visible = (picFoodItem.Image Is Nothing)
+    End Sub
+
+    'the picture is held open until it is given back, so it is dropped on the way out
+    Private Sub frmFoodOrder_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        If picFoodItem.Image IsNot Nothing Then
+            picFoodItem.Image.Dispose()
+            picFoodItem.Image = Nothing
+        End If
     End Sub
 
     'loads the food items already ordered for this booking, with subtotals and a running total
@@ -138,12 +167,22 @@ Public Class frmFoodOrder
         dgvOrderItems.Columns("Subtotal").DefaultCellStyle.Format = "C"
         dgvOrderItems.Columns("Quantity").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
 
-        'work out the running total by adding up the subtotal column
+        'work out the running total by adding up the subtotal column, and count the things being
+        'handed over while going down it. the total says what it comes to but not how much food it
+        'is, and three lines can be twelve items
         Dim total As Double = 0
+        Dim things As Integer = 0
         For Each row As DataGridViewRow In dgvOrderItems.Rows
             total = total + CDbl(row.Cells("Subtotal").Value)
+            things = things + CInt(row.Cells("Quantity").Value)
         Next
         lblTotal.Text = "Total: " & FormatCurrency(total)
+
+        If dgvOrderItems.Rows.Count = 0 Then
+            lblGridCount.Text = "Nothing ordered yet"
+        Else
+            lblGridCount.Text = dgvOrderItems.Rows.Count & " line(s), " & things & " item(s) to hand over"
+        End If
     End Sub
 
     'adds the picked food item and quantity to the order

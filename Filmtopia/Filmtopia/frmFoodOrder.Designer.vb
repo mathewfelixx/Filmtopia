@@ -29,7 +29,12 @@ Partial Class frmFoodOrder
         Me.lblTotal = New System.Windows.Forms.Label()
         Me.btnClose = New System.Windows.Forms.Button()
         Me.lblVersion = New System.Windows.Forms.Label()
+        Me.lblItemCategory = New System.Windows.Forms.Label()
+        Me.lblNoPicture = New System.Windows.Forms.Label()
+        Me.picFoodItem = New System.Windows.Forms.PictureBox()
+        Me.lblGridCount = New System.Windows.Forms.Label()
         CType(Me.dgvOrderItems, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.picFoodItem, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'lblBookingInfo
@@ -157,12 +162,51 @@ Partial Class frmFoodOrder
         Me.lblVersion.TabIndex = 11
         Me.lblVersion.Text = "Filmtopia Cinema Management System  v1.0"
         '
+        'lblItemCategory
+        '
+        Me.lblItemCategory.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblItemCategory.Location = New System.Drawing.Point(420, 80)
+        Me.lblItemCategory.Name = "lblItemCategory"
+        Me.lblItemCategory.Size = New System.Drawing.Size(170, 18)
+        Me.lblItemCategory.TabIndex = 12
+        '
+        'lblNoPicture
+        '
+        Me.lblNoPicture.Location = New System.Drawing.Point(602, 64)
+        Me.lblNoPicture.Name = "lblNoPicture"
+        Me.lblNoPicture.Size = New System.Drawing.Size(92, 20)
+        Me.lblNoPicture.TabIndex = 13
+        Me.lblNoPicture.Text = "No picture"
+        Me.lblNoPicture.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'picFoodItem
+        '
+        Me.picFoodItem.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.picFoodItem.Location = New System.Drawing.Point(600, 26)
+        Me.picFoodItem.Name = "picFoodItem"
+        Me.picFoodItem.Size = New System.Drawing.Size(96, 96)
+        Me.picFoodItem.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
+        Me.picFoodItem.TabIndex = 14
+        Me.picFoodItem.TabStop = False
+        '
+        'lblGridCount
+        '
+        Me.lblGridCount.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblGridCount.Location = New System.Drawing.Point(180, 406)
+        Me.lblGridCount.Name = "lblGridCount"
+        Me.lblGridCount.Size = New System.Drawing.Size(310, 18)
+        Me.lblGridCount.TabIndex = 15
+        '
         'frmFoodOrder
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(716, 500)
         Me.Controls.Add(Me.lblVersion)
+        Me.Controls.Add(Me.lblGridCount)
+        Me.Controls.Add(Me.lblItemCategory)
+        Me.Controls.Add(Me.lblNoPicture)
+        Me.Controls.Add(Me.picFoodItem)
         Me.Controls.Add(Me.btnClose)
         Me.Controls.Add(Me.lblTotal)
         Me.Controls.Add(Me.btnRemoveItem)
@@ -182,6 +226,7 @@ Partial Class frmFoodOrder
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Food Order"
         CType(Me.dgvOrderItems, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.picFoodItem, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -199,4 +244,8 @@ Partial Class frmFoodOrder
     Friend WithEvents lblTotal As Label
     Friend WithEvents btnClose As Button
     Friend WithEvents lblVersion As Label
+    Friend WithEvents lblItemCategory As Label
+    Friend WithEvents lblNoPicture As Label
+    Friend WithEvents picFoodItem As PictureBox
+    Friend WithEvents lblGridCount As Label
 End Class
