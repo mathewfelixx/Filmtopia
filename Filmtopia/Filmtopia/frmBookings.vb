@@ -262,8 +262,12 @@ Public Class frmBookings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
+            'anything taken off the menu is left out, nothing new can be sold on one
             SQLCmd.CommandText = "SELECT FoodItemID, FoodItemName, FoodItemPrice " &
-                                 "FROM tblFoodItem ORDER BY FoodItemName"
+                                 "FROM tblFoodItem " &
+                                 "WHERE (FoodItemStatus IS NULL OR FoodItemStatus <> @Withdrawn) " &
+                                 "ORDER BY FoodItemName"
+            SQLCmd.Parameters.AddWithValue("@Withdrawn", FoodWithdrawn)
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)

@@ -1271,8 +1271,12 @@ Public Class frmKiosk
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
+            'a customer must never be shown something that cannot be sold to them
             SQLCmd.CommandText = "SELECT FoodItemID, FoodItemName, FoodItemPrice " &
-                                 "FROM tblFoodItem ORDER BY FoodItemName"
+                                 "FROM tblFoodItem " &
+                                 "WHERE (FoodItemStatus IS NULL OR FoodItemStatus <> @Withdrawn) " &
+                                 "ORDER BY FoodItemCategory, FoodItemName"
+            SQLCmd.Parameters.AddWithValue("@Withdrawn", FoodWithdrawn)
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)
             cn.Close()

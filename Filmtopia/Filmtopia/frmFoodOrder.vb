@@ -70,8 +70,14 @@ Public Class frmFoodOrder
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
+            'an item taken off the menu must not be sellable, but it is only hidden from what is
+            'being offered now. the lines already on an order still read back fine, they join to
+            'this table for the name and the row is still there
             SQLCmd.CommandText = "SELECT FoodItemID, FoodItemName, FoodItemPrice " &
-                                 "FROM tblFoodItem"
+                                 "FROM tblFoodItem " &
+                                 "WHERE (FoodItemStatus IS NULL OR FoodItemStatus <> @Withdrawn) " &
+                                 "ORDER BY FoodItemCategory, FoodItemName"
+            SQLCmd.Parameters.AddWithValue("@Withdrawn", FoodWithdrawn)
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
