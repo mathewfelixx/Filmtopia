@@ -23,9 +23,19 @@ Public Class frmKiosk
     Private Const TextLeftWithPoster As Integer = 126
     Private Const TextLeftNoPoster As Integer = 26
 
-    'a food tile only has a name, a price and how many have been added
-    Private Const FoodTileWidth As Integer = 220
+    'a food tile has a picture, a name, a price and how many have been added. it went from 220 to
+    '280 wide when the picture went on, otherwise the name had nowhere left to go
+    Private Const FoodTileWidth As Integer = 280
     Private Const FoodTileHeight As Integer = 130
+
+    'the picture on a food tile. a snack is a square sort of shape rather than a tall one, so
+    'unlike a poster this is square
+    Private Const FoodPictureSize As Integer = 56
+
+    'where the writing on a food tile starts, the same idea as the film tiles. it moves across to
+    'make room when there is a picture and stays where it always was when there is not
+    Private Const TextLeftWithPicture As Integer = 84
+    Private Const TextLeftNoPicture As Integer = 24
 
     'a showing tile is shorter and narrower than a film one, there is far less on it
     Private Const TimeTileWidth As Integer = 240
@@ -639,6 +649,30 @@ Public Class frmKiosk
     'the tiles but not of the picture each one is holding, and a picture that is not let go of keeps
     'a handle that does not come back until the program is shut. flicking between the days would
     'lose one for every film on screen, which on a machine left running all day adds up
+    'the food tiles hold pictures now, so they have to be given back before the tiles are thrown
+    'away. this list is rebuilt every time somebody adds a snack to their order, so without it the
+    'kiosk would lose a handle for every picture on screen each time a button was pressed
+    Private Sub ClearFoodTiles()
+        Dim tile As Control
+
+        For Each tile In pnlFoodList.Controls
+            Dim inner As Control
+
+            For Each inner In tile.Controls
+                If TypeOf inner Is PictureBox Then
+                    Dim picFood As PictureBox = CType(inner, PictureBox)
+
+                    If picFood.Image IsNot Nothing Then
+                        picFood.Image.Dispose()
+                        picFood.Image = Nothing
+                    End If
+                End If
+            Next
+        Next
+
+        pnlFoodList.Controls.Clear()
+    End Sub
+
     Private Sub ClearFilmTiles()
         Dim tile As Control
 
@@ -1272,7 +1306,7 @@ Public Class frmKiosk
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             'a customer must never be shown something that cannot be sold to them
-            SQLCmd.CommandText = "SELECT FoodItemID, FoodItemName, FoodItemPrice " &
+            SQLCmd.CommandText = "SELECT FoodItemID, FoodItemName, FoodItemPrice, FoodItemImage " &
                                  "FROM tblFoodItem " &
                                  "WHERE (FoodItemStatus IS NULL OR FoodItemStatus <> @Withdrawn) " &
                                  "ORDER BY FoodItemCategory, FoodItemName"
@@ -1289,7 +1323,7 @@ Public Class frmKiosk
     'one tile per thing on sale. touching it adds one, and once there is at least one on the order
     'the tile says how many so the customer can see what they have done without reading the list
     Private Sub BuildFoodTiles(dtFood As DataTable)
-        pnlFoodList.Controls.Clear()
+        ClearFoodTiles()
 
         Dim i As Integer
         For i = 0 To dtFood.Rows.Count - 1
@@ -1311,12 +1345,35 @@ Public Class frmKiosk
             strip.BackColor = HighlightBack
             tile.Controls.Add(strip)
 
+            'an item that has not been given a picture yet does not get an empty box where one
+            'would be, the writing moves back over instead, the same as a film with no poster
+            Dim picture As Image = FoodImage(dtFood.Rows(i)("FoodItemImage").ToString())
+            Dim textLeft As Integer = TextLeftNoPicture
+
+            If picture IsNot Nothing Then
+                textLeft = TextLeftWithPicture
+
+                Dim picFood As New PictureBox
+                picFood.Name = "picFood" & foodID
+                picFood.Location = New Point(16, (FoodTileHeight - FoodPictureSize) \ 2)
+                picFood.Size = New Size(FoodPictureSize, FoodPictureSize)
+                picFood.SizeMode = PictureBoxSizeMode.Zoom
+                picFood.Image = picture
+                picFood.Cursor = Cursors.Hand
+                picFood.Tag = foodID
+
+                'the picture is the most obvious thing on the tile to press, so it has to add one
+                'the same way pressing the name or the price does
+                AddHandler picFood.Click, AddressOf FoodTile_Click
+                tile.Controls.Add(picFood)
+            End If
+
             Dim lblName As New Label
             lblName.AutoSize = False
             'the name gets the top of the tile to itself, all the way across. it used to be tall
             'enough to reach the take one off button and was drawing over the top of it
-            lblName.Location = New Point(24, 14)
-            lblName.Size = New Size(FoodTileWidth - 44, 46)
+            lblName.Location = New Point(textLeft, 14)
+            lblName.Size = New Size(FoodTileWidth - textLeft - 20, 46)
             lblName.Font = New Font("Segoe UI", 12, FontStyle.Bold)
             lblName.ForeColor = TextFore
             lblName.Text = itemName
@@ -1325,7 +1382,7 @@ Public Class frmKiosk
 
             Dim lblPrice As New Label
             lblPrice.AutoSize = True
-            lblPrice.Location = New Point(24, FoodTileHeight - 40)
+            lblPrice.Location = New Point(textLeft, FoodTileHeight - 40)
             lblPrice.Font = New Font("Segoe UI", 12)
             lblPrice.ForeColor = SubtleFore
             lblPrice.Text = FormatCurrency(price)
@@ -1680,7 +1737,7 @@ Public Class frmKiosk
         SetUpPickedSeats()
         SetUpPendingFood()
         pnlSeatMap.Controls.Clear()
-        pnlFoodList.Controls.Clear()
+        ClearFoodTiles()
         currentSeats = Nothing
 
         ShowStep(StepWelcome)
