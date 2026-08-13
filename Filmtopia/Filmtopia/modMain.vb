@@ -75,6 +75,40 @@ Module modMain
         Return status <> ScreeningCancelled
     End Function
 
+    'the two states a food item can be in. an item that is taken off the menu is marked rather
+    'than deleted, for the same reason a screening is. it cannot be deleted once somebody has
+    'bought one, the order lines would be left pointing at nothing, so without this there was no
+    'way at all of retiring something and a discontinued item stayed on sale forever
+    Public Const FoodOnSale As String = "On sale"
+    Public Const FoodWithdrawn As String = "Withdrawn"
+
+    'the places that offer food for sale leave the withdrawn ones out, and they spell the
+    'condition out in full for the same reason the screening one does, so the checking script can
+    'still see it. the IS NULL half covers an item written before the column existed:
+    'WHERE (FoodItemStatus IS NULL OR FoodItemStatus <> 'Withdrawn')
+
+    'says whether a food item can still be sold. a blank status is one written before the column
+    'existed, and those are all still on sale
+    Public Function FoodItemIsOnSale(foodItemID As Long) As Boolean
+        Dim status As String = FoodOnSale
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT FoodItemStatus FROM tblFoodItem WHERE FoodItemID = @FoodItemID"
+            SQLCmd.Parameters.AddWithValue("@FoodItemID", CInt(foodItemID))
+            Dim answer As Object = SQLCmd.ExecuteScalar()
+
+            If answer IsNot Nothing AndAlso Not IsDBNull(answer) Then
+                status = answer.ToString()
+            End If
+
+            cn.Close()
+        End If
+
+        Return status <> FoodWithdrawn
+    End Function
+
     Public Function DbConnect() As Boolean
         Try
             cn = New OleDbConnection(DatabasePath)
@@ -237,18 +271,30 @@ Module modMain
         Return True
     End Function
 
-    'where the poster pictures are kept. they sit in a folder next to the program the same way the
+    'where a set of pictures is kept. they sit in a folder next to the program the same way the
     'database does, so all that is stored in the database is the name of the file to look for. the
     'folder is made the first time it is asked for, so a fresh copy of the program does not fall
-    'over the first time somebody picks a poster
-    Public Function PosterFolder() As String
-        Dim folder As String = Application.StartupPath & "\Posters"
+    'over the first time somebody picks a picture.
+    'there are two sorts now, posters and food, so the folder name is passed in rather than there
+    'being a second copy of all of this with one word changed
+    Public Function PictureFolder(folderName As String) As String
+        Dim folder As String = Application.StartupPath & "\" & folderName
 
         If Not System.IO.Directory.Exists(folder) Then
             System.IO.Directory.CreateDirectory(folder)
         End If
 
         Return folder
+    End Function
+
+    'the folder the film posters are in
+    Public Function PosterFolder() As String
+        Return PictureFolder("Posters")
+    End Function
+
+    'the folder the food pictures are in
+    Public Function FoodPictureFolder() As String
+        Return PictureFolder("FoodPictures")
     End Function
 
     'reads a picture off disk ready to be put on screen. nothing comes back if the file is not
@@ -277,51 +323,114 @@ Module modMain
         End Try
     End Function
 
-    'loads the poster for a film out of the posters folder. the name comes from the film's
-    'FilmPoster column, and an empty one just means that film has not been given a poster yet
-    Public Function PosterImage(fileName As String) As Image
+    'loads a picture by name out of one of the picture folders. an empty name just means whatever
+    'it belongs to has not been given a picture yet, which is not a problem, it comes back as
+    'nothing and whatever asked for it decides what to show instead
+    Public Function PictureByName(folderName As String, fileName As String) As Image
         If fileName Is Nothing OrElse fileName.Trim() = "" Then
             Return Nothing
         End If
 
-        Return PictureFromFile(PosterFolder() & "\" & fileName)
+        Return PictureFromFile(PictureFolder(folderName) & "\" & fileName)
     End Function
 
-    'copies a picture somebody picked into the posters folder and hands back the name it was saved
-    'under, or an empty string if it did not work. the file is named after the film, so two films
-    'can never end up sharing a picture and giving a film a new poster writes over its old one
-    Public Function SavePosterFile(sourceFile As String, filmID As Long) As String
+    'loads the poster for a film. the name comes from the film's FilmPoster column
+    Public Function PosterImage(fileName As String) As Image
+        Return PictureByName("Posters", fileName)
+    End Function
+
+    'loads the picture for a food item. the name comes from its FoodItemImage column
+    Public Function FoodImage(fileName As String) As Image
+        Return PictureByName("FoodPictures", fileName)
+    End Function
+
+    'makes a small copy of a picture at the size it is going to be drawn at. the grid on the food
+    'screen shows one of these on every row, and a menu of twenty items each holding a quarter of
+    'a megabyte of jpg is a lot of memory for pictures drawn forty pixels wide, so the big one is
+    'thrown away as soon as the small one has been drawn out of it
+    Public Function SmallPicture(folderName As String, fileName As String, width As Integer, height As Integer) As Image
+        Dim big As Image = PictureByName(folderName, fileName)
+
+        If big Is Nothing Then
+            Return Nothing
+        End If
+
+        Dim small As New Bitmap(width, height)
+        Dim g As Graphics = Graphics.FromImage(small)
+
+        'without this the shrunk picture comes out blocky and looks worse than no picture at all
+        g.InterpolationMode = Drawing2D.InterpolationMode.HighQualityBicubic
+
+        'the picture is fitted inside the box keeping its shape rather than being squashed to fill
+        'it, which is what a picture box set to zoom does
+        Dim scale As Double = Math.Min(width / big.Width, height / big.Height)
+        Dim drawWidth As Integer = CInt(big.Width * scale)
+        Dim drawHeight As Integer = CInt(big.Height * scale)
+
+        g.DrawImage(big, (width - drawWidth) \ 2, (height - drawHeight) \ 2, drawWidth, drawHeight)
+
+        g.Dispose()
+        big.Dispose()
+
+        Return small
+    End Function
+
+    'copies a picture somebody picked into one of the picture folders and hands back the name it
+    'was saved under, or an empty string if it did not work. the file is named after the record it
+    'belongs to, so two of them can never end up sharing a picture, and giving one a new picture
+    'writes over its old one. the title is only what the message box is called if it goes wrong
+    Public Function SavePictureFile(sourceFile As String, folderName As String, id As Long, title As String) As String
         If Not System.IO.File.Exists(sourceFile) Then
-            MessageBox.Show("That picture could not be found.", "Poster", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("That picture could not be found.", title, MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return ""
         End If
 
         'the extension is kept so the file is still a jpg or a png afterwards rather than being
         'renamed into something the picture box cannot read
-        Dim newName As String = filmID & System.IO.Path.GetExtension(sourceFile).ToLower()
+        Dim newName As String = id & System.IO.Path.GetExtension(sourceFile).ToLower()
 
         Try
-            System.IO.File.Copy(sourceFile, PosterFolder() & "\" & newName, True)
+            System.IO.File.Copy(sourceFile, PictureFolder(folderName) & "\" & newName, True)
             Return newName
         Catch ex As Exception
-            MessageBox.Show("Could not save the poster. " & ex.Message, "Poster", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Could not save the picture. " & ex.Message, title, MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return ""
         End Try
     End Function
 
-    'removes a poster file. it does not complain if the file has already gone, because the only
+    'saves a picked picture as a film's poster
+    Public Function SavePosterFile(sourceFile As String, filmID As Long) As String
+        Return SavePictureFile(sourceFile, "Posters", filmID, "Poster")
+    End Function
+
+    'saves a picked picture as a food item's picture
+    Public Function SaveFoodImageFile(sourceFile As String, foodItemID As Long) As String
+        Return SavePictureFile(sourceFile, "FoodPictures", foodItemID, "Picture")
+    End Function
+
+    'removes a picture file. it does not complain if the file has already gone, because the only
     'thing that matters is that it is not there afterwards
-    Public Sub DeletePosterFile(fileName As String)
+    Public Sub DeletePictureFile(folderName As String, fileName As String)
         If fileName Is Nothing OrElse fileName.Trim() = "" Then
             Exit Sub
         End If
 
         Try
-            System.IO.File.Delete(PosterFolder() & "\" & fileName)
+            System.IO.File.Delete(PictureFolder(folderName) & "\" & fileName)
         Catch ex As Exception
-            'a poster that will not delete is not worth stopping the save for. it is left where it
-            'is and nothing points at it any more
+            'a picture that will not delete is not worth stopping the save for. it is left where
+            'it is and nothing points at it any more
         End Try
+    End Sub
+
+    'removes a film's poster file
+    Public Sub DeletePosterFile(fileName As String)
+        DeletePictureFile("Posters", fileName)
+    End Sub
+
+    'removes a food item's picture file
+    Public Sub DeleteFoodImageFile(fileName As String)
+        DeletePictureFile("FoodPictures", fileName)
     End Sub
 
     'reads a setting that belongs to the whole program rather than to one person. tblUserSettings
