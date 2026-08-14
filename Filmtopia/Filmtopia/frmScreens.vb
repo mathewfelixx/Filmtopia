@@ -48,7 +48,7 @@ Public Class frmScreens
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "SELECT ScreenID, ScreenName, ScreenCapacity, ScreenRows, SeatsPerRow " &
-                                 "FROM tblScreen ORDER BY ScreenName"
+                                 "FROM tblScreen ORDER BY ScreenName, ScreenID"
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)
             cn.Close()
