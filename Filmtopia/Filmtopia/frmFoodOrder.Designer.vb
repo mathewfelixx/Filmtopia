@@ -174,6 +174,7 @@ Partial Class frmFoodOrder
         Me.Controls.Add(Me.cboFoodItem)
         Me.Controls.Add(Me.lblFoodItem)
         Me.Controls.Add(Me.lblBookingInfo)
+        Me.CancelButton = Me.btnClose
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.Margin = New System.Windows.Forms.Padding(4)
         Me.MaximizeBox = False
