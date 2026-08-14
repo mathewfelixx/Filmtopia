@@ -550,19 +550,13 @@ Public Class frmBookings
         End If
     End Sub
 
-    'collects the SeatID of every seat the user has picked on the map, ready to be saved
+    'collects the SeatID of every seat the user has picked, ready to be saved
     Private Function GetSelectedSeatIDs() As Long()
-        Dim seatIDs(CountSelectedSeats() - 1) As Long
-        Dim i As Integer = 0
+        Dim seatIDs(pendingSeats.Rows.Count - 1) As Long
+        Dim i As Integer
 
-        For Each ctrl As Control In pnlSeatMap.Controls
-            If TypeOf ctrl Is Button Then
-                Dim b As Button = CType(ctrl, Button)
-                If b.BackColor = selectedColour Then
-                    seatIDs(i) = CLng(b.Tag)
-                    i = i + 1
-                End If
-            End If
+        For i = 0 To pendingSeats.Rows.Count - 1
+            seatIDs(i) = CLng(pendingSeats.Rows(i)("SeatID"))
         Next
 
         Return seatIDs
@@ -625,16 +619,13 @@ Public Class frmBookings
             cn.Close()
         End If
 
-        For Each ctrl As Control In pnlSeatMap.Controls
-            If TypeOf ctrl Is Button Then
-                Dim b As Button = CType(ctrl, Button)
-                If b.BackColor = selectedColour Then
-                    If dtTaken.Select("SeatID = " & CLng(b.Tag)).Length > 0 Then
-                        Return True
-                    End If
-                End If
+        Dim i As Integer
+        For i = 0 To pendingSeats.Rows.Count - 1
+            If dtTaken.Select("SeatID = " & CLng(pendingSeats.Rows(i)("SeatID"))).Length > 0 Then
+                Return True
             End If
         Next
+
         Return False
     End Function
 
