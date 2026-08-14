@@ -79,7 +79,7 @@ Partial Class frmFoodItems
         '
         Me.cboFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cboFilter.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.cboFilter.Location = New System.Drawing.Point(85, 25)
+        Me.cboFilter.Location = New System.Drawing.Point(105, 25)
         Me.cboFilter.Name = "cboFilter"
         Me.cboFilter.Size = New System.Drawing.Size(180, 23)
         Me.cboFilter.TabIndex = 1
@@ -170,7 +170,7 @@ Partial Class frmFoodItems
         'txtPrice
         '
         Me.txtPrice.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.txtPrice.Location = New System.Drawing.Point(415, 58)
+        Me.txtPrice.Location = New System.Drawing.Point(445, 58)
         Me.txtPrice.Name = "txtPrice"
         Me.txtPrice.Size = New System.Drawing.Size(90, 23)
         Me.txtPrice.TabIndex = 4
@@ -189,7 +189,7 @@ Partial Class frmFoodItems
         'cboCategory
         '
         Me.cboCategory.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.cboCategory.Location = New System.Drawing.Point(90, 94)
+        Me.cboCategory.Location = New System.Drawing.Point(110, 94)
         Me.cboCategory.Name = "cboCategory"
         Me.cboCategory.Size = New System.Drawing.Size(250, 23)
         Me.cboCategory.TabIndex = 6
