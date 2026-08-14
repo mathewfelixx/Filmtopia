@@ -45,7 +45,7 @@ Partial Class frmSalesReport
         'dtpFrom
         '
         Me.dtpFrom.Format = System.Windows.Forms.DateTimePickerFormat.Short
-        Me.dtpFrom.Location = New System.Drawing.Point(70, 14)
+        Me.dtpFrom.Location = New System.Drawing.Point(82, 14)
         Me.dtpFrom.Margin = New System.Windows.Forms.Padding(4)
         Me.dtpFrom.Name = "dtpFrom"
         Me.dtpFrom.Size = New System.Drawing.Size(150, 22)
@@ -64,7 +64,7 @@ Partial Class frmSalesReport
         'dtpTo
         '
         Me.dtpTo.Format = System.Windows.Forms.DateTimePickerFormat.Short
-        Me.dtpTo.Location = New System.Drawing.Point(290, 14)
+        Me.dtpTo.Location = New System.Drawing.Point(296, 14)
         Me.dtpTo.Margin = New System.Windows.Forms.Padding(4)
         Me.dtpTo.Name = "dtpTo"
         Me.dtpTo.Size = New System.Drawing.Size(150, 22)
@@ -93,7 +93,7 @@ Partial Class frmSalesReport
         'cboReportType
         '
         Me.cboReportType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboReportType.Location = New System.Drawing.Point(70, 56)
+        Me.cboReportType.Location = New System.Drawing.Point(85, 56)
         Me.cboReportType.Margin = New System.Windows.Forms.Padding(4)
         Me.cboReportType.Name = "cboReportType"
         Me.cboReportType.Size = New System.Drawing.Size(250, 24)
