@@ -253,6 +253,7 @@ Public Class frmFoodItems
             MessageBox.Show("'" & txtName.Text & "' is on " & ordered & " order(s) that have already been taken." & vbCrLf &
                             "It cannot be removed without those sales stopping adding up.",
                             "Cannot delete", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            WriteLog("FOOD", "Delete refused for '" & txtName.Text & "', it is on " & ordered & " order(s)", LogWarning)
             Exit Sub
         End If
 
