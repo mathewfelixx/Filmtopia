@@ -15,12 +15,27 @@ Public Class frmKiosk
     Private Const TimeTileWidth As Integer = 240
     Private Const TimeTileHeight As Integer = 140
 
+    'a seat on the kiosk map. the same map on the staff booking form uses 40 by 35 buttons 45 apart,
+    'which is fine with a mouse but far too small for a finger, so everything here is bigger
+    Private Const SeatWidth As Integer = 54
+    Private Const SeatHeight As Integer = 46
+    Private Const SeatGap As Integer = 8
+
+    'the most tickets one person can buy at the machine in one go. anybody wanting more than this
+    'is a party booking and is better off talking to somebody at the desk
+    Private Const MaxSeatsPerSale As Integer = 8
+
+    'how much of the seat step is taken up by the list of what has been picked so far, the map
+    'gets what is left over
+    Private Const LeftColumnWidth As Integer = 330
+
     'the steps a customer goes through. they are only ever compared as text so they are kept as
     'constants the same way the log severities are, which means a typo is a compile error instead
     'of a step that quietly never shows up
     Private Const StepWelcome As String = "WELCOME"
     Private Const StepFilms As String = "FILMS"
     Private Const StepTimes As String = "TIMES"
+    Private Const StepSeats As String = "SEATS"
 
     'which step is on the screen at the moment
     Private currentStep As String = StepWelcome
@@ -39,6 +54,15 @@ Public Class frmKiosk
     'touched without going back to the database for something that has already been read
     Private filmsOnToday As DataTable
 
+    'every seat in the screen the picked showing is in, with what sort of seat it is and what that
+    'does to the price. read once when the map is drawn so touching a seat does not need another
+    'look at the database just to find out what that one costs
+    Private currentSeats As DataTable
+
+    'the seats picked so far. the buttons change colour to match what is in here, the colour is
+    'never what decides anything, the same way round as the staff booking form does it
+    Private pickedSeats As DataTable
+
     Private Sub frmKiosk_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup(Me)
         LayoutKiosk()
@@ -50,19 +74,8 @@ Public Class frmKiosk
     'holding the current step fills everything left in between. it is done here rather than in the
     'designer because a kiosk screen is not the same size as the one this was drawn on
     Private Sub LayoutKiosk()
-        pnlHeader.Width = Me.ClientSize.Width
-        btnExitKiosk.Left = pnlHeader.Width - btnExitKiosk.Width - 30
-
-        pnlFooter.Width = Me.ClientSize.Width
-        pnlFooter.Top = Me.ClientSize.Height - pnlFooter.Height
-
-        'back is always bottom left and continue is always bottom right, whatever step is on the
-        'screen. a customer should not have to look for the way on each time the screen changes.
-        'the total sits just inside continue, and it is a label that grows with its own text so
-        'where it starts has to be worked out from its right hand edge
-        btnNext.Left = pnlFooter.Width - btnNext.Width - 32
-        lblRunningTotal.Left = btnNext.Left - lblRunningTotal.Width - 40
-        lblRunningTotal.Top = (pnlFooter.Height - lblRunningTotal.Height) \ 2
+        LayoutHeader()
+        LayoutFooter()
 
         'every step panel gets the same rectangle, since only one of them is ever on show
         Dim contentTop As Integer = pnlHeader.Height
@@ -71,20 +84,97 @@ Public Class frmKiosk
         SizeStepPanel(pnlWelcome, contentTop, contentHeight)
         SizeStepPanel(pnlFilms, contentTop, contentHeight)
         SizeStepPanel(pnlTimes, contentTop, contentHeight)
+        SizeStepPanel(pnlSeats, contentTop, contentHeight)
 
-        'the list of films fills its step, leaving room for the heading above it
+        CentreWelcome()
+        LayoutFilmsStep()
+        LayoutTimesStep()
+        LayoutSeatsStep()
+    End Sub
+
+    'the purple bar. the two lines of writing in it are AutoSize labels, so how tall they really
+    'are depends on the font windows ends up using and not on the numbers in the designer. the bar
+    'is made to fit round them instead of the other way about, which is why the second line used to
+    'sit on top of the Filmtopia name
+    Private Sub LayoutHeader()
+        pnlHeader.Width = Me.ClientSize.Width
+
+        lblKioskTitle.Top = 12
+        lblStep.Top = lblKioskTitle.Bottom + 4
+        pnlHeader.Height = lblStep.Bottom + 14
+
+        btnExitKiosk.Left = pnlHeader.Width - btnExitKiosk.Width - 30
+        btnExitKiosk.Top = (pnlHeader.Height - btnExitKiosk.Height) \ 2
+    End Sub
+
+    'back is always bottom left and continue is always bottom right, whatever step is on the
+    'screen. a customer should not have to look for the way on each time the screen changes
+    Private Sub LayoutFooter()
+        pnlFooter.Width = Me.ClientSize.Width
+        pnlFooter.Top = Me.ClientSize.Height - pnlFooter.Height
+
+        btnBack.Top = (pnlFooter.Height - btnBack.Height) \ 2
+
+        'the total sits just inside continue. it is a label that grows with its own text so where
+        'it starts has to be worked back from its right hand edge
+        btnNext.Left = pnlFooter.Width - btnNext.Width - 32
+        btnNext.Top = btnBack.Top
+        lblRunningTotal.Left = btnNext.Left - lblRunningTotal.Width - 40
+        lblRunningTotal.Top = (pnlFooter.Height - lblRunningTotal.Height) \ 2
+
+        'the version goes in the empty middle of the footer, out of the way of both buttons
+        lblVersion.Left = btnBack.Right + 40
+        lblVersion.Top = pnlFooter.Height - lblVersion.Height - 12
+    End Sub
+
+    'the list of films fills its step, starting under the heading rather than at a number typed
+    'into the designer, because how tall the heading draws depends on its font
+    Private Sub LayoutFilmsStep()
+        lblNoFilms.Top = lblFilmsHeading.Bottom + 24
+
+        pnlFilmList.Top = lblFilmsHeading.Bottom + 20
         pnlFilmList.Width = pnlFilms.Width - 40
         pnlFilmList.Height = pnlFilms.Height - pnlFilmList.Top - 20
         ArrangeFilmTiles()
+    End Sub
 
+    Private Sub LayoutTimesStep()
+        lblTimesFilm.Top = lblTimesHeading.Bottom + 6
+
+        pnlTimeList.Top = lblTimesFilm.Bottom + 20
         pnlTimeList.Width = pnlTimes.Width - 40
         pnlTimeList.Height = pnlTimes.Height - pnlTimeList.Top - 20
         ArrangeTimeTiles()
+    End Sub
 
-        CentreWelcome()
+    'the seat step is in two columns, the seats picked so far down the left and the map itself in
+    'the middle with its key underneath. the key belongs to the map so it lines up with the map,
+    'putting it in the left column left it sat on top of the list
+    Private Sub LayoutSeatsStep()
+        lblSeatsShowing.Top = lblSeatsHeading.Bottom + 6
 
-        lblVersion.Top = pnlFooter.Height - lblVersion.Height - 10
-        lblVersion.Left = pnlFooter.Width - lblVersion.Width - 20
+        lblSeatsPicked.Top = lblSeatsShowing.Bottom + 24
+        lblSeatsPicked.Height = pnlSeats.Height - lblSeatsPicked.Top - 30
+
+        'the map is only worth moving about once there is one drawn
+        If currentSeats IsNot Nothing Then
+            CentreSeatMap()
+        End If
+
+        lblSwatchAvailable.Left = pnlSeatMap.Left
+        lblKeyAvailable.Left = lblSwatchAvailable.Right + 12
+        lblSwatchSelected.Left = lblKeyAvailable.Right + 40
+        lblKeySelected.Left = lblSwatchSelected.Right + 12
+        lblSwatchTaken.Left = lblKeySelected.Right + 40
+        lblKeyTaken.Left = lblSwatchTaken.Right + 12
+
+        lblSwatchAvailable.Top = pnlSeatMap.Bottom + 18
+        lblSwatchSelected.Top = lblSwatchAvailable.Top
+        lblSwatchTaken.Top = lblSwatchAvailable.Top
+
+        lblKeyAvailable.Top = lblSwatchAvailable.Top + 2
+        lblKeySelected.Top = lblKeyAvailable.Top
+        lblKeyTaken.Top = lblKeyAvailable.Top
     End Sub
 
     'gives one step panel the whole of the space between the header and the footer
@@ -122,6 +212,7 @@ Public Class frmKiosk
         pnlWelcome.Visible = (stepName = StepWelcome)
         pnlFilms.Visible = (stepName = StepFilms)
         pnlTimes.Visible = (stepName = StepTimes)
+        pnlSeats.Visible = (stepName = StepSeats)
 
         'the wording under the Filmtopia name says where the customer is up to
         If stepName = StepWelcome Then
@@ -130,6 +221,8 @@ Public Class frmKiosk
             lblStep.Text = "Step 1 of 4  -  choose a film"
         ElseIf stepName = StepTimes Then
             lblStep.Text = "Step 2 of 4  -  choose a showing"
+        ElseIf stepName = StepSeats Then
+            lblStep.Text = "Step 3 of 4  -  choose your seats"
         End If
 
         'there is nothing to go back to from the welcome screen
@@ -137,8 +230,8 @@ Public Class frmKiosk
 
         'the first two steps are answered by touching a tile, so a continue button on them would
         'only be something else to press. it appears when there is a running total to carry on with
-        btnNext.Visible = False
-        lblRunningTotal.Visible = False
+        btnNext.Visible = (stepName = StepSeats)
+        lblRunningTotal.Visible = (stepName = StepSeats)
 
         LayoutKiosk()
     End Sub
@@ -407,6 +500,232 @@ Public Class frmKiosk
 
         LoadShowingDetails()
         WriteLog("KIOSK", "Customer picked screening " & currentScreeningID & " (" & currentShowingText & ")")
+
+        BuildSeatMap()
+        ShowStep(StepSeats)
+    End Sub
+
+    'makes the empty table that holds the seats picked for this sale
+    Private Sub SetUpPickedSeats()
+        pickedSeats = New DataTable
+        pickedSeats.Columns.Add("SeatID", GetType(Integer))
+        pickedSeats.Columns.Add("SeatName", GetType(String))
+        'the multiplier travels with the seat so the running total can be added up without going
+        'back to the database every time somebody touches one
+        pickedSeats.Columns.Add("Multiplier", GetType(Double))
+    End Sub
+
+    'says whether a seat has been picked for this sale
+    Private Function IsSeatPicked(seatID As Long) As Boolean
+        Return pickedSeats.Select("SeatID = " & seatID).Length > 0
+    End Function
+
+    'takes the seat colours from whichever theme is on so the map works in dark mode too
+    Private Sub ApplySeatColours()
+        lblSwatchAvailable.BackColor = SeatAvailable
+        lblSwatchSelected.BackColor = SeatSelected
+        lblSwatchTaken.BackColor = SeatTaken
+    End Sub
+
+    'draws a button for every seat in the screen this showing is in and greys out the ones that
+    'have already gone
+    Private Sub BuildSeatMap()
+        ApplySeatColours()
+        pnlSeatMap.Controls.Clear()
+        lblSeatsShowing.Text = currentShowingText
+
+        'a fresh showing means nothing carries over from the last one somebody looked at
+        SetUpPickedSeats()
+
+        currentSeats = New DataTable
+        Dim dtTaken As New DataTable
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+
+            SQLCmd.CommandText = "SELECT tblSeat.SeatID, tblSeat.SeatRow, tblSeat.SeatNumber, " &
+                                 "tblSeatType.SeatTypeName, tblSeatType.PriceMultiplier " &
+                                 "FROM tblSeat INNER JOIN tblSeatType ON tblSeat.SeatTypeID = tblSeatType.SeatTypeID " &
+                                 "WHERE tblSeat.ScreenID = @ScreenID " &
+                                 "ORDER BY tblSeat.SeatRow, tblSeat.SeatNumber"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(currentScreenID))
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            da.Fill(currentSeats)
+
+            'the seats already sold on this showing. the screening is written on the seat row
+            'itself so this is one table and needs no join
+            SQLCmd.CommandText = "SELECT SeatID FROM tblBookingSeat WHERE ScreeningID = @ScreeningID"
+            SQLCmd.Parameters.Clear()
+            SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
+            Dim da2 As New OleDbDataAdapter(SQLCmd)
+            da2.Fill(dtTaken)
+
+            cn.Close()
+        End If
+
+        Dim i As Integer
+        For i = 0 To currentSeats.Rows.Count - 1
+            Dim seatID As Long = CLng(currentSeats.Rows(i)("SeatID"))
+            Dim seatRow As String = currentSeats.Rows(i)("SeatRow").ToString()
+            Dim seatNumber As Integer = CInt(currentSeats.Rows(i)("SeatNumber"))
+            Dim multiplier As Double = CDbl(currentSeats.Rows(i)("PriceMultiplier"))
+
+            Dim b As New Button
+            b.Tag = seatID
+            b.Text = seatRow & seatNumber
+            b.Size = New Size(SeatWidth, SeatHeight)
+            b.Font = New Font("Segoe UI", 10)
+            b.FlatStyle = FlatStyle.Flat
+            b.FlatAppearance.BorderSize = 0
+
+            'the row letter A,B,C says how far down and the seat number says how far across
+            Dim rowIndex As Integer = Asc(seatRow) - 65
+            b.Location = New Point((seatNumber - 1) * (SeatWidth + SeatGap),
+                                   rowIndex * (SeatHeight + SeatGap))
+
+            'a seat that costs more than a standard one gets a border round it so the difference
+            'can be seen. the background is left to say whether it is free, picked or gone, so the
+            'two things are not fighting over the same colour
+            If multiplier <> 1 Then
+                b.FlatAppearance.BorderSize = 3
+                b.FlatAppearance.BorderColor = AccentFore
+            End If
+
+            If dtTaken.Select("SeatID = " & seatID).Length > 0 Then
+                b.BackColor = SeatTaken
+                b.ForeColor = SeatTakenFore
+                b.Enabled = False
+            Else
+                b.BackColor = SeatAvailable
+                b.ForeColor = SeatFore
+                AddHandler b.Click, AddressOf Seat_Click
+            End If
+
+            pnlSeatMap.Controls.Add(b)
+        Next
+
+        CentreSeatMap()
+        UpdateSeatSummary()
+    End Sub
+
+    'puts the map and the SCREEN bar above it in the middle of the space to the right of the list
+    'of picked seats. how wide the map is depends on how many seats are in a row, so it cannot be
+    'a number typed into the designer
+    Private Sub CentreSeatMap()
+        Dim seatsAcross As Integer = WidestRow()
+        Dim mapWidth As Integer = (seatsAcross * (SeatWidth + SeatGap)) - SeatGap
+
+        'the space left over once the list down the left has had its share
+        Dim spaceLeft As Integer = pnlSeats.Width - LeftColumnWidth - 30
+
+        'the map never gets wider than the room it has, otherwise a small screen would leave it
+        'hanging off the side. if it does not fit the panel scrolls instead
+        If mapWidth > spaceLeft Then
+            mapWidth = spaceLeft
+        End If
+
+        Dim mapLeft As Integer = LeftColumnWidth + ((spaceLeft - mapWidth) \ 2)
+
+        lblScreen.Left = mapLeft
+        lblScreen.Width = mapWidth
+        lblScreen.Top = lblSeatsShowing.Bottom + 24
+
+        pnlSeatMap.Left = mapLeft
+        pnlSeatMap.Width = mapWidth
+        pnlSeatMap.Top = lblScreen.Bottom + 16
+        'the key sits under the map so the map stops short of the bottom to leave room for it
+        pnlSeatMap.Height = pnlSeats.Height - pnlSeatMap.Top - 80
+    End Sub
+
+    'how many seats are in the longest row, which is what decides how wide the map has to be
+    Private Function WidestRow() As Integer
+        Dim widest As Integer = 0
+        Dim i As Integer
+
+        For i = 0 To currentSeats.Rows.Count - 1
+            Dim seatNumber As Integer = CInt(currentSeats.Rows(i)("SeatNumber"))
+            If seatNumber > widest Then
+                widest = seatNumber
+            End If
+        Next
+
+        Return widest
+    End Function
+
+    'turns a seat on or off. the table is what changes, the colour is only put on afterwards to
+    'show what the table now says
+    Private Sub Seat_Click(sender As Object, e As EventArgs)
+        Dim b As Button = CType(sender, Button)
+        Dim seatID As Long = CLng(b.Tag)
+
+        If IsSeatPicked(seatID) Then
+            Dim rows() As DataRow = pickedSeats.Select("SeatID = " & seatID)
+            pickedSeats.Rows.Remove(rows(0))
+            b.BackColor = SeatAvailable
+        Else
+            'a machine in a foyer is not the place to sell a party twenty tickets, and letting
+            'somebody fill a whole screen by leaning on it would be worse
+            If pickedSeats.Rows.Count >= MaxSeatsPerSale Then
+                MessageBox.Show("You can buy up to " & MaxSeatsPerSale & " tickets at the machine." & vbNewLine &
+                                "For a bigger group please ask at the desk.",
+                                "Too many seats", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                Exit Sub
+            End If
+
+            pickedSeats.Rows.Add(CInt(seatID), b.Text, MultiplierForSeat(seatID))
+            b.BackColor = SeatSelected
+        End If
+
+        UpdateSeatSummary()
+    End Sub
+
+    'what a seat does to the price, out of the seats that were read when the map was drawn
+    Private Function MultiplierForSeat(seatID As Long) As Double
+        Dim rows() As DataRow = currentSeats.Select("SeatID = " & seatID)
+
+        If rows.Length > 0 Then
+            Return CDbl(rows(0)("PriceMultiplier"))
+        End If
+
+        'if it cannot be found the seat is charged as a standard one, which is the safe way round
+        Return 1
+    End Function
+
+    'adds up what the picked seats come to. they go on one at a time rather than being counted and
+    'multiplied, because a premium seat is worth more than a standard one
+    Private Function TicketsTotal() As Double
+        Dim total As Double = 0
+        Dim i As Integer
+
+        For i = 0 To pickedSeats.Rows.Count - 1
+            total = total + SeatPrice(currentTicketPrice, CDbl(pickedSeats.Rows(i)("Multiplier")))
+        Next
+
+        Return total
+    End Function
+
+    'writes out what has been picked so far down the left hand side, and puts the total in the
+    'footer. continue only becomes pressable once there is at least one seat
+    Private Sub UpdateSeatSummary()
+        Dim listing As String = ""
+        Dim i As Integer
+
+        For i = 0 To pickedSeats.Rows.Count - 1
+            Dim seatName As String = pickedSeats.Rows(i)("SeatName").ToString()
+            Dim price As Double = SeatPrice(currentTicketPrice, CDbl(pickedSeats.Rows(i)("Multiplier")))
+            listing = listing & "Seat " & seatName & "   " & FormatCurrency(price) & vbNewLine
+        Next
+
+        If pickedSeats.Rows.Count = 0 Then
+            lblSeatsPicked.Text = "Touch the seats you want" & vbNewLine & vbNewLine &
+                                  "Up to " & MaxSeatsPerSale & " at a time"
+        Else
+            lblSeatsPicked.Text = pickedSeats.Rows.Count & " seat(s)" & vbNewLine & vbNewLine & listing
+        End If
+
+        lblRunningTotal.Text = "Total  " & FormatCurrency(TicketsTotal())
+        btnNext.Enabled = (pickedSeats.Rows.Count > 0)
     End Sub
 
     'the screen and the ticket price of the picked showing, read once here so the seat map and the
@@ -449,6 +768,11 @@ Public Class frmKiosk
             'while the customer was stood there deciding
             LoadFilmsForToday()
             ShowStep(StepFilms)
+        ElseIf currentStep = StepSeats Then
+            'the seats picked are thrown away on the way back, and the list of showings is read
+            'again so how many are left is right rather than however full it was a minute ago
+            LoadShowingsForFilm()
+            ShowStep(StepTimes)
         End If
     End Sub
 
