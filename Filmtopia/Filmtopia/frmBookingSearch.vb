@@ -159,9 +159,9 @@ Public Class frmBookingSearch
         Dim worked As Boolean = False
 
         If DbConnect() Then
-            'all three deletes are done as one transaction. without this, if something went wrong
-            'partway through, the seats could be freed but the booking left behind, which would
-            'leave the database in a mess. this way either all three happen or none of them do
+            'the seats going back on sale and the booking being marked cancelled are done as one
+            'transaction. without this, if something went wrong partway through, the seats could be
+            'freed on a booking that still says it is active. this way either both happen or neither
             Dim trans As OleDbTransaction = cn.BeginTransaction()
 
             Try
@@ -169,29 +169,31 @@ Public Class frmBookingSearch
                 SQLCmd.Connection = cn
                 SQLCmd.Transaction = trans
 
-                'remove the seats held for this booking
+                'the seats really are removed rather than just marked. they have to be, because the
+                'database will not let the same seat be sold twice on a screening, so leaving the
+                'rows behind would keep the seat off sale for good. the food order is left alone so
+                'there is still a record of what was bought and refunded
                 SQLCmd.CommandText = "DELETE FROM tblBookingSeat " &
                                      "WHERE BookingID = @BookingID"
                 SQLCmd.Parameters.AddWithValue("@BookingID", cancelledID)
                 seatsFreed = SQLCmd.ExecuteNonQuery()
 
-                'remove any food and drink ordered for this booking
-                SQLCmd.CommandText = "DELETE FROM tblOrderItem " &
-                                     "WHERE BookingID = @BookingID"
+                'the booking is kept and marked instead of being deleted. before this it was thrown
+                'away completely, which meant a cancelled sale vanished out of the history and the
+                'sales report could never show what had been refunded
+                SQLCmd.CommandText = "UPDATE tblBooking " &
+                                     "SET BookingStatus = @BookingStatus, CancelledDate = @CancelledDate " &
+                                     "WHERE BookingID = @BookingID AND BookingStatus <> @AlreadyCancelled"
                 SQLCmd.Parameters.Clear()
+                SQLCmd.Parameters.AddWithValue("@BookingStatus", BookingCancelled)
+                SQLCmd.Parameters.AddWithValue("@CancelledDate", Date.Now)
                 SQLCmd.Parameters.AddWithValue("@BookingID", cancelledID)
-                SQLCmd.ExecuteNonQuery()
+                SQLCmd.Parameters.AddWithValue("@AlreadyCancelled", BookingCancelled)
 
-                'finally remove the booking itself
-                SQLCmd.CommandText = "DELETE FROM tblBooking " &
-                                     "WHERE BookingID = @BookingID"
-                SQLCmd.Parameters.Clear()
-                SQLCmd.Parameters.AddWithValue("@BookingID", cancelledID)
-
-                'if this is zero the booking had already gone, so nothing should be committed
+                'if this is zero the booking has gone or was already cancelled, so nothing is committed
                 If SQLCmd.ExecuteNonQuery() = 0 Then
                     trans.Rollback()
-                    MessageBox.Show("That booking no longer exists. It may have already been cancelled.", "Cancel Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    MessageBox.Show("That booking could not be cancelled. It may have already been cancelled.", "Cancel Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 Else
                     trans.Commit()
                     worked = True
@@ -208,7 +210,9 @@ Public Class frmBookingSearch
         'the log is written after the connection is closed because WriteLog opens it again
         If worked Then
             WriteLog("BOOKING", "Booking " & cancelledID & " cancelled (" & cancelledWhat & "), " & seatsFreed & " seat(s) freed", LogChange)
-            MessageBox.Show("Booking cancelled and " & seatsFreed & " seat(s) put back on sale.", "Cancel Booking", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show("Booking cancelled and " & seatsFreed & " seat(s) put back on sale." & vbCrLf &
+                            "The booking is still in the list, marked as cancelled.",
+                            "Cancel Booking", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
 
         LoadBookings(txtSearch.Text.Trim())
