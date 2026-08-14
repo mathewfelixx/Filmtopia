@@ -5,10 +5,10 @@ Public Class frmScreens
     'tracks the ScreenID of the row currently selected in the grid, 0 means nothing selected
     Private selectedScreenID As Long = 0
 
-    'the capacity the selected screen had when it was clicked on. it is kept so that saving can
-    'tell whether the capacity has actually been changed, because the seats only need making
-    'again if it has
-    Private capacityWhenPicked As Integer = 0
+    'the layout the selected screen had when it was clicked on. it is kept so that saving can tell
+    'whether the layout has actually been changed, because the seats only need making again if it has
+    Private rowsWhenPicked As Integer = 0
+    Private perRowWhenPicked As Integer = 0
 
     Private Sub frmScreens_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup(Me)
