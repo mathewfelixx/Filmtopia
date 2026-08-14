@@ -145,7 +145,7 @@ Public Class frmSalesReport
                                  "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
                                  "WHERE tblBooking.BookingStatus = @Cancelled " &
                                  "AND tblBooking.CancelledDate BETWEEN @FromDate AND @ToDate " &
-                                 "ORDER BY tblBooking.CancelledDate DESC"
+                                 "ORDER BY tblBooking.CancelledDate DESC, tblBooking.BookingID DESC"
             SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
             'the to date is pushed to the end of that day, otherwise anything cancelled during the
