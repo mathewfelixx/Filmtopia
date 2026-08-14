@@ -51,9 +51,35 @@ Public Class frmFilms
 
         stillLoading = False
 
+        'lets the form see escape before the box that has focus does
+        Me.KeyPreview = True
+
         LoadFilms()
         ClearFields()
+
+        'the first thing somebody usually wants is to find a film, so the cursor starts there
+        txtSearch.Focus()
         WriteLog("FILM", "Films form opened")
+    End Sub
+
+    'saves the list as it is on screen, so whatever the search box and the genre filter have
+    'narrowed it down to is what comes out
+    Private Sub btnExport_Click(sender As Object, e As EventArgs) Handles btnExport.Click
+        If ExportGridToCsv(dgvFilms, "Films.csv", "Films") Then
+            WriteLog("FILM", "Film list exported, " & dgvFilms.Rows.Count & " films")
+        End If
+    End Sub
+
+    'escape empties the search box, or shuts the form if there is nothing to empty. doing both off
+    'the one key means it never has to be explained, you press it until you are out
+    Private Sub frmFilms_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
+        If e.KeyCode = Keys.Escape Then
+            If txtSearch.Text <> "" Then
+                txtSearch.Text = ""
+            Else
+                Me.Close()
+            End If
+        End If
     End Sub
 
     'loads the films into the grid, only the ones matching the search box if anything is typed in it
