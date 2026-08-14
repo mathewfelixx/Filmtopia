@@ -178,73 +178,11 @@ Module modBookings
         Return newID
     End Function
 
-    'makes a booking and its seats together. either both go in or neither does, so the database
-    'can never end up with a booking that has no seats attached to it.
-    'pass an empty array of seats for a food only sale.
-    'returns the new BookingID, or 0 if it did not work
-    Public Function CreateBookingWithSeats(customerID As Long, screeningID As Long, seatIDs() As Long) As Long
-        Dim newID As Long = 0
-
-        If DbConnect() Then
-            Dim trans As OleDbTransaction = cn.BeginTransaction()
-
-            Try
-                Dim SQLCmd As New OleDbCommand
-                SQLCmd.Connection = cn
-                SQLCmd.Transaction = trans
-
-                'the cost goes in as zero to start with, RecalculateBookingTotal sets it properly
-                'once the seats are actually saved
-                SQLCmd.CommandText = "INSERT INTO tblBooking (CustomerID, ScreeningID, BookingDate, TotalCost, BookingStatus) " &
-                                     "VALUES (@CustomerID, @ScreeningID, @BookingDate, @TotalCost, @BookingStatus)"
-                SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(customerID))
-                SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(screeningID))
-                SQLCmd.Parameters.AddWithValue("@BookingDate", Date.Now.Date)
-                SQLCmd.Parameters.AddWithValue("@TotalCost", 0)
-                SQLCmd.Parameters.AddWithValue("@BookingStatus", BookingActive)
-                SQLCmd.ExecuteNonQuery()
-
-                'get the id the new booking was given so its seats can be linked to it
-                SQLCmd.CommandText = "SELECT @@IDENTITY"
-                SQLCmd.Parameters.Clear()
-                newID = CLng(SQLCmd.ExecuteScalar())
-
-                Dim i As Integer
-                For i = 0 To seatIDs.Length - 1
-                    SQLCmd.CommandText = "INSERT INTO tblBookingSeat (BookingID, SeatID, ScreeningID) " &
-                                         "VALUES (@BookingID, @SeatID, @ScreeningID)"
-                    SQLCmd.Parameters.Clear()
-                    SQLCmd.Parameters.AddWithValue("@BookingID", CInt(newID))
-                    SQLCmd.Parameters.AddWithValue("@SeatID", CInt(seatIDs(i)))
-                    SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(screeningID))
-                    SQLCmd.ExecuteNonQuery()
-                Next
-
-                trans.Commit()
-
-            Catch ex As Exception
-                trans.Rollback()
-                newID = 0
-                MessageBox.Show("The booking could not be made, so nothing was saved. " & ex.Message,
-                                "Booking", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            End Try
-
-            cn.Close()
-        End If
-
-        'work the money out from what actually got saved, not from what was on screen
-        If newID > 0 Then
-            RecalculateBookingTotal(newID)
-        End If
-
-        Return newID
-    End Function
-
     'works out what a booking costs and saves it onto the booking.
-    'the total is always the seats times the ticket price, plus whatever food has been ordered.
-    'this is the only place TotalCost is ever set, so it cannot drift out of step any more
+    'the tickets are whatever they were actually charged at when the sale was made, which is read
+    'straight off the seat rows and never worked out again. only the food is added up fresh, because
+    'that is the part that can still change after the sale. this is the only place TotalCost is set
     Public Sub RecalculateBookingTotal(bookingID As Long)
-        Dim ticketPrice As Double = 0
         Dim ticketTotal As Double = 0
         Dim foodTotal As Double = 0
 
