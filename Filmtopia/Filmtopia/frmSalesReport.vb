@@ -10,6 +10,11 @@ Public Class frmSalesReport
     'local in each loader because the grid is not the only thing that reads it any more
     Private reportTable As DataTable
 
+    'which column the report is sorted by at the moment and which way round. blank means it is in
+    'whatever order the query gave it back in
+    Private sortedBy As String = ""
+    Private sortAscending As Boolean = True
+
     Private Sub frmSalesReport_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         If UserAccessLevel <> 1 Then
             MessageBox.Show("Only a manager can see the sales report.", "Sales Report", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -98,6 +103,10 @@ Public Class frmSalesReport
         'showing the busy cursor rather than having the screen sit there looking stuck
         Me.Cursor = Cursors.WaitCursor
 
+        'a new report has different columns, so any sort from the last one is forgotten
+        sortedBy = ""
+        sortAscending = True
+
         If cboReportType.Text = "Tickets only" Then
             Dim ticketRevenue As Double = LoadTicketsByFilm(fromDate, toDate)
 
@@ -181,6 +190,42 @@ Public Class frmSalesReport
         Else
             lblGridCount.Text = shown & " " & thing & "s"
         End If
+    End Sub
+
+    'clicking a heading sorts the report by that column. clicking the same one again turns the
+    'order round
+    Private Sub dgvSalesByFilm_ColumnHeaderMouseClick(sender As Object, e As DataGridViewCellMouseEventArgs) Handles dgvSalesByFilm.ColumnHeaderMouseClick
+        Dim columnName As String = dgvSalesByFilm.Columns(e.ColumnIndex).Name
+
+        If columnName = sortedBy Then
+            sortAscending = Not sortAscending
+        Else
+            sortedBy = columnName
+
+            'a name is easier to find a to z, but money and counts are more use biggest first, so
+            'the first click on a column starts it off whichever way round suits it
+            sortAscending = (dgvSalesByFilm.Columns(e.ColumnIndex).ValueType Is GetType(String))
+        End If
+
+        SortReport(sortedBy, sortAscending)
+        ShowReport()
+        ShowSortArrow()
+    End Sub
+
+    'puts the little arrow on whichever heading is being sorted by. the grid draws that itself
+    'normally, but not once its own sorting has been turned off
+    Private Sub ShowSortArrow()
+        For Each col As DataGridViewColumn In dgvSalesByFilm.Columns
+            If col.Name = sortedBy Then
+                If sortAscending Then
+                    col.HeaderCell.SortGlyphDirection = SortOrder.Ascending
+                Else
+                    col.HeaderCell.SortGlyphDirection = SortOrder.Descending
+                End If
+            Else
+                col.HeaderCell.SortGlyphDirection = SortOrder.None
+            End If
+        Next
     End Sub
 
     'puts the table that has just been built onto the grid, then tidies the columns for whichever
@@ -451,6 +496,13 @@ Public Class frmSalesReport
         Next
 
         reportTable = dt
+
+        'this is the one report the database does not put in any order, because it is stitched
+        'together here out of two queries. biggest takings first is what a manager wants to see
+        SortReport("Total", False)
+        sortedBy = "Total"
+        sortAscending = False
+
         ShowReport()
     End Sub
 
@@ -528,6 +580,151 @@ Public Class frmSalesReport
         End If
 
         Return dt
+    End Function
+
+    'sorts the report by one of its columns.
+    '
+    'what actually gets sorted is a list of row numbers, not the rows. that way nothing big is
+    'being shuffled about while the sort runs, and the table is only rebuilt once at the end.
+    'a merge sort is used rather than something simpler. at the size this report runs at it makes
+    'no odds at all, but it does not get worse as the cinema takes more bookings, and it keeps rows
+    'that tie in the order they were already in, which stops the list jumping about when a column
+    'with a lot of equal values is sorted
+    Private Sub SortReport(columnName As String, ascending As Boolean)
+        If reportTable Is Nothing Then
+            Exit Sub
+        End If
+
+        If reportTable.Rows.Count < 2 Then
+            Exit Sub
+        End If
+
+        Dim howMany As Integer = reportTable.Rows.Count
+        Dim order(howMany - 1) As Integer
+
+        For i As Integer = 0 To howMany - 1
+            order(i) = i
+        Next
+
+        MergeSort(order, 0, howMany - 1, columnName, ascending)
+
+        'the table is built again with the rows in the order the sort worked out
+        Dim sorted As DataTable = reportTable.Clone()
+
+        For i As Integer = 0 To howMany - 1
+            sorted.ImportRow(reportTable.Rows(order(i)))
+        Next
+
+        reportTable = sorted
+    End Sub
+
+    'splits the list down the middle, sorts each half by calling itself, then merges the two sorted
+    'halves back together. one item on its own is already sorted, which is where it stops
+    Private Sub MergeSort(order() As Integer, low As Integer, high As Integer, columnName As String, ascending As Boolean)
+        If low >= high Then
+            Exit Sub
+        End If
+
+        Dim middle As Integer = (low + high) \ 2
+
+        MergeSort(order, low, middle, columnName, ascending)
+        MergeSort(order, middle + 1, high, columnName, ascending)
+        Merge(order, low, middle, high, columnName, ascending)
+    End Sub
+
+    'the two halves are each already in order, so this walks along both at once and keeps taking
+    'whichever of the two front rows should come first
+    Private Sub Merge(order() As Integer, low As Integer, middle As Integer, high As Integer, columnName As String, ascending As Boolean)
+        Dim merged(high - low) As Integer
+        Dim left As Integer = low
+        Dim right As Integer = middle + 1
+        Dim put As Integer = 0
+
+        Do While left <= middle And right <= high
+            If ComesFirst(order(left), order(right), columnName, ascending) Then
+                merged(put) = order(left)
+                left = left + 1
+            Else
+                merged(put) = order(right)
+                right = right + 1
+            End If
+
+            put = put + 1
+        Loop
+
+        'one half runs out before the other. whatever is left in the other one is already in order
+        'so it just goes on the end
+        Do While left <= middle
+            merged(put) = order(left)
+            left = left + 1
+            put = put + 1
+        Loop
+
+        Do While right <= high
+            merged(put) = order(right)
+            right = right + 1
+            put = put + 1
+        Loop
+
+        For i As Integer = 0 To high - low
+            order(low + i) = merged(i)
+        Next
+    End Sub
+
+    'says whether the row at a should come before the row at b
+    Private Function ComesFirst(a As Integer, b As Integer, columnName As String, ascending As Boolean) As Boolean
+        Dim result As Integer = CompareCells(reportTable.Rows(a)(columnName), reportTable.Rows(b)(columnName))
+
+        'a tie takes from the left hand half, which is the one that was already in front. that is
+        'what keeps equal rows in the order they started in
+        If result = 0 Then
+            Return True
+        End If
+
+        If ascending Then
+            Return result < 0
+        Else
+            Return result > 0
+        End If
+    End Function
+
+    'compares two values out of the same column and gives back -1, 0 or 1. text, dates and numbers
+    'all have to be compared in their own way or the order comes out wrong
+    Private Function CompareCells(valueA As Object, valueB As Object) As Integer
+        'an empty cell counts as the smallest thing there is, so those rows gather at one end
+        If IsDBNull(valueA) And IsDBNull(valueB) Then
+            Return 0
+        End If
+
+        If IsDBNull(valueA) Then
+            Return -1
+        End If
+
+        If IsDBNull(valueB) Then
+            Return 1
+        End If
+
+        If TypeOf valueA Is String Then
+            'ignoring the case matters here, otherwise every title starting with a capital sorts
+            'in front of every title that does not
+            Return String.Compare(valueA.ToString(), valueB.ToString(), True)
+        End If
+
+        If TypeOf valueA Is Date Then
+            Return Date.Compare(CDate(valueA), CDate(valueB))
+        End If
+
+        'everything else on this report is a number
+        Dim numberA As Double = CDbl(valueA)
+        Dim numberB As Double = CDbl(valueB)
+
+        If numberA < numberB Then
+            Return -1
+        ElseIf numberA > numberB Then
+            Return 1
+        Else
+            Return 0
+        End If
     End Function
 
     'looks through the food table for a film and gives back what it took, or 0 if it is not in there
