@@ -18,9 +18,13 @@ Partial Class frmFilms
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.lblHeading = New System.Windows.Forms.Label()
+        Me.btnImportFromFile = New System.Windows.Forms.Button()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.lblSearch = New System.Windows.Forms.Label()
         Me.txtSearch = New System.Windows.Forms.TextBox()
+        Me.lblGenreFilter = New System.Windows.Forms.Label()
+        Me.cboGenreFilter = New System.Windows.Forms.ComboBox()
+        Me.chkNeedsDescription = New System.Windows.Forms.CheckBox()
         Me.lblGridCount = New System.Windows.Forms.Label()
         Me.dgvFilms = New System.Windows.Forms.DataGridView()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
@@ -77,24 +81,54 @@ Partial Class frmFilms
         Me.lblSearch.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.lblSearch.Location = New System.Drawing.Point(16, 28)
         Me.lblSearch.Name = "lblSearch"
-        Me.lblSearch.Size = New System.Drawing.Size(42, 15)
+        Me.lblSearch.Size = New System.Drawing.Size(53, 20)
         Me.lblSearch.TabIndex = 0
         Me.lblSearch.Text = "Search"
         '
         'txtSearch
         '
         Me.txtSearch.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.txtSearch.Location = New System.Drawing.Point(70, 25)
+        Me.txtSearch.Location = New System.Drawing.Point(90, 25)
         Me.txtSearch.Name = "txtSearch"
-        Me.txtSearch.Size = New System.Drawing.Size(300, 23)
+        Me.txtSearch.Size = New System.Drawing.Size(240, 27)
         Me.txtSearch.TabIndex = 1
+        '
+        'lblGenreFilter
+        '
+        Me.lblGenreFilter.AutoSize = True
+        Me.lblGenreFilter.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblGenreFilter.Location = New System.Drawing.Point(355, 28)
+        Me.lblGenreFilter.Name = "lblGenreFilter"
+        Me.lblGenreFilter.Size = New System.Drawing.Size(48, 20)
+        Me.lblGenreFilter.TabIndex = 4
+        Me.lblGenreFilter.Text = "Genre"
+        '
+        'cboGenreFilter
+        '
+        Me.cboGenreFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboGenreFilter.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.cboGenreFilter.Location = New System.Drawing.Point(420, 25)
+        Me.cboGenreFilter.Name = "cboGenreFilter"
+        Me.cboGenreFilter.Size = New System.Drawing.Size(150, 28)
+        Me.cboGenreFilter.TabIndex = 5
+        '
+        'chkNeedsDescription
+        '
+        Me.chkNeedsDescription.AutoSize = True
+        Me.chkNeedsDescription.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.chkNeedsDescription.Location = New System.Drawing.Point(598, 27)
+        Me.chkNeedsDescription.Name = "chkNeedsDescription"
+        Me.chkNeedsDescription.Size = New System.Drawing.Size(163, 24)
+        Me.chkNeedsDescription.TabIndex = 6
+        Me.chkNeedsDescription.Text = "Needs a description"
+        Me.chkNeedsDescription.UseVisualStyleBackColor = True
         '
         'lblGridCount
         '
         Me.lblGridCount.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.lblGridCount.Location = New System.Drawing.Point(700, 28)
+        Me.lblGridCount.Location = New System.Drawing.Point(790, 28)
         Me.lblGridCount.Name = "lblGridCount"
-        Me.lblGridCount.Size = New System.Drawing.Size(320, 17)
+        Me.lblGridCount.Size = New System.Drawing.Size(230, 20)
         Me.lblGridCount.TabIndex = 2
         Me.lblGridCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight
         '
@@ -109,6 +143,8 @@ Partial Class frmFilms
         Me.dgvFilms.Name = "dgvFilms"
         Me.dgvFilms.ReadOnly = True
         Me.dgvFilms.RowHeadersVisible = False
+        Me.dgvFilms.RowHeadersWidth = 51
+        Me.dgvFilms.RowTemplate.Height = 44
         Me.dgvFilms.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvFilms.Size = New System.Drawing.Size(1004, 330)
         Me.dgvFilms.TabIndex = 3
@@ -122,8 +158,12 @@ Partial Class frmFilms
         Me.GroupBox2.Controls.Add(Me.cboAgeRating)
         Me.GroupBox2.Controls.Add(Me.lblDuration)
         Me.GroupBox2.Controls.Add(Me.txtDuration)
+        Me.GroupBox2.Controls.Add(Me.lblYear)
+        Me.GroupBox2.Controls.Add(Me.txtYear)
         Me.GroupBox2.Controls.Add(Me.lblDescription)
         Me.GroupBox2.Controls.Add(Me.txtDescription)
+        Me.GroupBox2.Controls.Add(Me.lblGenres)
+        Me.GroupBox2.Controls.Add(Me.txtGenres)
         Me.GroupBox2.Controls.Add(Me.btnAdd)
         Me.GroupBox2.Controls.Add(Me.btnUpdate)
         Me.GroupBox2.Controls.Add(Me.btnDelete)
