@@ -514,17 +514,23 @@ Public Class frmMainMenuV2
             'the parameter has to come off again because the queries after this one do not use it
             SQLCmd.Parameters.Clear()
 
+            'a cancelled booking has been refunded, so none of it counts as money taken. the sales
+            'report already left them out but this screen did not, so the two disagreed about the
+            'takings. the seat counts below need no filter because cancelling deletes the seat rows
             If UserAccessLevel = 1 Then
                 'managers get the business figures
-                SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBooking"
+                SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBooking WHERE BookingStatus <> @Cancelled"
+                SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
                 Dim bookings As Integer = CInt(SQLCmd.ExecuteScalar())
                 lblStat3.Text = bookings.ToString()
 
                 SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBookingSeat"
+                SQLCmd.Parameters.Clear()
                 lblCardSub3.Text = SQLCmd.ExecuteScalar().ToString() & " seats sold"
 
                 'SUM comes back empty if there are no bookings at all so that has to be checked
-                SQLCmd.CommandText = "SELECT SUM(TotalCost) FROM tblBooking"
+                SQLCmd.CommandText = "SELECT SUM(TotalCost) FROM tblBooking WHERE BookingStatus <> @Cancelled"
+                SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
                 Dim takingsResult = SQLCmd.ExecuteScalar()
                 Dim takings As Double = 0
                 If takingsResult IsNot Nothing AndAlso Not IsDBNull(takingsResult) Then
@@ -532,9 +538,15 @@ Public Class frmMainMenuV2
                 End If
 
                 'the total on a booking is the tickets plus any food, so the concessions side has to
-                'be worked out on its own and taken off to leave what the tickets brought in
+                'be worked out on its own and taken off to leave what the tickets brought in.
+                'the food rows are deliberately kept on a cancelled booking, so this has to go back
+                'to tblBooking to leave the refunded ones out
                 SQLCmd.CommandText = "SELECT SUM(Quantity * FoodItemPrice) " &
-                                     "FROM tblOrderItem INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID"
+                                     "FROM (tblOrderItem INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID) " &
+                                     "INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID " &
+                                     "WHERE tblBooking.BookingStatus <> @Cancelled"
+                SQLCmd.Parameters.Clear()
+                SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
                 Dim foodResult = SQLCmd.ExecuteScalar()
                 Dim concessions As Double = 0
                 If foodResult IsNot Nothing AndAlso Not IsDBNull(foodResult) Then
@@ -555,10 +567,14 @@ Public Class frmMainMenuV2
                 SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBookingSeat"
                 lblStat3.Text = SQLCmd.ExecuteScalar().ToString()
 
-                SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBooking"
+                SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBooking WHERE BookingStatus <> @Cancelled"
+                SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
                 lblCardSub3.Text = "across " & SQLCmd.ExecuteScalar().ToString() & " bookings"
 
-                SQLCmd.CommandText = "SELECT SUM(Quantity) FROM tblOrderItem"
+                'a cancelled booking's snacks were refunded so they are not still to be handed over
+                SQLCmd.CommandText = "SELECT SUM(Quantity) " &
+                                     "FROM tblOrderItem INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID " &
+                                     "WHERE tblBooking.BookingStatus <> @Cancelled"
                 Dim snacks = SQLCmd.ExecuteScalar()
                 If snacks Is Nothing OrElse IsDBNull(snacks) Then
                     lblStat4.Text = "0"
@@ -567,6 +583,7 @@ Public Class frmMainMenuV2
                 End If
 
                 SQLCmd.CommandText = "SELECT COUNT(*) FROM tblFoodItem"
+                SQLCmd.Parameters.Clear()
                 lblCardSub4.Text = SQLCmd.ExecuteScalar().ToString() & " items on the menu"
             End If
 
