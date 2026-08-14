@@ -620,7 +620,7 @@ Public Class frmMainMenuV2
                              "INNER JOIN tblScreening AS s ON b.ScreeningID = s.ScreeningID) " &
                              "INNER JOIN tblFilm AS f ON s.FilmID = f.FilmID " &
                              "GROUP BY f.FilmTitle " &
-                             "ORDER BY COUNT(*) DESC"
+                             "ORDER BY COUNT(*) DESC, f.FilmTitle"
 
         Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
         If rs.Read() Then
@@ -670,7 +670,7 @@ Public Class frmMainMenuV2
                              "INNER JOIN tblScreen AS sc ON s.ScreenID = sc.ScreenID " &
                              "WHERE s.ScreeningDate > @Today " &
                              "OR (s.ScreeningDate = @Today2 AND s.ScreeningTime >= @Now) " &
-                             "ORDER BY s.ScreeningDate, s.ScreeningTime"
+                             "ORDER BY s.ScreeningDate, s.ScreeningTime, s.ScreeningID"
         'the parameters go on in the order they appear in the query above, and today has to go on
         'twice because it is used twice
         SQLCmd.Parameters.AddWithValue("@Today", Date.Today)
@@ -750,7 +750,7 @@ Public Class frmMainMenuV2
                                  "INNER JOIN tblScreen AS sc ON s.ScreenID = sc.ScreenID " &
                                  "WHERE (f.FilmTitle LIKE @Search OR sc.ScreenName LIKE @Search2)" &
                                  DateFilterSQL() &
-                                 " ORDER BY s.ScreeningDate, s.ScreeningTime"
+                                 " ORDER BY s.ScreeningDate, s.ScreeningTime, s.ScreeningID"
 
             'the same search goes in twice because each question mark in the query needs its own
             'parameter, and they have to be added in the order they appear
