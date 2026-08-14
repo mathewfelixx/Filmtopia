@@ -7,6 +7,13 @@ Public Class frmSalesReport
     Private stillLoading As Boolean = True
 
     Private Sub frmSalesReport_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        If UserAccessLevel <> 1 Then
+            MessageBox.Show("Only a manager can see the sales report.", "Sales Report", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            WriteLog("REPORT", "Sales report refused, access level " & UserAccessLevel, LogSecurity)
+            Me.Close()
+            Exit Sub
+        End If
+
         CommonFormStartup(Me)
 
         'default the date range to the start of this month through to today
