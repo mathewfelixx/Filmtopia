@@ -10,6 +10,17 @@ Public Class frmFilms
     Private stillLoading As Boolean = True
 
     Private Sub frmFilms_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        'the menu hides the button that opens this from anybody who is not a manager, but the form
+        'itself never checked, so it would open quite happily if it was ever reached another way.
+        'checking here as well keeps the rule with the thing it is protecting rather than only on
+        'the screen that happens to link to it
+        If UserAccessLevel <> 1 Then
+            MessageBox.Show("Only a manager can open the films screen.", "Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            WriteLog("FILM", "Films screen refused, access level " & UserAccessLevel, LogSecurity)
+            Me.Close()
+            Exit Sub
+        End If
+
         CommonFormStartup(Me)
 
         'the ratings a film can be given. it is a drop down rather than a box to type in because
