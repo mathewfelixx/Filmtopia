@@ -267,13 +267,13 @@ Public Class frmBookings
     'adds the picked item to the order being built up. nothing goes in the database yet
     Private Sub btnAddFood_Click(sender As Object, e As EventArgs) Handles btnAddFood.Click
         If cboFoodItem.SelectedIndex = -1 Then
-            MessageBox.Show("Pick a food or drink item first")
+            MessageBox.Show("Pick a food or drink item first", "Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
         Dim quantity As Integer = SafeInt(txtQuantity.Text)
         If quantity < 1 Then
-            MessageBox.Show("Enter a quantity of 1 or more")
+            MessageBox.Show("Enter a quantity of 1 or more", "Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
@@ -309,7 +309,7 @@ Public Class frmBookings
     'takes a line back off the order
     Private Sub btnRemoveFood_Click(sender As Object, e As EventArgs) Handles btnRemoveFood.Click
         If dgvPendingFood.CurrentRow Is Nothing Then
-            MessageBox.Show("Pick a line in the food list first")
+            MessageBox.Show("Pick a line in the food list first", "Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
@@ -490,11 +490,11 @@ Public Class frmBookings
     'so if anything is wrong the user is simply told and the sale stays on screen to be fixed
     Private Sub btnCreateBooking_Click(sender As Object, e As EventArgs) Handles btnCreateBooking.Click
         If currentScreeningID = 0 Then
-            MessageBox.Show("Pick a screening first")
+            MessageBox.Show("Pick a screening first", "Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
         If Not chkWalkIn.Checked And cboCustomer.SelectedIndex = -1 Then
-            MessageBox.Show("Pick a customer first, or tick Walk-in")
+            MessageBox.Show("Pick a customer first, or tick Walk-in", "Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
@@ -502,13 +502,13 @@ Public Class frmBookings
 
         'a sale has to be for something, but it can be seats only, food only, or both
         If seatCount = 0 And pendingFood.Rows.Count = 0 Then
-            MessageBox.Show("Pick some seats, or add something from the food and drink list")
+            MessageBox.Show("Pick some seats, or add something from the food and drink list", "Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
         'safety check in case a selected seat got booked since the map loaded
         If AnySelectedSeatTaken() Then
-            MessageBox.Show("One of your seats has just been booked, please reselect")
+            MessageBox.Show("One of your seats has just been booked, please reselect", "Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             BuildSeatMap()
             Exit Sub
         End If
@@ -582,7 +582,7 @@ Public Class frmBookings
     'opens the food ordering form for the booking just created
     Private Sub btnOrderFood_Click(sender As Object, e As EventArgs) Handles btnOrderFood.Click
         If lastBookingID = 0 Then
-            MessageBox.Show("Create a booking first")
+            MessageBox.Show("Create a booking first", "Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
