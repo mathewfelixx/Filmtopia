@@ -465,6 +465,9 @@ Public Class frmFilms
             MessageBox.Show("'" & txtTitle.Text & "' has " & screenings & " screening(s) scheduled." & vbCrLf &
                             "Delete those screenings first, then the film can be removed.",
                             "Cannot delete", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            'the refusals are worth recording as well as the deletions. a log that only ever says
+            'what worked makes it look like nothing is ever attempted and stopped
+            WriteLog("FILM", "Delete refused for '" & txtTitle.Text & "', it has " & screenings & " screening(s)", LogWarning)
             Exit Sub
         End If
 
