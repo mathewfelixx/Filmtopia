@@ -232,9 +232,9 @@ Public Class frmScreenings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
+            'no join needed, the screening is on the seat row itself
             SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBookingSeat " &
-                                 "INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID " &
-                                 "WHERE tblBooking.ScreeningID = @ScreeningID"
+                                 "WHERE ScreeningID = @ScreeningID"
             SQLCmd.Parameters.AddWithValue("@ScreeningID", screeningID)
             total = CInt(SQLCmd.ExecuteScalar())
             cn.Close()
