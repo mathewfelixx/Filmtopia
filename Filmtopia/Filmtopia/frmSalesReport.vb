@@ -33,6 +33,7 @@ Public Class frmSalesReport
         cboReportType.Items.Add("Tickets and concessions")
         cboReportType.Items.Add("Tickets only")
         cboReportType.Items.Add("Concessions only")
+        cboReportType.Items.Add("By day")
         cboReportType.Items.Add("By screening")
         cboReportType.Items.Add("By screen")
         cboReportType.Items.Add("Cancellations")
@@ -172,6 +173,14 @@ Public Class frmSalesReport
             lblFoodRevenue.Text = "Concessions revenue: " & FormatCurrency(foodRevenue)
             lblGrandTotal.Text = "Concessions total: " & FormatCurrency(foodRevenue)
 
+        ElseIf cboReportType.Text = "By day" Then
+            Dim ticketRevenue As Double = LoadTicketsByDay(fromDate, toDate)
+
+            lblTicketRevenue.Visible = True
+            lblFoodRevenue.Visible = False
+            lblTicketRevenue.Text = "Ticket revenue: " & FormatCurrency(ticketRevenue)
+            lblGrandTotal.Text = "Tickets total: " & FormatCurrency(ticketRevenue)
+
         ElseIf cboReportType.Text = "By screening" Then
             Dim ticketRevenue As Double = LoadTicketsByScreening(fromDate, toDate)
 
@@ -226,6 +235,8 @@ Public Class frmSalesReport
             thing = "item"
         ElseIf cboReportType.Text = "Cancellations" Then
             thing = "cancelled booking"
+        ElseIf cboReportType.Text = "By day" Then
+            thing = "day"
         ElseIf cboReportType.Text = "By screening" Then
             thing = "screening"
         ElseIf cboReportType.Text = "By screen" Then
@@ -292,6 +303,13 @@ Public Class frmSalesReport
             dgvSalesByFilm.Columns("TicketRevenue").HeaderText = "Ticket revenue"
             dgvSalesByFilm.Columns("FilmTitle").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             dgvSalesByFilm.Columns("TicketRevenue").DefaultCellStyle.Format = "C"
+        ElseIf cboReportType.Text = "By day" Then
+            dgvSalesByFilm.Columns("ReportDay").HeaderText = "Day"
+            dgvSalesByFilm.Columns("Tickets").HeaderText = "Tickets sold"
+            dgvSalesByFilm.Columns("TicketRevenue").HeaderText = "Ticket revenue"
+            dgvSalesByFilm.Columns("ReportDay").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            dgvSalesByFilm.Columns("ReportDay").DefaultCellStyle.Format = "dd/MM/yyyy"
+            dgvSalesByFilm.Columns("TicketRevenue").DefaultCellStyle.Format = "C"
         ElseIf cboReportType.Text = "By screening" Then
             dgvSalesByFilm.Columns("FilmTitle").HeaderText = "Film"
             dgvSalesByFilm.Columns("ScreeningDate").HeaderText = "Date"
@@ -353,6 +371,99 @@ Public Class frmSalesReport
         ShowReport()
 
         Return TotalColumn(dt, "TicketRevenue")
+    End Function
+
+    'one row per day in the range, with what was sold on it.
+    '
+    'the database is not asked to group this. it hands back one row per ticket and the counting up
+    'is done below, in one walk through the list. that is partly because it is the bit worth
+    'writing, and partly because a GROUP BY only gives back the days that had a sale on them. a day
+    'the cinema took nothing simply would not appear, and a run of takings with the quiet days
+    'silently missing out of the middle of it tells you the wrong story
+    Private Function LoadTicketsByDay(fromDate As Date, toDate As Date) As Double
+        Dim dtTickets As DataTable = GetTicketsByDayTable(fromDate, toDate)
+
+        'one slot per day in the range, counting both ends, so nothing is left out
+        Dim howManyDays As Integer = CInt((toDate.Date - fromDate.Date).TotalDays) + 1
+
+        If howManyDays < 1 Then
+            howManyDays = 1
+        End If
+
+        Dim dayTickets(howManyDays - 1) As Integer
+        Dim dayTakings(howManyDays - 1) As Double
+
+        Dim useScreeningDate As Boolean = (MeasuringByScreening() = 1)
+
+        For Each row As DataRow In dtTickets.Rows
+            Dim soldOn As Date
+
+            If useScreeningDate Then
+                soldOn = CDate(row("ScreeningDate"))
+            Else
+                soldOn = CDate(row("BookingDate"))
+            End If
+
+            'which slot a ticket belongs in is just how many days it is past the start of the range
+            Dim slot As Integer = CInt((soldOn.Date - fromDate.Date).TotalDays)
+
+            If slot >= 0 And slot < howManyDays Then
+                dayTickets(slot) = dayTickets(slot) + 1
+
+                If Not IsDBNull(row("SeatPricePaid")) Then
+                    dayTakings(slot) = dayTakings(slot) + CDbl(row("SeatPricePaid"))
+                End If
+            End If
+        Next
+
+        'the two lists become a table so the grid can show it like any other report
+        Dim dt As New DataTable
+        dt.Columns.Add("ReportDay", GetType(Date))
+        dt.Columns.Add("Tickets", GetType(Integer))
+        dt.Columns.Add("TicketRevenue", GetType(Double))
+
+        Dim total As Double = 0
+
+        For i As Integer = 0 To howManyDays - 1
+            dt.Rows.Add(fromDate.Date.AddDays(i), dayTickets(i), dayTakings(i))
+            total = total + dayTakings(i)
+        Next
+
+        reportTable = dt
+        ShowReport()
+
+        Return total
+    End Function
+
+    'one row per ticket in the range, with both dates on it so the counting up can use whichever
+    'one the measure by box is set to. no film or screen is joined on, nothing here needs them
+    Private Function GetTicketsByDayTable(fromDate As Date, toDate As Date) As DataTable
+        Dim dt As New DataTable
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT tblBooking.BookingDate, tblScreening.ScreeningDate, SeatPricePaid " &
+                                 "FROM (tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID) " &
+                                 "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID " &
+                                 "WHERE IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) >= @FromDate " &
+                                 "AND IIf(@ByScreening2, tblScreening.ScreeningDate, tblBooking.BookingDate) < @ToDate " &
+                                 "AND tblBooking.BookingStatus <> @Cancelled"
+            'the switch is in the query twice, once for each IIf, so it goes in twice here as well,
+            'in the order the query mentions them. the two have to be named differently. giving
+            'them the same name looks tidier but Jet then treats it as one parameter, the rest
+            'shuffle up by one and the report quietly comes back with nothing in it
+            SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
+            SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
+            SQLCmd.Parameters.AddWithValue("@ByScreening2", MeasuringByScreening())
+            SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
+            SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            da.Fill(dt)
+            cn.Close()
+        End If
+
+        Return dt
     End Function
 
     'one row per screening, so a manager can see which showings actually sold and which played to
