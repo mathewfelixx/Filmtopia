@@ -60,12 +60,15 @@ Public Class frmLogin
             SQLCmd.Parameters.AddWithValue("@Username", username)
 
             Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+            'tracked so the miss can be logged once the connection is shut, WriteLog opens its own
+            Dim userFound As Boolean = False
 
             If rs.Read() Then
                 Dim strPW = rs("Password")
                 plainTextPW = Decrypt(strPW)
                 UserAccessLevel = rs("AccessLevel")
                 CurrentLoginID = rs("LoginID")
+                userFound = True
             Else
                 If username = "" Then
                     MessageBox.Show("Username cannot be empty", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -77,6 +80,13 @@ Public Class frmLogin
 
             rs.Close()
             cn.Close()
+
+            'a wrong password was already being recorded but a username that does not exist at all
+            'was not, and that is the more interesting of the two. a run of them is somebody
+            'guessing at names rather than one person mistyping their own
+            If Not userFound And username <> "" Then
+                WriteLog("AUTH", "Login attempted with unknown username '" & username & "'", LogWarning)
+            End If
         End If
 
         Return plainTextPW
