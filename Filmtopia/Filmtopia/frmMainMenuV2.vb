@@ -654,6 +654,9 @@ Public Class frmMainMenuV2
     End Function
 
     'counts the screenings still to come that are at least 80 percent sold
+    'the bit in brackets counts the seats sold for each screening straight off tblBookingSeat.
+    'it used to join tblBookingSeat to tblBooking in there to find out which screening each seat
+    'was for, but the screening is written on the seat row itself now so the join is not needed
     Private Function CountNearlySoldOut() As Integer
         Dim SQLCmd As New OleDbCommand
         SQLCmd.Connection = cn
@@ -661,8 +664,7 @@ Public Class frmMainMenuV2
                              "FROM tblScreening AS s INNER JOIN tblScreen AS sc ON s.ScreenID = sc.ScreenID " &
                              "WHERE s.ScreeningDate >= @Today AND sc.ScreenCapacity > 0 " &
                              "AND (SELECT COUNT(*) FROM tblBookingSeat AS bs " &
-                             "INNER JOIN tblBooking AS b ON bs.BookingID = b.BookingID " &
-                             "WHERE b.ScreeningID = s.ScreeningID) >= sc.ScreenCapacity * 0.8"
+                             "WHERE bs.ScreeningID = s.ScreeningID) >= sc.ScreenCapacity * 0.8"
         SQLCmd.Parameters.AddWithValue("@Today", Date.Today)
 
         Return CInt(SQLCmd.ExecuteScalar())
