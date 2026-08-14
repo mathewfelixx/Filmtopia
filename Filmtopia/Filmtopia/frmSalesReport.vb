@@ -115,9 +115,31 @@ Public Class frmSalesReport
         End If
 
         Me.Cursor = Cursors.Default
+        ShowCount()
 
         Return True
     End Function
+
+    'says how many rows came back, worded for whichever report is on screen. the other forms all
+    'have one of these under the grid and this one did not
+    Private Sub ShowCount()
+        Dim shown As Integer = dgvSalesByFilm.Rows.Count
+        Dim thing As String = "film"
+
+        If cboReportType.Text = "Concessions only" Then
+            thing = "item"
+        ElseIf cboReportType.Text = "Cancellations" Then
+            thing = "cancelled booking"
+        End If
+
+        If shown = 0 Then
+            lblGridCount.Text = "Nothing in this date range"
+        ElseIf shown = 1 Then
+            lblGridCount.Text = "1 " & thing
+        Else
+            lblGridCount.Text = shown & " " & thing & "s"
+        End If
+    End Sub
 
     'fills the grid with the tickets sold and what they came to for each film, and returns the total.
     'the money comes from the seats on the booking times the screening price, not from TotalCost,

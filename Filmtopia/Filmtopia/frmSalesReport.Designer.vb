@@ -30,6 +30,7 @@ Partial Class frmSalesReport
         Me.lblGrandTotal = New System.Windows.Forms.Label()
         Me.btnExport = New System.Windows.Forms.Button()
         Me.lblVersion = New System.Windows.Forms.Label()
+        Me.lblGridCount = New System.Windows.Forms.Label()
         CType(Me.dgvSalesByFilm, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -113,6 +114,16 @@ Partial Class frmSalesReport
         Me.dgvSalesByFilm.Size = New System.Drawing.Size(660, 250)
         Me.dgvSalesByFilm.TabIndex = 7
         '
+        'lblGridCount
+        '
+        Me.lblGridCount.AutoSize = True
+        Me.lblGridCount.Location = New System.Drawing.Point(500, 351)
+        Me.lblGridCount.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblGridCount.Name = "lblGridCount"
+        Me.lblGridCount.Size = New System.Drawing.Size(50, 16)
+        Me.lblGridCount.TabIndex = 12
+        Me.lblGridCount.Text = "0 rows"
+        '
         'lblTicketRevenue
         '
         Me.lblTicketRevenue.AutoSize = True
@@ -168,6 +179,7 @@ Partial Class frmSalesReport
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(694, 530)
+        Me.Controls.Add(Me.lblGridCount)
         Me.Controls.Add(Me.btnExport)
         Me.Controls.Add(Me.lblVersion)
         Me.Controls.Add(Me.lblGrandTotal)
@@ -206,4 +218,5 @@ Partial Class frmSalesReport
     Friend WithEvents lblGrandTotal As Label
     Friend WithEvents btnExport As Button
     Friend WithEvents lblVersion As Label
+    Friend WithEvents lblGridCount As Label
 End Class
