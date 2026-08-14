@@ -190,8 +190,8 @@ Public Class frmScreens
             Exit Sub
         End If
 
-        Dim numRows As Integer = CInt(Val(txtRows.Text))
-        Dim perRow As Integer = CInt(Val(txtPerRow.Text))
+        Dim numRows As Integer = SafeInt(txtRows.Text)
+        Dim perRow As Integer = SafeInt(txtPerRow.Text)
 
         If numRows <= 0 Or perRow <= 0 Then
             lblLayout.Text = "A screen needs at least one row with at least one seat in it"
@@ -246,8 +246,8 @@ Public Class frmScreens
         End If
 
         Dim newScreenID As Long = 0
-        Dim numRows As Integer = CInt(Val(txtRows.Text))
-        Dim perRow As Integer = CInt(Val(txtPerRow.Text))
+        Dim numRows As Integer = SafeInt(txtRows.Text)
+        Dim perRow As Integer = SafeInt(txtPerRow.Text)
 
         'the screen and its seats go in together inside one transaction. they used to be two
         'separate connections, so if the seats failed there was a screen sitting there with nothing
@@ -488,8 +488,8 @@ Public Class frmScreens
             Return False
         End If
 
-        Dim numRows As Integer = CInt(Val(txtRows.Text))
-        Dim perRow As Integer = CInt(Val(txtPerRow.Text))
+        Dim numRows As Integer = SafeInt(txtRows.Text)
+        Dim perRow As Integer = SafeInt(txtPerRow.Text)
 
         If numRows <= 0 Then
             MessageBox.Show("A screen needs at least one row")
