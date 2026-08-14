@@ -72,7 +72,7 @@ Public Class frmCustomers
                                       "FROM tblCustomer LEFT JOIN tblBooking ON tblCustomer.CustomerID = tblBooking.CustomerID"
 
             Dim grouping As String = " GROUP BY tblCustomer.CustomerID, CustomerForename, CustomerSurname, CustomerEmail, CustomerPhone " &
-                                     "ORDER BY CustomerSurname, CustomerForename"
+                                     "ORDER BY CustomerSurname, CustomerForename, CustomerID"
 
             If txtSearch.Text.Trim() = "" Then
                 SQLCmd.CommandText = baseQuery & grouping
