@@ -218,30 +218,38 @@ Module modBookings
     'the total is always the seats times the ticket price, plus whatever food has been ordered.
     'this is the only place TotalCost is ever set, so it cannot drift out of step any more
     Public Sub RecalculateBookingTotal(bookingID As Long)
-        Dim seats As Integer = 0
         Dim ticketPrice As Double = 0
+        Dim ticketTotal As Double = 0
         Dim foodTotal As Double = 0
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
 
-            'how many seats are on this booking
-            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBookingSeat " &
-                                 "WHERE BookingID = @BookingID"
-            SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
-            seats = CInt(SQLCmd.ExecuteScalar())
-
-            'what one ticket costs for the screening this booking is for
+            'what one standard ticket costs for the screening this booking is for
             SQLCmd.CommandText = "SELECT TicketPrice " &
                                  "FROM tblScreening INNER JOIN tblBooking ON tblScreening.ScreeningID = tblBooking.ScreeningID " &
                                  "WHERE tblBooking.BookingID = @BookingID"
-            SQLCmd.Parameters.Clear()
             SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
             Dim priceResult = SQLCmd.ExecuteScalar()
             If priceResult IsNot Nothing AndAlso Not IsDBNull(priceResult) Then
                 ticketPrice = CDbl(priceResult)
             End If
+
+            'the seats are added up one at a time rather than being counted, because they are not
+            'all worth the same any more. each seat costs the screening price times the multiplier
+            'for whatever sort of seat it is
+            SQLCmd.CommandText = "SELECT tblSeatType.PriceMultiplier " &
+                                 "FROM (tblBookingSeat INNER JOIN tblSeat ON tblBookingSeat.SeatID = tblSeat.SeatID) " &
+                                 "INNER JOIN tblSeatType ON tblSeat.SeatTypeID = tblSeatType.SeatTypeID " &
+                                 "WHERE tblBookingSeat.BookingID = @BookingID"
+            SQLCmd.Parameters.Clear()
+            SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
+            Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+            While rs.Read()
+                ticketTotal = ticketTotal + SeatPrice(ticketPrice, CDbl(rs("PriceMultiplier")))
+            End While
+            rs.Close()
 
             'what the food comes to, this comes back empty if nothing has been ordered
             SQLCmd.CommandText = "SELECT SUM(Quantity * FoodItemPrice) " &
