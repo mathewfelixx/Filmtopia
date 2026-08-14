@@ -33,6 +33,9 @@ Partial Class frmSalesReport
         Me.lblGridCount = New System.Windows.Forms.Label()
         Me.lblMeasureBy = New System.Windows.Forms.Label()
         Me.cboMeasureBy = New System.Windows.Forms.ComboBox()
+        Me.lblFind = New System.Windows.Forms.Label()
+        Me.txtFind = New System.Windows.Forms.TextBox()
+        Me.btnFind = New System.Windows.Forms.Button()
         CType(Me.dgvSalesByFilm, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -136,6 +139,34 @@ Partial Class frmSalesReport
         Me.cboMeasureBy.Size = New System.Drawing.Size(225, 24)
         Me.cboMeasureBy.TabIndex = 14
         '
+        'lblFind
+        '
+        Me.lblFind.AutoSize = True
+        Me.lblFind.Location = New System.Drawing.Point(352, 99)
+        Me.lblFind.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblFind.Name = "lblFind"
+        Me.lblFind.Size = New System.Drawing.Size(35, 16)
+        Me.lblFind.TabIndex = 15
+        Me.lblFind.Text = "Find"
+        '
+        'txtFind
+        '
+        Me.txtFind.Location = New System.Drawing.Point(398, 95)
+        Me.txtFind.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtFind.Name = "txtFind"
+        Me.txtFind.Size = New System.Drawing.Size(180, 22)
+        Me.txtFind.TabIndex = 16
+        '
+        'btnFind
+        '
+        Me.btnFind.Location = New System.Drawing.Point(590, 93)
+        Me.btnFind.Margin = New System.Windows.Forms.Padding(4)
+        Me.btnFind.Name = "btnFind"
+        Me.btnFind.Size = New System.Drawing.Size(88, 26)
+        Me.btnFind.TabIndex = 17
+        Me.btnFind.Text = "Find"
+        Me.btnFind.UseVisualStyleBackColor = True
+        '
         'lblGridCount
         '
         Me.lblGridCount.AutoSize = True
@@ -201,6 +232,9 @@ Partial Class frmSalesReport
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(694, 568)
+        Me.Controls.Add(Me.btnFind)
+        Me.Controls.Add(Me.txtFind)
+        Me.Controls.Add(Me.lblFind)
         Me.Controls.Add(Me.cboMeasureBy)
         Me.Controls.Add(Me.lblMeasureBy)
         Me.Controls.Add(Me.lblGridCount)
@@ -245,4 +279,7 @@ Partial Class frmSalesReport
     Friend WithEvents lblGridCount As Label
     Friend WithEvents lblMeasureBy As Label
     Friend WithEvents cboMeasureBy As ComboBox
+    Friend WithEvents lblFind As Label
+    Friend WithEvents txtFind As TextBox
+    Friend WithEvents btnFind As Button
 End Class

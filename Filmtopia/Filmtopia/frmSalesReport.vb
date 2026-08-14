@@ -86,6 +86,55 @@ Public Class frmSalesReport
         End If
     End Sub
 
+    'looks for whatever has been typed in the find box
+    Private Sub btnFind_Click(sender As Object, e As EventArgs) Handles btnFind.Click
+        FindInReport()
+    End Sub
+
+    'enter in the find box does the same as pressing the button
+    Private Sub txtFind_KeyDown(sender As Object, e As KeyEventArgs) Handles txtFind.KeyDown
+        If e.KeyCode = Keys.Enter Then
+            FindInReport()
+
+            'stops the ding windows makes when enter is pressed in a text box
+            e.SuppressKeyPress = True
+        End If
+    End Sub
+
+    'sorts the report by its name column and then looks the typed name up in it, and picks out
+    'the row it lands on. the sort has to happen first, a binary search on an unsorted list
+    'would walk off in the wrong direction and miss things that are sitting right there
+    Private Sub FindInReport()
+        Dim target As String = txtFind.Text.Trim()
+
+        If target = "" Then
+            Exit Sub
+        End If
+
+        Dim columnName As String = NameColumn()
+
+        If columnName = "" Then
+            MessageBox.Show("This report has no names on it to look through.", "Find", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Exit Sub
+        End If
+
+        SortReport(columnName, True)
+        sortedBy = columnName
+        sortAscending = True
+        ShowReport()
+        ShowSortArrow()
+
+        Dim found As Integer = FindRow(columnName, target)
+
+        If found = -1 Then
+            MessageBox.Show("Nothing on this report starts with " & target & ".", "Find", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        Else
+            dgvSalesByFilm.ClearSelection()
+            dgvSalesByFilm.Rows(found).Selected = True
+            dgvSalesByFilm.FirstDisplayedScrollingRowIndex = found
+        End If
+    End Sub
+
     'runs the report for the date range picked, showing tickets, concessions or both depending
     'on what the show box is set to. comes back false if it would not run, so the caller knows
     'not to log it. the check lives in here rather than on the run button because picking a
@@ -725,6 +774,67 @@ Public Class frmSalesReport
         Else
             Return 0
         End If
+    End Function
+
+    'the column holding the name on whichever report is showing. by screening has two of them, so
+    'the film wins, that is the one somebody would think to type
+    Private Function NameColumn() As String
+        If reportTable Is Nothing Then
+            Return ""
+        End If
+
+        If reportTable.Columns.Contains("FilmTitle") Then
+            Return "FilmTitle"
+        End If
+
+        If reportTable.Columns.Contains("ScreenName") Then
+            Return "ScreenName"
+        End If
+
+        If reportTable.Columns.Contains("FoodItemName") Then
+            Return "FoodItemName"
+        End If
+
+        Return ""
+    End Function
+
+    'looks a name up in the report and gives back the row it is on, or -1 if it is not there.
+    '
+    'this is a binary search. it looks at the middle row, and because the report is in order it
+    'knows straight away which half the name has to be in, so it throws the other half away and
+    'does the same again. that halving is why it only takes about five goes on thirty rows and
+    'still only about ten on a thousand. it only works at all on a sorted list, which is why
+    'FindInReport sorts before calling it.
+    '
+    'only the front of each name is compared, so typing incep finds Inception. that is still a
+    'proper binary search, because comparing the fronts puts things in the same order that
+    'comparing the whole names does
+    Private Function FindRow(columnName As String, target As String) As Integer
+        Dim low As Integer = 0
+        Dim high As Integer = reportTable.Rows.Count - 1
+
+        Do While low <= high
+            Dim middle As Integer = (low + high) \ 2
+            Dim here As String = reportTable.Rows(middle)(columnName).ToString()
+
+            'only the front of the name is compared, cut to the length of what was typed
+            If here.Length > target.Length Then
+                here = here.Substring(0, target.Length)
+            End If
+
+            Dim result As Integer = String.Compare(here, target, True)
+
+            If result = 0 Then
+                Return middle
+            ElseIf result < 0 Then
+                'the middle one comes before what is wanted, so it is in the back half
+                low = middle + 1
+            Else
+                high = middle - 1
+            End If
+        Loop
+
+        Return -1
     End Function
 
     'looks through the food table for a film and gives back what it took, or 0 if it is not in there
