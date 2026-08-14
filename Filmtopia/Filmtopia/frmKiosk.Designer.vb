@@ -55,6 +55,11 @@ Partial Class frmKiosk
         Me.lblConfirmDetail = New System.Windows.Forms.Label()
         Me.lblConfirmTotal = New System.Windows.Forms.Label()
         Me.lblConfirmNote = New System.Windows.Forms.Label()
+        Me.pnlDone = New System.Windows.Forms.Panel()
+        Me.lblDoneHeading = New System.Windows.Forms.Label()
+        Me.lblDoneRef = New System.Windows.Forms.Label()
+        Me.lblDoneDetail = New System.Windows.Forms.Label()
+        Me.lblDoneNote = New System.Windows.Forms.Label()
         Me.pnlHeader.SuspendLayout()
         Me.pnlFooter.SuspendLayout()
         Me.pnlWelcome.SuspendLayout()
@@ -62,6 +67,7 @@ Partial Class frmKiosk
         Me.pnlTimes.SuspendLayout()
         Me.pnlSeats.SuspendLayout()
         Me.pnlConfirm.SuspendLayout()
+        Me.pnlDone.SuspendLayout()
         Me.SuspendLayout()
         '
         'pnlHeader
@@ -454,11 +460,65 @@ Partial Class frmKiosk
         Me.lblConfirmNote.TabIndex = 3
         Me.lblConfirmNote.Text = "Your seats are not held until you have paid"
         '
+        'pnlDone
+        '
+        Me.pnlDone.Controls.Add(Me.lblDoneNote)
+        Me.pnlDone.Controls.Add(Me.lblDoneDetail)
+        Me.pnlDone.Controls.Add(Me.lblDoneRef)
+        Me.pnlDone.Controls.Add(Me.lblDoneHeading)
+        Me.pnlDone.Location = New System.Drawing.Point(0, 96)
+        Me.pnlDone.Name = "pnlDone"
+        Me.pnlDone.Size = New System.Drawing.Size(1280, 596)
+        Me.pnlDone.TabIndex = 8
+        Me.pnlDone.Visible = False
+        '
+        'lblDoneHeading
+        '
+        Me.lblDoneHeading.AutoSize = True
+        Me.lblDoneHeading.Font = New System.Drawing.Font("Segoe UI", 34.0!, System.Drawing.FontStyle.Bold)
+        Me.lblDoneHeading.Location = New System.Drawing.Point(400, 90)
+        Me.lblDoneHeading.Name = "lblDoneHeading"
+        Me.lblDoneHeading.Size = New System.Drawing.Size(320, 61)
+        Me.lblDoneHeading.TabIndex = 0
+        Me.lblDoneHeading.Text = "Thank you"
+        '
+        'lblDoneRef
+        '
+        Me.lblDoneRef.AutoSize = True
+        Me.lblDoneRef.Font = New System.Drawing.Font("Segoe UI", 22.0!, System.Drawing.FontStyle.Bold)
+        Me.lblDoneRef.Location = New System.Drawing.Point(400, 170)
+        Me.lblDoneRef.Name = "lblDoneRef"
+        Me.lblDoneRef.Size = New System.Drawing.Size(300, 41)
+        Me.lblDoneRef.TabIndex = 1
+        Me.lblDoneRef.Text = "Booking"
+        '
+        'lblDoneDetail
+        '
+        Me.lblDoneDetail.AutoSize = True
+        Me.lblDoneDetail.Font = New System.Drawing.Font("Segoe UI", 15.0!)
+        Me.lblDoneDetail.Location = New System.Drawing.Point(400, 230)
+        Me.lblDoneDetail.Name = "lblDoneDetail"
+        Me.lblDoneDetail.Size = New System.Drawing.Size(400, 34)
+        Me.lblDoneDetail.TabIndex = 2
+        Me.lblDoneDetail.Text = "Details"
+        '
+        'lblDoneNote
+        '
+        Me.lblDoneNote.AutoSize = True
+        Me.lblDoneNote.Font = New System.Drawing.Font("Segoe UI", 14.0!)
+        Me.lblDoneNote.ForeColor = System.Drawing.Color.Gray
+        Me.lblDoneNote.Location = New System.Drawing.Point(400, 380)
+        Me.lblDoneNote.Name = "lblDoneNote"
+        Me.lblDoneNote.Size = New System.Drawing.Size(500, 32)
+        Me.lblDoneNote.TabIndex = 3
+        Me.lblDoneNote.Text = "Please take your tickets from the slot below"
+        '
         'frmKiosk
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1280, 800)
+        Me.Controls.Add(Me.pnlDone)
         Me.Controls.Add(Me.pnlConfirm)
         Me.Controls.Add(Me.pnlSeats)
         Me.Controls.Add(Me.pnlTimes)
@@ -485,6 +545,8 @@ Partial Class frmKiosk
         Me.pnlSeats.PerformLayout()
         Me.pnlConfirm.ResumeLayout(False)
         Me.pnlConfirm.PerformLayout()
+        Me.pnlDone.ResumeLayout(False)
+        Me.pnlDone.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -528,4 +590,9 @@ Partial Class frmKiosk
     Friend WithEvents lblConfirmDetail As Label
     Friend WithEvents lblConfirmTotal As Label
     Friend WithEvents lblConfirmNote As Label
+    Friend WithEvents pnlDone As Panel
+    Friend WithEvents lblDoneHeading As Label
+    Friend WithEvents lblDoneRef As Label
+    Friend WithEvents lblDoneDetail As Label
+    Friend WithEvents lblDoneNote As Label
 End Class
