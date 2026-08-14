@@ -527,12 +527,12 @@ Public Class frmScreenings
     'fills the time box in with the first time the film would actually fit
     Private Sub btnSuggest_Click(sender As Object, e As EventArgs) Handles btnSuggest.Click
         If cboFilm.SelectedIndex = -1 Then
-            MessageBox.Show("Pick a film first, otherwise there is no way to know how long it needs")
+            MessageBox.Show("Pick a film first, otherwise there is no way to know how long it needs", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
         If cboScreen.SelectedIndex = -1 Then
-            MessageBox.Show("Pick a screen first")
+            MessageBox.Show("Pick a screen first", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
@@ -600,49 +600,49 @@ Public Class frmScreenings
     'one place because adding a screening and changing one both need the same checks doing
     Private Function DetailsAreOk(isNew As Boolean) As Boolean
         If cboFilm.SelectedIndex = -1 Or cboScreen.SelectedIndex = -1 Then
-            MessageBox.Show("Pick a film and a screen")
+            MessageBox.Show("Pick a film and a screen", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return False
         End If
 
         'a new screening in the past is a mistake, but an old one that is being corrected has to
         'be allowed to stay where it is
         If isNew And dtpScreeningDate.Value.Date < Date.Today Then
-            MessageBox.Show("Screening date cant be in the past")
+            MessageBox.Show("Screening date cant be in the past", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return False
         End If
 
         If txtScreeningTime.Text.Trim() = "" Then
-            MessageBox.Show("Enter a screening time (HH:MM)")
+            MessageBox.Show("Enter a screening time (HH:MM)", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtScreeningTime.Focus()
             Return False
         End If
 
         If Not IsValidScreeningTime(txtScreeningTime.Text) Then
-            MessageBox.Show("Screening time must be in HH:MM format, e.g. 14:30")
+            MessageBox.Show("Screening time must be in HH:MM format, e.g. 14:30", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtScreeningTime.Focus()
             Return False
         End If
 
         If txtTicketPrice.Text.Trim() = "" Then
-            MessageBox.Show("Enter a ticket price")
+            MessageBox.Show("Enter a ticket price", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtTicketPrice.Focus()
             Return False
         End If
 
         If Not IsNumeric(txtTicketPrice.Text) Then
-            MessageBox.Show("Ticket price must be a number")
+            MessageBox.Show("Ticket price must be a number", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtTicketPrice.Focus()
             Return False
         End If
 
         If Val(txtTicketPrice.Text) <= 0 Then
-            MessageBox.Show("Ticket price must be greater than 0")
+            MessageBox.Show("Ticket price must be greater than 0", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtTicketPrice.Focus()
             Return False
         End If
 
         If Val(txtTicketPrice.Text) > 50 Then
-            MessageBox.Show("That ticket price looks too high, it should be in pounds")
+            MessageBox.Show("That ticket price looks too high, it should be in pounds", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtTicketPrice.Focus()
             Return False
         End If
@@ -697,7 +697,7 @@ Public Class frmScreenings
     'saves the changes made to the screening selected in the grid
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
         If selectedScreeningID = 0 Then
-            MessageBox.Show("Select a screening in the grid first")
+            MessageBox.Show("Select a screening in the grid first", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
@@ -745,7 +745,7 @@ Public Class frmScreenings
     'deletes the screening selected in the grid
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
         If selectedScreeningID = 0 Then
-            MessageBox.Show("Select a screening in the grid first")
+            MessageBox.Show("Select a screening in the grid first", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
@@ -764,7 +764,7 @@ Public Class frmScreenings
             Exit Sub
         End If
 
-        If MessageBox.Show("Delete this screening?", "Confirm", MessageBoxButtons.YesNo) = DialogResult.No Then
+        If MessageBox.Show("Delete this screening?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
             Exit Sub
         End If
 
