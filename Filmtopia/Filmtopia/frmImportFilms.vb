@@ -153,23 +153,23 @@ Public Class frmImportFilms
     'load in one go, so it is read a line at a time and only the matches are kept
     Private Sub btnSearch_Click(sender As Object, e As EventArgs) Handles btnSearch.Click
         If txtFilePath.Text.Trim() = "" Then
-            MessageBox.Show("Choose the IMDb data file first")
+            MessageBox.Show("Choose the IMDb data file first", "Import Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
         If Not System.IO.File.Exists(txtFilePath.Text) Then
-            MessageBox.Show("That file is not there any more, choose it again")
+            MessageBox.Show("That file is not there any more, choose it again", "Import Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
         If txtSearchTitle.Text.Trim() = "" Then
-            MessageBox.Show("Type part of a film title to search for")
+            MessageBox.Show("Type part of a film title to search for", "Import Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtSearchTitle.Focus()
             Exit Sub
         End If
 
         If txtYearFrom.Text.Trim() <> "" And Not IsNumeric(txtYearFrom.Text) Then
-            MessageBox.Show("The year has to be a number, or leave it empty for every year")
+            MessageBox.Show("The year has to be a number, or leave it empty for every year", "Import Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtYearFrom.Focus()
             Exit Sub
         End If
@@ -352,7 +352,7 @@ Public Class frmImportFilms
         Next
 
         If ticked = 0 Then
-            MessageBox.Show("Tick the films you want to import first")
+            MessageBox.Show("Tick the films you want to import first", "Import Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
@@ -416,7 +416,7 @@ Public Class frmImportFilms
         End If
 
         If Not System.IO.File.Exists(txtDescFilePath.Text) Then
-            MessageBox.Show("The descriptions file is not there any more, so the films will come in without descriptions")
+            MessageBox.Show("The descriptions file is not there any more, so the films will come in without descriptions", "Import Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             WriteLog("FILM", "Descriptions file missing at import", LogWarning)
             Exit Sub
         End If
