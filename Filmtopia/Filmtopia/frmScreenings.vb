@@ -233,6 +233,24 @@ Public Class frmScreenings
         Return total
     End Function
 
+    'counts how many bookings are on a screening, seats or not. this is what stops a screening
+    'being deleted while somebody is still booked onto it
+    Private Function BookingsOnScreening(screeningID As Integer) As Integer
+        Dim total As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBooking " &
+                                 "WHERE ScreeningID = @ScreeningID"
+            SQLCmd.Parameters.AddWithValue("@ScreeningID", screeningID)
+            total = CInt(SQLCmd.ExecuteScalar())
+            cn.Close()
+        End If
+
+        Return total
+    End Function
+
     'says how many screenings are showing and how many seats they have sold between them
     Private Sub ShowCount(dt As DataTable)
         If dt.Rows.Count = 0 Then
@@ -554,11 +572,15 @@ Public Class frmScreenings
         End If
 
         'a screening people have booked onto cannot just disappear, their bookings would be left
-        'pointing at a showing that is not there any more
-        Dim sold As Integer = SeatsSold(selectedScreeningID)
+        'pointing at a showing that is not there any more.
+        'this counts the bookings and not the seats. a food only sale is still a booking on this
+        'screening even though it has no seats against it, and checking the seats missed those
+        Dim bookings As Integer = BookingsOnScreening(selectedScreeningID)
 
-        If sold > 0 Then
-            MessageBox.Show("This screening has " & sold & " seat(s) booked on it." & vbCrLf &
+        If bookings > 0 Then
+            Dim sold As Integer = SeatsSold(selectedScreeningID)
+            MessageBox.Show("This screening has " & bookings & " booking(s) on it, " &
+                            sold & " seat(s) in total." & vbCrLf &
                             "Cancel those bookings first, then the screening can be removed.",
                             "Cannot delete", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
