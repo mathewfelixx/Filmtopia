@@ -10,6 +10,13 @@ Public Class frmFoodItems
     Private stillLoading As Boolean = True
 
     Private Sub frmFoodItems_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        If UserAccessLevel <> 1 Then
+            MessageBox.Show("Only a manager can change what is on the menu.", "Food Items", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            WriteLog("FOOD", "Food items screen refused, access level " & UserAccessLevel, LogSecurity)
+            Me.Close()
+            Exit Sub
+        End If
+
         CommonFormStartup(Me)
 
         LoadCategories()
