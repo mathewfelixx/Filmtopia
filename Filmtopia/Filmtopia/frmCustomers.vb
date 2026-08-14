@@ -14,9 +14,34 @@ Public Class frmCustomers
 
         stillLoading = False
 
+        'lets the form see escape before the box that has focus does
+        Me.KeyPreview = True
+
         LoadCustomers()
         ClearFields()
+
+        'looking somebody up is the usual reason for opening this, so the cursor starts in the search
+        txtSearch.Focus()
         WriteLog("CUSTOMER", "Customers form opened")
+    End Sub
+
+    'saves the customer list as it is on screen. this one is worth logging as a security entry,
+    'somebody taking peoples names and phone numbers out of the system should leave a trace
+    Private Sub btnExport_Click(sender As Object, e As EventArgs) Handles btnExport.Click
+        If ExportGridToCsv(dgvCustomers, "Customers.csv", "Customers") Then
+            WriteLog("CUSTOMER", "Customer list exported, " & dgvCustomers.Rows.Count & " customers", LogSecurity)
+        End If
+    End Sub
+
+    'escape empties the search box, or shuts the form if there is nothing to empty
+    Private Sub frmCustomers_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
+        If e.KeyCode = Keys.Escape Then
+            If txtSearch.Text <> "" Then
+                txtSearch.Text = ""
+            Else
+                Me.Close()
+            End If
+        End If
     End Sub
 
     'checks a phone number is made up of digits only, no spaces or dashes
