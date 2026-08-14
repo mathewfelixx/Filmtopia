@@ -184,7 +184,35 @@ Public Class frmFoodItems
             Return False
         End If
 
+        If NameAlreadyUsed() Then
+            MessageBox.Show("There is already an item called '" & txtName.Text.Trim() & "' on the menu." & vbCrLf &
+                            "Two items with the same name are impossible to tell apart at the till.",
+                            "Already on the menu", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtName.Focus()
+            Return False
+        End If
+
         Return True
+    End Function
+
+    'says whether another item on the menu already has this name. the item being edited is left out
+    'of the count so saving one without renaming it does not trip over itself, and nothing being
+    'selected leaves selectedFoodItemID as 0, which no real item has
+    Private Function NameAlreadyUsed() As Boolean
+        Dim total As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblFoodItem " &
+                                 "WHERE FoodItemName = @FoodItemName AND FoodItemID <> @FoodItemID"
+            SQLCmd.Parameters.AddWithValue("@FoodItemName", txtName.Text.Trim())
+            SQLCmd.Parameters.AddWithValue("@FoodItemID", CInt(selectedFoodItemID))
+            total = CInt(SQLCmd.ExecuteScalar())
+            cn.Close()
+        End If
+
+        Return total > 0
     End Function
 
     'adds a new item to the menu using the values typed into the boxes
