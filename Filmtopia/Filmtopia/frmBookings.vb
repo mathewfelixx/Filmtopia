@@ -358,18 +358,27 @@ Public Class frmBookings
         ApplySeatColours()
         pnlSeatMap.Controls.Clear()
 
-        Dim dtSeats As New DataTable
+        'the map is about to be drawn again, so anything picked on the old one is forgotten.
+        'this used to happen by itself because the buttons were thrown away and the new ones came
+        'back the available colour. now the picked seats are kept in a table they have to be
+        'emptied on purpose, otherwise changing screening would carry the old seats across
+        pendingSeats.Rows.Clear()
+
+        currentSeats = New DataTable
+        Dim dtSeats As DataTable = currentSeats
         Dim dtTaken As New DataTable
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
 
-            'all the seats that belong to this screen
-            SQLCmd.CommandText = "SELECT SeatID, SeatRow, SeatNumber " &
-                                 "FROM tblSeat " &
-                                 "WHERE ScreenID = @ScreenID " &
-                                 "ORDER BY SeatRow, SeatNumber"
+            'all the seats that belong to this screen, with what sort of seat each one is and what
+            'that does to its price
+            SQLCmd.CommandText = "SELECT tblSeat.SeatID, tblSeat.SeatRow, tblSeat.SeatNumber, " &
+                                 "tblSeatType.SeatTypeName, tblSeatType.PriceMultiplier " &
+                                 "FROM tblSeat INNER JOIN tblSeatType ON tblSeat.SeatTypeID = tblSeatType.SeatTypeID " &
+                                 "WHERE tblSeat.ScreenID = @ScreenID " &
+                                 "ORDER BY tblSeat.SeatRow, tblSeat.SeatNumber"
             SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(currentScreenID))
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dtSeats)
@@ -391,6 +400,8 @@ Public Class frmBookings
             Dim seatID As Long = CLng(dtSeats.Rows(i)("SeatID"))
             Dim seatRow As String = dtSeats.Rows(i)("SeatRow").ToString()
             Dim seatNumber As Integer = CInt(dtSeats.Rows(i)("SeatNumber"))
+            Dim seatType As String = dtSeats.Rows(i)("SeatTypeName").ToString()
+            Dim multiplier As Double = CDbl(dtSeats.Rows(i)("PriceMultiplier"))
 
             Dim b As New Button
             b.Tag = seatID
