@@ -315,15 +315,22 @@ Public Class frmScreens
             cn.Close()
         End If
 
+        'kept because ClearFields empties the box before there is a chance to say what was saved
+        Dim savedName As String = txtName.Text.Trim()
+
         'logging waits until the connection is shut, WriteLog opens its own
         If newScreenID > 0 Then
-            WriteLog("SCREEN", "Screen added: " & txtName.Text.Trim(), LogChange)
+            WriteLog("SCREEN", "Screen added: " & savedName, LogChange)
             WriteLog("SCREEN", "Seats generated for ScreenID " & newScreenID & ", " & numRows & " row(s) of " &
                                perRow & ", " & (numRows * perRow) & " seats", LogChange)
         End If
 
         LoadScreens()
         ClearFields()
+
+        If newScreenID > 0 Then
+            SayDone(lblSaved, "Added '" & savedName & "' with " & (numRows * perRow) & " seats")
+        End If
     End Sub
 
     'saves the changes made to the screen selected in the grid
@@ -420,8 +427,10 @@ Public Class frmScreens
             cn.Close()
         End If
 
+        Dim savedName As String = txtName.Text.Trim()
+
         If saved Then
-            WriteLog("SCREEN", "Screen updated: " & txtName.Text.Trim(), LogChange)
+            WriteLog("SCREEN", "Screen updated: " & savedName, LogChange)
 
             If capacityChanged Then
                 WriteLog("SCREEN", "Seats generated for ScreenID " & selectedScreenID & ", " & newRows & " row(s) of " &
@@ -431,6 +440,10 @@ Public Class frmScreens
 
         LoadScreens()
         ClearFields()
+
+        If saved Then
+            SayDone(lblSaved, "Saved changes to '" & savedName & "'")
+        End If
     End Sub
 
     'deletes the screen selected in the grid
@@ -498,12 +511,18 @@ Public Class frmScreens
             cn.Close()
         End If
 
+        Dim savedName As String = txtName.Text.Trim()
+
         If deleted Then
-            WriteLog("SCREEN", "Screen deleted: " & txtName.Text, LogChange)
+            WriteLog("SCREEN", "Screen deleted: " & savedName, LogChange)
         End If
 
         LoadScreens()
         ClearFields()
+
+        If deleted Then
+            SayDone(lblSaved, "Deleted '" & savedName & "'")
+        End If
     End Sub
 
     'checks the two layout boxes. there is no multiple of ten rule any more, because the rows and
@@ -589,6 +608,8 @@ Public Class frmScreens
     End Sub
 
     Private Sub ClearFields()
+        'the confirmation only lasts until the next thing is started
+        lblSaved.Text = ""
         selectedScreenID = 0
         rowsWhenPicked = 0
         perRowWhenPicked = 0
