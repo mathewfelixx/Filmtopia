@@ -169,12 +169,13 @@ Module modBookings
 
                 'the cost goes in as zero to start with, RecalculateBookingTotal sets it properly
                 'once the seats are actually saved
-                SQLCmd.CommandText = "INSERT INTO tblBooking (CustomerID, ScreeningID, BookingDate, TotalCost) " &
-                                     "VALUES (@CustomerID, @ScreeningID, @BookingDate, @TotalCost)"
+                SQLCmd.CommandText = "INSERT INTO tblBooking (CustomerID, ScreeningID, BookingDate, TotalCost, BookingStatus) " &
+                                     "VALUES (@CustomerID, @ScreeningID, @BookingDate, @TotalCost, @BookingStatus)"
                 SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(customerID))
                 SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(screeningID))
                 SQLCmd.Parameters.AddWithValue("@BookingDate", Date.Now.Date)
                 SQLCmd.Parameters.AddWithValue("@TotalCost", 0)
+                SQLCmd.Parameters.AddWithValue("@BookingStatus", BookingActive)
                 SQLCmd.ExecuteNonQuery()
 
                 'get the id the new booking was given so its seats can be linked to it
@@ -184,11 +185,12 @@ Module modBookings
 
                 Dim i As Integer
                 For i = 0 To seatIDs.Length - 1
-                    SQLCmd.CommandText = "INSERT INTO tblBookingSeat (BookingID, SeatID) " &
-                                         "VALUES (@BookingID, @SeatID)"
+                    SQLCmd.CommandText = "INSERT INTO tblBookingSeat (BookingID, SeatID, ScreeningID) " &
+                                         "VALUES (@BookingID, @SeatID, @ScreeningID)"
                     SQLCmd.Parameters.Clear()
                     SQLCmd.Parameters.AddWithValue("@BookingID", CInt(newID))
                     SQLCmd.Parameters.AddWithValue("@SeatID", CInt(seatIDs(i)))
+                    SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(screeningID))
                     SQLCmd.ExecuteNonQuery()
                 Next
 
