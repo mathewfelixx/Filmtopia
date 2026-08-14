@@ -118,6 +118,12 @@
     <Compile Include="frmLogs.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmImportFilms.Designer.vb">
+      <DependentUpon>frmImportFilms.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmImportFilms.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmScreens.Designer.vb">
       <DependentUpon>frmScreens.vb</DependentUpon>
     </Compile>
@@ -230,6 +236,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmLogs.resx">
       <DependentUpon>frmLogs.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmImportFilms.resx">
+      <DependentUpon>frmImportFilms.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmScreens.resx">
       <DependentUpon>frmScreens.vb</DependentUpon>
