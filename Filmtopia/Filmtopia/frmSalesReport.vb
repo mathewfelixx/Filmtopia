@@ -27,6 +27,13 @@ Public Class frmSalesReport
         cboReportType.Items.Add("Cancellations")
         cboReportType.SelectedIndex = 0
 
+        'which date the range is matched against. booking date is when the money came in,
+        'screening date is what actually played that week. they are different questions and the
+        'same range can give two different answers, so it is worth being able to pick
+        cboMeasureBy.Items.Add("Booking date")
+        cboMeasureBy.Items.Add("Screening date")
+        cboMeasureBy.SelectedIndex = 0
+
         stillLoading = False
 
         RunReport()
@@ -35,6 +42,15 @@ Public Class frmSalesReport
 
     'picking a different option runs the report again straight away, so nobody has to press run
     Private Sub cboReportType_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboReportType.SelectedIndexChanged
+        If stillLoading Then
+            Exit Sub
+        End If
+
+        RunReport()
+    End Sub
+
+    'measuring by a different date runs the report again, same as changing the show box
+    Private Sub cboMeasureBy_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboMeasureBy.SelectedIndexChanged
         If stillLoading Then
             Exit Sub
         End If
@@ -164,7 +180,8 @@ Public Class frmSalesReport
     'and gives back what that adds up to. this is only possible now that cancelling marks a booking
     'instead of deleting it, before this the sale was gone and there was nothing left to report on.
     'the date used is when it was cancelled, not when it was booked, because a manager looking at
-    'refunds wants to know what went out that week
+    'refunds wants to know what went out that week. this is the one report the measure by box
+    'does not change, for the same reason
     Private Function LoadCancellations(fromDate As Date, toDate As Date) As Double
         Dim dt As New DataTable
 
@@ -215,12 +232,18 @@ Public Class frmSalesReport
             'price up on the menu cannot reach back and rewrite last month's takings.
             'the food on a cancelled booking is left out, it was refunded so it is not takings
             SQLCmd.CommandText = "SELECT FoodItemName, SUM(Quantity) AS Sold, SUM(Quantity * ItemPricePaid) AS FoodRevenue " &
-                                 "FROM (tblOrderItem INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID) " &
-                                 "INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID " &
-                                 "WHERE tblBooking.BookingDate >= @FromDate AND tblBooking.BookingDate < @ToDate " &
+                                 "FROM ((tblOrderItem INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID) " &
+                                 "INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID) " &
+                                 "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID " &
+                                 "WHERE IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) >= @FromDate " &
+                                 "AND IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) < @ToDate " &
                                  "AND tblBooking.BookingStatus <> @Cancelled " &
                                  "GROUP BY FoodItemName"
+            'OleDb matches parameters by position and not by name, so the switch is added twice,
+            'once for each IIf, in the order the query mentions them
+            SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
+            SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
             SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
             SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
             Dim da As New OleDbDataAdapter(SQLCmd)
@@ -319,10 +342,15 @@ Public Class frmSalesReport
                                  "FROM ((tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID) " &
                                  "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
                                  "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
-                                 "WHERE tblBooking.BookingDate >= @FromDate AND tblBooking.BookingDate < @ToDate " &
+                                 "WHERE IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) >= @FromDate " &
+                                 "AND IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) < @ToDate " &
                                  "AND tblBooking.BookingStatus <> @Cancelled " &
                                  "GROUP BY FilmTitle"
+            'OleDb matches parameters by position and not by name, so the switch is added twice,
+            'once for each IIf, in the order the query mentions them
+            SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
+            SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
             SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
             SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
             Dim da As New OleDbDataAdapter(SQLCmd)
@@ -348,10 +376,15 @@ Public Class frmSalesReport
                                  "INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID) " &
                                  "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
                                  "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
-                                 "WHERE tblBooking.BookingDate >= @FromDate AND tblBooking.BookingDate < @ToDate " &
+                                 "WHERE IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) >= @FromDate " &
+                                 "AND IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) < @ToDate " &
                                  "AND tblBooking.BookingStatus <> @Cancelled " &
                                  "GROUP BY FilmTitle"
+            'OleDb matches parameters by position and not by name, so the switch is added twice,
+            'once for each IIf, in the order the query mentions them
+            SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
+            SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
             SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
             SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
             Dim da As New OleDbDataAdapter(SQLCmd)
@@ -386,6 +419,18 @@ Public Class frmSalesReport
         Next
 
         Return False
+    End Function
+
+    '1 when the report is being measured against the screening date instead of the booking date.
+    'it goes into the queries as a parameter and the IIf in the WHERE picks the column with it.
+    'the column name could have been glued into the SQL instead, which reads better, but then
+    'the query is not a plain string any more and check-sql cannot pull it out and try it
+    Private Function MeasuringByScreening() As Integer
+        If cboMeasureBy.Text = "Screening date" Then
+            Return 1
+        Else
+            Return 0
+        End If
     End Function
 
     'gives back midnight at the start of the day after the one picked. every query then asks for

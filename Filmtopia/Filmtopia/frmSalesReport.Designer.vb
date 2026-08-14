@@ -31,6 +31,8 @@ Partial Class frmSalesReport
         Me.btnExport = New System.Windows.Forms.Button()
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.lblGridCount = New System.Windows.Forms.Label()
+        Me.lblMeasureBy = New System.Windows.Forms.Label()
+        Me.cboMeasureBy = New System.Windows.Forms.ComboBox()
         CType(Me.dgvSalesByFilm, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -106,7 +108,7 @@ Partial Class frmSalesReport
         Me.dgvSalesByFilm.AllowUserToAddRows = False
         Me.dgvSalesByFilm.AllowUserToDeleteRows = False
         Me.dgvSalesByFilm.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvSalesByFilm.Location = New System.Drawing.Point(16, 95)
+        Me.dgvSalesByFilm.Location = New System.Drawing.Point(16, 133)
         Me.dgvSalesByFilm.Margin = New System.Windows.Forms.Padding(4)
         Me.dgvSalesByFilm.Name = "dgvSalesByFilm"
         Me.dgvSalesByFilm.ReadOnly = True
@@ -114,10 +116,30 @@ Partial Class frmSalesReport
         Me.dgvSalesByFilm.Size = New System.Drawing.Size(660, 250)
         Me.dgvSalesByFilm.TabIndex = 7
         '
+        'lblMeasureBy
+        '
+        Me.lblMeasureBy.AutoSize = True
+        Me.lblMeasureBy.Location = New System.Drawing.Point(16, 99)
+        Me.lblMeasureBy.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblMeasureBy.Name = "lblMeasureBy"
+        Me.lblMeasureBy.Size = New System.Drawing.Size(80, 16)
+        Me.lblMeasureBy.TabIndex = 13
+        Me.lblMeasureBy.Text = "Measure by"
+        '
+        'cboMeasureBy
+        '
+        Me.cboMeasureBy.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboMeasureBy.FormattingEnabled = True
+        Me.cboMeasureBy.Location = New System.Drawing.Point(110, 95)
+        Me.cboMeasureBy.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboMeasureBy.Name = "cboMeasureBy"
+        Me.cboMeasureBy.Size = New System.Drawing.Size(225, 24)
+        Me.cboMeasureBy.TabIndex = 14
+        '
         'lblGridCount
         '
         Me.lblGridCount.AutoSize = True
-        Me.lblGridCount.Location = New System.Drawing.Point(500, 351)
+        Me.lblGridCount.Location = New System.Drawing.Point(500, 389)
         Me.lblGridCount.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblGridCount.Name = "lblGridCount"
         Me.lblGridCount.Size = New System.Drawing.Size(50, 16)
@@ -127,7 +149,7 @@ Partial Class frmSalesReport
         'lblTicketRevenue
         '
         Me.lblTicketRevenue.AutoSize = True
-        Me.lblTicketRevenue.Location = New System.Drawing.Point(16, 360)
+        Me.lblTicketRevenue.Location = New System.Drawing.Point(16, 398)
         Me.lblTicketRevenue.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblTicketRevenue.Name = "lblTicketRevenue"
         Me.lblTicketRevenue.Size = New System.Drawing.Size(120, 16)
@@ -137,7 +159,7 @@ Partial Class frmSalesReport
         'lblFoodRevenue
         '
         Me.lblFoodRevenue.AutoSize = True
-        Me.lblFoodRevenue.Location = New System.Drawing.Point(16, 388)
+        Me.lblFoodRevenue.Location = New System.Drawing.Point(16, 426)
         Me.lblFoodRevenue.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblFoodRevenue.Name = "lblFoodRevenue"
         Me.lblFoodRevenue.Size = New System.Drawing.Size(112, 16)
@@ -148,7 +170,7 @@ Partial Class frmSalesReport
         '
         Me.lblGrandTotal.AutoSize = True
         Me.lblGrandTotal.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold)
-        Me.lblGrandTotal.Location = New System.Drawing.Point(16, 418)
+        Me.lblGrandTotal.Location = New System.Drawing.Point(16, 456)
         Me.lblGrandTotal.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblGrandTotal.Name = "lblGrandTotal"
         Me.lblGrandTotal.Size = New System.Drawing.Size(140, 28)
@@ -167,7 +189,7 @@ Partial Class frmSalesReport
         '
         Me.lblVersion.AutoSize = True
         Me.lblVersion.ForeColor = System.Drawing.Color.Gray
-        Me.lblVersion.Location = New System.Drawing.Point(16, 490)
+        Me.lblVersion.Location = New System.Drawing.Point(16, 528)
         Me.lblVersion.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblVersion.Name = "lblVersion"
         Me.lblVersion.Size = New System.Drawing.Size(271, 16)
@@ -178,7 +200,9 @@ Partial Class frmSalesReport
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(694, 530)
+        Me.ClientSize = New System.Drawing.Size(694, 568)
+        Me.Controls.Add(Me.cboMeasureBy)
+        Me.Controls.Add(Me.lblMeasureBy)
         Me.Controls.Add(Me.lblGridCount)
         Me.Controls.Add(Me.btnExport)
         Me.Controls.Add(Me.lblVersion)
@@ -219,4 +243,6 @@ Partial Class frmSalesReport
     Friend WithEvents btnExport As Button
     Friend WithEvents lblVersion As Label
     Friend WithEvents lblGridCount As Label
+    Friend WithEvents lblMeasureBy As Label
+    Friend WithEvents cboMeasureBy As ComboBox
 End Class
