@@ -211,12 +211,16 @@ Public Class frmBookingSearch
                 'the booking is kept and marked instead of being deleted. before this it was thrown
                 'away completely, which meant a cancelled sale vanished out of the history and the
                 'sales report could never show what had been refunded
+                'the date is put in with Now() in the query rather than as a parameter. passing a
+                'date that has a time on it through AddWithValue makes Access refuse the whole
+                'update with a data type mismatch, which is why cancelling was failing and nothing
+                'was being written. every other date in the program is a midnight one so none of
+                'them hit it. WriteLog already puts its timestamp in this way
                 SQLCmd.CommandText = "UPDATE tblBooking " &
-                                     "SET BookingStatus = @BookingStatus, CancelledDate = @CancelledDate " &
+                                     "SET BookingStatus = @BookingStatus, CancelledDate = Now() " &
                                      "WHERE BookingID = @BookingID AND BookingStatus <> @AlreadyCancelled"
                 SQLCmd.Parameters.Clear()
                 SQLCmd.Parameters.AddWithValue("@BookingStatus", BookingCancelled)
-                SQLCmd.Parameters.AddWithValue("@CancelledDate", Date.Now)
                 SQLCmd.Parameters.AddWithValue("@BookingID", cancelledID)
                 SQLCmd.Parameters.AddWithValue("@AlreadyCancelled", BookingCancelled)
 
