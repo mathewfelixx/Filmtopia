@@ -406,12 +406,137 @@ Public Class frmScreenings
         LoadScreenings()
     End Sub
 
+    'finds the earliest time the picked film could go on the picked screen on the picked day without
+    'running into anything already booked in. it reads everything already on that screen that day,
+    'sorts it into time order, then walks along the day from opening time keeping track of how far
+    'through it has got, and stops at the first gap the film actually fits in.
+    'gives back the time in minutes, or -1 if there is nowhere left to put it
+    Private Function NextFreeSlot() As Integer
+        'worked out before the connection is opened, because it opens one of its own
+        Dim needed As Integer = ScreenTimeNeeded(DurationOfPickedFilm())
+
+        Dim starts(-1) As Integer
+        Dim finishes(-1) As Integer
+        Dim howMany As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+
+            'how many there are first, so the arrays can be made the right size
+            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblScreening " &
+                                 "WHERE ScreenID = @ScreenID AND ScreeningDate = @ScreeningDate"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(cboScreen.SelectedValue))
+            SQLCmd.Parameters.AddWithValue("@ScreeningDate", dtpScreeningDate.Value.Date)
+            Dim onThatDay As Integer = CInt(SQLCmd.ExecuteScalar())
+
+            If onThatDay > 0 Then
+                ReDim starts(onThatDay - 1)
+                ReDim finishes(onThatDay - 1)
+
+                SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, ScreeningTime, FilmDuration " &
+                                     "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
+                                     "WHERE tblScreening.ScreenID = @ScreenID AND ScreeningDate = @ScreeningDate"
+                SQLCmd.Parameters.Clear()
+                SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(cboScreen.SelectedValue))
+                SQLCmd.Parameters.AddWithValue("@ScreeningDate", dtpScreeningDate.Value.Date)
+
+                Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+
+                While rs.Read()
+                    'the one being edited is left out, otherwise it would be treated as being in
+                    'its own way and the same time it already has would never be offered back
+                    If CInt(rs("ScreeningID")) <> selectedScreeningID Then
+                        Dim thisStart As Integer = TimeAsMinutes(rs("ScreeningTime").ToString())
+
+                        If thisStart >= 0 Then
+                            starts(howMany) = thisStart
+                            finishes(howMany) = thisStart + ScreenTimeNeeded(CInt(rs("FilmDuration")))
+                            howMany = howMany + 1
+                        End If
+                    End If
+                End While
+
+                rs.Close()
+            End If
+
+            cn.Close()
+        End If
+
+        'put them in start time order. an insertion sort is plenty here because a screen only has a
+        'handful of showings in a day, and doing the sort here rather than in the query means the
+        'walk below does not quietly depend on what order the database hands the rows back in
+        Dim i As Integer
+        For i = 1 To howMany - 1
+            Dim keyStart As Integer = starts(i)
+            Dim keyFinish As Integer = finishes(i)
+            Dim j As Integer = i - 1
+
+            While j >= 0 AndAlso starts(j) > keyStart
+                starts(j + 1) = starts(j)
+                finishes(j + 1) = finishes(j)
+                j = j - 1
+            End While
+
+            starts(j + 1) = keyStart
+            finishes(j + 1) = keyFinish
+        Next
+
+        'walk the day. earliest is how far through the day we have got so far, and each showing
+        'either leaves a big enough gap in front of it or pushes earliest along past itself
+        Dim earliest As Integer = FirstShowMinutes
+
+        For i = 0 To howMany - 1
+            If earliest + needed <= starts(i) Then
+                Return earliest
+            End If
+
+            If finishes(i) > earliest Then
+                earliest = finishes(i)
+            End If
+        Next
+
+        'nothing in the way after the last showing, so anything up to the latest start will do
+        If earliest <= LastShowMinutes Then
+            Return earliest
+        End If
+
+        Return -1
+    End Function
+
+    'fills the time box in with the first time the film would actually fit
+    Private Sub btnSuggest_Click(sender As Object, e As EventArgs) Handles btnSuggest.Click
+        If cboFilm.SelectedIndex = -1 Then
+            MessageBox.Show("Pick a film first, otherwise there is no way to know how long it needs")
+            Exit Sub
+        End If
+
+        If cboScreen.SelectedIndex = -1 Then
+            MessageBox.Show("Pick a screen first")
+            Exit Sub
+        End If
+
+        Dim slot As Integer = NextFreeSlot()
+
+        If slot < 0 Then
+            MessageBox.Show("There is no room left for " & cboFilm.Text & " on that screen that day." & vbCrLf &
+                            "Try another screen or another date.",
+                            "Nothing free", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Exit Sub
+        End If
+
+        txtScreeningTime.Text = MinutesAsTime(slot)
+        ShowEndTime()
+        WriteLog("SCREENING", "Suggested " & MinutesAsTime(slot) & " for " & cboFilm.Text &
+                              " on ScreenID " & cboScreen.SelectedValue.ToString())
+    End Sub
+
     'looks for anything already on in the same screen that this screening would run into. it is
     'the same check both ways round, two screenings clash if one starts before the other has
     'finished and been cleaned up
     Private Function ClashingScreening() As String
         Dim startMinutes As Integer = TimeAsMinutes(txtScreeningTime.Text)
-        Dim endMinutes As Integer = startMinutes + DurationOfPickedFilm() + TurnaroundMinutes
+        Dim endMinutes As Integer = startMinutes + ScreenTimeNeeded(DurationOfPickedFilm())
         Dim clash As String = ""
 
         If DbConnect() Then
