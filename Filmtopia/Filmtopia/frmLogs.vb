@@ -28,7 +28,22 @@ Public Class frmLogs
 
         stillLoading = False
 
+        'lets the form see escape before the box that has focus does
+        Me.KeyPreview = True
+
         LoadLogs()
+        txtSearch.Focus()
+    End Sub
+
+    'escape empties the search box, or shuts the form if there is nothing to empty
+    Private Sub frmLogs_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
+        If e.KeyCode = Keys.Escape Then
+            If txtSearch.Text <> "" Then
+                txtSearch.Text = ""
+            Else
+                Me.Close()
+            End If
+        End If
     End Sub
 
     'fills the area box with the log types that are actually in the table, so it can never offer
