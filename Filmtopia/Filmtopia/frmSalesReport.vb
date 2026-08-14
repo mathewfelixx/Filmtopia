@@ -236,14 +236,16 @@ Public Class frmSalesReport
                                  "INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID) " &
                                  "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID " &
                                  "WHERE IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) >= @FromDate " &
-                                 "AND IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) < @ToDate " &
+                                 "AND IIf(@ByScreening2, tblScreening.ScreeningDate, tblBooking.BookingDate) < @ToDate " &
                                  "AND tblBooking.BookingStatus <> @Cancelled " &
                                  "GROUP BY FoodItemName"
-            'OleDb matches parameters by position and not by name, so the switch is added twice,
-            'once for each IIf, in the order the query mentions them
+            'the switch is in the query twice, once for each IIf, so it goes in twice here as well,
+            'in the order the query mentions them. the two have to be named differently. giving
+            'them the same name looks tidier but Jet then treats it as one parameter, the rest
+            'shuffle up by one and the report quietly comes back with nothing in it
             SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
-            SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
+            SQLCmd.Parameters.AddWithValue("@ByScreening2", MeasuringByScreening())
             SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
             SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
             Dim da As New OleDbDataAdapter(SQLCmd)
@@ -343,14 +345,16 @@ Public Class frmSalesReport
                                  "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
                                  "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
                                  "WHERE IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) >= @FromDate " &
-                                 "AND IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) < @ToDate " &
+                                 "AND IIf(@ByScreening2, tblScreening.ScreeningDate, tblBooking.BookingDate) < @ToDate " &
                                  "AND tblBooking.BookingStatus <> @Cancelled " &
                                  "GROUP BY FilmTitle"
-            'OleDb matches parameters by position and not by name, so the switch is added twice,
-            'once for each IIf, in the order the query mentions them
+            'the switch is in the query twice, once for each IIf, so it goes in twice here as well,
+            'in the order the query mentions them. the two have to be named differently. giving
+            'them the same name looks tidier but Jet then treats it as one parameter, the rest
+            'shuffle up by one and the report quietly comes back with nothing in it
             SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
-            SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
+            SQLCmd.Parameters.AddWithValue("@ByScreening2", MeasuringByScreening())
             SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
             SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
             Dim da As New OleDbDataAdapter(SQLCmd)
@@ -377,14 +381,16 @@ Public Class frmSalesReport
                                  "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
                                  "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
                                  "WHERE IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) >= @FromDate " &
-                                 "AND IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) < @ToDate " &
+                                 "AND IIf(@ByScreening2, tblScreening.ScreeningDate, tblBooking.BookingDate) < @ToDate " &
                                  "AND tblBooking.BookingStatus <> @Cancelled " &
                                  "GROUP BY FilmTitle"
-            'OleDb matches parameters by position and not by name, so the switch is added twice,
-            'once for each IIf, in the order the query mentions them
+            'the switch is in the query twice, once for each IIf, so it goes in twice here as well,
+            'in the order the query mentions them. the two have to be named differently. giving
+            'them the same name looks tidier but Jet then treats it as one parameter, the rest
+            'shuffle up by one and the report quietly comes back with nothing in it
             SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
-            SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
+            SQLCmd.Parameters.AddWithValue("@ByScreening2", MeasuringByScreening())
             SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
             SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
             Dim da As New OleDbDataAdapter(SQLCmd)
