@@ -48,7 +48,7 @@ Partial Class frmLogs
         'dtpFrom
         '
         Me.dtpFrom.Format = System.Windows.Forms.DateTimePickerFormat.Short
-        Me.dtpFrom.Location = New System.Drawing.Point(55, 13)
+        Me.dtpFrom.Location = New System.Drawing.Point(70, 13)
         Me.dtpFrom.Name = "dtpFrom"
         Me.dtpFrom.Size = New System.Drawing.Size(110, 22)
         Me.dtpFrom.TabIndex = 1
@@ -56,7 +56,7 @@ Partial Class frmLogs
         'lblTo
         '
         Me.lblTo.AutoSize = True
-        Me.lblTo.Location = New System.Drawing.Point(175, 17)
+        Me.lblTo.Location = New System.Drawing.Point(196, 17)
         Me.lblTo.Name = "lblTo"
         Me.lblTo.Size = New System.Drawing.Size(20, 17)
         Me.lblTo.TabIndex = 2
@@ -65,7 +65,7 @@ Partial Class frmLogs
         'dtpTo
         '
         Me.dtpTo.Format = System.Windows.Forms.DateTimePickerFormat.Short
-        Me.dtpTo.Location = New System.Drawing.Point(203, 13)
+        Me.dtpTo.Location = New System.Drawing.Point(236, 13)
         Me.dtpTo.Name = "dtpTo"
         Me.dtpTo.Size = New System.Drawing.Size(110, 22)
         Me.dtpTo.TabIndex = 3
@@ -73,7 +73,7 @@ Partial Class frmLogs
         'lblType
         '
         Me.lblType.AutoSize = True
-        Me.lblType.Location = New System.Drawing.Point(327, 17)
+        Me.lblType.Location = New System.Drawing.Point(362, 17)
         Me.lblType.Name = "lblType"
         Me.lblType.Size = New System.Drawing.Size(33, 17)
         Me.lblType.TabIndex = 4
@@ -82,7 +82,7 @@ Partial Class frmLogs
         'cboType
         '
         Me.cboType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboType.Location = New System.Drawing.Point(368, 13)
+        Me.cboType.Location = New System.Drawing.Point(420, 13)
         Me.cboType.Name = "cboType"
         Me.cboType.Size = New System.Drawing.Size(130, 24)
         Me.cboType.TabIndex = 5
@@ -90,7 +90,7 @@ Partial Class frmLogs
         'lblSeverity
         '
         Me.lblSeverity.AutoSize = True
-        Me.lblSeverity.Location = New System.Drawing.Point(512, 17)
+        Me.lblSeverity.Location = New System.Drawing.Point(566, 17)
         Me.lblSeverity.Name = "lblSeverity"
         Me.lblSeverity.Size = New System.Drawing.Size(38, 17)
         Me.lblSeverity.TabIndex = 6
@@ -99,7 +99,7 @@ Partial Class frmLogs
         'cboSeverity
         '
         Me.cboSeverity.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboSeverity.Location = New System.Drawing.Point(556, 13)
+        Me.cboSeverity.Location = New System.Drawing.Point(646, 13)
         Me.cboSeverity.Name = "cboSeverity"
         Me.cboSeverity.Size = New System.Drawing.Size(160, 24)
         Me.cboSeverity.TabIndex = 7
