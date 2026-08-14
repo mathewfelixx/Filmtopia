@@ -362,26 +362,48 @@ Public Class frmScreens
         ClearFields()
     End Sub
 
-    'checks the capacity box is a whole multiple of 10, since seats are generated in rows of 10
+    'checks the two layout boxes. there is no multiple of ten rule any more, because the rows and
+    'the seats in them are given separately, so any size of screen works out exactly
     Private Function CapacityIsValid() As Boolean
-        If Not IsNumeric(txtCapacity.Text) Then
-            MessageBox.Show("How many seats has to be a number")
-            txtCapacity.Focus()
+        If Not IsNumeric(txtRows.Text) Then
+            MessageBox.Show("How many rows has to be a number")
+            txtRows.Focus()
             Return False
         End If
 
-        Dim capacity As Integer = CInt(Val(txtCapacity.Text))
-
-        If capacity <= 0 Or capacity Mod 10 <> 0 Then
-            MessageBox.Show("Screen capacity must be a multiple of 10 (e.g. 10, 20, 30...)")
-            txtCapacity.Focus()
+        If Not IsNumeric(txtPerRow.Text) Then
+            MessageBox.Show("How many seats in a row has to be a number")
+            txtPerRow.Focus()
             Return False
         End If
 
-        'twenty six rows is as far as the letters go, so that is as big as a screen can be
-        If capacity > 260 Then
-            MessageBox.Show("The rows are lettered A to Z, so a screen cannot be bigger than 260 seats")
-            txtCapacity.Focus()
+        Dim numRows As Integer = CInt(Val(txtRows.Text))
+        Dim perRow As Integer = CInt(Val(txtPerRow.Text))
+
+        If numRows <= 0 Then
+            MessageBox.Show("A screen needs at least one row")
+            txtRows.Focus()
+            Return False
+        End If
+
+        If perRow <= 0 Then
+            MessageBox.Show("A row needs at least one seat in it")
+            txtPerRow.Focus()
+            Return False
+        End If
+
+        'twenty six rows is as far as the letters go
+        If numRows > 26 Then
+            MessageBox.Show("The rows are lettered A to Z, so a screen cannot have more than 26 rows")
+            txtRows.Focus()
+            Return False
+        End If
+
+        'the seat map draws a button per seat across the panel, so a silly wide row would run off
+        'the side of it
+        If perRow > 20 Then
+            MessageBox.Show("A row cannot have more than 20 seats in it, they would not fit on the seat map")
+            txtPerRow.Focus()
             Return False
         End If
 
