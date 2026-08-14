@@ -132,13 +132,13 @@ Public Class frmFoodOrder
         End If
 
         If cboFoodItem.SelectedIndex = -1 Then
-            MessageBox.Show("Pick a food item first")
+            MessageBox.Show("Pick a food item first", "Food Order", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
         Dim quantity As Integer = SafeInt(txtQuantity.Text)
         If quantity < 1 Then
-            MessageBox.Show("Enter a quantity of 1 or more")
+            MessageBox.Show("Enter a quantity of 1 or more", "Food Order", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
@@ -180,7 +180,7 @@ Public Class frmFoodOrder
         End If
 
         If selectedOrderItemID = 0 Then
-            MessageBox.Show("Select an item in the grid first")
+            MessageBox.Show("Select an item in the grid first", "Food Order", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
