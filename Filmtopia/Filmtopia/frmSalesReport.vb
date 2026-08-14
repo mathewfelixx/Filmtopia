@@ -124,7 +124,6 @@ Public Class frmSalesReport
         sortedBy = columnName
         sortAscending = True
         ShowReport()
-        ShowSortArrow()
 
         Dim found As Integer = FindRow(columnName, target)
 
@@ -290,7 +289,6 @@ Public Class frmSalesReport
 
         SortReport(sortedBy, sortAscending)
         ShowReport()
-        ShowSortArrow()
     End Sub
 
     'puts the little arrow on whichever heading is being sorted by. the grid draws that itself
@@ -385,6 +383,7 @@ Public Class frmSalesReport
             col.SortMode = DataGridViewColumnSortMode.Programmatic
         Next
 
+        ShowSortArrow()
         dgvSalesByFilm.ClearSelection()
     End Sub
 
