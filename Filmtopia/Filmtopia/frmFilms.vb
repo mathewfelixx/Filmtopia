@@ -187,11 +187,13 @@ Public Class frmFilms
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "INSERT INTO tblFilm (FilmTitle, FilmAgeRating, FilmDuration, FilmDescription) " &
-                                 "VALUES (@FilmTitle, @FilmAgeRating, @FilmDuration, @FilmDescription)"
+            SQLCmd.CommandText = "INSERT INTO tblFilm (FilmTitle, FilmYear, FilmAgeRating, FilmDuration, FilmGenres, FilmDescription) " &
+                                 "VALUES (@FilmTitle, @FilmYear, @FilmAgeRating, @FilmDuration, @FilmGenres, @FilmDescription)"
             SQLCmd.Parameters.AddWithValue("@FilmTitle", txtTitle.Text.Trim())
+            SQLCmd.Parameters.AddWithValue("@FilmYear", YearForDatabase())
             SQLCmd.Parameters.AddWithValue("@FilmAgeRating", cboAgeRating.Text.Trim())
             SQLCmd.Parameters.AddWithValue("@FilmDuration", Val(txtDuration.Text))
+            SQLCmd.Parameters.AddWithValue("@FilmGenres", txtGenres.Text.Trim())
             SQLCmd.Parameters.AddWithValue("@FilmDescription", txtDescription.Text.Trim())
             SQLCmd.ExecuteNonQuery()
             cn.Close()
@@ -217,11 +219,13 @@ Public Class frmFilms
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "UPDATE tblFilm " &
-                                 "SET FilmTitle = @FilmTitle, FilmAgeRating = @FilmAgeRating, FilmDuration = @FilmDuration, FilmDescription = @FilmDescription " &
+                                 "SET FilmTitle = @FilmTitle, FilmYear = @FilmYear, FilmAgeRating = @FilmAgeRating, FilmDuration = @FilmDuration, FilmGenres = @FilmGenres, FilmDescription = @FilmDescription " &
                                  "WHERE FilmID = @FilmID"
             SQLCmd.Parameters.AddWithValue("@FilmTitle", txtTitle.Text.Trim())
+            SQLCmd.Parameters.AddWithValue("@FilmYear", YearForDatabase())
             SQLCmd.Parameters.AddWithValue("@FilmAgeRating", cboAgeRating.Text.Trim())
             SQLCmd.Parameters.AddWithValue("@FilmDuration", Val(txtDuration.Text))
+            SQLCmd.Parameters.AddWithValue("@FilmGenres", txtGenres.Text.Trim())
             SQLCmd.Parameters.AddWithValue("@FilmDescription", txtDescription.Text.Trim())
             SQLCmd.Parameters.AddWithValue("@FilmID", CInt(selectedFilmID))
             SQLCmd.ExecuteNonQuery()
@@ -295,9 +299,11 @@ Public Class frmFilms
     Private Sub ClearFields()
         selectedFilmID = 0
         txtTitle.Text = ""
+        txtYear.Text = ""
         cboAgeRating.SelectedIndex = -1
         cboAgeRating.Text = ""
         txtDuration.Text = ""
+        txtGenres.Text = ""
         txtDescription.Text = ""
         dgvFilms.ClearSelection()
         ShowWhatIsBeingEdited()
@@ -328,7 +334,9 @@ Public Class frmFilms
         Dim row As DataGridViewRow = dgvFilms.Rows(e.RowIndex)
         selectedFilmID = CLng(row.Cells("FilmID").Value)
         txtTitle.Text = row.Cells("FilmTitle").Value.ToString()
+        txtYear.Text = row.Cells("FilmYear").Value.ToString()
         cboAgeRating.Text = row.Cells("FilmAgeRating").Value.ToString()
+        txtGenres.Text = row.Cells("FilmGenres").Value.ToString()
         txtDescription.Text = row.Cells("FilmDescription").Value.ToString()
 
         'the box wants the plain number of minutes, which is the hidden column, not the 2h 15m
