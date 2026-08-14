@@ -30,6 +30,8 @@ Partial Class frmKiosk
         Me.btnStart = New System.Windows.Forms.Button()
         Me.pnlFilms = New System.Windows.Forms.Panel()
         Me.lblFilmsHeading = New System.Windows.Forms.Label()
+        Me.lblNoFilms = New System.Windows.Forms.Label()
+        Me.pnlFilmList = New System.Windows.Forms.Panel()
         Me.pnlHeader.SuspendLayout()
         Me.pnlFooter.SuspendLayout()
         Me.pnlWelcome.SuspendLayout()
@@ -153,6 +155,8 @@ Partial Class frmKiosk
         '
         'pnlFilms
         '
+        Me.pnlFilms.Controls.Add(Me.pnlFilmList)
+        Me.pnlFilms.Controls.Add(Me.lblNoFilms)
         Me.pnlFilms.Controls.Add(Me.lblFilmsHeading)
         Me.pnlFilms.Location = New System.Drawing.Point(0, 96)
         Me.pnlFilms.Name = "pnlFilms"
@@ -169,6 +173,26 @@ Partial Class frmKiosk
         Me.lblFilmsHeading.Size = New System.Drawing.Size(300, 37)
         Me.lblFilmsHeading.TabIndex = 0
         Me.lblFilmsHeading.Text = "What's on today"
+        '
+        'lblNoFilms
+        '
+        Me.lblNoFilms.AutoSize = True
+        Me.lblNoFilms.Font = New System.Drawing.Font("Segoe UI", 14.0!)
+        Me.lblNoFilms.ForeColor = System.Drawing.Color.Gray
+        Me.lblNoFilms.Location = New System.Drawing.Point(36, 76)
+        Me.lblNoFilms.Name = "lblNoFilms"
+        Me.lblNoFilms.Size = New System.Drawing.Size(420, 25)
+        Me.lblNoFilms.TabIndex = 1
+        Me.lblNoFilms.Text = "There is nothing left on today, please ask at the desk"
+        Me.lblNoFilms.Visible = False
+        '
+        'pnlFilmList
+        '
+        Me.pnlFilmList.AutoScroll = True
+        Me.pnlFilmList.Location = New System.Drawing.Point(20, 76)
+        Me.pnlFilmList.Name = "pnlFilmList"
+        Me.pnlFilmList.Size = New System.Drawing.Size(1240, 500)
+        Me.pnlFilmList.TabIndex = 2
         '
         'frmKiosk
         '
@@ -210,4 +234,6 @@ Partial Class frmKiosk
     Friend WithEvents btnStart As Button
     Friend WithEvents pnlFilms As Panel
     Friend WithEvents lblFilmsHeading As Label
+    Friend WithEvents lblNoFilms As Label
+    Friend WithEvents pnlFilmList As Panel
 End Class
