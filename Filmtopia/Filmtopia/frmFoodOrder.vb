@@ -114,6 +114,22 @@ Public Class frmFoodOrder
         'hide the raw id column, its only there for selecting a row to remove
         dgvOrderItems.Columns("OrderItemID").Visible = False
 
+        'the two money columns were coming out as plain numbers, so 4.5 next to a total that said
+        'four pounds fifty. same currency format the rest of the grids use
+        dgvOrderItems.Columns("FoodItemName").HeaderText = "Item"
+        dgvOrderItems.Columns("FoodItemPrice").HeaderText = "Price"
+        dgvOrderItems.Columns("Quantity").HeaderText = "Qty"
+        dgvOrderItems.Columns("Subtotal").HeaderText = "Subtotal"
+
+        dgvOrderItems.Columns("FoodItemName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+        dgvOrderItems.Columns("FoodItemPrice").Width = 90
+        dgvOrderItems.Columns("Quantity").Width = 60
+        dgvOrderItems.Columns("Subtotal").Width = 100
+
+        dgvOrderItems.Columns("FoodItemPrice").DefaultCellStyle.Format = "C"
+        dgvOrderItems.Columns("Subtotal").DefaultCellStyle.Format = "C"
+        dgvOrderItems.Columns("Quantity").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+
         'work out the running total by adding up the subtotal column
         Dim total As Double = 0
         For Each row As DataGridViewRow In dgvOrderItems.Rows
