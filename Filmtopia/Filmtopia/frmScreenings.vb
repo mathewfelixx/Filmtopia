@@ -310,7 +310,7 @@ Public Class frmScreenings
             Return ""
         End If
 
-        Return MinutesAsTime(startMinutes + duration)
+        Return MinutesAsTime(startMinutes + TrailerMinutes + duration)
     End Function
 
     'checks the screening time is in HH:MM format, e.g. 14:30
@@ -379,10 +379,12 @@ Public Class frmScreenings
 
         Dim duration As Integer = DurationOfPickedFilm()
 
-        lblEndsAt.Text = cboFilm.Text & " runs for " & duration & " minutes, so it would finish at " &
-                         MinutesAsTime(startMinutes + duration) & "." & vbCrLf &
+        lblEndsAt.Text = TrailerMinutes & " minutes of adverts, then " & cboFilm.Text & " runs for " &
+                         duration & " minutes, so the film starts at " &
+                         MinutesAsTime(startMinutes + TrailerMinutes) & " and is out at " &
+                         MinutesAsTime(startMinutes + TrailerMinutes + duration) & "." & vbCrLf &
                          "With " & TurnaroundMinutes & " minutes to clear up, the screen is free again at " &
-                         MinutesAsTime(startMinutes + duration + TurnaroundMinutes) & "."
+                         MinutesAsTime(startMinutes + ScreenTimeNeeded(duration)) & "."
     End Sub
 
     Private Sub ScreeningDetails_Changed(sender As Object, e As EventArgs) Handles cboFilm.SelectedIndexChanged,
