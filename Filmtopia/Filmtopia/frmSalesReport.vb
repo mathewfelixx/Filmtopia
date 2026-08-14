@@ -24,6 +24,8 @@ Public Class frmSalesReport
         cboReportType.Items.Add("Tickets and concessions")
         cboReportType.Items.Add("Tickets only")
         cboReportType.Items.Add("Concessions only")
+        cboReportType.Items.Add("By screening")
+        cboReportType.Items.Add("By screen")
         cboReportType.Items.Add("Cancellations")
         cboReportType.SelectedIndex = 0
 
@@ -108,6 +110,22 @@ Public Class frmSalesReport
             lblFoodRevenue.Text = "Concessions revenue: " & FormatCurrency(foodRevenue)
             lblGrandTotal.Text = "Concessions total: " & FormatCurrency(foodRevenue)
 
+        ElseIf cboReportType.Text = "By screening" Then
+            Dim ticketRevenue As Double = LoadTicketsByScreening(fromDate, toDate)
+
+            lblTicketRevenue.Visible = True
+            lblFoodRevenue.Visible = False
+            lblTicketRevenue.Text = "Ticket revenue: " & FormatCurrency(ticketRevenue)
+            lblGrandTotal.Text = "Tickets total: " & FormatCurrency(ticketRevenue)
+
+        ElseIf cboReportType.Text = "By screen" Then
+            Dim ticketRevenue As Double = LoadTicketsByScreen(fromDate, toDate)
+
+            lblTicketRevenue.Visible = True
+            lblFoodRevenue.Visible = False
+            lblTicketRevenue.Text = "Ticket revenue: " & FormatCurrency(ticketRevenue)
+            lblGrandTotal.Text = "Tickets total: " & FormatCurrency(ticketRevenue)
+
         ElseIf cboReportType.Text = "Cancellations" Then
             Dim refunded As Double = LoadCancellations(fromDate, toDate)
 
@@ -146,6 +164,10 @@ Public Class frmSalesReport
             thing = "item"
         ElseIf cboReportType.Text = "Cancellations" Then
             thing = "cancelled booking"
+        ElseIf cboReportType.Text = "By screening" Then
+            thing = "screening"
+        ElseIf cboReportType.Text = "By screen" Then
+            thing = "screen"
         End If
 
         If shown = 0 Then
@@ -170,6 +192,95 @@ Public Class frmSalesReport
             dgvSalesByFilm.Columns("Tickets").HeaderText = "Tickets sold"
             dgvSalesByFilm.Columns("TicketRevenue").HeaderText = "Ticket revenue"
             dgvSalesByFilm.Columns("FilmTitle").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            dgvSalesByFilm.Columns("TicketRevenue").DefaultCellStyle.Format = "C"
+        End If
+
+        Return TotalColumn(dt, "TicketRevenue")
+    End Function
+
+    'one row per screening, so a manager can see which showings actually sold and which played to
+    'an empty room. this is tickets only, the food is bought against the booking and not against
+    'the seat, so splitting it per screening would say more than the data really knows
+    Private Function LoadTicketsByScreening(fromDate As Date, toDate As Date) As Double
+        Dim dt As New DataTable
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            'the screen is joined on as well so the row says where it was on, which makes the
+            'quiet showings easier to place
+            SQLCmd.CommandText = "SELECT FilmTitle, tblScreening.ScreeningDate, tblScreening.ScreeningTime, " &
+                                 "ScreenName, COUNT(*) AS Tickets, SUM(SeatPricePaid) AS TicketRevenue " &
+                                 "FROM (((tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID) " &
+                                 "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
+                                 "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID) " &
+                                 "INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID " &
+                                 "WHERE IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) >= @FromDate " &
+                                 "AND IIf(@ByScreening2, tblScreening.ScreeningDate, tblBooking.BookingDate) < @ToDate " &
+                                 "AND tblBooking.BookingStatus <> @Cancelled " &
+                                 "GROUP BY FilmTitle, tblScreening.ScreeningDate, tblScreening.ScreeningTime, ScreenName " &
+                                 "ORDER BY tblScreening.ScreeningDate, tblScreening.ScreeningTime"
+            SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
+            SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
+            SQLCmd.Parameters.AddWithValue("@ByScreening2", MeasuringByScreening())
+            SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
+            SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            da.Fill(dt)
+            cn.Close()
+        End If
+
+        dgvSalesByFilm.DataSource = dt
+
+        If dgvSalesByFilm.Columns.Count > 0 Then
+            dgvSalesByFilm.Columns("FilmTitle").HeaderText = "Film"
+            dgvSalesByFilm.Columns("ScreeningDate").HeaderText = "Date"
+            dgvSalesByFilm.Columns("ScreeningTime").HeaderText = "Time"
+            dgvSalesByFilm.Columns("ScreenName").HeaderText = "Screen"
+            dgvSalesByFilm.Columns("Tickets").HeaderText = "Tickets sold"
+            dgvSalesByFilm.Columns("TicketRevenue").HeaderText = "Ticket revenue"
+            dgvSalesByFilm.Columns("FilmTitle").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            dgvSalesByFilm.Columns("ScreeningDate").DefaultCellStyle.Format = "dd/MM/yyyy"
+            dgvSalesByFilm.Columns("TicketRevenue").DefaultCellStyle.Format = "C"
+        End If
+
+        Return TotalColumn(dt, "TicketRevenue")
+    End Function
+
+    'one row per screen, for comparing the rooms against each other rather than the films
+    Private Function LoadTicketsByScreen(fromDate As Date, toDate As Date) As Double
+        Dim dt As New DataTable
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT ScreenName, COUNT(*) AS Tickets, SUM(SeatPricePaid) AS TicketRevenue " &
+                                 "FROM (((tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID) " &
+                                 "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
+                                 "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID) " &
+                                 "INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID " &
+                                 "WHERE IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) >= @FromDate " &
+                                 "AND IIf(@ByScreening2, tblScreening.ScreeningDate, tblBooking.BookingDate) < @ToDate " &
+                                 "AND tblBooking.BookingStatus <> @Cancelled " &
+                                 "GROUP BY ScreenName " &
+                                 "ORDER BY ScreenName"
+            SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
+            SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
+            SQLCmd.Parameters.AddWithValue("@ByScreening2", MeasuringByScreening())
+            SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
+            SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            da.Fill(dt)
+            cn.Close()
+        End If
+
+        dgvSalesByFilm.DataSource = dt
+
+        If dgvSalesByFilm.Columns.Count > 0 Then
+            dgvSalesByFilm.Columns("ScreenName").HeaderText = "Screen"
+            dgvSalesByFilm.Columns("Tickets").HeaderText = "Tickets sold"
+            dgvSalesByFilm.Columns("TicketRevenue").HeaderText = "Ticket revenue"
+            dgvSalesByFilm.Columns("ScreenName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             dgvSalesByFilm.Columns("TicketRevenue").DefaultCellStyle.Format = "C"
         End If
 
