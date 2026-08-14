@@ -258,14 +258,14 @@ Public Class frmSalesReport
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             'one row of tblBookingSeat is one ticket, so counting them gives the tickets sold.
-            'the money is the screening price times the multiplier for that sort of seat, added up,
-            'because a premium seat brings in more than a standard one on the same screening
-            SQLCmd.CommandText = "SELECT FilmTitle, COUNT(*) AS Tickets, SUM(TicketPrice * PriceMultiplier) AS TicketRevenue " &
-                                 "FROM ((((tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID) " &
+            'the money is what those tickets were actually sold for, which is written on the seat
+            'row at the time of the sale. it used to be worked out here from the price on the
+            'screening as it is now, which meant putting a ticket up changed what last month had
+            'taken. two of the joins have gone with it, since the seat type is no longer needed
+            SQLCmd.CommandText = "SELECT FilmTitle, COUNT(*) AS Tickets, SUM(SeatPricePaid) AS TicketRevenue " &
+                                 "FROM ((tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID) " &
                                  "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
-                                 "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID) " &
-                                 "INNER JOIN tblSeat ON tblBookingSeat.SeatID = tblSeat.SeatID) " &
-                                 "INNER JOIN tblSeatType ON tblSeat.SeatTypeID = tblSeatType.SeatTypeID " &
+                                 "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
                                  "WHERE tblBooking.BookingDate BETWEEN @FromDate AND @ToDate " &
                                  "GROUP BY FilmTitle"
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
