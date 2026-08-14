@@ -55,7 +55,7 @@ Public Class frmBookingSearch
             SQLCmd.Connection = cn
 
             'join booking to customer (for the name), then to screening, then to film (for the title)
-            Dim baseQuery As String = "SELECT tblBooking.BookingID, CustomerForename & ' ' & CustomerSurname AS CustomerName, FilmTitle, ScreeningDate, ScreeningTime, TotalCost " &
+            Dim baseQuery As String = "SELECT tblBooking.BookingID, CustomerForename & ' ' & CustomerSurname AS CustomerName, FilmTitle, ScreeningDate, ScreeningTime, TotalCost, BookingStatus " &
                                       "FROM ((tblBooking INNER JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
                                       "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
                                       "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID"
@@ -88,6 +88,7 @@ Public Class frmBookingSearch
             dgvBookings.Columns("ScreeningDate").HeaderText = "Date"
             dgvBookings.Columns("ScreeningTime").HeaderText = "Time"
             dgvBookings.Columns("TotalCost").HeaderText = "Total"
+            dgvBookings.Columns("BookingStatus").HeaderText = "Status"
 
             dgvBookings.Columns("BookingID").Width = 80
             dgvBookings.Columns("CustomerName").Width = 200
@@ -95,9 +96,11 @@ Public Class frmBookingSearch
             dgvBookings.Columns("ScreeningDate").Width = 110
             dgvBookings.Columns("ScreeningTime").Width = 80
             dgvBookings.Columns("TotalCost").Width = 100
+            dgvBookings.Columns("BookingStatus").Width = 90
 
             dgvBookings.Columns("ScreeningDate").DefaultCellStyle.Format = "dd/MM/yyyy"
             dgvBookings.Columns("TotalCost").DefaultCellStyle.Format = "C"
+            GreyOutCancelled()
             dgvBookings.ClearSelection()
         End If
 
