@@ -257,6 +257,11 @@ Public Class frmScreens
             Exit Sub
         End If
 
+        If NameAlreadyUsed() Then
+            SayNameIsTaken()
+            Exit Sub
+        End If
+
         Dim newScreenID As Long = 0
         Dim numRows As Integer = SafeInt(txtRows.Text)
         Dim perRow As Integer = SafeInt(txtPerRow.Text)
@@ -329,8 +334,13 @@ Public Class frmScreens
             Exit Sub
         End If
 
-        Dim newRows As Integer = CInt(Val(txtRows.Text))
-        Dim newPerRow As Integer = CInt(Val(txtPerRow.Text))
+        If NameAlreadyUsed() Then
+            SayNameIsTaken()
+            Exit Sub
+        End If
+
+        Dim newRows As Integer = SafeInt(txtRows.Text)
+        Dim newPerRow As Integer = SafeInt(txtPerRow.Text)
         Dim newCapacity As Integer = newRows * newPerRow
 
         'the seats are only worth making again if the layout has actually changed. before, renaming
@@ -534,6 +544,34 @@ Public Class frmScreens
 
         Return True
     End Function
+
+    'says whether another screen already has this name. screens are picked by name all over the
+    'program, on the screenings form and the door list, so two called Screen 2 would be guesswork.
+    'the screen being edited is left out of the count so renaming nothing does not trip over itself
+    Private Function NameAlreadyUsed() As Boolean
+        Dim total As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblScreen " &
+                                 "WHERE ScreenName = @ScreenName AND ScreenID <> @ScreenID"
+            SQLCmd.Parameters.AddWithValue("@ScreenName", txtName.Text.Trim())
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
+            total = CInt(SQLCmd.ExecuteScalar())
+            cn.Close()
+        End If
+
+        Return total > 0
+    End Function
+
+    'the message for when the name is taken, said the same way whether adding or changing
+    Private Sub SayNameIsTaken()
+        MessageBox.Show("There is already a screen called '" & txtName.Text.Trim() & "'." & vbCrLf &
+                        "Screens are picked by name everywhere else, so two the same cannot be told apart.",
+                        "Name already used", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        txtName.Focus()
+    End Sub
 
     'clears the boxes and the selection
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
