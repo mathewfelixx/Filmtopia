@@ -250,10 +250,14 @@ Public Class frmScreens
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "INSERT INTO tblScreen (ScreenName, ScreenCapacity) " &
-                                 "VALUES (@ScreenName, @ScreenCapacity)"
+            'the capacity is still stored, but it is worked out from the layout rather than typed,
+            'so it can no longer disagree with the number of seats that actually get made
+            SQLCmd.CommandText = "INSERT INTO tblScreen (ScreenName, ScreenCapacity, ScreenRows, SeatsPerRow) " &
+                                 "VALUES (@ScreenName, @ScreenCapacity, @ScreenRows, @SeatsPerRow)"
             SQLCmd.Parameters.AddWithValue("@ScreenName", txtName.Text.Trim())
-            SQLCmd.Parameters.AddWithValue("@ScreenCapacity", Val(txtCapacity.Text))
+            SQLCmd.Parameters.AddWithValue("@ScreenCapacity", CInt(Val(txtRows.Text) * Val(txtPerRow.Text)))
+            SQLCmd.Parameters.AddWithValue("@ScreenRows", CInt(Val(txtRows.Text)))
+            SQLCmd.Parameters.AddWithValue("@SeatsPerRow", CInt(Val(txtPerRow.Text)))
             SQLCmd.ExecuteNonQuery()
 
             'grab the ID just given to the new screen so we can generate its seats
@@ -262,7 +266,7 @@ Public Class frmScreens
             cn.Close()
         End If
 
-        GenerateSeats(newScreenID, CInt(Val(txtCapacity.Text)))
+        GenerateSeats(newScreenID, CInt(Val(txtRows.Text)), CInt(Val(txtPerRow.Text)))
 
         WriteLog("SCREEN", "Screen added: " & txtName.Text.Trim(), LogChange)
         LoadScreens()
