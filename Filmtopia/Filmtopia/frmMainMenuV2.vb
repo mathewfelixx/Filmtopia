@@ -350,6 +350,7 @@ Public Class frmMainMenuV2
         tips.SetToolTip(btnScreens, "Set up screens and their seating")
         tips.SetToolTip(btnFood, "Manage food and drink items")
         tips.SetToolTip(btnReports, "View the sales report")
+        tips.SetToolTip(btnKiosk, "Hand the screen over to a customer to serve themselves")
         tips.SetToolTip(btnLogs, "See a history of what has been done")
         tips.SetToolTip(btnSettings, "Backups, password and appearance")
         tips.SetToolTip(btnLogout, "Log out and go back to the login screen")
