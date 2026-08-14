@@ -6,6 +6,29 @@ Imports System.Data.OleDb
 'booking costs, and everything else calls it
 Module modBookings
 
+    'the two states a booking can be in. they are only ever used as text so they are kept as
+    'constants the same way the log severities are, that way a typo is a compile error rather than
+    'a booking that quietly does not match anything.
+    'a cancelled booking is not deleted any more, it stays in the table with its total on it so the
+    'money history is still right and a refund can be seen. what does get removed is its seats,
+    'because those have to go back on sale for somebody else
+    Public Const BookingActive As String = "Active"
+    Public Const BookingCancelled As String = "Cancelled"
+
+    'the three sorts of seat. the names match the SeatTypeName column in tblSeatType, and what each
+    'one costs is not in here on purpose, it is a PriceMultiplier held on the row in that table.
+    'that way the price of a premium seat can be changed in the data without touching any code
+    Public Const SeatStandard As String = "Standard"
+    Public Const SeatPremium As String = "Premium"
+    Public Const SeatAccessible As String = "Accessible"
+
+    'what one seat costs for a screening, which is the screening's base price times whatever the
+    'multiplier is for that sort of seat. every place that works out a price goes through here so
+    'the till, the total on the booking and the sales report cannot disagree with each other
+    Public Function SeatPrice(basePrice As Double, multiplier As Double) As Double
+        Return Math.Round(basePrice * multiplier, 2)
+    End Function
+
     'saves a whole sale in one go: the walk-in customer if there is one, the booking, the seats
     'and the food. it is all inside one transaction, so either the entire sale is saved or none
     'of it is. nothing is written until the till operator finishes the sale, which is why there
