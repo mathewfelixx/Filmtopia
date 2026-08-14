@@ -413,6 +413,19 @@ Public Class frmBookings
             Dim rowIndex As Integer = Asc(seatRow) - 65
             b.Location = New Point((seatNumber - 1) * 45 + 10, rowIndex * 45 + 10)
 
+            'a seat that costs more than a standard one gets a border round it so the difference can
+            'be seen on the map. the background is left to show whether it is free, picked or gone,
+            'so the two things do not fight each other for the same colour
+            If multiplier <> 1 Then
+                b.FlatStyle = FlatStyle.Flat
+                b.FlatAppearance.BorderSize = 2
+                b.FlatAppearance.BorderColor = AccentFore
+            End If
+
+            'say what sort of seat it is and what it costs when the mouse rests on it
+            seatTips.SetToolTip(b, seatRow & seatNumber & " - " & seatType & " - " &
+                                   FormatCurrency(SeatPrice(currentTicketPrice, multiplier)))
+
             'if this seat is already taken grey it out, otherwise let it be clicked
             If dtTaken.Select("SeatID = " & seatID).Length > 0 Then
                 b.BackColor = takenColour
