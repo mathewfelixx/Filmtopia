@@ -6,6 +6,10 @@ Public Class frmSalesReport
     'before the dates have been put in
     Private stillLoading As Boolean = True
 
+    'whatever the report is showing at the moment. it is held on the form rather than being a
+    'local in each loader because the grid is not the only thing that reads it any more
+    Private reportTable As DataTable
+
     Private Sub frmSalesReport_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         If UserAccessLevel <> 1 Then
             MessageBox.Show("Only a manager can see the sales report.", "Sales Report", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -179,21 +183,80 @@ Public Class frmSalesReport
         End If
     End Sub
 
+    'puts the table that has just been built onto the grid, then tidies the columns for whichever
+    'report it is. this used to be written out again at the bottom of every one of the loaders
+    Private Sub ShowReport()
+        dgvSalesByFilm.DataSource = reportTable
+
+        If dgvSalesByFilm.Columns.Count = 0 Then
+            Exit Sub
+        End If
+
+        If cboReportType.Text = "Tickets only" Then
+            dgvSalesByFilm.Columns("FilmTitle").HeaderText = "Film"
+            dgvSalesByFilm.Columns("Tickets").HeaderText = "Tickets sold"
+            dgvSalesByFilm.Columns("TicketRevenue").HeaderText = "Ticket revenue"
+            dgvSalesByFilm.Columns("FilmTitle").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            dgvSalesByFilm.Columns("TicketRevenue").DefaultCellStyle.Format = "C"
+        ElseIf cboReportType.Text = "By screening" Then
+            dgvSalesByFilm.Columns("FilmTitle").HeaderText = "Film"
+            dgvSalesByFilm.Columns("ScreeningDate").HeaderText = "Date"
+            dgvSalesByFilm.Columns("ScreeningTime").HeaderText = "Time"
+            dgvSalesByFilm.Columns("ScreenName").HeaderText = "Screen"
+            dgvSalesByFilm.Columns("Tickets").HeaderText = "Tickets sold"
+            dgvSalesByFilm.Columns("TicketRevenue").HeaderText = "Ticket revenue"
+            dgvSalesByFilm.Columns("FilmTitle").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            dgvSalesByFilm.Columns("ScreeningDate").DefaultCellStyle.Format = "dd/MM/yyyy"
+            dgvSalesByFilm.Columns("TicketRevenue").DefaultCellStyle.Format = "C"
+        ElseIf cboReportType.Text = "By screen" Then
+            dgvSalesByFilm.Columns("ScreenName").HeaderText = "Screen"
+            dgvSalesByFilm.Columns("Tickets").HeaderText = "Tickets sold"
+            dgvSalesByFilm.Columns("TicketRevenue").HeaderText = "Ticket revenue"
+            dgvSalesByFilm.Columns("ScreenName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            dgvSalesByFilm.Columns("TicketRevenue").DefaultCellStyle.Format = "C"
+        ElseIf cboReportType.Text = "Cancellations" Then
+            dgvSalesByFilm.Columns("BookingID").HeaderText = "Booking"
+            dgvSalesByFilm.Columns("CustomerName").HeaderText = "Customer"
+            dgvSalesByFilm.Columns("FilmTitle").HeaderText = "Film"
+            dgvSalesByFilm.Columns("CancelledDate").HeaderText = "Cancelled"
+            dgvSalesByFilm.Columns("TotalCost").HeaderText = "Refunded"
+            dgvSalesByFilm.Columns("FilmTitle").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            dgvSalesByFilm.Columns("CancelledDate").DefaultCellStyle.Format = "dd/MM/yyyy HH:mm"
+            dgvSalesByFilm.Columns("TotalCost").DefaultCellStyle.Format = "C"
+        ElseIf cboReportType.Text = "Concessions only" Then
+            dgvSalesByFilm.Columns("FoodItemName").HeaderText = "Item"
+            dgvSalesByFilm.Columns("Sold").HeaderText = "Sold"
+            dgvSalesByFilm.Columns("FoodRevenue").HeaderText = "Revenue"
+            dgvSalesByFilm.Columns("FoodItemName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            dgvSalesByFilm.Columns("FoodRevenue").DefaultCellStyle.Format = "C"
+        Else
+            dgvSalesByFilm.Columns("FilmTitle").HeaderText = "Film"
+            dgvSalesByFilm.Columns("TicketRevenue").HeaderText = "Tickets"
+            dgvSalesByFilm.Columns("FoodRevenue").HeaderText = "Concessions"
+            dgvSalesByFilm.Columns("Total").HeaderText = "Total"
+            dgvSalesByFilm.Columns("FilmTitle").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            dgvSalesByFilm.Columns("TicketRevenue").DefaultCellStyle.Format = "C"
+            dgvSalesByFilm.Columns("FoodRevenue").DefaultCellStyle.Format = "C"
+            dgvSalesByFilm.Columns("Total").DefaultCellStyle.Format = "C"
+        End If
+
+        'the grid is told not to sort itself. the sorting is done in code further down, and if the
+        'grid also sorted then clicking a heading would run both and they would fight over the order
+        For Each col As DataGridViewColumn In dgvSalesByFilm.Columns
+            col.SortMode = DataGridViewColumnSortMode.Programmatic
+        Next
+
+        dgvSalesByFilm.ClearSelection()
+    End Sub
+
     'fills the grid with the tickets sold and what they came to for each film, and returns the total.
     'the money comes from the seats on the booking times the screening price, not from TotalCost,
     'because TotalCost has the food added onto it as well
     Private Function LoadTicketsByFilm(fromDate As Date, toDate As Date) As Double
         Dim dt As DataTable = GetTicketsByFilmTable(fromDate, toDate)
 
-        dgvSalesByFilm.DataSource = dt
-
-        If dgvSalesByFilm.Columns.Count > 0 Then
-            dgvSalesByFilm.Columns("FilmTitle").HeaderText = "Film"
-            dgvSalesByFilm.Columns("Tickets").HeaderText = "Tickets sold"
-            dgvSalesByFilm.Columns("TicketRevenue").HeaderText = "Ticket revenue"
-            dgvSalesByFilm.Columns("FilmTitle").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            dgvSalesByFilm.Columns("TicketRevenue").DefaultCellStyle.Format = "C"
-        End If
+        reportTable = dt
+        ShowReport()
 
         Return TotalColumn(dt, "TicketRevenue")
     End Function
@@ -230,19 +293,8 @@ Public Class frmSalesReport
             cn.Close()
         End If
 
-        dgvSalesByFilm.DataSource = dt
-
-        If dgvSalesByFilm.Columns.Count > 0 Then
-            dgvSalesByFilm.Columns("FilmTitle").HeaderText = "Film"
-            dgvSalesByFilm.Columns("ScreeningDate").HeaderText = "Date"
-            dgvSalesByFilm.Columns("ScreeningTime").HeaderText = "Time"
-            dgvSalesByFilm.Columns("ScreenName").HeaderText = "Screen"
-            dgvSalesByFilm.Columns("Tickets").HeaderText = "Tickets sold"
-            dgvSalesByFilm.Columns("TicketRevenue").HeaderText = "Ticket revenue"
-            dgvSalesByFilm.Columns("FilmTitle").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            dgvSalesByFilm.Columns("ScreeningDate").DefaultCellStyle.Format = "dd/MM/yyyy"
-            dgvSalesByFilm.Columns("TicketRevenue").DefaultCellStyle.Format = "C"
-        End If
+        reportTable = dt
+        ShowReport()
 
         Return TotalColumn(dt, "TicketRevenue")
     End Function
@@ -274,15 +326,8 @@ Public Class frmSalesReport
             cn.Close()
         End If
 
-        dgvSalesByFilm.DataSource = dt
-
-        If dgvSalesByFilm.Columns.Count > 0 Then
-            dgvSalesByFilm.Columns("ScreenName").HeaderText = "Screen"
-            dgvSalesByFilm.Columns("Tickets").HeaderText = "Tickets sold"
-            dgvSalesByFilm.Columns("TicketRevenue").HeaderText = "Ticket revenue"
-            dgvSalesByFilm.Columns("ScreenName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            dgvSalesByFilm.Columns("TicketRevenue").DefaultCellStyle.Format = "C"
-        End If
+        reportTable = dt
+        ShowReport()
 
         Return TotalColumn(dt, "TicketRevenue")
     End Function
@@ -315,18 +360,8 @@ Public Class frmSalesReport
             cn.Close()
         End If
 
-        dgvSalesByFilm.DataSource = dt
-
-        If dgvSalesByFilm.Columns.Count > 0 Then
-            dgvSalesByFilm.Columns("BookingID").HeaderText = "Booking"
-            dgvSalesByFilm.Columns("CustomerName").HeaderText = "Customer"
-            dgvSalesByFilm.Columns("FilmTitle").HeaderText = "Film"
-            dgvSalesByFilm.Columns("CancelledDate").HeaderText = "Cancelled"
-            dgvSalesByFilm.Columns("TotalCost").HeaderText = "Refunded"
-            dgvSalesByFilm.Columns("FilmTitle").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            dgvSalesByFilm.Columns("CancelledDate").DefaultCellStyle.Format = "dd/MM/yyyy HH:mm"
-            dgvSalesByFilm.Columns("TotalCost").DefaultCellStyle.Format = "C"
-        End If
+        reportTable = dt
+        ShowReport()
 
         Return TotalColumn(dt, "TotalCost")
     End Function
@@ -364,15 +399,8 @@ Public Class frmSalesReport
             cn.Close()
         End If
 
-        dgvSalesByFilm.DataSource = dt
-
-        If dgvSalesByFilm.Columns.Count > 0 Then
-            dgvSalesByFilm.Columns("FoodItemName").HeaderText = "Item"
-            dgvSalesByFilm.Columns("Sold").HeaderText = "Sold"
-            dgvSalesByFilm.Columns("FoodRevenue").HeaderText = "Revenue"
-            dgvSalesByFilm.Columns("FoodItemName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            dgvSalesByFilm.Columns("FoodRevenue").DefaultCellStyle.Format = "C"
-        End If
+        reportTable = dt
+        ShowReport()
 
         Return TotalColumn(dt, "FoodRevenue")
     End Function
@@ -422,18 +450,8 @@ Public Class frmSalesReport
             End If
         Next
 
-        dgvSalesByFilm.DataSource = dt
-
-        If dgvSalesByFilm.Columns.Count > 0 Then
-            dgvSalesByFilm.Columns("FilmTitle").HeaderText = "Film"
-            dgvSalesByFilm.Columns("TicketRevenue").HeaderText = "Tickets"
-            dgvSalesByFilm.Columns("FoodRevenue").HeaderText = "Concessions"
-            dgvSalesByFilm.Columns("Total").HeaderText = "Total"
-            dgvSalesByFilm.Columns("FilmTitle").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            dgvSalesByFilm.Columns("TicketRevenue").DefaultCellStyle.Format = "C"
-            dgvSalesByFilm.Columns("FoodRevenue").DefaultCellStyle.Format = "C"
-            dgvSalesByFilm.Columns("Total").DefaultCellStyle.Format = "C"
-        End If
+        reportTable = dt
+        ShowReport()
     End Sub
 
     'the tickets sold and what they came to for each film in the date range
