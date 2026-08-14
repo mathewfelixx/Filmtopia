@@ -633,10 +633,14 @@ Public Class frmBookings
     'takes every seat back off the map and empties the food order. this is everything that makes
     'up the sale being built, so after this the form is ready to start a fresh one
     Private Sub ClearSaleInputs()
+        'the picked seats go first, then every button that is still clickable is put back to the
+        'available colour to match. a taken seat is disabled so it is left alone
+        pendingSeats.Rows.Clear()
+
         For Each ctrl As Control In pnlSeatMap.Controls
             If TypeOf ctrl Is Button Then
                 Dim b As Button = CType(ctrl, Button)
-                If b.BackColor = selectedColour Then
+                If b.Enabled Then
                     b.BackColor = availableColour
                 End If
             End If
