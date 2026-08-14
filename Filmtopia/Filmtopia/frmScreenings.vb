@@ -294,7 +294,15 @@ Public Class frmScreenings
         Return Format(wrapped \ 60, "00") & ":" & Format(wrapped Mod 60, "00")
     End Function
 
-    'when a screening finishes, not counting the clean-up afterwards
+    'how long a screening ties the screen up for altogether: the adverts and trailers first, then
+    'the film, then the clean up afterwards. everything that works out whether two screenings fit
+    'goes through here, so they cannot disagree about it
+    Private Function ScreenTimeNeeded(duration As Integer) As Integer
+        Return TrailerMinutes + duration + TurnaroundMinutes
+    End Function
+
+    'when the audience actually gets out, which is the trailers plus the film. the clean up after
+    'that is the cinema's problem and not something to put on a listing
     Private Function EndTimeText(startTime As String, duration As Integer) As String
         Dim startMinutes As Integer = TimeAsMinutes(startTime)
 
