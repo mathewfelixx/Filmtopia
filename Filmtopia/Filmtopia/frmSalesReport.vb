@@ -72,6 +72,10 @@ Public Class frmSalesReport
         Dim fromDate As Date = dtpFrom.Value.Date
         Dim toDate As Date = dtpTo.Value.Date
 
+        'the combined report runs two queries and then walks both tables, so it is worth
+        'showing the busy cursor rather than having the screen sit there looking stuck
+        Me.Cursor = Cursors.WaitCursor
+
         If cboReportType.Text = "Tickets only" Then
             Dim ticketRevenue As Double = LoadTicketsByFilm(fromDate, toDate)
 
@@ -109,6 +113,8 @@ Public Class frmSalesReport
             lblFoodRevenue.Text = "Concessions revenue: " & FormatCurrency(foodRevenue)
             lblGrandTotal.Text = "Grand total: " & FormatCurrency(ticketRevenue + foodRevenue)
         End If
+
+        Me.Cursor = Cursors.Default
 
         Return True
     End Function
