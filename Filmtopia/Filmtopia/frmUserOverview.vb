@@ -28,6 +28,8 @@ Public Class frmUserOverview
         stillLoadingSales = False
         LoadMySales()
 
+        LoadMySettings()
+
         WriteLog("ACCOUNT", "My account screen opened")
     End Sub
 
@@ -469,6 +471,7 @@ Public Class frmUserOverview
     Private Sub tabMe_SelectedIndexChanged(sender As Object, e As EventArgs) Handles tabMe.SelectedIndexChanged
         dgvActivity.ClearSelection()
         dgvMySales.ClearSelection()
+        dgvMySettings.ClearSelection()
     End Sub
 
     'SALES TAB ---------------------------------------------------------------------------------
@@ -634,6 +637,118 @@ Public Class frmUserOverview
             WriteLog("ACCOUNT", "Own sales exported, " & dgvMySales.Rows.Count & " sales")
             MessageBox.Show("Your sales have been exported.", "My Account", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
+    End Sub
+
+    'MY SETTINGS TAB ---------------------------------------------------------------------------
+    'what Filmtopia is remembering for this person. the settings table holds them under short
+    'names meant for the code, so they are turned into something readable on the way out
+
+    'turns the stored name into something a person would recognise. anything not listed comes
+    'through as it is, so a setting added later still shows up rather than vanishing off the list
+    Private Function FriendlySettingName(settingName As String) As String
+        If settingName.ToUpper() = "THEME" Then
+            Return "Colour scheme"
+        ElseIf settingName.ToUpper() = "GENREFILTER" Then
+            Return "Films screen, genre filter"
+        ElseIf settingName.ToUpper() = "SCREENINGSSHOW" Then
+            Return "Screenings screen, which showings"
+        ElseIf settingName.ToUpper() = "SCREENINGSSCREEN" Then
+            Return "Screenings screen, which screen"
+        Else
+            Return settingName
+        End If
+    End Function
+
+    'same again for the value. only the theme is stored as a shouted word
+    Private Function FriendlySettingValue(settingName As String, settingValue As String) As String
+        If settingName.ToUpper() = "THEME" Then
+            If settingValue.ToUpper() = "DARK" Then
+                Return "Dark"
+            Else
+                Return "Light"
+            End If
+        End If
+
+        Return settingValue
+    End Function
+
+    'reads this person's settings rows and puts them on the grid. the table is built by hand
+    'rather than being bound straight to the query, because the names have to be swapped for
+    'readable ones on the way past
+    Private Sub LoadMySettings()
+        Dim dt As New DataTable
+        dt.Columns.Add("Setting")
+        dt.Columns.Add("Value")
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT SettingName, SettingValue FROM tblUserSettings " &
+                                 "WHERE LoginID = @LoginID ORDER BY SettingName"
+            SQLCmd.Parameters.AddWithValue("@LoginID", CInt(CurrentLoginID))
+
+            Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+            While rs.Read()
+                Dim storedName As String = rs("SettingName").ToString()
+                Dim storedValue As String = rs("SettingValue").ToString()
+                dt.Rows.Add(FriendlySettingName(storedName), FriendlySettingValue(storedName, storedValue))
+            End While
+            rs.Close()
+            cn.Close()
+        End If
+
+        dgvMySettings.DataSource = dt
+
+        If dgvMySettings.Columns.Count > 0 Then
+            dgvMySettings.Columns("Setting").Width = 300
+            dgvMySettings.Columns("Value").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+        End If
+
+        If dt.Rows.Count = 0 Then
+            lblSubResetHint.Text = "Nothing is being remembered for you yet, so there is nothing to put back."
+            btnResetMySettings.Enabled = False
+        Else
+            lblSubResetHint.Text = "This only affects you. Nobody elses settings are touched."
+            btnResetMySettings.Enabled = True
+        End If
+
+        dgvMySettings.ClearSelection()
+    End Sub
+
+    'throws this person's saved settings away and goes back to the defaults. it asks first, and it
+    'opens on No like the rest of the yes/no boxes that destroy something
+    Private Sub btnResetMySettings_Click(sender As Object, e As EventArgs) Handles btnResetMySettings.Click
+        Dim answer As DialogResult = MessageBox.Show(
+            "Put all of your settings back to default?" & vbNewLine & vbNewLine &
+            "Your colour scheme and the filters the screens remember for you will be forgotten. " &
+            "This only affects your account.",
+            "My Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
+
+        If answer = DialogResult.No Then
+            Exit Sub
+        End If
+
+        Dim howMany As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "DELETE FROM tblUserSettings WHERE LoginID = @LoginID"
+            SQLCmd.Parameters.AddWithValue("@LoginID", CInt(CurrentLoginID))
+            howMany = SQLCmd.ExecuteNonQuery()
+            cn.Close()
+        End If
+
+        'reading them back in is what puts the variables to their defaults, because there is
+        'nothing left in the table to read. ClearUserSettings is not used here on purpose, that
+        'one sets CurrentLoginID to 0, which is for logging out rather than for this
+        LoadUserSettings(CurrentLoginID)
+        ApplyThemeToAllForms()
+        LoadMySettings()
+
+        WriteLog("SETTINGS", "Own settings reset to default, " & howMany & " removed", LogChange)
+        MessageBox.Show("Your settings have been put back to default.", "My Settings",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
 
 End Class

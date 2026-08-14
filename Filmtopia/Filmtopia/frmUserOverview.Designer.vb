@@ -50,7 +50,6 @@ Partial Class frmUserOverview
         Me.tabMe = New System.Windows.Forms.TabControl()
         Me.tabActivity = New System.Windows.Forms.TabPage()
         Me.tabSales = New System.Windows.Forms.TabPage()
-        Me.tabPattern = New System.Windows.Forms.TabPage()
         Me.tabSettings = New System.Windows.Forms.TabPage()
         Me.lblActFrom = New System.Windows.Forms.Label()
         Me.dtpActFrom = New System.Windows.Forms.DateTimePicker()
@@ -75,6 +74,10 @@ Partial Class frmUserOverview
         Me.btnSalesExport = New System.Windows.Forms.Button()
         Me.dgvMySales = New System.Windows.Forms.DataGridView()
         Me.lblSalesCount = New System.Windows.Forms.Label()
+        Me.lblSubSettingsHint = New System.Windows.Forms.Label()
+        Me.dgvMySettings = New System.Windows.Forms.DataGridView()
+        Me.btnResetMySettings = New System.Windows.Forms.Button()
+        Me.lblSubResetHint = New System.Windows.Forms.Label()
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.pnlCard1.SuspendLayout()
         Me.pnlCard2.SuspendLayout()
@@ -83,6 +86,8 @@ Partial Class frmUserOverview
         Me.tabMe.SuspendLayout()
         Me.tabActivity.SuspendLayout()
         Me.tabSales.SuspendLayout()
+        Me.tabSettings.SuspendLayout()
+        CType(Me.dgvMySettings, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgvMySales, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgvActivity, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -334,7 +339,6 @@ Partial Class frmUserOverview
         '
         Me.tabMe.Controls.Add(Me.tabActivity)
         Me.tabMe.Controls.Add(Me.tabSales)
-        Me.tabMe.Controls.Add(Me.tabPattern)
         Me.tabMe.Controls.Add(Me.tabSettings)
         Me.tabMe.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.tabMe.Location = New System.Drawing.Point(16, 298)
@@ -386,23 +390,17 @@ Partial Class frmUserOverview
         Me.tabSales.Text = "Sales I have taken"
         Me.tabSales.UseVisualStyleBackColor = True
         '
-        'tabPattern
-        '
-        Me.tabPattern.Location = New System.Drawing.Point(4, 24)
-        Me.tabPattern.Name = "tabPattern"
-        Me.tabPattern.Padding = New System.Windows.Forms.Padding(3)
-        Me.tabPattern.Size = New System.Drawing.Size(1095, 414)
-        Me.tabPattern.TabIndex = 2
-        Me.tabPattern.Text = "When I work"
-        Me.tabPattern.UseVisualStyleBackColor = True
-        '
         'tabSettings
         '
+        Me.tabSettings.Controls.Add(Me.lblSubResetHint)
+        Me.tabSettings.Controls.Add(Me.btnResetMySettings)
+        Me.tabSettings.Controls.Add(Me.dgvMySettings)
+        Me.tabSettings.Controls.Add(Me.lblSubSettingsHint)
         Me.tabSettings.Location = New System.Drawing.Point(4, 24)
         Me.tabSettings.Name = "tabSettings"
         Me.tabSettings.Padding = New System.Windows.Forms.Padding(3)
         Me.tabSettings.Size = New System.Drawing.Size(1095, 414)
-        Me.tabSettings.TabIndex = 3
+        Me.tabSettings.TabIndex = 2
         Me.tabSettings.Text = "My settings"
         Me.tabSettings.UseVisualStyleBackColor = True
         '
@@ -644,6 +642,53 @@ Partial Class frmUserOverview
         Me.lblSalesCount.Size = New System.Drawing.Size(0, 17)
         Me.lblSalesCount.TabIndex = 7
         '
+        'lblSubSettingsHint
+        '
+        Me.lblSubSettingsHint.AutoSize = True
+        Me.lblSubSettingsHint.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.lblSubSettingsHint.Location = New System.Drawing.Point(12, 14)
+        Me.lblSubSettingsHint.Name = "lblSubSettingsHint"
+        Me.lblSubSettingsHint.Size = New System.Drawing.Size(0, 17)
+        Me.lblSubSettingsHint.TabIndex = 0
+        Me.lblSubSettingsHint.Text = "These are the settings Filmtopia is remembering for you. Your password and colour scheme are changed on the Settings screen."
+        '
+        'dgvMySettings
+        '
+        Me.dgvMySettings.AllowUserToAddRows = False
+        Me.dgvMySettings.AllowUserToDeleteRows = False
+        Me.dgvMySettings.AllowUserToResizeRows = False
+        Me.dgvMySettings.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.dgvMySettings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dgvMySettings.Location = New System.Drawing.Point(12, 46)
+        Me.dgvMySettings.MultiSelect = False
+        Me.dgvMySettings.Name = "dgvMySettings"
+        Me.dgvMySettings.ReadOnly = True
+        Me.dgvMySettings.RowHeadersVisible = False
+        Me.dgvMySettings.RowTemplate.Height = 28
+        Me.dgvMySettings.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
+        Me.dgvMySettings.Size = New System.Drawing.Size(640, 260)
+        Me.dgvMySettings.TabIndex = 1
+        '
+        'btnResetMySettings
+        '
+        Me.btnResetMySettings.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.btnResetMySettings.Location = New System.Drawing.Point(12, 320)
+        Me.btnResetMySettings.Name = "btnResetMySettings"
+        Me.btnResetMySettings.Size = New System.Drawing.Size(210, 30)
+        Me.btnResetMySettings.TabIndex = 2
+        Me.btnResetMySettings.Text = "Put my settings back to default"
+        Me.btnResetMySettings.UseVisualStyleBackColor = True
+        '
+        'lblSubResetHint
+        '
+        Me.lblSubResetHint.AutoSize = True
+        Me.lblSubResetHint.Font = New System.Drawing.Font("Segoe UI", 8.25!)
+        Me.lblSubResetHint.Location = New System.Drawing.Point(232, 328)
+        Me.lblSubResetHint.Name = "lblSubResetHint"
+        Me.lblSubResetHint.Size = New System.Drawing.Size(0, 13)
+        Me.lblSubResetHint.TabIndex = 3
+        Me.lblSubResetHint.Text = "This only affects you. Nobody elses settings are touched."
+        '
         'lblVersion
         '
         Me.lblVersion.AutoSize = True
@@ -684,6 +729,9 @@ Partial Class frmUserOverview
         Me.pnlCard3.PerformLayout()
         Me.pnlCard4.ResumeLayout(False)
         Me.pnlCard4.PerformLayout()
+        Me.tabSettings.ResumeLayout(False)
+        Me.tabSettings.PerformLayout()
+        CType(Me.dgvMySettings, System.ComponentModel.ISupportInitialize).EndInit()
         Me.tabSales.ResumeLayout(False)
         Me.tabSales.PerformLayout()
         CType(Me.dgvMySales, System.ComponentModel.ISupportInitialize).EndInit()
@@ -724,7 +772,6 @@ Partial Class frmUserOverview
     Friend WithEvents tabMe As TabControl
     Friend WithEvents tabActivity As TabPage
     Friend WithEvents tabSales As TabPage
-    Friend WithEvents tabPattern As TabPage
     Friend WithEvents tabSettings As TabPage
     Friend WithEvents lblActFrom As Label
     Friend WithEvents dtpActFrom As DateTimePicker
@@ -749,5 +796,9 @@ Partial Class frmUserOverview
     Friend WithEvents btnSalesExport As Button
     Friend WithEvents dgvMySales As DataGridView
     Friend WithEvents lblSalesCount As Label
+    Friend WithEvents lblSubSettingsHint As Label
+    Friend WithEvents dgvMySettings As DataGridView
+    Friend WithEvents btnResetMySettings As Button
+    Friend WithEvents lblSubResetHint As Label
     Friend WithEvents lblVersion As Label
 End Class
