@@ -16,9 +16,20 @@ Public Class frmFoodItems
 
         stillLoading = False
 
+        'lets the form see escape before the box that has focus does
+        Me.KeyPreview = True
+
         LoadFoodItems()
         ClearFields()
+        txtName.Focus()
         WriteLog("FOOD", "Food items form opened")
+    End Sub
+
+    'escape shuts the form, same as the close button on the ones that have one
+    Private Sub frmFoodItems_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
+        If e.KeyCode = Keys.Escape Then
+            Me.Close()
+        End If
     End Sub
 
     'fills the two category boxes. the filter at the top is built from the categories that are
