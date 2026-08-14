@@ -33,11 +33,16 @@ Public Class frmScreenings
         cboShow.Items.Add("Already been on")
         cboShow.Items.Add("Everything")
 
-        'what is still to come is what somebody usually wants, but if there is nothing coming up
-        'the form would open on an empty grid looking broken, so in that case it starts on the lot
-        If UpcomingCount() > 0 Then
+        'start on whichever the user last left it on. if the saved one is not in the list any more
+        'IndexOf comes back as -1, so it falls back to still to come rather than an empty box
+        cboShow.SelectedIndex = cboShow.Items.IndexOf(LastScreeningsShow)
+        If cboShow.SelectedIndex = -1 Then
             cboShow.SelectedIndex = 0
-        Else
+        End If
+
+        'the empty grid guard still wins over what was remembered. opening on still to come when
+        'there is nothing coming up looks broken, so in that case it starts on the lot
+        If cboShow.SelectedIndex = 0 And UpcomingCount() = 0 Then
             cboShow.SelectedIndex = 2
         End If
 
@@ -50,6 +55,17 @@ Public Class frmScreenings
         ClearFields()
         cboFilm.Focus()
         WriteLog("SCREENING", "Screenings form opened")
+    End Sub
+
+    'remembers the show filter for next time. saved on close rather than on every change so that
+    'flicking between the three is not a write to the database each time
+    Private Sub frmScreenings_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        If cboShow.Text = "" Then
+            Exit Sub
+        End If
+
+        LastScreeningsShow = cboShow.Text
+        SaveUserSettings()
     End Sub
 
     'saves the schedule as it is on screen, which is what the show filter has left showing
