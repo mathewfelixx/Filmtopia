@@ -290,11 +290,15 @@ Public Class frmScreens
             Exit Sub
         End If
 
-        Dim newCapacity As Integer = CInt(Val(txtCapacity.Text))
+        Dim newRows As Integer = CInt(Val(txtRows.Text))
+        Dim newPerRow As Integer = CInt(Val(txtPerRow.Text))
+        Dim newCapacity As Integer = newRows * newPerRow
 
-        'the seats are only worth making again if the size of the screen has actually changed.
-        'before, renaming a screen wiped all of its seats and made them again for no reason
-        Dim capacityChanged As Boolean = (newCapacity <> capacityWhenPicked)
+        'the seats are only worth making again if the layout has actually changed. before, renaming
+        'a screen wiped all of its seats and made them again for no reason.
+        'the rows and the seats per row are both checked, not just the total, because 6 rows of 10
+        'and 10 rows of 6 are the same number of seats but a completely different room
+        Dim capacityChanged As Boolean = (newRows <> rowsWhenPicked Or newPerRow <> perRowWhenPicked)
 
         If capacityChanged Then
             'making the seats again means deleting the old ones, and anything already booked in
@@ -320,10 +324,13 @@ Public Class frmScreens
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "UPDATE tblScreen " &
-                                 "SET ScreenName = @ScreenName, ScreenCapacity = @ScreenCapacity " &
+                                 "SET ScreenName = @ScreenName, ScreenCapacity = @ScreenCapacity, " &
+                                 "ScreenRows = @ScreenRows, SeatsPerRow = @SeatsPerRow " &
                                  "WHERE ScreenID = @ScreenID"
             SQLCmd.Parameters.AddWithValue("@ScreenName", txtName.Text.Trim())
             SQLCmd.Parameters.AddWithValue("@ScreenCapacity", newCapacity)
+            SQLCmd.Parameters.AddWithValue("@ScreenRows", newRows)
+            SQLCmd.Parameters.AddWithValue("@SeatsPerRow", newPerRow)
             SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
             SQLCmd.ExecuteNonQuery()
             cn.Close()
@@ -331,7 +338,7 @@ Public Class frmScreens
 
         If capacityChanged Then
             DeleteSeats(selectedScreenID)
-            GenerateSeats(selectedScreenID, newCapacity)
+            GenerateSeats(selectedScreenID, newRows, newPerRow)
         End If
 
         WriteLog("SCREEN", "Screen updated: " & txtName.Text.Trim(), LogChange)
