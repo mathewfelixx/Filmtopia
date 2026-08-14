@@ -137,13 +137,13 @@ Public Class frmScreenings
                                       "INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID"
 
             If cboShow.Text = "Still to come" Then
-                SQLCmd.CommandText = baseQuery & " WHERE ScreeningDate >= @Today ORDER BY ScreeningDate, ScreeningTime"
+                SQLCmd.CommandText = baseQuery & " WHERE ScreeningDate >= @Today ORDER BY ScreeningDate, ScreeningTime, ScreeningID"
                 SQLCmd.Parameters.AddWithValue("@Today", Date.Today)
             ElseIf cboShow.Text = "Already been on" Then
-                SQLCmd.CommandText = baseQuery & " WHERE ScreeningDate < @Today ORDER BY ScreeningDate DESC, ScreeningTime"
+                SQLCmd.CommandText = baseQuery & " WHERE ScreeningDate < @Today ORDER BY ScreeningDate DESC, ScreeningTime, ScreeningID"
                 SQLCmd.Parameters.AddWithValue("@Today", Date.Today)
             Else
-                SQLCmd.CommandText = baseQuery & " ORDER BY ScreeningDate, ScreeningTime"
+                SQLCmd.CommandText = baseQuery & " ORDER BY ScreeningDate, ScreeningTime, ScreeningID"
             End If
 
             Dim da As New OleDbDataAdapter(SQLCmd)
