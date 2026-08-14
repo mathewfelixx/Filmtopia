@@ -246,18 +246,39 @@ Public Class frmFilms
         Return hours & "h " & left & "m"
     End Function
 
-    'says how many films are showing, and whether the search is hiding any
+    'says how many films are showing, and whether the search box or the genre box is hiding any
     Private Sub ShowCount(shown As Integer)
-        If txtSearch.Text.Trim() = "" Then
+        'what the list is being narrowed by, written out so it can go on the end of the message
+        Dim narrowedBy As String = ""
+
+        If txtSearch.Text.Trim() <> "" Then
+            narrowedBy = "matching '" & txtSearch.Text.Trim() & "'"
+        End If
+
+        If GenrePicked() <> "" Then
+            If narrowedBy <> "" Then
+                narrowedBy = narrowedBy & " and"
+            End If
+            narrowedBy = narrowedBy & " in " & GenrePicked()
+        End If
+
+        If chkNeedsDescription.Checked Then
+            If narrowedBy <> "" Then
+                narrowedBy = narrowedBy & " and"
+            End If
+            narrowedBy = narrowedBy & " still needing a description"
+        End If
+
+        If narrowedBy = "" Then
             If shown = 1 Then
                 lblGridCount.Text = "1 film"
             Else
                 lblGridCount.Text = shown & " films"
             End If
         ElseIf shown = 0 Then
-            lblGridCount.Text = "No films match '" & txtSearch.Text.Trim() & "'"
+            lblGridCount.Text = "No films " & narrowedBy.Trim()
         Else
-            lblGridCount.Text = shown & " film(s) matching '" & txtSearch.Text.Trim() & "'"
+            lblGridCount.Text = shown & " film(s) " & narrowedBy.Trim()
         End If
     End Sub
 
