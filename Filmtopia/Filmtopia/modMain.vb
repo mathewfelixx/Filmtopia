@@ -14,7 +14,7 @@ Module modMain
             '   MessageBox.Show("Opend Successfully ")
             Return True
         Catch ex As Exception
-            MessageBox.Show("unable to open database " & ex.Message)
+            MessageBox.Show("Unable to open the database. " & ex.Message, "Database", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return False
         End Try
     End Function
@@ -40,7 +40,7 @@ Module modMain
         Dim CipherText As String = PlainText
 
         If PlainText.Length = 0 Then
-            MessageBox.Show("Empty PlainText can be encrypted")
+            MessageBox.Show("There is nothing to encrypt", "Encryption", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         Else
             Dim dat As Byte() = New Byte(PlainText.Length - 1) {}
             dat = System.Text.Encoding.UTF8.GetBytes(PlainText)
@@ -53,7 +53,7 @@ Module modMain
         Dim PlainText As String = CipherText
 
         If CipherText.Length = 0 Then
-            MessageBox.Show("text to decrypt is empty")
+            MessageBox.Show("There is nothing to decrypt", "Encryption", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         Else
 
             Dim strDecrypt As New System.Text.UTF8Encoding
