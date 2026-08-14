@@ -34,6 +34,7 @@ Partial Class frmKiosk
         Me.lblFilmsHeading = New System.Windows.Forms.Label()
         Me.lblNoFilms = New System.Windows.Forms.Label()
         Me.pnlFilmList = New System.Windows.Forms.Panel()
+        Me.pnlDayPicker = New System.Windows.Forms.Panel()
         Me.pnlTimes = New System.Windows.Forms.Panel()
         Me.lblTimesHeading = New System.Windows.Forms.Label()
         Me.lblTimesFilm = New System.Windows.Forms.Label()
@@ -212,6 +213,7 @@ Partial Class frmKiosk
         'pnlFilms
         '
         Me.pnlFilms.Controls.Add(Me.pnlFilmList)
+        Me.pnlFilms.Controls.Add(Me.pnlDayPicker)
         Me.pnlFilms.Controls.Add(Me.lblNoFilms)
         Me.pnlFilms.Controls.Add(Me.lblFilmsHeading)
         Me.pnlFilms.Location = New System.Drawing.Point(0, 96)
@@ -249,6 +251,13 @@ Partial Class frmKiosk
         Me.pnlFilmList.Name = "pnlFilmList"
         Me.pnlFilmList.Size = New System.Drawing.Size(1240, 500)
         Me.pnlFilmList.TabIndex = 2
+        '
+        'pnlDayPicker
+        '
+        Me.pnlDayPicker.Location = New System.Drawing.Point(20, 70)
+        Me.pnlDayPicker.Name = "pnlDayPicker"
+        Me.pnlDayPicker.Size = New System.Drawing.Size(1240, 76)
+        Me.pnlDayPicker.TabIndex = 3
         '
         'pnlTimes
         '
@@ -569,6 +578,7 @@ Partial Class frmKiosk
     Friend WithEvents lblFilmsHeading As Label
     Friend WithEvents lblNoFilms As Label
     Friend WithEvents pnlFilmList As Panel
+    Friend WithEvents pnlDayPicker As Panel
     Friend WithEvents pnlTimes As Panel
     Friend WithEvents lblTimesHeading As Label
     Friend WithEvents lblTimesFilm As Label
