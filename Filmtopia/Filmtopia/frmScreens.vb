@@ -451,9 +451,11 @@ Public Class frmScreens
 
     Private Sub ClearFields()
         selectedScreenID = 0
-        capacityWhenPicked = 0
+        rowsWhenPicked = 0
+        perRowWhenPicked = 0
         txtName.Text = ""
-        txtCapacity.Text = ""
+        txtRows.Text = ""
+        txtPerRow.Text = ""
         dgvScreens.ClearSelection()
         ShowWhatIsBeingEdited()
         ShowLayoutPreview()
@@ -570,10 +572,12 @@ Public Class frmScreens
         Dim row As DataGridViewRow = dgvScreens.Rows(e.RowIndex)
         selectedScreenID = CLng(row.Cells("ScreenID").Value)
         txtName.Text = row.Cells("ScreenName").Value.ToString()
-        txtCapacity.Text = row.Cells("ScreenCapacity").Value.ToString()
+        txtRows.Text = row.Cells("ScreenRows").Value.ToString()
+        txtPerRow.Text = row.Cells("SeatsPerRow").Value.ToString()
 
-        'remembered so saving can tell whether the size has been changed or only the name
-        capacityWhenPicked = CInt(row.Cells("ScreenCapacity").Value)
+        'remembered so saving can tell whether the layout has been changed or only the name
+        rowsWhenPicked = CInt(row.Cells("ScreenRows").Value)
+        perRowWhenPicked = CInt(row.Cells("SeatsPerRow").Value)
 
         ShowWhatIsBeingEdited()
         WriteLog("SCREEN", "Screen selected: " & txtName.Text)
