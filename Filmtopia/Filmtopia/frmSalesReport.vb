@@ -36,6 +36,7 @@ Public Class frmSalesReport
         cboReportType.Items.Add("By day")
         cboReportType.Items.Add("By screening")
         cboReportType.Items.Add("By screen")
+        cboReportType.Items.Add("By staff member")
         cboReportType.Items.Add("Cancellations")
         cboReportType.SelectedIndex = 0
 
@@ -197,6 +198,14 @@ Public Class frmSalesReport
             lblTicketRevenue.Text = "Ticket revenue: " & FormatCurrency(ticketRevenue)
             lblGrandTotal.Text = "Tickets total: " & FormatCurrency(ticketRevenue)
 
+        ElseIf cboReportType.Text = "By staff member" Then
+            Dim ticketRevenue As Double = LoadTicketsByStaff(fromDate, toDate)
+
+            lblTicketRevenue.Visible = True
+            lblFoodRevenue.Visible = False
+            lblTicketRevenue.Text = "Ticket revenue: " & FormatCurrency(ticketRevenue)
+            lblGrandTotal.Text = "Tickets total: " & FormatCurrency(ticketRevenue)
+
         ElseIf cboReportType.Text = "Cancellations" Then
             Dim refunded As Double = LoadCancellations(fromDate, toDate)
 
@@ -229,18 +238,30 @@ Public Class frmSalesReport
     'have one of these under the grid and this one did not
     Private Sub ShowCount()
         Dim shown As Integer = dgvSalesByFilm.Rows.Count
+
+        'the plural is kept as its own word rather than sticking an s on the end, because people
+        'does not work that way
         Dim thing As String = "film"
+        Dim things As String = "films"
 
         If cboReportType.Text = "Concessions only" Then
             thing = "item"
+            things = "items"
         ElseIf cboReportType.Text = "Cancellations" Then
             thing = "cancelled booking"
+            things = "cancelled bookings"
         ElseIf cboReportType.Text = "By day" Then
             thing = "day"
+            things = "days"
         ElseIf cboReportType.Text = "By screening" Then
             thing = "screening"
+            things = "screenings"
         ElseIf cboReportType.Text = "By screen" Then
             thing = "screen"
+            things = "screens"
+        ElseIf cboReportType.Text = "By staff member" Then
+            thing = "person"
+            things = "people"
         End If
 
         If shown = 0 Then
@@ -248,7 +269,7 @@ Public Class frmSalesReport
         ElseIf shown = 1 Then
             lblGridCount.Text = "1 " & thing
         Else
-            lblGridCount.Text = shown & " " & thing & "s"
+            lblGridCount.Text = shown & " " & things
         End If
     End Sub
 
@@ -325,6 +346,12 @@ Public Class frmSalesReport
             dgvSalesByFilm.Columns("Tickets").HeaderText = "Tickets sold"
             dgvSalesByFilm.Columns("TicketRevenue").HeaderText = "Ticket revenue"
             dgvSalesByFilm.Columns("ScreenName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            dgvSalesByFilm.Columns("TicketRevenue").DefaultCellStyle.Format = "C"
+        ElseIf cboReportType.Text = "By staff member" Then
+            dgvSalesByFilm.Columns("SoldBy").HeaderText = "Sold by"
+            dgvSalesByFilm.Columns("Tickets").HeaderText = "Tickets sold"
+            dgvSalesByFilm.Columns("TicketRevenue").HeaderText = "Ticket revenue"
+            dgvSalesByFilm.Columns("SoldBy").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             dgvSalesByFilm.Columns("TicketRevenue").DefaultCellStyle.Format = "C"
         ElseIf cboReportType.Text = "Cancellations" Then
             dgvSalesByFilm.Columns("BookingID").HeaderText = "Booking"
@@ -488,6 +515,50 @@ Public Class frmSalesReport
                                  "AND tblBooking.BookingStatus <> @Cancelled " &
                                  "GROUP BY FilmTitle, tblScreening.ScreeningDate, tblScreening.ScreeningTime, ScreenName " &
                                  "ORDER BY tblScreening.ScreeningDate, tblScreening.ScreeningTime"
+            SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
+            SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
+            SQLCmd.Parameters.AddWithValue("@ByScreening2", MeasuringByScreening())
+            SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
+            SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            da.Fill(dt)
+            cn.Close()
+        End If
+
+        reportTable = dt
+        ShowReport()
+
+        Return TotalColumn(dt, "TicketRevenue")
+    End Function
+
+    'one row per member of staff, for who has been taking the money.
+    '
+    'the login is joined on with a LEFT JOIN and not an ordinary one. an ordinary join would only
+    'keep the bookings that have somebody recorded against them, and almost none of them do yet,
+    'because the column that records it is new and was deliberately not filled in backwards. those
+    'sales would just have gone missing off the report and the total would not have matched the
+    'other reports. they come through as Not recorded instead, which is the truth, and that row
+    'will shrink on its own as sales get taken
+    Private Function LoadTicketsByStaff(fromDate As Date, toDate As Date) As Double
+        Dim dt As New DataTable
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT IIf(tblLogin.Username IS NULL, 'Not recorded', tblLogin.Username) AS SoldBy, " &
+                                 "COUNT(*) AS Tickets, SUM(SeatPricePaid) AS TicketRevenue " &
+                                 "FROM ((tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID) " &
+                                 "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
+                                 "LEFT JOIN tblLogin ON tblBooking.LoginID = tblLogin.LoginID " &
+                                 "WHERE IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) >= @FromDate " &
+                                 "AND IIf(@ByScreening2, tblScreening.ScreeningDate, tblBooking.BookingDate) < @ToDate " &
+                                 "AND tblBooking.BookingStatus <> @Cancelled " &
+                                 "GROUP BY IIf(tblLogin.Username IS NULL, 'Not recorded', tblLogin.Username) " &
+                                 "ORDER BY IIf(tblLogin.Username IS NULL, 'Not recorded', tblLogin.Username)"
+            'the switch is in the query twice, once for each IIf, so it goes in twice here as well,
+            'in the order the query mentions them. the two have to be named differently. giving
+            'them the same name looks tidier but Jet then treats it as one parameter, the rest
+            'shuffle up by one and the report quietly comes back with nothing in it
             SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
             SQLCmd.Parameters.AddWithValue("@ByScreening2", MeasuringByScreening())
@@ -904,6 +975,10 @@ Public Class frmSalesReport
 
         If reportTable.Columns.Contains("FoodItemName") Then
             Return "FoodItemName"
+        End If
+
+        If reportTable.Columns.Contains("SoldBy") Then
+            Return "SoldBy"
         End If
 
         Return ""
