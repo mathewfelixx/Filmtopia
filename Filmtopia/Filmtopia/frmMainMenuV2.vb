@@ -1,4 +1,4 @@
-﻿Imports System.Data.OleDb
+Imports System.Data.OleDb
 
 Public Class frmMainMenuV2
 
@@ -42,6 +42,7 @@ Public Class frmMainMenuV2
         btnReports.BackColor = Color.Transparent
         btnLogs.BackColor = Color.Transparent
         btnSettings.BackColor = Color.Transparent
+        btnKiosk.BackColor = Color.Transparent
     End Sub
 
     'a button is pink the whole time its form is open, so more than one can be pink at once
@@ -52,7 +53,8 @@ Public Class frmMainMenuV2
     'lights a button up a bit when the mouse goes over it, unless its form is already open
     Private Sub NavButton_MouseEnter(sender As Object, e As EventArgs) Handles btnBookings.MouseEnter,
         btnFindBooking.MouseEnter, btnScreenings.MouseEnter, btnCustomers.MouseEnter, btnFilms.MouseEnter,
-        btnScreens.MouseEnter, btnFood.MouseEnter, btnReports.MouseEnter, btnLogs.MouseEnter, btnSettings.MouseEnter
+        btnScreens.MouseEnter, btnFood.MouseEnter, btnReports.MouseEnter, btnLogs.MouseEnter, btnSettings.MouseEnter,
+        btnKiosk.MouseEnter
 
         Dim btn As Button = CType(sender, Button)
         If btn.BackColor <> HighlightBack Then
@@ -63,7 +65,8 @@ Public Class frmMainMenuV2
     'puts it back to normal when the mouse moves off it again
     Private Sub NavButton_MouseLeave(sender As Object, e As EventArgs) Handles btnBookings.MouseLeave,
         btnFindBooking.MouseLeave, btnScreenings.MouseLeave, btnCustomers.MouseLeave, btnFilms.MouseLeave,
-        btnScreens.MouseLeave, btnFood.MouseLeave, btnReports.MouseLeave, btnLogs.MouseLeave, btnSettings.MouseLeave
+        btnScreens.MouseLeave, btnFood.MouseLeave, btnReports.MouseLeave, btnLogs.MouseLeave, btnSettings.MouseLeave,
+        btnKiosk.MouseLeave
 
         Dim btn As Button = CType(sender, Button)
         If btn.BackColor <> HighlightBack Then
@@ -107,6 +110,19 @@ Public Class frmMainMenuV2
 
     Private Sub btnBookings_Click(sender As Object, e As EventArgs) Handles btnBookings.Click
         OpenForm(frmBookings, btnBookings)
+    End Sub
+
+    'puts the machine into self service mode. the kiosk fills the whole screen and there is no way
+    'out of it for a customer, so it is worth saying what is about to happen before it opens
+    Private Sub btnKiosk_Click(sender As Object, e As EventArgs) Handles btnKiosk.Click
+        Dim answer As DialogResult = MessageBox.Show("Put this machine into kiosk mode?" & vbNewLine & vbNewLine &
+                                                     "The screen will be taken over by the customer self service " &
+                                                     "screen. Use Staff Exit in the top corner to come back.",
+                                                     "Kiosk Mode", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+
+        If answer = DialogResult.Yes Then
+            OpenForm(frmKiosk, btnKiosk)
+        End If
     End Sub
 
     Private Sub btnFindBooking_Click(sender As Object, e As EventArgs) Handles btnFindBooking.Click
