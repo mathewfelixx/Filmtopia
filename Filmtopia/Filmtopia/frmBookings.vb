@@ -383,10 +383,10 @@ Public Class frmBookings
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dtSeats)
 
-            'the seats already booked for this screening - join bookingseat to booking so we can filter by screening
-            SQLCmd.CommandText = "SELECT tblBookingSeat.SeatID " &
-                                 "FROM tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID " &
-                                 "WHERE tblBooking.ScreeningID = @ScreeningID"
+            'the seats already booked for this screening, read straight off the seat rows since
+            'they carry the screening themselves
+            SQLCmd.CommandText = "SELECT SeatID FROM tblBookingSeat " &
+                                 "WHERE ScreeningID = @ScreeningID"
             SQLCmd.Parameters.Clear()
             SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
             Dim da2 As New OleDbDataAdapter(SQLCmd)
@@ -639,10 +639,10 @@ Public Class frmBookings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            'join bookingseat to booking again so we can filter by screening
-            SQLCmd.CommandText = "SELECT tblBookingSeat.SeatID " &
-                                 "FROM tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID " &
-                                 "WHERE tblBooking.ScreeningID = @ScreeningID"
+            'the screening is written on the seat row itself, which is the whole reason it is there,
+            'so this reads it straight off rather than joining back to the booking to find it out
+            SQLCmd.CommandText = "SELECT SeatID FROM tblBookingSeat " &
+                                 "WHERE ScreeningID = @ScreeningID"
             SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dtTaken)
