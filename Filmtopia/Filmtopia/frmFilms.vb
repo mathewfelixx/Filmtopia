@@ -52,7 +52,13 @@ Public Class frmFilms
         cboGenreFilter.Items.Add("Thriller")
         cboGenreFilter.Items.Add("War")
         cboGenreFilter.Items.Add("Western")
-        cboGenreFilter.SelectedIndex = 0
+        'start on whichever genre this user was last looking at rather than always at All genres.
+        'if the saved one is not in the list any more, SelectedIndex comes back as -1, so it falls
+        'back to the top of the list instead of leaving the box empty
+        cboGenreFilter.SelectedIndex = cboGenreFilter.Items.IndexOf(LastGenreFilter)
+        If cboGenreFilter.SelectedIndex = -1 Then
+            cboGenreFilter.SelectedIndex = 0
+        End If
 
         'the shortest a row in the grid is allowed to be. the rows grow to fit whatever is written
         'about a film, and this stops one with hardly anything in it ending up as a thin line next
@@ -71,6 +77,19 @@ Public Class frmFilms
         'the first thing somebody usually wants is to find a film, so the cursor starts there
         txtSearch.Focus()
         WriteLog("FILM", "Films form opened")
+    End Sub
+
+    'remembers the genre filter for next time. it is saved when the form is shut rather than every
+    'time the box is changed, so flicking through the genres is not a write to the database each time
+    Private Sub frmFilms_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        'an empty box means the form shut itself before it had filled anything in, which happens
+        'when somebody who is not a manager gets in here. saving that would wipe what was remembered
+        If cboGenreFilter.Text = "" Then
+            Exit Sub
+        End If
+
+        LastGenreFilter = cboGenreFilter.Text
+        SaveUserSettings()
     End Sub
 
     'saves the list as it is on screen, so whatever the search box and the genre filter have
