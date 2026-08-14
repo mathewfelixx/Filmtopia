@@ -290,6 +290,8 @@ Partial Class frmImportFilms
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)
         Me.Controls.Add(Me.lblHeading)
+        Me.AcceptButton = Me.btnSearch
+        Me.CancelButton = Me.btnClose
         Me.Name = "frmImportFilms"
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.MaximizeBox = False
