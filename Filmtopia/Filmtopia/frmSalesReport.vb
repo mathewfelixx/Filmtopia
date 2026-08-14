@@ -38,7 +38,7 @@ Public Class frmSalesReport
     'runs the whole report for the date range picked
     Private Sub btnRunReport_Click(sender As Object, e As EventArgs) Handles btnRunReport.Click
         If dtpFrom.Value.Date > dtpTo.Value.Date Then
-            MessageBox.Show("From date cant be after the to date")
+            MessageBox.Show("From date cant be after the to date", "Sales Report", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
