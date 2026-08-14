@@ -146,43 +146,43 @@ Public Class frmCustomers
     'were written out twice before which meant remembering to change both of them
     Private Function DetailsAreOk() As Boolean
         If txtForename.Text.Trim() = "" Then
-            MessageBox.Show("Enter a forename")
+            MessageBox.Show("Enter a forename", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtForename.Focus()
             Return False
         End If
 
         If txtSurname.Text.Trim() = "" Then
-            MessageBox.Show("Enter a surname")
+            MessageBox.Show("Enter a surname", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtSurname.Focus()
             Return False
         End If
 
         If txtEmail.Text.Trim() = "" Then
-            MessageBox.Show("Enter an email address")
+            MessageBox.Show("Enter an email address", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtEmail.Focus()
             Return False
         End If
 
         If Not txtEmail.Text.Contains("@") Or Not txtEmail.Text.Contains(".") Then
-            MessageBox.Show("Enter a valid email address")
+            MessageBox.Show("Enter a valid email address", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtEmail.Focus()
             Return False
         End If
 
         If txtPhone.Text.Trim() = "" Then
-            MessageBox.Show("Enter a phone number")
+            MessageBox.Show("Enter a phone number", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtPhone.Focus()
             Return False
         End If
 
         If txtPhone.Text.Length < 10 Or txtPhone.Text.Length > 11 Then
-            MessageBox.Show("Phone number must be 10 or 11 digits long")
+            MessageBox.Show("Phone number must be 10 or 11 digits long", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtPhone.Focus()
             Return False
         End If
 
         If Not IsDigitsOnly(txtPhone.Text) Then
-            MessageBox.Show("Phone number must contain digits only")
+            MessageBox.Show("Phone number must contain digits only", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtPhone.Focus()
             Return False
         End If
@@ -217,7 +217,7 @@ Public Class frmCustomers
     'saves the changes made to the customer selected in the grid
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
         If selectedCustomerID = 0 Then
-            MessageBox.Show("Select a customer in the grid first")
+            MessageBox.Show("Select a customer in the grid first", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
@@ -248,7 +248,7 @@ Public Class frmCustomers
     'deletes the customer selected in the grid
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
         If selectedCustomerID = 0 Then
-            MessageBox.Show("Select a customer in the grid first")
+            MessageBox.Show("Select a customer in the grid first", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
@@ -263,7 +263,7 @@ Public Class frmCustomers
             Exit Sub
         End If
 
-        If MessageBox.Show("Delete " & txtForename.Text & " " & txtSurname.Text & "?", "Confirm", MessageBoxButtons.YesNo) = DialogResult.No Then
+        If MessageBox.Show("Delete " & txtForename.Text & " " & txtSurname.Text & "?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
             Exit Sub
         End If
 
