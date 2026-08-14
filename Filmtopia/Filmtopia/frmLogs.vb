@@ -38,7 +38,9 @@ Public Class frmLogs
 
     'escape empties the search box, or shuts the form if there is nothing to empty
     Private Sub frmLogs_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
-        If e.KeyCode = Keys.Escape Then
+        If e.KeyCode = Keys.F5 Then
+            LoadLogs()
+        ElseIf e.KeyCode = Keys.Escape Then
             If txtSearch.Text <> "" Then
                 txtSearch.Text = ""
             Else
