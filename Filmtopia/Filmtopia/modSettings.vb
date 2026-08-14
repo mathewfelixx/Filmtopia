@@ -8,6 +8,12 @@ Module modSettings
     'in SaveUserSettings, and that is all
     Public DarkModeOn As Boolean = False
 
+    'the filters the user last left the films and screenings screens on. they are kept as the text
+    'that was showing in the box rather than the position in the list, because the genre list could
+    'be added to later and a saved position would then point at the wrong genre
+    Public LastGenreFilter As String = "All genres"
+    Public LastScreeningsShow As String = "Still to come"
+
     'the colours the rest of the program uses, these get filled in by SetThemeColours
     Public FormBack As Color
     Public TextFore As Color
@@ -265,12 +271,22 @@ Module modSettings
     'puts every setting back to what a brand new user would get
     Private Sub UseDefaultSettings()
         DarkModeOn = False
+        LastGenreFilter = "All genres"
+        LastScreeningsShow = "Still to come"
     End Sub
 
     'takes one row out of tblUserSettings and puts it in the right variable
     Private Sub ReadOneSetting(settingName As String, settingValue As String)
         If settingName.ToUpper() = "THEME" Then
             DarkModeOn = (settingValue.ToUpper() = "DARK")
+        End If
+
+        If settingName.ToUpper() = "GENREFILTER" Then
+            LastGenreFilter = settingValue
+        End If
+
+        If settingName.ToUpper() = "SCREENINGSSHOW" Then
+            LastScreeningsShow = settingValue
         End If
         'any new settings get read here
     End Sub
@@ -342,6 +358,8 @@ Module modSettings
             Else
                 SaveOneSetting("THEME", "LIGHT")
             End If
+            SaveOneSetting("GENREFILTER", LastGenreFilter)
+            SaveOneSetting("SCREENINGSSHOW", LastScreeningsShow)
             'any new settings get saved here
 
             cn.Close()
