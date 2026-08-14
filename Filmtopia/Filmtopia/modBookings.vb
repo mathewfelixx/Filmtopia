@@ -93,28 +93,35 @@ Module modBookings
                     saleCustomerID = CLng(SQLCmd.ExecuteScalar())
                 End If
 
-                'the booking itself, with the total that was on the screen
-                SQLCmd.CommandText = "INSERT INTO tblBooking (CustomerID, ScreeningID, BookingDate, TotalCost) " &
-                                     "VALUES (@CustomerID, @ScreeningID, @BookingDate, @TotalCost)"
+                'the booking itself, with the total that was on the screen. a new sale always starts
+                'off active, it only becomes cancelled if somebody cancels it later
+                SQLCmd.CommandText = "INSERT INTO tblBooking (CustomerID, ScreeningID, BookingDate, TotalCost, BookingStatus) " &
+                                     "VALUES (@CustomerID, @ScreeningID, @BookingDate, @TotalCost, @BookingStatus)"
                 SQLCmd.Parameters.Clear()
                 SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(saleCustomerID))
                 SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(screeningID))
                 SQLCmd.Parameters.AddWithValue("@BookingDate", Date.Now.Date)
                 SQLCmd.Parameters.AddWithValue("@TotalCost", totalCost)
+                SQLCmd.Parameters.AddWithValue("@BookingStatus", BookingActive)
                 SQLCmd.ExecuteNonQuery()
 
                 SQLCmd.CommandText = "SELECT @@IDENTITY"
                 SQLCmd.Parameters.Clear()
                 newID = CLng(SQLCmd.ExecuteScalar())
 
-                'the seats that were picked on the map
+                'the seats that were picked on the map.
+                'the screening is written on each seat row as well as on the booking. it is the same
+                'value twice, which is normally something to avoid, but Access can only make a rule
+                'unique within one table. having it here lets the database itself refuse to sell the
+                'same seat twice on the same screening instead of that only being a rule in the code
                 Dim i As Integer
                 For i = 0 To seatIDs.Length - 1
-                    SQLCmd.CommandText = "INSERT INTO tblBookingSeat (BookingID, SeatID) " &
-                                         "VALUES (@BookingID, @SeatID)"
+                    SQLCmd.CommandText = "INSERT INTO tblBookingSeat (BookingID, SeatID, ScreeningID) " &
+                                         "VALUES (@BookingID, @SeatID, @ScreeningID)"
                     SQLCmd.Parameters.Clear()
                     SQLCmd.Parameters.AddWithValue("@BookingID", CInt(newID))
                     SQLCmd.Parameters.AddWithValue("@SeatID", CInt(seatIDs(i)))
+                    SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(screeningID))
                     SQLCmd.ExecuteNonQuery()
                 Next
 
