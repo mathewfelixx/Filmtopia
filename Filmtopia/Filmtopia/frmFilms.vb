@@ -138,9 +138,9 @@ Public Class frmFilms
             End If
 
             If conditions = "" Then
-                SQLCmd.CommandText = baseQuery & " ORDER BY FilmTitle"
+                SQLCmd.CommandText = baseQuery & " ORDER BY FilmTitle, FilmYear, FilmID"
             Else
-                SQLCmd.CommandText = baseQuery & " WHERE " & conditions & " ORDER BY FilmTitle"
+                SQLCmd.CommandText = baseQuery & " WHERE " & conditions & " ORDER BY FilmTitle, FilmYear, FilmID"
             End If
 
             If txtSearch.Text.Trim() <> "" Then
