@@ -154,18 +154,32 @@ Public Class frmBookingSearch
         selectedBookingText = row.Cells("CustomerName").Value.ToString() & " - " &
                               row.Cells("FilmTitle").Value.ToString()
 
-        lblSelectedBooking.Text = "Selected: booking " & selectedBookingID & " for " & selectedBookingText
-        btnCancelBooking.Enabled = True
+        'a booking that has already been cancelled cannot be cancelled again, so the button is
+        'turned off rather than letting it be pressed and then refused
+        Dim isCancelled As Boolean = False
+        If row.Cells("BookingStatus").Value IsNot Nothing Then
+            isCancelled = (row.Cells("BookingStatus").Value.ToString() = BookingCancelled)
+        End If
+
+        If isCancelled Then
+            lblSelectedBooking.Text = "Booking " & selectedBookingID & " for " & selectedBookingText & " is already cancelled"
+        Else
+            lblSelectedBooking.Text = "Selected: booking " & selectedBookingID & " for " & selectedBookingText
+        End If
+
+        btnCancelBooking.Enabled = Not isCancelled
     End Sub
 
-    'cancels the selected booking, removing its seats, food order and the booking itself
+    'cancels the selected booking, putting its seats back on sale and marking it cancelled
     Private Sub btnCancelBooking_Click(sender As Object, e As EventArgs) Handles btnCancelBooking.Click
         If selectedBookingID = 0 Then
             MessageBox.Show("Select a booking in the grid first")
             Exit Sub
         End If
 
-        If MessageBox.Show("Cancel this booking? This will free its seats and remove any food order.", "Confirm", MessageBoxButtons.YesNo) = DialogResult.No Then
+        If MessageBox.Show("Cancel this booking? Its seats go back on sale." & vbCrLf &
+                           "The booking itself is kept and marked as cancelled, so the sale is still in the history.",
+                           "Confirm", MessageBoxButtons.YesNo) = DialogResult.No Then
             Exit Sub
         End If
 
