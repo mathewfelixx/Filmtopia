@@ -41,9 +41,8 @@ Public Class frmScreens
 
         For Each row As DataRow In dt.Rows
             Dim screenID As Long = CLng(row("ScreenID"))
-            Dim capacity As Integer = CInt(row("ScreenCapacity"))
 
-            row("Rows") = RowsAsText(capacity)
+            row("Rows") = RowsAsText(CInt(row("ScreenRows")), CInt(row("SeatsPerRow")))
             row("Seats") = SeatsOnScreen(screenID)
             row("Screenings") = ScreeningsOnScreen(screenID)
         Next
@@ -54,14 +53,19 @@ Public Class frmScreens
             dgvScreens.Columns("ScreenID").HeaderText = "ID"
             dgvScreens.Columns("ScreenName").HeaderText = "Screen"
             dgvScreens.Columns("ScreenCapacity").HeaderText = "Capacity"
-            dgvScreens.Columns("Rows").HeaderText = "Rows"
+            dgvScreens.Columns("Rows").HeaderText = "Layout"
             dgvScreens.Columns("Seats").HeaderText = "Seats made"
             dgvScreens.Columns("Screenings").HeaderText = "Screenings"
+
+            'the two layout numbers are what the boxes underneath get filled from, they are not
+            'worth a column of their own when the Layout column already says it in words
+            dgvScreens.Columns("ScreenRows").Visible = False
+            dgvScreens.Columns("SeatsPerRow").Visible = False
 
             dgvScreens.Columns("ScreenID").Width = 50
             dgvScreens.Columns("ScreenName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             dgvScreens.Columns("ScreenCapacity").Width = 90
-            dgvScreens.Columns("Rows").Width = 120
+            dgvScreens.Columns("Rows").Width = 140
             dgvScreens.Columns("Seats").Width = 100
             dgvScreens.Columns("Screenings").Width = 100
 
@@ -104,19 +108,17 @@ Public Class frmScreens
         lblGridCount.Text = dt.Rows.Count & " screen(s), " & seats & " seats in the building"
     End Sub
 
-    'describes the rows a capacity works out as, e.g. 4 rows, A to D
-    Private Function RowsAsText(capacity As Integer) As String
-        Dim numRows As Integer = capacity \ 10
-
-        If numRows <= 0 Then
+    'describes a screen's layout in words, e.g. 4 rows of 12, A to D
+    Private Function RowsAsText(numRows As Integer, perRow As Integer) As String
+        If numRows <= 0 Or perRow <= 0 Then
             Return "none"
         End If
 
         If numRows = 1 Then
-            Return "1 row, A"
+            Return "1 row of " & perRow & ", A"
         End If
 
-        Return numRows & " rows, A to " & Chr(64 + numRows)
+        Return numRows & " rows of " & perRow & ", A to " & Chr(64 + numRows)
     End Function
 
     'counts the seats that have actually been made for a screen
