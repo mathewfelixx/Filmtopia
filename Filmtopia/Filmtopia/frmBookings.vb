@@ -140,12 +140,16 @@ Public Class frmBookings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            'join booking to screening, then to film, so we can show the film title and date
+            'join booking to screening, then to film, so we can show the film title and date.
+            'cancelled bookings are left out because this list is what food gets added to, and
+            'adding food to a sale that has already been refunded makes no sense
             SQLCmd.CommandText = "SELECT tblBooking.BookingID, FilmTitle & ' (' & ScreeningDate & ')' AS Info " &
                                  "FROM (tblBooking INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
                                  "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
-                                 "WHERE tblBooking.CustomerID = @CustomerID"
+                                 "WHERE tblBooking.CustomerID = @CustomerID " &
+                                 "AND tblBooking.BookingStatus <> @Cancelled"
             SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(customerID))
+            SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
