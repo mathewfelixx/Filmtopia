@@ -415,29 +415,52 @@ Public Class frmBookings
         UpdateTotal()
     End Sub
 
-    'toggles a seat between selected and available when its clicked
+    'toggles a seat between selected and available when its clicked. the table is what changes,
+    'the colour is just put on afterwards to show what the table now says
     Private Sub Seat_Click(sender As Object, e As EventArgs)
         Dim b As Button = CType(sender, Button)
-        If b.BackColor = selectedColour Then
+        Dim seatID As Long = CLng(b.Tag)
+
+        If IsSeatSelected(seatID) Then
+            Dim rows() As DataRow = pendingSeats.Select("SeatID = " & seatID)
+            pendingSeats.Rows.Remove(rows(0))
             b.BackColor = availableColour
         Else
+            pendingSeats.Rows.Add(CInt(seatID), MultiplierForSeat(seatID))
             b.BackColor = selectedColour
         End If
+
         UpdateTotal()
     End Sub
 
-    'counts how many seats are selected on the map
+    'looks up what a seat does to the price, from the seats that were read when the map was drawn
+    Private Function MultiplierForSeat(seatID As Long) As Double
+        Dim rows() As DataRow = currentSeats.Select("SeatID = " & seatID)
+
+        If rows.Length > 0 Then
+            Return CDbl(rows(0)("PriceMultiplier"))
+        End If
+
+        'if it cannot be found the seat is charged as a standard one, which is the safe way round
+        Return 1
+    End Function
+
+    'counts how many seats are picked for this sale
     Private Function CountSelectedSeats() As Integer
-        Dim count As Integer = 0
-        For Each ctrl As Control In pnlSeatMap.Controls
-            If TypeOf ctrl Is Button Then
-                Dim b As Button = CType(ctrl, Button)
-                If b.BackColor = selectedColour Then
-                    count = count + 1
-                End If
-            End If
+        Return pendingSeats.Rows.Count
+    End Function
+
+    'adds up what the picked seats come to. they are added one at a time rather than counted and
+    'multiplied, because a premium seat is worth more than a standard one
+    Private Function TicketsTotal() As Double
+        Dim total As Double = 0
+        Dim i As Integer
+
+        For i = 0 To pendingSeats.Rows.Count - 1
+            total = total + SeatPrice(currentTicketPrice, CDbl(pendingSeats.Rows(i)("Multiplier")))
         Next
-        Return count
+
+        Return total
     End Function
 
     'shows the running total of selected seats and their cost
