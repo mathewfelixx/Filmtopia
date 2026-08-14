@@ -278,15 +278,20 @@ Public Class frmSalesReport
             'the money is what those tickets were actually sold for, which is written on the seat
             'row at the time of the sale. it used to be worked out here from the price on the
             'screening as it is now, which meant putting a ticket up changed what last month had
-            'taken. two of the joins have gone with it, since the seat type is no longer needed
+            'taken. two of the joins have gone with it, since the seat type is no longer needed.
+            'cancelling a booking deletes its seat rows, so there should be nothing in here to
+            'leave out anyway, but the filter is on to match the other three queries and so this
+            'still comes out right if cancelling ever stops deleting them
             SQLCmd.CommandText = "SELECT FilmTitle, COUNT(*) AS Tickets, SUM(SeatPricePaid) AS TicketRevenue " &
                                  "FROM ((tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID) " &
                                  "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
                                  "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
                                  "WHERE tblBooking.BookingDate >= @FromDate AND tblBooking.BookingDate < @ToDate " &
+                                 "AND tblBooking.BookingStatus <> @Cancelled " &
                                  "GROUP BY FilmTitle"
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
             SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
+            SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)
             cn.Close()
