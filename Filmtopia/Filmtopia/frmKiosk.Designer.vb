@@ -52,6 +52,7 @@ Partial Class frmKiosk
         Me.lblSwatchTaken = New System.Windows.Forms.Label()
         Me.lblKeyTaken = New System.Windows.Forms.Label()
         Me.lblSeatsPicked = New System.Windows.Forms.Label()
+        Me.lblSeatKeyTypes = New System.Windows.Forms.Label()
         Me.pnlConfirm = New System.Windows.Forms.Panel()
         Me.lblConfirmHeading = New System.Windows.Forms.Label()
         Me.lblConfirmDetail = New System.Windows.Forms.Label()
@@ -308,6 +309,7 @@ Partial Class frmKiosk
         '
         'pnlSeats
         '
+        Me.pnlSeats.Controls.Add(Me.lblSeatKeyTypes)
         Me.pnlSeats.Controls.Add(Me.lblSeatsPicked)
         Me.pnlSeats.Controls.Add(Me.lblKeyTaken)
         Me.pnlSeats.Controls.Add(Me.lblSwatchTaken)
@@ -424,6 +426,17 @@ Partial Class frmKiosk
         Me.lblSeatsPicked.Size = New System.Drawing.Size(270, 340)
         Me.lblSeatsPicked.TabIndex = 10
         Me.lblSeatsPicked.Text = "No seats picked yet"
+        '
+        'lblSeatKeyTypes
+        '
+        Me.lblSeatKeyTypes.AutoSize = True
+        Me.lblSeatKeyTypes.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.lblSeatKeyTypes.ForeColor = System.Drawing.Color.Gray
+        Me.lblSeatKeyTypes.Location = New System.Drawing.Point(330, 570)
+        Me.lblSeatKeyTypes.Name = "lblSeatKeyTypes"
+        Me.lblSeatKeyTypes.Size = New System.Drawing.Size(560, 23)
+        Me.lblSeatKeyTypes.TabIndex = 11
+        Me.lblSeatKeyTypes.Text = "Seats edged in purple are premium and cost more. Seats edged in blue are accessible."
         '
         'pnlConfirm
         '
@@ -660,6 +673,7 @@ Partial Class frmKiosk
     Friend WithEvents lblSwatchTaken As Label
     Friend WithEvents lblKeyTaken As Label
     Friend WithEvents lblSeatsPicked As Label
+    Friend WithEvents lblSeatKeyTypes As Label
     Friend WithEvents pnlConfirm As Panel
     Friend WithEvents lblConfirmHeading As Label
     Friend WithEvents lblConfirmDetail As Label
