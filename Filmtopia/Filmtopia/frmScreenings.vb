@@ -61,7 +61,9 @@ Public Class frmScreenings
 
     'escape shuts the form, same as the close button on the ones that have one
     Private Sub frmScreenings_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
-        If e.KeyCode = Keys.Escape Then
+        If e.KeyCode = Keys.F5 Then
+            LoadScreenings()
+        ElseIf e.KeyCode = Keys.Escape Then
             Me.Close()
         End If
     End Sub
