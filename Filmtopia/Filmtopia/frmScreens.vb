@@ -12,9 +12,21 @@ Public Class frmScreens
 
     Private Sub frmScreens_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup(Me)
+
+        'lets the form see escape before the box that has focus does
+        Me.KeyPreview = True
+
         LoadScreens()
         ClearFields()
+        txtName.Focus()
         WriteLog("SCREEN", "Screens form opened")
+    End Sub
+
+    'escape shuts the form, same as the close button on the ones that have one
+    Private Sub frmScreens_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
+        If e.KeyCode = Keys.Escape Then
+            Me.Close()
+        End If
     End Sub
 
     'loads the screens into the grid along with how many seats have actually been made for each
