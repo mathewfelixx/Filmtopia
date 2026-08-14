@@ -422,23 +422,36 @@ Public Class frmScreens
     End Sub
 
     'makes a row of 10 seats for every 10 seats of capacity, rows go A, B, C...
-    Private Sub GenerateSeats(screenID As Long, capacity As Integer)
-        Dim numRows As Integer = capacity \ 10
-
+    'makes the seats for a screen from how many rows it has and how many seats are in each row.
+    'it used to work the rows out as capacity \ 10, which threw away the remainder, so asking for
+    '95 seats quietly made 90. the number of rows and the seats in each are now both given, so
+    'the seats made always come to exactly rows times seats per row
+    Private Sub GenerateSeats(screenID As Long, numRows As Integer, perRow As Integer)
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "INSERT INTO tblSeat (ScreenID, SeatRow, SeatNumber) " &
-                                 "VALUES (@ScreenID, @SeatRow, @SeatNumber)"
+
+            'read the seat types once at the start rather than looking one up for every seat
+            SQLCmd.CommandText = "SELECT SeatTypeID, SeatTypeName FROM tblSeatType"
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            Dim dtTypes As New DataTable
+            da.Fill(dtTypes)
+
+            SQLCmd.CommandText = "INSERT INTO tblSeat (ScreenID, SeatRow, SeatNumber, SeatTypeID) " &
+                                 "VALUES (@ScreenID, @SeatRow, @SeatNumber, @SeatTypeID)"
             SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
             SQLCmd.Parameters.AddWithValue("@SeatRow", "")
             SQLCmd.Parameters.AddWithValue("@SeatNumber", 0)
+            SQLCmd.Parameters.AddWithValue("@SeatTypeID", 0)
 
             For rowIndex As Integer = 0 To numRows - 1
                 Dim rowLetter As String = Chr(65 + rowIndex)
-                For seatNum As Integer = 1 To 10
+                Dim typeID As Long = TypeIDFromTable(dtTypes, SeatTypeForRow(rowIndex, numRows))
+
+                For seatNum As Integer = 1 To perRow
                     SQLCmd.Parameters("@SeatRow").Value = rowLetter
                     SQLCmd.Parameters("@SeatNumber").Value = seatNum
+                    SQLCmd.Parameters("@SeatTypeID").Value = CInt(typeID)
                     SQLCmd.ExecuteNonQuery()
                 Next
             Next
