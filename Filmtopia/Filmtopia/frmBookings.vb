@@ -15,6 +15,21 @@ Public Class frmBookings
     'is being built up, and it is not written to the database until COMPLETE SALE is pressed
     Private pendingFood As DataTable
 
+    'the seats picked so far, kept the same way the food is. before this the form worked out which
+    'seats were picked by looking at what colour each button had gone, which meant the sale
+    'depended on the theme. if a theme ever gave two seat states the same colour the wrong seats
+    'would have been sold and nothing would have said so. the colour is now only how a seat is
+    'drawn, and this table is what is actually being bought
+    Private pendingSeats As DataTable
+
+    'every seat in the screen being shown, with what sort it is and its price multiplier. it is
+    'read once when the map is drawn so that clicking a seat does not need another look at the
+    'database just to find out what that seat costs
+    Private currentSeats As DataTable
+
+    'shows what a seat is and what it costs when the mouse rests on it
+    Private seatTips As New ToolTip
+
     'the three seat colours, these get set from the theme so they work in dark mode too
     Private availableColour As Color
     Private selectedColour As Color
@@ -34,6 +49,7 @@ Public Class frmBookings
     Private Sub frmBookings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup(Me)
         ApplySeatColours()
+        SetUpPendingSeats()
         SetUpPendingFood()
         LoadFoodItems()
         LoadScreenings()
@@ -210,6 +226,20 @@ Public Class frmBookings
     End Sub
 
     'draws a button for every seat in the screens layout and greys out the taken ones
+    'makes the empty table that holds the seats picked for the sale being built up
+    Private Sub SetUpPendingSeats()
+        pendingSeats = New DataTable
+        pendingSeats.Columns.Add("SeatID", GetType(Integer))
+        'the multiplier is kept with the seat so the running total can be worked out without going
+        'back to the database every time a seat is clicked
+        pendingSeats.Columns.Add("Multiplier", GetType(Double))
+    End Sub
+
+    'says whether a seat has been picked for this sale
+    Private Function IsSeatSelected(seatID As Long) As Boolean
+        Return pendingSeats.Select("SeatID = " & seatID).Length > 0
+    End Function
+
     'makes the empty table that holds the food for the sale being built up
     Private Sub SetUpPendingFood()
         pendingFood = New DataTable
