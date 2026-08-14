@@ -31,16 +31,20 @@ Partial Class frmFilms
         Me.cboAgeRating = New System.Windows.Forms.ComboBox()
         Me.lblDuration = New System.Windows.Forms.Label()
         Me.txtDuration = New System.Windows.Forms.TextBox()
+        Me.lblYear = New System.Windows.Forms.Label()
+        Me.txtYear = New System.Windows.Forms.TextBox()
         Me.lblDescription = New System.Windows.Forms.Label()
         Me.txtDescription = New System.Windows.Forms.TextBox()
+        Me.lblGenres = New System.Windows.Forms.Label()
+        Me.txtGenres = New System.Windows.Forms.TextBox()
         Me.btnAdd = New System.Windows.Forms.Button()
         Me.btnUpdate = New System.Windows.Forms.Button()
         Me.btnDelete = New System.Windows.Forms.Button()
         Me.btnClear = New System.Windows.Forms.Button()
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.GroupBox1.SuspendLayout()
-        Me.GroupBox2.SuspendLayout()
         CType(Me.dgvFilms, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.GroupBox2.SuspendLayout()
         Me.SuspendLayout()
         '
         'lblHeading
@@ -138,7 +142,7 @@ Partial Class frmFilms
         Me.lblStatus.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
         Me.lblStatus.Location = New System.Drawing.Point(16, 24)
         Me.lblStatus.Name = "lblStatus"
-        Me.lblStatus.Size = New System.Drawing.Size(130, 19)
+        Me.lblStatus.Size = New System.Drawing.Size(160, 23)
         Me.lblStatus.TabIndex = 0
         Me.lblStatus.Text = "Adding a new film"
         '
@@ -148,53 +152,71 @@ Partial Class frmFilms
         Me.lblTitle.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.lblTitle.Location = New System.Drawing.Point(16, 58)
         Me.lblTitle.Name = "lblTitle"
-        Me.lblTitle.Size = New System.Drawing.Size(30, 15)
+        Me.lblTitle.Size = New System.Drawing.Size(38, 20)
         Me.lblTitle.TabIndex = 1
         Me.lblTitle.Text = "Title"
         '
         'txtTitle
         '
         Me.txtTitle.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.txtTitle.Location = New System.Drawing.Point(110, 55)
+        Me.txtTitle.Location = New System.Drawing.Point(125, 55)
         Me.txtTitle.Name = "txtTitle"
-        Me.txtTitle.Size = New System.Drawing.Size(360, 23)
+        Me.txtTitle.Size = New System.Drawing.Size(285, 27)
         Me.txtTitle.TabIndex = 2
         '
         'lblAgeRating
         '
         Me.lblAgeRating.AutoSize = True
         Me.lblAgeRating.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.lblAgeRating.Location = New System.Drawing.Point(490, 58)
+        Me.lblAgeRating.Location = New System.Drawing.Point(432, 58)
         Me.lblAgeRating.Name = "lblAgeRating"
-        Me.lblAgeRating.Size = New System.Drawing.Size(63, 15)
+        Me.lblAgeRating.Size = New System.Drawing.Size(79, 20)
         Me.lblAgeRating.TabIndex = 3
         Me.lblAgeRating.Text = "Age rating"
         '
         'cboAgeRating
         '
         Me.cboAgeRating.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.cboAgeRating.Location = New System.Drawing.Point(580, 55)
+        Me.cboAgeRating.Location = New System.Drawing.Point(526, 55)
         Me.cboAgeRating.Name = "cboAgeRating"
-        Me.cboAgeRating.Size = New System.Drawing.Size(90, 23)
+        Me.cboAgeRating.Size = New System.Drawing.Size(90, 28)
         Me.cboAgeRating.TabIndex = 4
         '
         'lblDuration
         '
         Me.lblDuration.AutoSize = True
         Me.lblDuration.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.lblDuration.Location = New System.Drawing.Point(690, 58)
+        Me.lblDuration.Location = New System.Drawing.Point(638, 58)
         Me.lblDuration.Name = "lblDuration"
-        Me.lblDuration.Size = New System.Drawing.Size(93, 15)
+        Me.lblDuration.Size = New System.Drawing.Size(112, 20)
         Me.lblDuration.TabIndex = 5
         Me.lblDuration.Text = "Duration (mins)"
         '
         'txtDuration
         '
         Me.txtDuration.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.txtDuration.Location = New System.Drawing.Point(800, 55)
+        Me.txtDuration.Location = New System.Drawing.Point(768, 55)
         Me.txtDuration.Name = "txtDuration"
-        Me.txtDuration.Size = New System.Drawing.Size(70, 23)
+        Me.txtDuration.Size = New System.Drawing.Size(70, 27)
         Me.txtDuration.TabIndex = 6
+        '
+        'lblYear
+        '
+        Me.lblYear.AutoSize = True
+        Me.lblYear.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblYear.Location = New System.Drawing.Point(858, 58)
+        Me.lblYear.Name = "lblYear"
+        Me.lblYear.Size = New System.Drawing.Size(37, 20)
+        Me.lblYear.TabIndex = 7
+        Me.lblYear.Text = "Year"
+        '
+        'txtYear
+        '
+        Me.txtYear.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.txtYear.Location = New System.Drawing.Point(910, 55)
+        Me.txtYear.Name = "txtYear"
+        Me.txtYear.Size = New System.Drawing.Size(70, 27)
+        Me.txtYear.TabIndex = 8
         '
         'lblDescription
         '
@@ -202,19 +224,37 @@ Partial Class frmFilms
         Me.lblDescription.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.lblDescription.Location = New System.Drawing.Point(16, 92)
         Me.lblDescription.Name = "lblDescription"
-        Me.lblDescription.Size = New System.Drawing.Size(69, 15)
+        Me.lblDescription.Size = New System.Drawing.Size(85, 20)
         Me.lblDescription.TabIndex = 7
         Me.lblDescription.Text = "Description"
         '
         'txtDescription
         '
         Me.txtDescription.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.txtDescription.Location = New System.Drawing.Point(110, 89)
+        Me.txtDescription.Location = New System.Drawing.Point(125, 89)
         Me.txtDescription.Multiline = True
         Me.txtDescription.Name = "txtDescription"
         Me.txtDescription.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.txtDescription.Size = New System.Drawing.Size(560, 100)
-        Me.txtDescription.TabIndex = 8
+        Me.txtDescription.Size = New System.Drawing.Size(560, 70)
+        Me.txtDescription.TabIndex = 10
+        '
+        'lblGenres
+        '
+        Me.lblGenres.AutoSize = True
+        Me.lblGenres.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblGenres.Location = New System.Drawing.Point(16, 170)
+        Me.lblGenres.Name = "lblGenres"
+        Me.lblGenres.Size = New System.Drawing.Size(54, 20)
+        Me.lblGenres.TabIndex = 11
+        Me.lblGenres.Text = "Genres"
+        '
+        'txtGenres
+        '
+        Me.txtGenres.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.txtGenres.Location = New System.Drawing.Point(125, 167)
+        Me.txtGenres.Name = "txtGenres"
+        Me.txtGenres.Size = New System.Drawing.Size(560, 27)
+        Me.txtGenres.TabIndex = 12
         '
         'btnAdd
         '
@@ -222,7 +262,7 @@ Partial Class frmFilms
         Me.btnAdd.Location = New System.Drawing.Point(700, 89)
         Me.btnAdd.Name = "btnAdd"
         Me.btnAdd.Size = New System.Drawing.Size(320, 42)
-        Me.btnAdd.TabIndex = 9
+        Me.btnAdd.TabIndex = 13
         Me.btnAdd.Text = "ADD THIS FILM"
         Me.btnAdd.UseVisualStyleBackColor = True
         '
@@ -232,7 +272,7 @@ Partial Class frmFilms
         Me.btnUpdate.Location = New System.Drawing.Point(700, 137)
         Me.btnUpdate.Name = "btnUpdate"
         Me.btnUpdate.Size = New System.Drawing.Size(155, 34)
-        Me.btnUpdate.TabIndex = 10
+        Me.btnUpdate.TabIndex = 14
         Me.btnUpdate.Text = "Save changes"
         Me.btnUpdate.UseVisualStyleBackColor = True
         '
@@ -242,7 +282,7 @@ Partial Class frmFilms
         Me.btnDelete.Location = New System.Drawing.Point(865, 137)
         Me.btnDelete.Name = "btnDelete"
         Me.btnDelete.Size = New System.Drawing.Size(155, 34)
-        Me.btnDelete.TabIndex = 11
+        Me.btnDelete.TabIndex = 15
         Me.btnDelete.Text = "Delete film"
         Me.btnDelete.UseVisualStyleBackColor = True
         '
@@ -252,7 +292,7 @@ Partial Class frmFilms
         Me.btnClear.Location = New System.Drawing.Point(700, 177)
         Me.btnClear.Name = "btnClear"
         Me.btnClear.Size = New System.Drawing.Size(320, 30)
-        Me.btnClear.TabIndex = 12
+        Me.btnClear.TabIndex = 16
         Me.btnClear.Text = "Clear the boxes"
         Me.btnClear.UseVisualStyleBackColor = True
         '
@@ -274,26 +314,31 @@ Partial Class frmFilms
         Me.Controls.Add(Me.lblVersion)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)
+        Me.Controls.Add(Me.btnImportFromFile)
         Me.Controls.Add(Me.lblHeading)
-        Me.Name = "frmFilms"
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.MaximizeBox = False
-        Me.Text = "Films"
+        Me.Name = "frmFilms"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
+        Me.Text = "Films"
         Me.GroupBox1.ResumeLayout(False)
         Me.GroupBox1.PerformLayout()
+        CType(Me.dgvFilms, System.ComponentModel.ISupportInitialize).EndInit()
         Me.GroupBox2.ResumeLayout(False)
         Me.GroupBox2.PerformLayout()
-        CType(Me.dgvFilms, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
 
     Friend WithEvents lblHeading As Label
+    Friend WithEvents btnImportFromFile As Button
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents lblSearch As Label
     Friend WithEvents txtSearch As TextBox
+    Friend WithEvents lblGenreFilter As Label
+    Friend WithEvents cboGenreFilter As ComboBox
+    Friend WithEvents chkNeedsDescription As CheckBox
     Friend WithEvents lblGridCount As Label
     Friend WithEvents dgvFilms As DataGridView
     Friend WithEvents GroupBox2 As GroupBox
@@ -304,8 +349,12 @@ Partial Class frmFilms
     Friend WithEvents cboAgeRating As ComboBox
     Friend WithEvents lblDuration As Label
     Friend WithEvents txtDuration As TextBox
+    Friend WithEvents lblYear As Label
+    Friend WithEvents txtYear As TextBox
     Friend WithEvents lblDescription As Label
     Friend WithEvents txtDescription As TextBox
+    Friend WithEvents lblGenres As Label
+    Friend WithEvents txtGenres As TextBox
     Friend WithEvents btnAdd As Button
     Friend WithEvents btnUpdate As Button
     Friend WithEvents btnDelete As Button
