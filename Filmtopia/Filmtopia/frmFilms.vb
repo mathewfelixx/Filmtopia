@@ -533,4 +533,18 @@ Public Class frmFilms
         WriteLog("FILM", "Film selected: " & txtTitle.Text)
     End Sub
 
+    'opens the screen that pulls film details out of an IMDb data file. the list is reloaded when
+    'that screen closes so anything imported shows up straight away
+    Private Sub btnImportFromFile_Click(sender As Object, e As EventArgs) Handles btnImportFromFile.Click
+        If UserAccessLevel <> 1 Then
+            MessageBox.Show("Only a manager can import films")
+            Exit Sub
+        End If
+
+        frmImportFilms.ShowDialog()
+
+        LoadFilms()
+        ClearFields()
+    End Sub
+
 End Class
