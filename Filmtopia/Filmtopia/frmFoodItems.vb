@@ -91,10 +91,10 @@ Public Class frmFoodItems
                                       "FROM tblFoodItem"
 
             If cboFilter.SelectedIndex <= 0 Then
-                SQLCmd.CommandText = baseQuery & " ORDER BY FoodItemCategory, FoodItemName"
+                SQLCmd.CommandText = baseQuery & " ORDER BY FoodItemCategory, FoodItemName, FoodItemID"
             Else
                 SQLCmd.CommandText = baseQuery & " WHERE FoodItemCategory = @Category " &
-                                     "ORDER BY FoodItemName"
+                                     "ORDER BY FoodItemName, FoodItemID"
                 SQLCmd.Parameters.AddWithValue("@Category", cboFilter.Text)
             End If
 
