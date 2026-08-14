@@ -21,6 +21,14 @@ Public Class frmKiosk
     Private Const SeatHeight As Integer = 46
     Private Const SeatGap As Integer = 8
 
+    'a seat is never drawn smaller than this. under it two seats are close enough together that a
+    'finger catches both, and a map nobody can press is worse than one that scrolls
+    Private Const SmallestSeatWidth As Integer = 34
+
+    'a bit of room kept on the right of the map for the scroll bar that appears when a screen has
+    'more rows than fit. without it the bar sits over the last seat in every row
+    Private Const SeatMapMargin As Integer = 24
+
     'the most tickets one person can buy at the machine in one go. anybody wanting more than this
     'is a party booking and is better off talking to somebody at the desk
     Private Const MaxSeatsPerSale As Integer = 8
@@ -71,6 +79,11 @@ Public Class frmKiosk
     'the seats picked so far. the buttons change colour to match what is in here, the colour is
     'never what decides anything, the same way round as the staff booking form does it
     Private pickedSeats As DataTable
+
+    'the size the seats are actually being drawn at, which is not always the size above because a
+    'wide screen full of seats has to be squashed to fit
+    Private seatDrawWidth As Integer = SeatWidth
+    Private seatDrawHeight As Integer = SeatHeight
 
     Private Sub frmKiosk_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup(Me)
@@ -741,15 +754,10 @@ Public Class frmKiosk
             Dim b As New Button
             b.Tag = seatID
             b.Text = seatRow & seatNumber
-            b.Size = New Size(SeatWidth, SeatHeight)
-            b.Font = New Font("Segoe UI", 10)
             b.FlatStyle = FlatStyle.Flat
             b.FlatAppearance.BorderSize = 0
-
-            'the row letter A,B,C says how far down and the seat number says how far across
-            Dim rowIndex As Integer = Asc(seatRow) - 65
-            b.Location = New Point((seatNumber - 1) * (SeatWidth + SeatGap),
-                                   rowIndex * (SeatHeight + SeatGap))
+            'where it goes and how big it is are decided by ArrangeSeatMap, because both depend on
+            'how much room the screen has and that is not known until the map is being laid out
 
             'a seat that costs more than a standard one gets a border round it so the difference
             'can be seen. the background is left to say whether it is free, picked or gone, so the
@@ -781,29 +789,128 @@ Public Class frmKiosk
     'a number typed into the designer
     Private Sub CentreSeatMap()
         Dim seatsAcross As Integer = WidestRow()
-        Dim mapWidth As Integer = (seatsAcross * (SeatWidth + SeatGap)) - SeatGap
+        Dim rowsDown As Integer = DeepestRow()
 
-        'the space left over once the list down the left has had its share
-        Dim spaceLeft As Integer = pnlSeats.Width - LeftColumnWidth - 30
+        'what the map has to play with once the list down the left and the key underneath have had
+        'their share
+        Dim spaceAcross As Integer = pnlSeats.Width - LeftColumnWidth - 30
 
-        'the map never gets wider than the room it has, otherwise a small screen would leave it
-        'hanging off the side. if it does not fit the panel scrolls instead
-        If mapWidth > spaceLeft Then
-            mapWidth = spaceLeft
+        lblScreen.Top = lblSeatsShowing.Bottom + 24
+        Dim mapTop As Integer = lblScreen.Bottom + 16
+        Dim spaceDown As Integer = pnlSeats.Height - mapTop - 80
+
+        'the whole room has to fit on the screen at once. a seat map you have to scroll around is
+        'no use to somebody choosing where to sit, they need to see the shape of it, so when there
+        'is not enough room the seats get smaller rather than the map getting scroll bars
+        seatDrawWidth = LargestSeatThatFits(seatsAcross, rowsDown, spaceAcross, spaceDown)
+
+        'the seats keep the shape they were drawn at rather than turning into squares
+        seatDrawHeight = (seatDrawWidth * SeatHeight) \ SeatWidth
+
+        Dim mapWidth As Integer = (seatsAcross * (seatDrawWidth + SeatGap)) - SeatGap + SeatMapMargin
+
+        If mapWidth > spaceAcross Then
+            mapWidth = spaceAcross
         End If
 
-        Dim mapLeft As Integer = LeftColumnWidth + ((spaceLeft - mapWidth) \ 2)
+        Dim mapLeft As Integer = LeftColumnWidth + ((spaceAcross - mapWidth) \ 2)
 
         lblScreen.Left = mapLeft
         lblScreen.Width = mapWidth
-        lblScreen.Top = lblSeatsShowing.Bottom + 24
 
         pnlSeatMap.Left = mapLeft
         pnlSeatMap.Width = mapWidth
-        pnlSeatMap.Top = lblScreen.Bottom + 16
+        pnlSeatMap.Top = mapTop
         'the key sits under the map so the map stops short of the bottom to leave room for it
-        pnlSeatMap.Height = pnlSeats.Height - pnlSeatMap.Top - 80
+        pnlSeatMap.Height = spaceDown
+
+        ArrangeSeatMap()
     End Sub
+
+    'the biggest a seat can be drawn and still have the whole room fit in the space it has been
+    'given, both ways. it works out what would fit across and what would fit down and takes
+    'whichever is the smaller of the two, since a seat has to satisfy both at once
+    Private Function LargestSeatThatFits(seatsAcross As Integer, rowsDown As Integer,
+                                         spaceAcross As Integer, spaceDown As Integer) As Integer
+        Dim biggest As Integer = SeatWidth
+
+        If seatsAcross > 0 Then
+            Dim fitsAcross As Integer = ((spaceAcross - SeatMapMargin) \ seatsAcross) - SeatGap
+            If fitsAcross < biggest Then
+                biggest = fitsAcross
+            End If
+        End If
+
+        If rowsDown > 0 Then
+            'worked out in height first then turned back into a width, because the two are tied
+            'together and it is the width everything else is measured from
+            Dim heightThatFits As Integer = (spaceDown \ rowsDown) - SeatGap
+            Dim fitsDown As Integer = (heightThatFits * SeatWidth) \ SeatHeight
+
+            If fitsDown < biggest Then
+                biggest = fitsDown
+            End If
+        End If
+
+        'below this a finger cannot land on one seat without catching the one next to it, so it is
+        'better to let it scroll than to draw something nobody can press
+        If biggest < SmallestSeatWidth Then
+            biggest = SmallestSeatWidth
+        End If
+
+        Return biggest
+    End Function
+
+    'how many rows of seats there are, which is what decides how tall the map has to be
+    Private Function DeepestRow() As Integer
+        Dim deepest As Integer = 0
+        Dim i As Integer
+
+        For i = 0 To currentSeats.Rows.Count - 1
+            Dim rowIndex As Integer = Asc(currentSeats.Rows(i)("SeatRow").ToString()) - 65
+            If rowIndex + 1 > deepest Then
+                deepest = rowIndex + 1
+            End If
+        Next
+
+        Return deepest
+    End Function
+
+    'puts every seat button where it belongs at whatever size was just worked out. the buttons were
+    'made in the same order the seats were read, so row i of the table is button i on the map
+    Private Sub ArrangeSeatMap()
+        If currentSeats Is Nothing Then
+            Exit Sub
+        End If
+
+        Dim i As Integer
+        For i = 0 To pnlSeatMap.Controls.Count - 1
+            Dim seatRow As String = currentSeats.Rows(i)("SeatRow").ToString()
+            Dim seatNumber As Integer = CInt(currentSeats.Rows(i)("SeatNumber"))
+
+            'the row letter A,B,C says how far down and the seat number says how far across
+            Dim rowIndex As Integer = Asc(seatRow) - 65
+
+            pnlSeatMap.Controls(i).Size = New Size(seatDrawWidth, seatDrawHeight)
+            pnlSeatMap.Controls(i).Left = (seatNumber - 1) * (seatDrawWidth + SeatGap)
+            pnlSeatMap.Controls(i).Top = rowIndex * (seatDrawHeight + SeatGap)
+
+            'the writing on a seat has to shrink with the seat or it stops fitting on it
+            pnlSeatMap.Controls(i).Font = New Font("Segoe UI", SeatFontSize())
+        Next
+    End Sub
+
+    'how big the seat letter and number is drawn, worked out from the seat rather than fixed, so a
+    'squashed up map does not end up with A10 hanging out over the edge of its own button
+    Private Function SeatFontSize() As Single
+        If seatDrawWidth >= 50 Then
+            Return 10
+        ElseIf seatDrawWidth >= 42 Then
+            Return 9
+        End If
+
+        Return 7.5
+    End Function
 
     'how many seats are in the longest row, which is what decides how wide the map has to be
     Private Function WidestRow() As Integer
