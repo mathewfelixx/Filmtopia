@@ -44,13 +44,9 @@ Public Class frmSalesReport
 
     'runs the whole report for the date range picked
     Private Sub btnRunReport_Click(sender As Object, e As EventArgs) Handles btnRunReport.Click
-        If dtpFrom.Value.Date > dtpTo.Value.Date Then
-            MessageBox.Show("From date cant be after the to date", "Sales Report", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            Exit Sub
+        If RunReport() Then
+            WriteLog("REPORT", "Sales report run (" & cboReportType.Text & ") for " & dtpFrom.Value.ToShortDateString() & " to " & dtpTo.Value.ToShortDateString())
         End If
-
-        RunReport()
-        WriteLog("REPORT", "Sales report run (" & cboReportType.Text & ") for " & dtpFrom.Value.ToShortDateString() & " to " & dtpTo.Value.ToShortDateString())
     End Sub
 
     'saves whichever report is on screen. the file is named after the report type so a folder of
@@ -64,8 +60,15 @@ Public Class frmSalesReport
     End Sub
 
     'runs the report for the date range picked, showing tickets, concessions or both depending
-    'on what the show box is set to
-    Private Sub RunReport()
+    'on what the show box is set to. comes back false if it would not run, so the caller knows
+    'not to log it. the check lives in here rather than on the run button because picking a
+    'different option in the show box runs the report too and used to skip the check
+    Private Function RunReport() As Boolean
+        If dtpFrom.Value.Date > dtpTo.Value.Date Then
+            MessageBox.Show("From date cant be after the to date", "Sales Report", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return False
+        End If
+
         Dim fromDate As Date = dtpFrom.Value.Date
         Dim toDate As Date = dtpTo.Value.Date
 
@@ -106,7 +109,9 @@ Public Class frmSalesReport
             lblFoodRevenue.Text = "Concessions revenue: " & FormatCurrency(foodRevenue)
             lblGrandTotal.Text = "Grand total: " & FormatCurrency(ticketRevenue + foodRevenue)
         End If
-    End Sub
+
+        Return True
+    End Function
 
     'fills the grid with the tickets sold and what they came to for each film, and returns the total.
     'the money comes from the seats on the booking times the screening price, not from TotalCost,
