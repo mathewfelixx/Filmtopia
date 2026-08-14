@@ -67,6 +67,14 @@ Partial Class frmUserOverview
         Me.btnActExport = New System.Windows.Forms.Button()
         Me.dgvActivity = New System.Windows.Forms.DataGridView()
         Me.lblGridCount = New System.Windows.Forms.Label()
+        Me.lblSalesFrom = New System.Windows.Forms.Label()
+        Me.dtpSalesFrom = New System.Windows.Forms.DateTimePicker()
+        Me.lblSalesTo = New System.Windows.Forms.Label()
+        Me.dtpSalesTo = New System.Windows.Forms.DateTimePicker()
+        Me.lblSubSalesHint = New System.Windows.Forms.Label()
+        Me.btnSalesExport = New System.Windows.Forms.Button()
+        Me.dgvMySales = New System.Windows.Forms.DataGridView()
+        Me.lblSalesCount = New System.Windows.Forms.Label()
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.pnlCard1.SuspendLayout()
         Me.pnlCard2.SuspendLayout()
@@ -74,6 +82,8 @@ Partial Class frmUserOverview
         Me.pnlCard4.SuspendLayout()
         Me.tabMe.SuspendLayout()
         Me.tabActivity.SuspendLayout()
+        Me.tabSales.SuspendLayout()
+        CType(Me.dgvMySales, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgvActivity, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -360,6 +370,14 @@ Partial Class frmUserOverview
         '
         'tabSales
         '
+        Me.tabSales.Controls.Add(Me.lblSalesCount)
+        Me.tabSales.Controls.Add(Me.dgvMySales)
+        Me.tabSales.Controls.Add(Me.btnSalesExport)
+        Me.tabSales.Controls.Add(Me.lblSubSalesHint)
+        Me.tabSales.Controls.Add(Me.dtpSalesTo)
+        Me.tabSales.Controls.Add(Me.lblSalesTo)
+        Me.tabSales.Controls.Add(Me.dtpSalesFrom)
+        Me.tabSales.Controls.Add(Me.lblSalesFrom)
         Me.tabSales.Location = New System.Drawing.Point(4, 24)
         Me.tabSales.Name = "tabSales"
         Me.tabSales.Padding = New System.Windows.Forms.Padding(3)
@@ -542,6 +560,90 @@ Partial Class frmUserOverview
         Me.lblGridCount.TabIndex = 0
         Me.lblGridCount.Text = ""
         '
+        'lblSalesFrom
+        '
+        Me.lblSalesFrom.AutoSize = True
+        Me.lblSalesFrom.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.lblSalesFrom.Location = New System.Drawing.Point(12, 12)
+        Me.lblSalesFrom.Name = "lblSalesFrom"
+        Me.lblSalesFrom.Size = New System.Drawing.Size(37, 17)
+        Me.lblSalesFrom.TabIndex = 0
+        Me.lblSalesFrom.Text = "From"
+        '
+        'dtpSalesFrom
+        '
+        Me.dtpSalesFrom.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.dtpSalesFrom.Format = System.Windows.Forms.DateTimePickerFormat.Short
+        Me.dtpSalesFrom.Location = New System.Drawing.Point(12, 36)
+        Me.dtpSalesFrom.Name = "dtpSalesFrom"
+        Me.dtpSalesFrom.Size = New System.Drawing.Size(120, 25)
+        Me.dtpSalesFrom.TabIndex = 1
+        '
+        'lblSalesTo
+        '
+        Me.lblSalesTo.AutoSize = True
+        Me.lblSalesTo.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.lblSalesTo.Location = New System.Drawing.Point(144, 12)
+        Me.lblSalesTo.Name = "lblSalesTo"
+        Me.lblSalesTo.Size = New System.Drawing.Size(22, 17)
+        Me.lblSalesTo.TabIndex = 2
+        Me.lblSalesTo.Text = "To"
+        '
+        'dtpSalesTo
+        '
+        Me.dtpSalesTo.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.dtpSalesTo.Format = System.Windows.Forms.DateTimePickerFormat.Short
+        Me.dtpSalesTo.Location = New System.Drawing.Point(144, 36)
+        Me.dtpSalesTo.Name = "dtpSalesTo"
+        Me.dtpSalesTo.Size = New System.Drawing.Size(120, 25)
+        Me.dtpSalesTo.TabIndex = 3
+        '
+        'lblSubSalesHint
+        '
+        Me.lblSubSalesHint.AutoSize = True
+        Me.lblSubSalesHint.Font = New System.Drawing.Font("Segoe UI", 8.25!)
+        Me.lblSubSalesHint.Location = New System.Drawing.Point(288, 42)
+        Me.lblSubSalesHint.Name = "lblSubSalesHint"
+        Me.lblSubSalesHint.Size = New System.Drawing.Size(0, 13)
+        Me.lblSubSalesHint.TabIndex = 4
+        Me.lblSubSalesHint.Text = "Double click a sale to open it in the booking search"
+        '
+        'btnSalesExport
+        '
+        Me.btnSalesExport.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.btnSalesExport.Location = New System.Drawing.Point(991, 35)
+        Me.btnSalesExport.Name = "btnSalesExport"
+        Me.btnSalesExport.Size = New System.Drawing.Size(90, 27)
+        Me.btnSalesExport.TabIndex = 5
+        Me.btnSalesExport.Text = "Export"
+        Me.btnSalesExport.UseVisualStyleBackColor = True
+        '
+        'dgvMySales
+        '
+        Me.dgvMySales.AllowUserToAddRows = False
+        Me.dgvMySales.AllowUserToDeleteRows = False
+        Me.dgvMySales.AllowUserToResizeRows = False
+        Me.dgvMySales.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.dgvMySales.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dgvMySales.Location = New System.Drawing.Point(12, 74)
+        Me.dgvMySales.MultiSelect = False
+        Me.dgvMySales.Name = "dgvMySales"
+        Me.dgvMySales.ReadOnly = True
+        Me.dgvMySales.RowHeadersVisible = False
+        Me.dgvMySales.RowTemplate.Height = 28
+        Me.dgvMySales.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
+        Me.dgvMySales.Size = New System.Drawing.Size(1069, 300)
+        Me.dgvMySales.TabIndex = 6
+        '
+        'lblSalesCount
+        '
+        Me.lblSalesCount.AutoSize = True
+        Me.lblSalesCount.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.lblSalesCount.Location = New System.Drawing.Point(12, 382)
+        Me.lblSalesCount.Name = "lblSalesCount"
+        Me.lblSalesCount.Size = New System.Drawing.Size(0, 17)
+        Me.lblSalesCount.TabIndex = 7
+        '
         'lblVersion
         '
         Me.lblVersion.AutoSize = True
@@ -582,6 +684,9 @@ Partial Class frmUserOverview
         Me.pnlCard3.PerformLayout()
         Me.pnlCard4.ResumeLayout(False)
         Me.pnlCard4.PerformLayout()
+        Me.tabSales.ResumeLayout(False)
+        Me.tabSales.PerformLayout()
+        CType(Me.dgvMySales, System.ComponentModel.ISupportInitialize).EndInit()
         Me.tabActivity.ResumeLayout(False)
         Me.tabActivity.PerformLayout()
         CType(Me.dgvActivity, System.ComponentModel.ISupportInitialize).EndInit()
@@ -636,5 +741,13 @@ Partial Class frmUserOverview
     Friend WithEvents btnActExport As Button
     Friend WithEvents dgvActivity As DataGridView
     Friend WithEvents lblGridCount As Label
+    Friend WithEvents lblSalesFrom As Label
+    Friend WithEvents dtpSalesFrom As DateTimePicker
+    Friend WithEvents lblSalesTo As Label
+    Friend WithEvents dtpSalesTo As DateTimePicker
+    Friend WithEvents lblSubSalesHint As Label
+    Friend WithEvents btnSalesExport As Button
+    Friend WithEvents dgvMySales As DataGridView
+    Friend WithEvents lblSalesCount As Label
     Friend WithEvents lblVersion As Label
 End Class

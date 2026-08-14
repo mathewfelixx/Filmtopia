@@ -1,4 +1,4 @@
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 
 'this screen is the only one in the program that is about the person using it rather than about
 'the cinema. everything on it is filtered down to whoever is signed in, so there is no picking a
@@ -21,6 +21,12 @@ Public Class frmUserOverview
         LoadActivitySeverityFilter()
         stillLoadingActivity = False
         LoadActivity()
+
+        'a month back for the sales, a week is too short to see much of what you have sold
+        dtpSalesFrom.Value = Date.Today.AddMonths(-1)
+        dtpSalesTo.Value = Date.Today
+        stillLoadingSales = False
+        LoadMySales()
 
         WriteLog("ACCOUNT", "My account screen opened")
     End Sub
@@ -455,6 +461,178 @@ Public Class frmUserOverview
         If ExportGridToCsv(dgvActivity, "MyActivity.csv", "My Account") Then
             WriteLog("ACCOUNT", "Own activity exported, " & dgvActivity.Rows.Count & " entries")
             MessageBox.Show("Your activity has been exported.", "My Account", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        End If
+    End Sub
+
+    'a grid that was filled while its tab was hidden picks its first row when the tab is
+    'finally shown, so the screen opens with a row highlighted that nobody clicked on
+    Private Sub tabMe_SelectedIndexChanged(sender As Object, e As EventArgs) Handles tabMe.SelectedIndexChanged
+        dgvActivity.ClearSelection()
+        dgvMySales.ClearSelection()
+    End Sub
+
+    'SALES TAB ---------------------------------------------------------------------------------
+    'the sales this person took, which is a thing the program could not answer at all until
+    'tblBooking started carrying a LoginID
+
+    'true while the date boxes are being set up, so setting them does not run the query twice
+    Private stillLoadingSales As Boolean = True
+
+    'loads the bookings this login took between the two dates, newest first
+    Private Sub LoadMySales()
+        Dim dt As New DataTable
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+
+            'the seat count is a subquery on tblBookingSeat on its own. it reads one table and
+            'joins nothing, which is the shape that is safe here. the four table join stays out in
+            'the FROM where it belongs, a join inside a subquery is what broke the main menu.
+            'BookingDate has no time of day on it, so the to date can be used as it is. the log
+            'range on the other tab has to add a day to its end date, they look inconsistent side
+            'by side and they are not, the two columns are simply different sorts of date
+            SQLCmd.CommandText = "SELECT tblBooking.BookingID, " &
+                                 "CustomerForename & ' ' & CustomerSurname AS CustomerName, " &
+                                 "FilmTitle, ScreeningDate, ScreeningTime, " &
+                                 "(SELECT COUNT(*) FROM tblBookingSeat AS bs WHERE bs.BookingID = tblBooking.BookingID) AS Seats, " &
+                                 "BookingDate, TotalCost, BookingStatus " &
+                                 "FROM ((tblBooking INNER JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
+                                 "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
+                                 "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
+                                 "WHERE tblBooking.LoginID = @Me AND BookingDate >= @From AND BookingDate <= @To " &
+                                 "ORDER BY tblBooking.BookingID DESC"
+            SQLCmd.Parameters.AddWithValue("@Me", CInt(CurrentLoginID))
+            SQLCmd.Parameters.AddWithValue("@From", dtpSalesFrom.Value.Date)
+            SQLCmd.Parameters.AddWithValue("@To", dtpSalesTo.Value.Date)
+
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            da.Fill(dt)
+            cn.Close()
+        End If
+
+        dgvMySales.DataSource = dt
+
+        If dgvMySales.Columns.Count > 0 Then
+            dgvMySales.Columns("BookingID").HeaderText = "Booking"
+            dgvMySales.Columns("CustomerName").HeaderText = "Customer"
+            dgvMySales.Columns("FilmTitle").HeaderText = "Film"
+            dgvMySales.Columns("ScreeningDate").HeaderText = "Showing"
+            dgvMySales.Columns("ScreeningTime").HeaderText = "Time"
+            dgvMySales.Columns("Seats").HeaderText = "Seats"
+            dgvMySales.Columns("BookingDate").HeaderText = "Sold on"
+            dgvMySales.Columns("TotalCost").HeaderText = "Total"
+            dgvMySales.Columns("BookingStatus").HeaderText = "Status"
+
+            dgvMySales.Columns("BookingID").Width = 70
+            dgvMySales.Columns("CustomerName").Width = 170
+            dgvMySales.Columns("ScreeningDate").Width = 100
+            dgvMySales.Columns("ScreeningTime").Width = 70
+            dgvMySales.Columns("Seats").Width = 60
+            dgvMySales.Columns("BookingDate").Width = 100
+            dgvMySales.Columns("TotalCost").Width = 90
+            dgvMySales.Columns("BookingStatus").Width = 90
+            dgvMySales.Columns("FilmTitle").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+
+            dgvMySales.Columns("ScreeningDate").DefaultCellStyle.Format = "dd/MM/yyyy"
+            dgvMySales.Columns("BookingDate").DefaultCellStyle.Format = "dd/MM/yyyy"
+            dgvMySales.Columns("TotalCost").DefaultCellStyle.Format = "C"
+            dgvMySales.Columns("Seats").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
+            dgvMySales.Columns("TotalCost").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
+
+            'staff are not shown money anywhere, so the column comes off rather than being blanked
+            dgvMySales.Columns("TotalCost").Visible = (UserAccessLevel = 1)
+        End If
+
+        GreyOutCancelled()
+        ShowSalesCount(dt)
+        dgvMySales.ClearSelection()
+    End Sub
+
+    'a cancelled sale is greyed rather than hidden, it still happened and it is still yours.
+    'the colour comes off the theme so it is still readable in dark mode
+    Private Sub GreyOutCancelled()
+        For Each row As DataGridViewRow In dgvMySales.Rows
+            If CellAsText(row, dgvMySales.Columns("BookingStatus").Index) = BookingCancelled Then
+                row.DefaultCellStyle.ForeColor = PastFore
+            End If
+        Next
+    End Sub
+
+    'the line under the grid. it adds the seats and the money up off the table that was just read
+    'rather than asking the database again for something it has already been told
+    Private Sub ShowSalesCount(dt As DataTable)
+        If dt.Rows.Count = 0 Then
+            lblSalesCount.Text = "You did not take any sales between those dates"
+            Exit Sub
+        End If
+
+        Dim seats As Integer = 0
+        Dim money As Double = 0
+        Dim cancelled As Integer = 0
+        Dim i As Integer
+
+        For i = 0 To dt.Rows.Count - 1
+            seats = seats + CInt(dt.Rows(i)("Seats"))
+
+            'a cancelled sale was refunded so it is not money taken, same rule as everywhere else
+            If dt.Rows(i)("BookingStatus").ToString() = BookingCancelled Then
+                cancelled = cancelled + 1
+            Else
+                money = money + CDbl(dt.Rows(i)("TotalCost"))
+            End If
+        Next
+
+        'one sale and one seat read wrong with an s on the end
+        Dim text As String = dt.Rows.Count & " sales"
+        If dt.Rows.Count = 1 Then
+            text = "1 sale"
+        End If
+
+        If seats = 1 Then
+            text = text & ", 1 seat"
+        Else
+            text = text & ", " & seats & " seats"
+        End If
+
+        If UserAccessLevel = 1 Then
+            text = text & ", " & FormatCurrency(money)
+        End If
+
+        If cancelled > 0 Then
+            text = text & " (" & cancelled & " cancelled, not counted)"
+        End If
+
+        lblSalesCount.Text = text
+    End Sub
+
+    'changing either date reloads the list
+    Private Sub SalesDate_Changed(sender As Object, e As EventArgs) Handles dtpSalesFrom.ValueChanged, dtpSalesTo.ValueChanged
+        If stillLoadingSales Then
+            Exit Sub
+        End If
+
+        LoadMySales()
+    End Sub
+
+    'double clicking a sale opens the booking search on it, which is where a booking gets looked
+    'at properly and where it would be cancelled. this screen deliberately cannot change anything
+    Private Sub dgvMySales_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvMySales.CellDoubleClick
+        If e.RowIndex < 0 Then
+            Exit Sub
+        End If
+
+        Dim bookingID As Long = CLng(dgvMySales.Rows(e.RowIndex).Cells("BookingID").Value)
+
+        frmBookingSearch.Show()
+        'after Show on purpose, the form fills its grid as it loads
+        frmBookingSearch.SelectBooking(bookingID)
+    End Sub
+
+    Private Sub btnSalesExport_Click(sender As Object, e As EventArgs) Handles btnSalesExport.Click
+        If ExportGridToCsv(dgvMySales, "MySales.csv", "My Account") Then
+            WriteLog("ACCOUNT", "Own sales exported, " & dgvMySales.Rows.Count & " sales")
+            MessageBox.Show("Your sales have been exported.", "My Account", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
     End Sub
 
