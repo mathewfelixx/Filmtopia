@@ -144,13 +144,11 @@ Public Class frmSalesReport
                                  "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
                                  "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
                                  "WHERE tblBooking.BookingStatus = @Cancelled " &
-                                 "AND tblBooking.CancelledDate BETWEEN @FromDate AND @ToDate " &
+                                 "AND tblBooking.CancelledDate >= @FromDate AND tblBooking.CancelledDate < @ToDate " &
                                  "ORDER BY tblBooking.CancelledDate DESC, tblBooking.BookingID DESC"
             SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
-            'the to date is pushed to the end of that day, otherwise anything cancelled during the
-            'last day is missed because the time on it is later than midnight
-            SQLCmd.Parameters.AddWithValue("@ToDate", toDate.AddDays(1).AddSeconds(-1))
+            SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)
             cn.Close()
@@ -186,11 +184,11 @@ Public Class frmSalesReport
             SQLCmd.CommandText = "SELECT FoodItemName, SUM(Quantity) AS Sold, SUM(Quantity * ItemPricePaid) AS FoodRevenue " &
                                  "FROM (tblOrderItem INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID) " &
                                  "INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID " &
-                                 "WHERE tblBooking.BookingDate BETWEEN @FromDate AND @ToDate " &
+                                 "WHERE tblBooking.BookingDate >= @FromDate AND tblBooking.BookingDate < @ToDate " &
                                  "AND tblBooking.BookingStatus <> @Cancelled " &
                                  "GROUP BY FoodItemName"
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
-            SQLCmd.Parameters.AddWithValue("@ToDate", toDate)
+            SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
             SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)
@@ -285,10 +283,10 @@ Public Class frmSalesReport
                                  "FROM ((tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID) " &
                                  "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
                                  "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
-                                 "WHERE tblBooking.BookingDate BETWEEN @FromDate AND @ToDate " &
+                                 "WHERE tblBooking.BookingDate >= @FromDate AND tblBooking.BookingDate < @ToDate " &
                                  "GROUP BY FilmTitle"
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
-            SQLCmd.Parameters.AddWithValue("@ToDate", toDate)
+            SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)
             cn.Close()
@@ -312,11 +310,11 @@ Public Class frmSalesReport
                                  "INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID) " &
                                  "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
                                  "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
-                                 "WHERE tblBooking.BookingDate BETWEEN @FromDate AND @ToDate " &
+                                 "WHERE tblBooking.BookingDate >= @FromDate AND tblBooking.BookingDate < @ToDate " &
                                  "AND tblBooking.BookingStatus <> @Cancelled " &
                                  "GROUP BY FilmTitle"
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
-            SQLCmd.Parameters.AddWithValue("@ToDate", toDate)
+            SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
             SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)
@@ -350,6 +348,14 @@ Public Class frmSalesReport
         Next
 
         Return False
+    End Function
+
+    'gives back midnight at the start of the day after the one picked. every query then asks for
+    'dates on or after the from date and before this, which takes in the whole of the last day.
+    'BETWEEN was doing the wrong thing here, because a to date of the 5th means midnight on the
+    '5th, so anything with a time later on that day fell outside the range and went missing
+    Private Function PeriodEnd(toDate As Date) As Date
+        Return toDate.Date.AddDays(1)
     End Function
 
     'adds up one money column of a table for the total underneath the grid
