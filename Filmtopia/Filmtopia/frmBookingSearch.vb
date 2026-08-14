@@ -54,6 +54,14 @@ Public Class frmBookingSearch
     End Sub
 
     'searches by booking id if a number was typed, otherwise by customer name
+    'lets another screen open this one already looking at one booking, the same way
+    'frmBookings.SelectScreening lets the menu open that one on a chosen screening.
+    'it has to be called after Show, because the grid is filled when the form loads
+    Public Sub SelectBooking(bookingID As Long)
+        txtSearch.Text = bookingID.ToString()
+        LoadBookings(txtSearch.Text.Trim())
+    End Sub
+
     Private Sub btnSearch_Click(sender As Object, e As EventArgs) Handles btnSearch.Click
         LoadBookings(txtSearch.Text.Trim())
         WriteLog("BOOKING", "Booking search run for '" & txtSearch.Text.Trim() & "'")
