@@ -46,6 +46,16 @@ Public Class frmSalesReport
         WriteLog("REPORT", "Sales report run (" & cboReportType.Text & ") for " & dtpFrom.Value.ToShortDateString() & " to " & dtpTo.Value.ToShortDateString())
     End Sub
 
+    'saves whichever report is on screen. the file is named after the report type so a folder of
+    'them does not end up as four files all called SalesReport
+    Private Sub btnExport_Click(sender As Object, e As EventArgs) Handles btnExport.Click
+        Dim fileName As String = cboReportType.Text.Replace(" ", "") & ".csv"
+
+        If ExportGridToCsv(dgvSalesByFilm, fileName, "Sales Report") Then
+            WriteLog("REPORT", "Sales report exported (" & cboReportType.Text & "), " & dgvSalesByFilm.Rows.Count & " rows")
+        End If
+    End Sub
+
     'runs the report for the date range picked, showing tickets, concessions or both depending
     'on what the show box is set to
     Private Sub RunReport()

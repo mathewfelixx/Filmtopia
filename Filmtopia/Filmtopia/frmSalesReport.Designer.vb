@@ -28,6 +28,7 @@ Partial Class frmSalesReport
         Me.lblTicketRevenue = New System.Windows.Forms.Label()
         Me.lblFoodRevenue = New System.Windows.Forms.Label()
         Me.lblGrandTotal = New System.Windows.Forms.Label()
+        Me.btnExport = New System.Windows.Forms.Button()
         Me.lblVersion = New System.Windows.Forms.Label()
         CType(Me.dgvSalesByFilm, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -143,6 +144,14 @@ Partial Class frmSalesReport
         Me.lblGrandTotal.TabIndex = 10
         Me.lblGrandTotal.Text = "Grand total: £0.00"
         '
+        'btnExport
+        '
+        Me.btnExport.Location = New System.Drawing.Point(470, 54)
+        Me.btnExport.Name = "btnExport"
+        Me.btnExport.Size = New System.Drawing.Size(140, 30)
+        Me.btnExport.Text = "Export to CSV"
+        Me.btnExport.UseVisualStyleBackColor = True
+        '
         'lblVersion
         '
         Me.lblVersion.AutoSize = True
@@ -159,6 +168,7 @@ Partial Class frmSalesReport
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(694, 530)
+        Me.Controls.Add(Me.btnExport)
         Me.Controls.Add(Me.lblVersion)
         Me.Controls.Add(Me.lblGrandTotal)
         Me.Controls.Add(Me.lblFoodRevenue)
@@ -194,5 +204,6 @@ Partial Class frmSalesReport
     Friend WithEvents lblTicketRevenue As Label
     Friend WithEvents lblFoodRevenue As Label
     Friend WithEvents lblGrandTotal As Label
+    Friend WithEvents btnExport As Button
     Friend WithEvents lblVersion As Label
 End Class
