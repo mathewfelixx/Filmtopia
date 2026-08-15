@@ -14,6 +14,14 @@ Public Class frmSalesReport
     'will not fit on a card this narrow
     Private cardTips As New ToolTip
 
+    'where each bar ended up on the chart, and what it was. they are filled in while it is being
+    'drawn rather than being worked out again, so what is drawn and what the mouse finds cannot
+    'disagree with each other
+    Private barRects() As Rectangle
+    Private barLabels() As String
+    Private barValues() As Double
+    Private barCount As Integer = 0
+
     'whatever the report is showing at the moment. it is held on the form rather than being a
     'local in each loader because the grid is not the only thing that reads it any more
     Private reportTable As DataTable
@@ -120,12 +128,20 @@ Public Class frmSalesReport
         pnlCard4.Width = cardWidth
         pnlCard5.Width = cardWidth
 
+        'the chart takes a bit over a third of the width and the grid gets the rest
+        Dim chartWidth As Integer = CInt((Me.ClientSize.Width - edge * 2 - gap) * 0.34)
+
         dgvSalesByFilm.Left = edge
         dgvSalesByFilm.Top = pnlCard1.Bottom + gap
-        dgvSalesByFilm.Width = Me.ClientSize.Width - edge * 2
+        dgvSalesByFilm.Width = Me.ClientSize.Width - edge * 2 - gap - chartWidth
 
         'what is left under the grid has to hold the row count, the three totals and the version
         dgvSalesByFilm.Height = Me.ClientSize.Height - dgvSalesByFilm.Top - 128
+
+        pnlChart.Left = dgvSalesByFilm.Right + gap
+        pnlChart.Top = dgvSalesByFilm.Top
+        pnlChart.Width = chartWidth
+        pnlChart.Height = dgvSalesByFilm.Height
 
         lblGridCount.Left = edge
         lblGridCount.Top = dgvSalesByFilm.Bottom + 6
@@ -587,16 +603,16 @@ Public Class frmSalesReport
     Private Sub SetColumnWidths()
         SetWidth("BookingID", 90)
         SetWidth("CustomerName", 190)
-        SetWidth("ScreeningDate", 110)
-        SetWidth("ScreeningTime", 80)
-        SetWidth("ScreenName", 120)
-        SetWidth("ReportDay", 120)
-        SetWidth("Sold", 90)
-        SetWidth("Tickets", 120)
-        SetWidth("TicketRevenue", 130)
-        SetWidth("FoodRevenue", 130)
-        SetWidth("TotalCost", 120)
-        SetWidth("Total", 120)
+        SetWidth("ScreeningDate", 100)
+        SetWidth("ScreeningTime", 70)
+        SetWidth("ScreenName", 110)
+        SetWidth("ReportDay", 110)
+        SetWidth("Sold", 70)
+        SetWidth("Tickets", 95)
+        SetWidth("TicketRevenue", 110)
+        SetWidth("FoodRevenue", 110)
+        SetWidth("TotalCost", 100)
+        SetWidth("Total", 100)
     End Sub
 
     'sets one column width, but only if this report has that column and it is not the one that
@@ -731,6 +747,9 @@ Public Class frmSalesReport
 
         ShowSortArrow()
         dgvSalesByFilm.ClearSelection()
+
+        'the chart is drawn off the same table, so it has to be redrawn whenever it changes
+        pnlChart.Invalidate()
     End Sub
 
     'fills the grid with the tickets sold and what they came to for each film, and returns the total.
@@ -1158,6 +1177,213 @@ Public Class frmSalesReport
         Return dt
     End Function
 
+    'the panel asks for this whenever it needs repainting, which is after every report and
+    'whenever the colour scheme changes
+    Private Sub pnlChart_Paint(sender As Object, e As PaintEventArgs) Handles pnlChart.Paint
+        DrawChart(e.Graphics, pnlChart.Width, pnlChart.Height)
+    End Sub
+
+    'draws the chart.
+    '
+    'everything is worked out from the width and height it is handed rather than from the panel,
+    'so the same routine can draw onto the screen, onto a printed page or into a picture file.
+    'three copies of this that each drew it slightly differently would be a lot worse
+    Private Sub DrawChart(g As Graphics, wide As Integer, high As Integer)
+        'this can be asked to draw before the form has finished loading, so the colours are
+        'filled in first rather than being left as nothing
+        SetThemeColours()
+
+        g.Clear(GridBack)
+        g.DrawRectangle(New Pen(BorderCol), 0, 0, wide - 1, high - 1)
+
+        Dim titleFont As New Font("Segoe UI", 9.75, FontStyle.Bold)
+        Dim smallFont As New Font("Segoe UI", 8.25)
+        Dim faded As New SolidBrush(SubtleFore)
+
+        barCount = 0
+
+        If reportTable Is Nothing OrElse reportTable.Rows.Count = 0 Then
+            g.DrawString("Nothing to chart", smallFont, faded, 12, 12)
+            Exit Sub
+        End If
+
+        Dim labelColumn As String = ChartLabelColumn()
+        Dim valueColumn As String = ChartValueColumn()
+
+        If labelColumn = "" Or valueColumn = "" Then
+            g.DrawString("This report has nothing to chart", smallFont, faded, 12, 12)
+            Exit Sub
+        End If
+
+        g.DrawString(ChartTitle(), titleFont, New SolidBrush(TextFore), 10, 8)
+
+        If cboReportType.Text = "By day" Then
+            DrawDayChart(g, wide, high, labelColumn, valueColumn, smallFont, faded)
+        Else
+            DrawBarChart(g, wide, high, labelColumn, valueColumn, smallFont, faded)
+        End If
+    End Sub
+
+    'a bar per row, lying on its side so the names have somewhere to go. the rows are taken in
+    'whatever order the grid is showing them in, so sorting the grid reorders the chart as well
+    Private Sub DrawBarChart(g As Graphics, wide As Integer, high As Integer, labelColumn As String, valueColumn As String, smallFont As Font, faded As Brush)
+        Dim top As Integer = 32
+        Dim room As Integer = high - top - 10
+
+        'a bar thinner than this cannot be read, so only as many are drawn as will fit
+        Dim barHeight As Integer = 22
+        Dim howMany As Integer = room \ barHeight
+
+        If howMany > reportTable.Rows.Count Then
+            howMany = reportTable.Rows.Count
+        End If
+
+        If howMany < 1 Then
+            g.DrawString("Not enough room to draw this", smallFont, faded, 12, top)
+            Exit Sub
+        End If
+
+        Dim biggest As Double = BiggestValue(valueColumn, howMany)
+
+        If biggest <= 0 Then
+            g.DrawString("Nothing was taken in this range", smallFont, faded, 12, top)
+            Exit Sub
+        End If
+
+        'room down the left for the names, but never more than about half the panel
+        Dim nameRoom As Integer = CInt(wide * 0.42)
+
+        If nameRoom > 140 Then
+            nameRoom = 140
+        End If
+
+        Dim barLeft As Integer = nameRoom + 6
+        Dim barRoom As Integer = wide - barLeft - 10
+
+        ReDim barRects(howMany - 1)
+        ReDim barLabels(howMany - 1)
+        ReDim barValues(howMany - 1)
+        barCount = howMany
+
+        For i As Integer = 0 To howMany - 1
+            Dim value As Double = RowValue(i, valueColumn)
+            Dim name As String = RowLabel(i, labelColumn)
+            Dim y As Integer = top + (i * barHeight)
+
+            'the longest bar fills the room, everything else is drawn against that
+            Dim length As Integer = CInt((value / biggest) * barRoom)
+
+            'something that sold anything at all still gets a sliver, so it does not look like
+            'it sold nothing
+            If length < 1 And value > 0 Then
+                length = 1
+            End If
+
+            Dim paint As Color = AccentFore
+
+            'the best one is picked out in the brand pink so it is obvious at a glance
+            If value >= biggest Then
+                paint = HighlightBack
+            End If
+
+            g.FillRectangle(New SolidBrush(paint), barLeft, y + 3, length, barHeight - 8)
+
+            g.DrawString(FitText(g, name, smallFont, nameRoom - 12), smallFont, New SolidBrush(TextFore), 10, y + 3)
+
+            'the amount goes just past the end of the bar, unless there is no room left, in
+            'which case it goes inside it
+            Dim amount As String = ChartValueText(value)
+            Dim amountWidth As Integer = CInt(g.MeasureString(amount, smallFont).Width)
+
+            If barLeft + length + amountWidth + 4 < wide Then
+                g.DrawString(amount, smallFont, faded, barLeft + length + 4, y + 3)
+            ElseIf length > amountWidth + 8 Then
+                'the longest bar reaches the edge, so its amount goes inside it instead. the
+                'writing is done in the grid background colour, which is the one colour that is
+                'always the opposite of the bar, whichever way round the theme is
+                g.DrawString(amount, smallFont, New SolidBrush(GridBack), barLeft + length - amountWidth - 4, y + 3)
+            End If
+
+            barRects(i) = New Rectangle(barLeft, y, barRoom, barHeight)
+            barLabels(i) = name
+            barValues(i) = value
+        Next
+
+        'if there was not room for all of them, say so rather than quietly leaving them off
+        If howMany < reportTable.Rows.Count Then
+            g.DrawString("+ " & (reportTable.Rows.Count - howMany) & " more, make the window taller", smallFont, faded, 10, top + (howMany * barHeight) + 2)
+        End If
+    End Sub
+
+    'standing up rather than lying down, because a day chart reads left to right
+    Private Sub DrawDayChart(g As Graphics, wide As Integer, high As Integer, labelColumn As String, valueColumn As String, smallFont As Font, faded As Brush)
+        Dim top As Integer = 32
+        Dim bottom As Integer = high - 24
+        Dim left As Integer = 10
+        Dim across As Integer = wide - left - 10
+        Dim howMany As Integer = reportTable.Rows.Count
+
+        Dim columnWidth As Integer = across \ howMany
+
+        If columnWidth < 2 Or bottom - top < 20 Then
+            g.DrawString("Too many days to draw here", smallFont, faded, 12, top)
+            Exit Sub
+        End If
+
+        Dim biggest As Double = BiggestValue(valueColumn, howMany)
+
+        If biggest <= 0 Then
+            g.DrawString("Nothing was taken in this range", smallFont, faded, 12, top)
+            Exit Sub
+        End If
+
+        'the line the columns stand on
+        g.DrawLine(New Pen(BorderCol), left, bottom, left + (howMany * columnWidth), bottom)
+
+        ReDim barRects(howMany - 1)
+        ReDim barLabels(howMany - 1)
+        ReDim barValues(howMany - 1)
+        barCount = howMany
+
+        'a gap between the columns, but not on the thin ones or there would be nothing left
+        Dim gap As Integer = 2
+
+        If columnWidth < 8 Then
+            gap = 1
+        End If
+
+        For i As Integer = 0 To howMany - 1
+            Dim value As Double = RowValue(i, valueColumn)
+            Dim x As Integer = left + (i * columnWidth)
+            Dim tall As Integer = CInt((value / biggest) * (bottom - top))
+
+            If tall < 1 And value > 0 Then
+                tall = 1
+            End If
+
+            Dim paint As Color = AccentFore
+
+            If value >= biggest Then
+                paint = HighlightBack
+            End If
+
+            If tall > 0 Then
+                g.FillRectangle(New SolidBrush(paint), x, bottom - tall, columnWidth - gap, tall)
+            End If
+
+            barRects(i) = New Rectangle(x, top, columnWidth, bottom - top)
+            barLabels(i) = RowLabel(i, labelColumn)
+            barValues(i) = value
+        Next
+
+        'the first and last day are written under the ends, the rest would not fit
+        g.DrawString(ShortDay(0), smallFont, faded, left, bottom + 4)
+
+        Dim lastText As String = ShortDay(howMany - 1)
+        Dim lastWidth As Integer = CInt(g.MeasureString(lastText, smallFont).Width)
+        g.DrawString(lastText, smallFont, faded, wide - 10 - lastWidth, bottom + 4)
+    End Sub
+
     'sorts the report by one of its columns.
     '
     'what actually gets sorted is a list of row numbers, not the rows. that way nothing big is
@@ -1301,6 +1527,128 @@ Public Class frmSalesReport
         Else
             Return 0
         End If
+    End Function
+
+    'the biggest value in the first so many rows, which is what the bars are scaled against.
+    'only the rows being drawn are looked at, otherwise a big one further down the list that is
+    'not on the chart would squash everything that is
+    Private Function BiggestValue(valueColumn As String, howMany As Integer) As Double
+        Dim biggest As Double = 0
+
+        For i As Integer = 0 To howMany - 1
+            If RowValue(i, valueColumn) > biggest Then
+                biggest = RowValue(i, valueColumn)
+            End If
+        Next
+
+        Return biggest
+    End Function
+
+    'one value off the report, with an empty cell counting as nothing
+    Private Function RowValue(rowIndex As Integer, valueColumn As String) As Double
+        If IsDBNull(reportTable.Rows(rowIndex)(valueColumn)) Then
+            Return 0
+        End If
+
+        Return CDbl(reportTable.Rows(rowIndex)(valueColumn))
+    End Function
+
+    'what to write beside a bar
+    Private Function RowLabel(rowIndex As Integer, labelColumn As String) As String
+        If IsDBNull(reportTable.Rows(rowIndex)(labelColumn)) Then
+            Return ""
+        End If
+
+        If labelColumn = "ReportDay" Then
+            Return CDate(reportTable.Rows(rowIndex)(labelColumn)).ToString("dd/MM/yyyy")
+        End If
+
+        Return reportTable.Rows(rowIndex)(labelColumn).ToString()
+    End Function
+
+    'the short form of a day, for the two ends of the day chart
+    Private Function ShortDay(rowIndex As Integer) As String
+        Return CDate(reportTable.Rows(rowIndex)("ReportDay")).ToString("dd/MM")
+    End Function
+
+    'the cancellations report counts bookings, everything else counts money
+    Private Function ChartValueText(value As Double) As String
+        Return FormatCurrency(value)
+    End Function
+
+    'the column the bars are sized from. the reports that show both put the two together in a
+    'Total column, so that one is looked for first
+    Private Function ChartValueColumn() As String
+        If reportTable Is Nothing Then
+            Return ""
+        End If
+
+        If reportTable.Columns.Contains("Total") Then
+            Return "Total"
+        End If
+
+        If reportTable.Columns.Contains("TicketRevenue") Then
+            Return "TicketRevenue"
+        End If
+
+        If reportTable.Columns.Contains("FoodRevenue") Then
+            Return "FoodRevenue"
+        End If
+
+        If reportTable.Columns.Contains("TotalCost") Then
+            Return "TotalCost"
+        End If
+
+        Return ""
+    End Function
+
+    'what goes along the bottom or down the side of the chart
+    Private Function ChartLabelColumn() As String
+        If reportTable Is Nothing Then
+            Return ""
+        End If
+
+        If reportTable.Columns.Contains("ReportDay") Then
+            Return "ReportDay"
+        End If
+
+        Return NameColumn()
+    End Function
+
+    'what the chart is showing, written across the top of it
+    Private Function ChartTitle() As String
+        If cboReportType.Text = "By day" Then
+            Return "Ticket revenue by day"
+        ElseIf cboReportType.Text = "Concessions only" Then
+            Return "Revenue by item"
+        ElseIf cboReportType.Text = "By screen" Then
+            Return "Ticket revenue by screen"
+        ElseIf cboReportType.Text = "By screening" Then
+            Return "Ticket revenue by screening"
+        ElseIf cboReportType.Text = "By staff member" Then
+            Return "Ticket revenue by person"
+        ElseIf cboReportType.Text = "Cancellations" Then
+            Return "Refunded"
+        ElseIf cboReportType.Text = "Tickets only" Then
+            Return "Ticket revenue by film"
+        Else
+            Return "Takings by film"
+        End If
+    End Function
+
+    'cuts a name down with dots on the end until it fits the room there is for it
+    Private Function FitText(g As Graphics, text As String, useFont As Font, room As Integer) As String
+        If g.MeasureString(text, useFont).Width <= room Then
+            Return text
+        End If
+
+        Dim shorter As String = text
+
+        Do While shorter.Length > 1 AndAlso g.MeasureString(shorter & "...", useFont).Width > room
+            shorter = shorter.Substring(0, shorter.Length - 1)
+        Loop
+
+        Return shorter & "..."
     End Function
 
     'the column holding the name on whichever report is showing. by screening has two of them, so
