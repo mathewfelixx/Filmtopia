@@ -122,7 +122,7 @@ Partial Class frmSalesReport
         'lblMeasureBy
         '
         Me.lblMeasureBy.AutoSize = True
-        Me.lblMeasureBy.Location = New System.Drawing.Point(16, 99)
+        Me.lblMeasureBy.Location = New System.Drawing.Point(360, 60)
         Me.lblMeasureBy.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblMeasureBy.Name = "lblMeasureBy"
         Me.lblMeasureBy.Size = New System.Drawing.Size(80, 16)
@@ -133,16 +133,16 @@ Partial Class frmSalesReport
         '
         Me.cboMeasureBy.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cboMeasureBy.FormattingEnabled = True
-        Me.cboMeasureBy.Location = New System.Drawing.Point(110, 95)
+        Me.cboMeasureBy.Location = New System.Drawing.Point(455, 56)
         Me.cboMeasureBy.Margin = New System.Windows.Forms.Padding(4)
         Me.cboMeasureBy.Name = "cboMeasureBy"
-        Me.cboMeasureBy.Size = New System.Drawing.Size(225, 24)
+        Me.cboMeasureBy.Size = New System.Drawing.Size(200, 24)
         Me.cboMeasureBy.TabIndex = 14
         '
         'lblFind
         '
         Me.lblFind.AutoSize = True
-        Me.lblFind.Location = New System.Drawing.Point(352, 99)
+        Me.lblFind.Location = New System.Drawing.Point(16, 102)
         Me.lblFind.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblFind.Name = "lblFind"
         Me.lblFind.Size = New System.Drawing.Size(35, 16)
@@ -151,18 +151,18 @@ Partial Class frmSalesReport
         '
         'txtFind
         '
-        Me.txtFind.Location = New System.Drawing.Point(398, 95)
+        Me.txtFind.Location = New System.Drawing.Point(85, 98)
         Me.txtFind.Margin = New System.Windows.Forms.Padding(4)
         Me.txtFind.Name = "txtFind"
-        Me.txtFind.Size = New System.Drawing.Size(180, 22)
+        Me.txtFind.Size = New System.Drawing.Size(220, 22)
         Me.txtFind.TabIndex = 16
         '
         'btnFind
         '
-        Me.btnFind.Location = New System.Drawing.Point(590, 93)
+        Me.btnFind.Location = New System.Drawing.Point(315, 96)
         Me.btnFind.Margin = New System.Windows.Forms.Padding(4)
         Me.btnFind.Name = "btnFind"
-        Me.btnFind.Size = New System.Drawing.Size(88, 26)
+        Me.btnFind.Size = New System.Drawing.Size(90, 26)
         Me.btnFind.TabIndex = 17
         Me.btnFind.Text = "Find"
         Me.btnFind.UseVisualStyleBackColor = True
@@ -231,7 +231,7 @@ Partial Class frmSalesReport
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(694, 568)
+        Me.ClientSize = New System.Drawing.Size(1100, 720)
         Me.Controls.Add(Me.btnFind)
         Me.Controls.Add(Me.txtFind)
         Me.Controls.Add(Me.lblFind)
@@ -253,8 +253,7 @@ Partial Class frmSalesReport
         Me.Controls.Add(Me.lblFrom)
         Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Name = "frmSalesReport"
-        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
-        Me.MaximizeBox = False
+        Me.MinimumSize = New System.Drawing.Size(920, 640)
         Me.Text = "Sales Report"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         CType(Me.dgvSalesByFilm, System.ComponentModel.ISupportInitialize).EndInit()

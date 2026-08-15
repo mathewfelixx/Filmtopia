@@ -49,6 +49,8 @@ Public Class frmSalesReport
 
         stillLoading = False
 
+        LayoutReport()
+
         RunReport()
         WriteLog("REPORT", "Sales report form opened")
     End Sub
@@ -60,6 +62,52 @@ Public Class frmSalesReport
         End If
 
         RunReport()
+    End Sub
+
+    'arranges everything that is not part of the filter bar. the grid and the labels under it are
+    'worked out from how big the window is now, so the form can be resized and maximised instead
+    'of being stuck at one size. the filter bar itself stays where the designer put it, apart
+    'from the two buttons that are pinned to the right hand end
+    Private Sub LayoutReport()
+        'this fires once while the form is still being built, before there is anything to move
+        If dgvSalesByFilm Is Nothing Then
+            Exit Sub
+        End If
+
+        Dim edge As Integer = 16
+        Dim gap As Integer = 12
+
+        'run and export are lined up against the right hand end, one per row
+        btnRunReport.Left = Me.ClientSize.Width - edge - btnRunReport.Width
+        btnExport.Left = Me.ClientSize.Width - edge - btnExport.Width
+
+        dgvSalesByFilm.Left = edge
+        dgvSalesByFilm.Top = 136
+        dgvSalesByFilm.Width = Me.ClientSize.Width - edge * 2
+
+        'what is left under the grid has to hold the row count, the three totals and the version
+        dgvSalesByFilm.Height = Me.ClientSize.Height - dgvSalesByFilm.Top - 128
+
+        lblGridCount.Left = edge
+        lblGridCount.Top = dgvSalesByFilm.Bottom + 6
+
+        lblTicketRevenue.Left = edge
+        lblTicketRevenue.Top = lblGridCount.Bottom + 8
+
+        lblFoodRevenue.Left = edge
+        lblFoodRevenue.Top = lblTicketRevenue.Bottom + 4
+
+        'the big total is put over on the right so it is not buried under the other two
+        lblGrandTotal.Top = lblGridCount.Bottom + 12
+        lblGrandTotal.Left = Me.ClientSize.Width - edge - lblGrandTotal.Width
+
+        lblVersion.Left = edge
+        lblVersion.Top = Me.ClientSize.Height - lblVersion.Height - 8
+    End Sub
+
+    'resizing the window lays it out again
+    Private Sub frmSalesReport_Resize(sender As Object, e As EventArgs) Handles MyBase.Resize
+        LayoutReport()
     End Sub
 
     'measuring by a different date runs the report again, same as changing the show box
@@ -229,6 +277,10 @@ Public Class frmSalesReport
 
         Me.Cursor = Cursors.Default
         ShowCount()
+
+        'the totals are autosize labels, so they are a different width once they have been
+        'written into and the right hand one has to be lined up again
+        LayoutReport()
 
         Return True
     End Function
