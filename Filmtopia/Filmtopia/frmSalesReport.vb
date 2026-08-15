@@ -593,6 +593,13 @@ Public Class frmSalesReport
     'puts the table that has just been built onto the grid, then tidies the columns for whichever
     'report it is. this used to be written out again at the bottom of every one of the loaders
     Private Sub ShowReport()
+        'the old columns are thrown away first. if the report being swapped to has a column with
+        'the same name as one the last report had, the grid keeps the old column, and it keeps
+        'where that column was sitting as well. going from tickets and concessions to by day left
+        'ticket revenue in front of tickets sold, because that is where it had been before
+        dgvSalesByFilm.DataSource = Nothing
+        dgvSalesByFilm.Columns.Clear()
+
         dgvSalesByFilm.DataSource = reportTable
 
         If dgvSalesByFilm.Columns.Count = 0 Then
