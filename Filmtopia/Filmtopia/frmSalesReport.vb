@@ -22,6 +22,11 @@ Public Class frmSalesReport
     Private barValues() As Double
     Private barCount As Integer = 0
 
+    'which bar the mouse is over at the moment. the tip is only changed when it moves onto a
+    'different bar, because setting it on every single mouse move makes it flicker on and off
+    Private hoverBar As Integer = -1
+    Private chartTips As New ToolTip
+
     'whatever the report is showing at the moment. it is held on the form rather than being a
     'local in each loader because the grid is not the only thing that reads it any more
     Private reportTable As DataTable
@@ -750,6 +755,10 @@ Public Class frmSalesReport
 
         'the chart is drawn off the same table, so it has to be redrawn whenever it changes
         pnlChart.Invalidate()
+
+        'the bars are about to be worked out again, so whichever one was under the mouse is not
+        'that bar any more
+        hoverBar = -1
     End Sub
 
     'fills the grid with the tickets sold and what they came to for each film, and returns the total.
@@ -1175,6 +1184,60 @@ Public Class frmSalesReport
         End If
 
         Return dt
+    End Function
+
+    'says what a bar is when the mouse rests on it, since the names beside them get cut short
+    Private Sub pnlChart_MouseMove(sender As Object, e As MouseEventArgs) Handles pnlChart.MouseMove
+        Dim over As Integer = BarAt(e.X, e.Y)
+
+        If over = hoverBar Then
+            Exit Sub
+        End If
+
+        hoverBar = over
+
+        If over = -1 Then
+            chartTips.SetToolTip(pnlChart, "")
+            pnlChart.Cursor = Cursors.Default
+        Else
+            chartTips.SetToolTip(pnlChart, barLabels(over) & " - " & FormatCurrency(barValues(over)))
+            pnlChart.Cursor = Cursors.Hand
+        End If
+    End Sub
+
+    'coming off the chart forgets whichever bar was last under the mouse
+    Private Sub pnlChart_MouseLeave(sender As Object, e As EventArgs) Handles pnlChart.MouseLeave
+        hoverBar = -1
+        chartTips.SetToolTip(pnlChart, "")
+        pnlChart.Cursor = Cursors.Default
+    End Sub
+
+    'clicking a bar picks the row it came from out in the grid, so the two line up
+    Private Sub pnlChart_MouseDown(sender As Object, e As MouseEventArgs) Handles pnlChart.MouseDown
+        Dim hit As Integer = BarAt(e.X, e.Y)
+
+        If hit = -1 Or hit >= dgvSalesByFilm.Rows.Count Then
+            Exit Sub
+        End If
+
+        dgvSalesByFilm.ClearSelection()
+        dgvSalesByFilm.Rows(hit).Selected = True
+        dgvSalesByFilm.FirstDisplayedScrollingRowIndex = hit
+    End Sub
+
+    'which bar is under the mouse, or -1 if it is not on one.
+    '
+    'the rectangles are the ones saved while the chart was being drawn, not worked out again here.
+    'working them out twice is how the drawing and the clicking end up disagreeing, and then the
+    'bar that lights up is not the one under the mouse
+    Private Function BarAt(x As Integer, y As Integer) As Integer
+        For i As Integer = 0 To barCount - 1
+            If barRects(i).Contains(x, y) Then
+                Return i
+            End If
+        Next
+
+        Return -1
     End Function
 
     'the panel asks for this whenever it needs repainting, which is after every report and
