@@ -137,6 +137,7 @@ Partial Class frmSalesReport
         Me.dgvSalesByFilm.Margin = New System.Windows.Forms.Padding(4)
         Me.dgvSalesByFilm.Name = "dgvSalesByFilm"
         Me.dgvSalesByFilm.ReadOnly = True
+        Me.dgvSalesByFilm.RowHeadersVisible = False
         Me.dgvSalesByFilm.RowHeadersWidth = 51
         Me.dgvSalesByFilm.Size = New System.Drawing.Size(660, 250)
         Me.dgvSalesByFilm.TabIndex = 7

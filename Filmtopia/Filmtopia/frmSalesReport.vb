@@ -10,6 +10,10 @@ Public Class frmSalesReport
     'for somebody changing a date by hand and knock the quick range back to Custom
     Private settingDates As Boolean = False
 
+    'the little bits of help that show when the mouse rests on a card. they say the things that
+    'will not fit on a card this narrow
+    Private cardTips As New ToolTip
+
     'whatever the report is showing at the moment. it is held on the form rather than being a
     'local in each loader because the grid is not the only thing that reads it any more
     Private reportTable As DataTable
@@ -68,6 +72,7 @@ Public Class frmSalesReport
         stillLoading = False
 
         LayoutReport()
+        SetCardTips()
 
         RunReport()
         WriteLog("REPORT", "Sales report form opened")
@@ -475,7 +480,8 @@ Public Class frmSalesReport
         End If
 
         lblStat1.Text = FormatCurrency(ticketMoney + foodMoney)
-        lblCardSub1.Text = "tickets " & FormatCurrency(ticketMoney) & ", snacks " & FormatCurrency(foodMoney)
+        'just the two figures, the card is not wide enough to say which is which. the tip does
+        lblCardSub1.Text = FormatCurrency(ticketMoney) & " + " & FormatCurrency(foodMoney)
 
         lblStat2.Text = tickets.ToString()
 
@@ -504,6 +510,27 @@ Public Class frmSalesReport
             lblStat4.Text = "-"
             lblCardSub4.Text = "nothing was on"
         End If
+    End Sub
+
+    'puts the same bit of help on a card and all three of its labels, so it shows wherever the
+    'mouse happens to be sitting on the card
+    Private Sub TipCard(card As Panel, title As Label, value As Label, sub1 As Label, message As String)
+        cardTips.SetToolTip(card, message)
+        cardTips.SetToolTip(title, message)
+        cardTips.SetToolTip(value, message)
+        cardTips.SetToolTip(sub1, message)
+    End Sub
+
+    'explains what the five figures along the top actually mean
+    Private Sub SetCardTips()
+        cardTips.AutoPopDelay = 8000
+        cardTips.InitialDelay = 500
+
+        TipCard(pnlCard1, lblCardTitle1, lblStat1, lblCardSub1, "Everything taken in this range, tickets plus concessions. The small line is tickets first, then concessions.")
+        TipCard(pnlCard2, lblCardTitle2, lblStat2, lblCardSub2, "How many seats were sold in this range.")
+        TipCard(pnlCard3, lblCardTitle3, lblStat3, lblCardSub3, "What the average seat sold for. Premium and accessible seats cost a different amount, so this sits somewhere between them.")
+        TipCard(pnlCard4, lblCardTitle4, lblStat4, lblCardSub4, "How full the screenings that played in this range were. This one always goes on the screening date, even when the report is measured on the booking date, because a seat sold last month for a film showing this month still filled a seat this month. That is why this count can differ from the tickets sold card.")
+        TipCard(pnlCard5, lblCardTitle5, lblStat5, lblCardSub5, "How much was spent on food and drink for every ticket sold.")
     End Sub
 
     'the three parameters every one of the range queries wants, put on in the order the query
@@ -552,6 +579,33 @@ Public Class frmSalesReport
             lblGridCount.Text = "1 " & thing
         Else
             lblGridCount.Text = shown & " " & things
+        End If
+    End Sub
+
+    'the number columns are given a width so their headings do not wrap onto two lines. only the
+    'one text column is left filling whatever space is left over
+    Private Sub SetColumnWidths()
+        SetWidth("BookingID", 90)
+        SetWidth("CustomerName", 190)
+        SetWidth("ScreeningDate", 110)
+        SetWidth("ScreeningTime", 80)
+        SetWidth("ScreenName", 120)
+        SetWidth("ReportDay", 120)
+        SetWidth("Sold", 90)
+        SetWidth("Tickets", 120)
+        SetWidth("TicketRevenue", 130)
+        SetWidth("FoodRevenue", 130)
+        SetWidth("TotalCost", 120)
+        SetWidth("Total", 120)
+    End Sub
+
+    'sets one column width, but only if this report has that column and it is not the one that
+    'has been left to fill the space. a filling column works its own width out
+    Private Sub SetWidth(columnName As String, wide As Integer)
+        If dgvSalesByFilm.Columns.Contains(columnName) Then
+            If dgvSalesByFilm.Columns(columnName).AutoSizeMode <> DataGridViewAutoSizeColumnMode.Fill Then
+                dgvSalesByFilm.Columns(columnName).Width = wide
+            End If
         End If
     End Sub
 
@@ -666,6 +720,8 @@ Public Class frmSalesReport
             dgvSalesByFilm.Columns("FoodRevenue").DefaultCellStyle.Format = "C"
             dgvSalesByFilm.Columns("Total").DefaultCellStyle.Format = "C"
         End If
+
+        SetColumnWidths()
 
         'the grid is told not to sort itself. the sorting is done in code further down, and if the
         'grid also sorted then clicking a heading would run both and they would fight over the order
