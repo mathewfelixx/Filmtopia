@@ -36,6 +36,8 @@ Partial Class frmSalesReport
         Me.lblFind = New System.Windows.Forms.Label()
         Me.txtFind = New System.Windows.Forms.TextBox()
         Me.btnFind = New System.Windows.Forms.Button()
+        Me.lblQuick = New System.Windows.Forms.Label()
+        Me.cboQuickRange = New System.Windows.Forms.ComboBox()
         CType(Me.dgvSalesByFilm, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -139,6 +141,26 @@ Partial Class frmSalesReport
         Me.cboMeasureBy.Size = New System.Drawing.Size(200, 24)
         Me.cboMeasureBy.TabIndex = 14
         '
+        'lblQuick
+        '
+        Me.lblQuick.AutoSize = True
+        Me.lblQuick.Location = New System.Drawing.Point(470, 18)
+        Me.lblQuick.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblQuick.Name = "lblQuick"
+        Me.lblQuick.Size = New System.Drawing.Size(45, 16)
+        Me.lblQuick.TabIndex = 18
+        Me.lblQuick.Text = "Quick"
+        '
+        'cboQuickRange
+        '
+        Me.cboQuickRange.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboQuickRange.FormattingEnabled = True
+        Me.cboQuickRange.Location = New System.Drawing.Point(540, 14)
+        Me.cboQuickRange.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboQuickRange.Name = "cboQuickRange"
+        Me.cboQuickRange.Size = New System.Drawing.Size(190, 24)
+        Me.cboQuickRange.TabIndex = 19
+        '
         'lblFind
         '
         Me.lblFind.AutoSize = True
@@ -232,6 +254,8 @@ Partial Class frmSalesReport
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1100, 720)
+        Me.Controls.Add(Me.cboQuickRange)
+        Me.Controls.Add(Me.lblQuick)
         Me.Controls.Add(Me.btnFind)
         Me.Controls.Add(Me.txtFind)
         Me.Controls.Add(Me.lblFind)
@@ -281,4 +305,6 @@ Partial Class frmSalesReport
     Friend WithEvents lblFind As Label
     Friend WithEvents txtFind As TextBox
     Friend WithEvents btnFind As Button
+    Friend WithEvents lblQuick As Label
+    Friend WithEvents cboQuickRange As ComboBox
 End Class

@@ -6,6 +6,10 @@ Public Class frmSalesReport
     'before the dates have been put in
     Private stillLoading As Boolean = True
 
+    'true while a quick range is filling the two date boxes in, so that does not get mistaken
+    'for somebody changing a date by hand and knock the quick range back to Custom
+    Private settingDates As Boolean = False
+
     'whatever the report is showing at the moment. it is held on the form rather than being a
     'local in each loader because the grid is not the only thing that reads it any more
     Private reportTable As DataTable
@@ -46,6 +50,20 @@ Public Class frmSalesReport
         cboMeasureBy.Items.Add("Booking date")
         cboMeasureBy.Items.Add("Screening date")
         cboMeasureBy.SelectedIndex = 0
+
+        'the ranges somebody would actually ask for, so the dates do not have to be picked out
+        'by hand every time. Custom is what it says when they have been
+        cboQuickRange.Items.Add("Today")
+        cboQuickRange.Items.Add("Yesterday")
+        cboQuickRange.Items.Add("This week")
+        cboQuickRange.Items.Add("This month")
+        cboQuickRange.Items.Add("Last month")
+        cboQuickRange.Items.Add("This year")
+        cboQuickRange.Items.Add("All time")
+        cboQuickRange.Items.Add("Custom")
+
+        'the dates above were already set to this month, so the box is put on the one that matches
+        cboQuickRange.SelectedIndex = cboQuickRange.Items.IndexOf("This month")
 
         stillLoading = False
 
@@ -108,6 +126,69 @@ Public Class frmSalesReport
     'resizing the window lays it out again
     Private Sub frmSalesReport_Resize(sender As Object, e As EventArgs) Handles MyBase.Resize
         LayoutReport()
+    End Sub
+
+    'picking a quick range fills the two date boxes in and runs the report
+    Private Sub cboQuickRange_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboQuickRange.SelectedIndexChanged
+        If stillLoading Then
+            Exit Sub
+        End If
+
+        'Custom is not a range, it is just what the box says once the dates have been touched
+        If cboQuickRange.Text = "Custom" Then
+            Exit Sub
+        End If
+
+        Dim firstDay As Date = Date.Today
+        Dim lastDay As Date = Date.Today
+
+        If cboQuickRange.Text = "Yesterday" Then
+            firstDay = Date.Today.AddDays(-1)
+            lastDay = firstDay
+
+        ElseIf cboQuickRange.Text = "This week" Then
+            'the week is taken as starting on a monday. windows counts sunday as 0, so taking one
+            'off puts monday at 0 and leaves sunday at -1, which has to be turned into 6
+            Dim daysBack As Integer = CInt(Date.Today.DayOfWeek) - 1
+
+            If daysBack < 0 Then
+                daysBack = 6
+            End If
+
+            firstDay = Date.Today.AddDays(-daysBack)
+
+        ElseIf cboQuickRange.Text = "This month" Then
+            firstDay = New Date(Date.Today.Year, Date.Today.Month, 1)
+
+        ElseIf cboQuickRange.Text = "Last month" Then
+            'the day before the first of this month is the last day of last month, whatever
+            'length that month was
+            Dim monthStart As Date = New Date(Date.Today.Year, Date.Today.Month, 1)
+            firstDay = monthStart.AddMonths(-1)
+            lastDay = monthStart.AddDays(-1)
+
+        ElseIf cboQuickRange.Text = "This year" Then
+            firstDay = New Date(Date.Today.Year, 1, 1)
+
+        ElseIf cboQuickRange.Text = "All time" Then
+            firstDay = EarliestOnRecord()
+        End If
+
+        settingDates = True
+        dtpFrom.Value = firstDay
+        dtpTo.Value = lastDay
+        settingDates = False
+
+        RunReport()
+    End Sub
+
+    'changing either date by hand means the range is not one of the quick ones any more
+    Private Sub DatePickedByHand(sender As Object, e As EventArgs) Handles dtpFrom.ValueChanged, dtpTo.ValueChanged
+        If stillLoading Or settingDates Then
+            Exit Sub
+        End If
+
+        cboQuickRange.SelectedIndex = cboQuickRange.Items.IndexOf("Custom")
     End Sub
 
     'measuring by a different date runs the report again, same as changing the show box
@@ -1110,6 +1191,36 @@ Public Class frmSalesReport
         Else
             Return 0
         End If
+    End Function
+
+    'the oldest date there is anything on record for, so All time really does cover all of it.
+    'both tables are asked, because the report can be measured against either date and the
+    'oldest screening is not necessarily on the same day as the oldest booking
+    Private Function EarliestOnRecord() As Date
+        Dim earliest As Date = New Date(Date.Today.Year, 1, 1)
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT MIN(BookingDate) FROM tblBooking"
+            Dim oldestBooking As Object = SQLCmd.ExecuteScalar()
+
+            SQLCmd.CommandText = "SELECT MIN(ScreeningDate) FROM tblScreening"
+            Dim oldestScreening As Object = SQLCmd.ExecuteScalar()
+            cn.Close()
+
+            If oldestBooking IsNot Nothing AndAlso Not IsDBNull(oldestBooking) Then
+                earliest = CDate(oldestBooking)
+            End If
+
+            If oldestScreening IsNot Nothing AndAlso Not IsDBNull(oldestScreening) Then
+                If CDate(oldestScreening) < earliest Then
+                    earliest = CDate(oldestScreening)
+                End If
+            End If
+        End If
+
+        Return earliest.Date
     End Function
 
     'gives back midnight at the start of the day after the one picked. every query then asks for
