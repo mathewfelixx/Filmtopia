@@ -99,8 +99,24 @@ Public Class frmSalesReport
         btnRunReport.Left = Me.ClientSize.Width - edge - btnRunReport.Width
         btnExport.Left = Me.ClientSize.Width - edge - btnExport.Width
 
+        'the five cards share the width between them. the last one is pinned to the right hand
+        'end rather than worked out, so the rounding off in the divide does not leave a gap
+        Dim cardWidth As Integer = (Me.ClientSize.Width - edge * 2 - gap * 4) \ 5
+
+        pnlCard1.Left = edge
+        pnlCard2.Left = edge + (cardWidth + gap)
+        pnlCard3.Left = edge + (cardWidth + gap) * 2
+        pnlCard4.Left = edge + (cardWidth + gap) * 3
+        pnlCard5.Left = Me.ClientSize.Width - edge - cardWidth
+
+        pnlCard1.Width = cardWidth
+        pnlCard2.Width = cardWidth
+        pnlCard3.Width = cardWidth
+        pnlCard4.Width = cardWidth
+        pnlCard5.Width = cardWidth
+
         dgvSalesByFilm.Left = edge
-        dgvSalesByFilm.Top = 136
+        dgvSalesByFilm.Top = pnlCard1.Bottom + gap
         dgvSalesByFilm.Width = Me.ClientSize.Width - edge * 2
 
         'what is left under the grid has to hold the row count, the three totals and the version
@@ -356,6 +372,8 @@ Public Class frmSalesReport
             lblGrandTotal.Text = "Grand total: " & FormatCurrency(ticketRevenue + foodRevenue)
         End If
 
+        LoadHeadline(fromDate, toDate)
+
         Me.Cursor = Cursors.Default
         ShowCount()
 
@@ -365,6 +383,138 @@ Public Class frmSalesReport
 
         Return True
     End Function
+
+    'fills in the five cards along the top. these are always the same five whichever report is
+    'showing, because they are about the date range and not about the way it is broken down.
+    'they all go through one connection, the way the main menu does its dashboard
+    Private Sub LoadHeadline(fromDate As Date, toDate As Date)
+        Dim tickets As Integer = 0
+        Dim ticketMoney As Double = 0
+        Dim foodMoney As Double = 0
+        Dim bookings As Integer = 0
+        Dim seatsOnOffer As Integer = 0
+        Dim seatsSold As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+
+            'tickets and what they came to
+            SQLCmd.CommandText = "SELECT COUNT(*) AS Tickets, SUM(SeatPricePaid) AS TicketRevenue " &
+                                 "FROM (tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID) " &
+                                 "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID " &
+                                 "WHERE IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) >= @FromDate " &
+                                 "AND IIf(@ByScreening2, tblScreening.ScreeningDate, tblBooking.BookingDate) < @ToDate " &
+                                 "AND tblBooking.BookingStatus <> @Cancelled"
+            AddRangeParameters(SQLCmd, fromDate, toDate)
+
+            Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+
+            If rs.Read() Then
+                tickets = CInt(rs("Tickets"))
+
+                'SUM comes back empty rather than zero when there are no rows at all
+                If Not IsDBNull(rs("TicketRevenue")) Then
+                    ticketMoney = CDbl(rs("TicketRevenue"))
+                End If
+            End If
+
+            rs.Close()
+
+            'concessions
+            SQLCmd.Parameters.Clear()
+            SQLCmd.CommandText = "SELECT SUM(Quantity * ItemPricePaid) " &
+                                 "FROM (tblOrderItem INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID) " &
+                                 "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID " &
+                                 "WHERE IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) >= @FromDate " &
+                                 "AND IIf(@ByScreening2, tblScreening.ScreeningDate, tblBooking.BookingDate) < @ToDate " &
+                                 "AND tblBooking.BookingStatus <> @Cancelled"
+            AddRangeParameters(SQLCmd, fromDate, toDate)
+            Dim foodResult As Object = SQLCmd.ExecuteScalar()
+
+            If foodResult IsNot Nothing AndAlso Not IsDBNull(foodResult) Then
+                foodMoney = CDbl(foodResult)
+            End If
+
+            'how many sales that was
+            SQLCmd.Parameters.Clear()
+            SQLCmd.CommandText = "SELECT COUNT(*) " &
+                                 "FROM tblBooking INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID " &
+                                 "WHERE IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) >= @FromDate " &
+                                 "AND IIf(@ByScreening2, tblScreening.ScreeningDate, tblBooking.BookingDate) < @ToDate " &
+                                 "AND tblBooking.BookingStatus <> @Cancelled"
+            AddRangeParameters(SQLCmd, fromDate, toDate)
+            bookings = CInt(SQLCmd.ExecuteScalar())
+
+            'how full is worked out against the screenings that played in the range, whichever
+            'way the measure by box is set. seats sold on a booking taken last month for a film
+            'showing this month belong to this month as far as how full the room was goes
+            SQLCmd.Parameters.Clear()
+            SQLCmd.CommandText = "SELECT SUM(tblScreen.ScreenCapacity) " &
+                                 "FROM tblScreening INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID " &
+                                 "WHERE tblScreening.ScreeningDate >= @FromDate AND tblScreening.ScreeningDate < @ToDate"
+            SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
+            SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
+            Dim capacityResult As Object = SQLCmd.ExecuteScalar()
+
+            If capacityResult IsNot Nothing AndAlso Not IsDBNull(capacityResult) Then
+                seatsOnOffer = CInt(capacityResult)
+            End If
+
+            'the seat rows carry the screening themselves, so this needs no join back to the
+            'booking, and no cancelled filter either because cancelling deletes these rows
+            SQLCmd.Parameters.Clear()
+            SQLCmd.CommandText = "SELECT COUNT(*) " &
+                                 "FROM tblBookingSeat INNER JOIN tblScreening ON tblBookingSeat.ScreeningID = tblScreening.ScreeningID " &
+                                 "WHERE tblScreening.ScreeningDate >= @FromDate AND tblScreening.ScreeningDate < @ToDate"
+            SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
+            SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
+            seatsSold = CInt(SQLCmd.ExecuteScalar())
+
+            cn.Close()
+        End If
+
+        lblStat1.Text = FormatCurrency(ticketMoney + foodMoney)
+        lblCardSub1.Text = "tickets " & FormatCurrency(ticketMoney) & ", snacks " & FormatCurrency(foodMoney)
+
+        lblStat2.Text = tickets.ToString()
+
+        If bookings = 1 Then
+            lblCardSub2.Text = "on 1 booking"
+        Else
+            lblCardSub2.Text = "on " & bookings & " bookings"
+        End If
+
+        'nothing sold means there is nothing to average, and dividing by it would fall over
+        If tickets > 0 Then
+            lblStat3.Text = FormatCurrency(ticketMoney / tickets)
+            lblStat5.Text = FormatCurrency(foodMoney / tickets)
+        Else
+            lblStat3.Text = "-"
+            lblStat5.Text = "-"
+        End If
+
+        lblCardSub3.Text = "per seat sold"
+        lblCardSub5.Text = "for every ticket"
+
+        If seatsOnOffer > 0 Then
+            lblStat4.Text = CInt((seatsSold / seatsOnOffer) * 100) & "%"
+            lblCardSub4.Text = seatsSold & " of " & seatsOnOffer & " seats"
+        Else
+            lblStat4.Text = "-"
+            lblCardSub4.Text = "nothing was on"
+        End If
+    End Sub
+
+    'the three parameters every one of the range queries wants, put on in the order the query
+    'mentions them. it is written once here because five queries were all doing the same thing
+    Private Sub AddRangeParameters(SQLCmd As OleDbCommand, fromDate As Date, toDate As Date)
+        SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
+        SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
+        SQLCmd.Parameters.AddWithValue("@ByScreening2", MeasuringByScreening())
+        SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
+        SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
+    End Sub
 
     'says how many rows came back, worded for whichever report is on screen. the other forms all
     'have one of these under the grid and this one did not

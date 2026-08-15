@@ -38,6 +38,26 @@ Partial Class frmSalesReport
         Me.btnFind = New System.Windows.Forms.Button()
         Me.lblQuick = New System.Windows.Forms.Label()
         Me.cboQuickRange = New System.Windows.Forms.ComboBox()
+        Me.pnlCard1 = New System.Windows.Forms.Panel()
+        Me.lblCardTitle1 = New System.Windows.Forms.Label()
+        Me.lblStat1 = New System.Windows.Forms.Label()
+        Me.lblCardSub1 = New System.Windows.Forms.Label()
+        Me.pnlCard2 = New System.Windows.Forms.Panel()
+        Me.lblCardTitle2 = New System.Windows.Forms.Label()
+        Me.lblStat2 = New System.Windows.Forms.Label()
+        Me.lblCardSub2 = New System.Windows.Forms.Label()
+        Me.pnlCard3 = New System.Windows.Forms.Panel()
+        Me.lblCardTitle3 = New System.Windows.Forms.Label()
+        Me.lblStat3 = New System.Windows.Forms.Label()
+        Me.lblCardSub3 = New System.Windows.Forms.Label()
+        Me.pnlCard4 = New System.Windows.Forms.Panel()
+        Me.lblCardTitle4 = New System.Windows.Forms.Label()
+        Me.lblStat4 = New System.Windows.Forms.Label()
+        Me.lblCardSub4 = New System.Windows.Forms.Label()
+        Me.pnlCard5 = New System.Windows.Forms.Panel()
+        Me.lblCardTitle5 = New System.Windows.Forms.Label()
+        Me.lblStat5 = New System.Windows.Forms.Label()
+        Me.lblCardSub5 = New System.Windows.Forms.Label()
         CType(Me.dgvSalesByFilm, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -140,6 +160,226 @@ Partial Class frmSalesReport
         Me.cboMeasureBy.Name = "cboMeasureBy"
         Me.cboMeasureBy.Size = New System.Drawing.Size(200, 24)
         Me.cboMeasureBy.TabIndex = 14
+        '
+        'pnlCard1
+        '
+        Me.pnlCard1.Controls.Add(Me.lblCardTitle1)
+        Me.pnlCard1.Controls.Add(Me.lblStat1)
+        Me.pnlCard1.Controls.Add(Me.lblCardSub1)
+        Me.pnlCard1.Location = New System.Drawing.Point(16, 136)
+        Me.pnlCard1.Margin = New System.Windows.Forms.Padding(4)
+        Me.pnlCard1.Name = "pnlCard1"
+        Me.pnlCard1.Size = New System.Drawing.Size(200, 112)
+        Me.pnlCard1.TabIndex = 21
+        '
+        'lblCardTitle1
+        '
+        Me.lblCardTitle1.AutoSize = True
+        Me.lblCardTitle1.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.lblCardTitle1.Location = New System.Drawing.Point(12, 8)
+        Me.lblCardTitle1.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblCardTitle1.Name = "lblCardTitle1"
+        Me.lblCardTitle1.Size = New System.Drawing.Size(80, 17)
+        Me.lblCardTitle1.TabIndex = 0
+        Me.lblCardTitle1.Text = "Money taken"
+        '
+        'lblStat1
+        '
+        Me.lblStat1.AutoSize = True
+        Me.lblStat1.Font = New System.Drawing.Font("Segoe UI", 14.0!, System.Drawing.FontStyle.Bold)
+        Me.lblStat1.Location = New System.Drawing.Point(12, 40)
+        Me.lblStat1.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblStat1.Name = "lblStat1"
+        Me.lblStat1.Size = New System.Drawing.Size(30, 30)
+        Me.lblStat1.TabIndex = 1
+        Me.lblStat1.Text = "0"
+        '
+        'lblCardSub1
+        '
+        Me.lblCardSub1.AutoSize = True
+        Me.lblCardSub1.Font = New System.Drawing.Font("Segoe UI", 8.25!)
+        Me.lblCardSub1.Location = New System.Drawing.Point(12, 84)
+        Me.lblCardSub1.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblCardSub1.Name = "lblCardSub1"
+        Me.lblCardSub1.Size = New System.Drawing.Size(60, 13)
+        Me.lblCardSub1.TabIndex = 2
+        Me.lblCardSub1.Text = "tickets £0.00, snacks £0.00"
+        '
+        'pnlCard2
+        '
+        Me.pnlCard2.Controls.Add(Me.lblCardTitle2)
+        Me.pnlCard2.Controls.Add(Me.lblStat2)
+        Me.pnlCard2.Controls.Add(Me.lblCardSub2)
+        Me.pnlCard2.Location = New System.Drawing.Point(228, 136)
+        Me.pnlCard2.Margin = New System.Windows.Forms.Padding(4)
+        Me.pnlCard2.Name = "pnlCard2"
+        Me.pnlCard2.Size = New System.Drawing.Size(200, 112)
+        Me.pnlCard2.TabIndex = 22
+        '
+        'lblCardTitle2
+        '
+        Me.lblCardTitle2.AutoSize = True
+        Me.lblCardTitle2.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.lblCardTitle2.Location = New System.Drawing.Point(12, 8)
+        Me.lblCardTitle2.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblCardTitle2.Name = "lblCardTitle2"
+        Me.lblCardTitle2.Size = New System.Drawing.Size(80, 17)
+        Me.lblCardTitle2.TabIndex = 0
+        Me.lblCardTitle2.Text = "Tickets sold"
+        '
+        'lblStat2
+        '
+        Me.lblStat2.AutoSize = True
+        Me.lblStat2.Font = New System.Drawing.Font("Segoe UI", 14.0!, System.Drawing.FontStyle.Bold)
+        Me.lblStat2.Location = New System.Drawing.Point(12, 40)
+        Me.lblStat2.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblStat2.Name = "lblStat2"
+        Me.lblStat2.Size = New System.Drawing.Size(30, 30)
+        Me.lblStat2.TabIndex = 1
+        Me.lblStat2.Text = "0"
+        '
+        'lblCardSub2
+        '
+        Me.lblCardSub2.AutoSize = True
+        Me.lblCardSub2.Font = New System.Drawing.Font("Segoe UI", 8.25!)
+        Me.lblCardSub2.Location = New System.Drawing.Point(12, 84)
+        Me.lblCardSub2.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblCardSub2.Name = "lblCardSub2"
+        Me.lblCardSub2.Size = New System.Drawing.Size(60, 13)
+        Me.lblCardSub2.TabIndex = 2
+        Me.lblCardSub2.Text = "on 0 bookings"
+        '
+        'pnlCard3
+        '
+        Me.pnlCard3.Controls.Add(Me.lblCardTitle3)
+        Me.pnlCard3.Controls.Add(Me.lblStat3)
+        Me.pnlCard3.Controls.Add(Me.lblCardSub3)
+        Me.pnlCard3.Location = New System.Drawing.Point(440, 136)
+        Me.pnlCard3.Margin = New System.Windows.Forms.Padding(4)
+        Me.pnlCard3.Name = "pnlCard3"
+        Me.pnlCard3.Size = New System.Drawing.Size(200, 112)
+        Me.pnlCard3.TabIndex = 23
+        '
+        'lblCardTitle3
+        '
+        Me.lblCardTitle3.AutoSize = True
+        Me.lblCardTitle3.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.lblCardTitle3.Location = New System.Drawing.Point(12, 8)
+        Me.lblCardTitle3.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblCardTitle3.Name = "lblCardTitle3"
+        Me.lblCardTitle3.Size = New System.Drawing.Size(80, 17)
+        Me.lblCardTitle3.TabIndex = 0
+        Me.lblCardTitle3.Text = "Average ticket"
+        '
+        'lblStat3
+        '
+        Me.lblStat3.AutoSize = True
+        Me.lblStat3.Font = New System.Drawing.Font("Segoe UI", 14.0!, System.Drawing.FontStyle.Bold)
+        Me.lblStat3.Location = New System.Drawing.Point(12, 40)
+        Me.lblStat3.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblStat3.Name = "lblStat3"
+        Me.lblStat3.Size = New System.Drawing.Size(30, 30)
+        Me.lblStat3.TabIndex = 1
+        Me.lblStat3.Text = "0"
+        '
+        'lblCardSub3
+        '
+        Me.lblCardSub3.AutoSize = True
+        Me.lblCardSub3.Font = New System.Drawing.Font("Segoe UI", 8.25!)
+        Me.lblCardSub3.Location = New System.Drawing.Point(12, 84)
+        Me.lblCardSub3.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblCardSub3.Name = "lblCardSub3"
+        Me.lblCardSub3.Size = New System.Drawing.Size(60, 13)
+        Me.lblCardSub3.TabIndex = 2
+        Me.lblCardSub3.Text = "per seat sold"
+        '
+        'pnlCard4
+        '
+        Me.pnlCard4.Controls.Add(Me.lblCardTitle4)
+        Me.pnlCard4.Controls.Add(Me.lblStat4)
+        Me.pnlCard4.Controls.Add(Me.lblCardSub4)
+        Me.pnlCard4.Location = New System.Drawing.Point(652, 136)
+        Me.pnlCard4.Margin = New System.Windows.Forms.Padding(4)
+        Me.pnlCard4.Name = "pnlCard4"
+        Me.pnlCard4.Size = New System.Drawing.Size(200, 112)
+        Me.pnlCard4.TabIndex = 24
+        '
+        'lblCardTitle4
+        '
+        Me.lblCardTitle4.AutoSize = True
+        Me.lblCardTitle4.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.lblCardTitle4.Location = New System.Drawing.Point(12, 8)
+        Me.lblCardTitle4.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblCardTitle4.Name = "lblCardTitle4"
+        Me.lblCardTitle4.Size = New System.Drawing.Size(80, 17)
+        Me.lblCardTitle4.TabIndex = 0
+        Me.lblCardTitle4.Text = "How full"
+        '
+        'lblStat4
+        '
+        Me.lblStat4.AutoSize = True
+        Me.lblStat4.Font = New System.Drawing.Font("Segoe UI", 14.0!, System.Drawing.FontStyle.Bold)
+        Me.lblStat4.Location = New System.Drawing.Point(12, 40)
+        Me.lblStat4.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblStat4.Name = "lblStat4"
+        Me.lblStat4.Size = New System.Drawing.Size(30, 30)
+        Me.lblStat4.TabIndex = 1
+        Me.lblStat4.Text = "0"
+        '
+        'lblCardSub4
+        '
+        Me.lblCardSub4.AutoSize = True
+        Me.lblCardSub4.Font = New System.Drawing.Font("Segoe UI", 8.25!)
+        Me.lblCardSub4.Location = New System.Drawing.Point(12, 84)
+        Me.lblCardSub4.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblCardSub4.Name = "lblCardSub4"
+        Me.lblCardSub4.Size = New System.Drawing.Size(60, 13)
+        Me.lblCardSub4.TabIndex = 2
+        Me.lblCardSub4.Text = "0 of 0 seats"
+        '
+        'pnlCard5
+        '
+        Me.pnlCard5.Controls.Add(Me.lblCardTitle5)
+        Me.pnlCard5.Controls.Add(Me.lblStat5)
+        Me.pnlCard5.Controls.Add(Me.lblCardSub5)
+        Me.pnlCard5.Location = New System.Drawing.Point(864, 136)
+        Me.pnlCard5.Margin = New System.Windows.Forms.Padding(4)
+        Me.pnlCard5.Name = "pnlCard5"
+        Me.pnlCard5.Size = New System.Drawing.Size(200, 112)
+        Me.pnlCard5.TabIndex = 25
+        '
+        'lblCardTitle5
+        '
+        Me.lblCardTitle5.AutoSize = True
+        Me.lblCardTitle5.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.lblCardTitle5.Location = New System.Drawing.Point(12, 8)
+        Me.lblCardTitle5.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblCardTitle5.Name = "lblCardTitle5"
+        Me.lblCardTitle5.Size = New System.Drawing.Size(80, 17)
+        Me.lblCardTitle5.TabIndex = 0
+        Me.lblCardTitle5.Text = "Snacks per head"
+        '
+        'lblStat5
+        '
+        Me.lblStat5.AutoSize = True
+        Me.lblStat5.Font = New System.Drawing.Font("Segoe UI", 14.0!, System.Drawing.FontStyle.Bold)
+        Me.lblStat5.Location = New System.Drawing.Point(12, 40)
+        Me.lblStat5.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblStat5.Name = "lblStat5"
+        Me.lblStat5.Size = New System.Drawing.Size(30, 30)
+        Me.lblStat5.TabIndex = 1
+        Me.lblStat5.Text = "0"
+        '
+        'lblCardSub5
+        '
+        Me.lblCardSub5.AutoSize = True
+        Me.lblCardSub5.Font = New System.Drawing.Font("Segoe UI", 8.25!)
+        Me.lblCardSub5.Location = New System.Drawing.Point(12, 84)
+        Me.lblCardSub5.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblCardSub5.Name = "lblCardSub5"
+        Me.lblCardSub5.Size = New System.Drawing.Size(60, 13)
+        Me.lblCardSub5.TabIndex = 2
+        Me.lblCardSub5.Text = "for every ticket"
         '
         'lblQuick
         '
@@ -254,6 +494,11 @@ Partial Class frmSalesReport
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1100, 720)
+        Me.Controls.Add(Me.pnlCard1)
+        Me.Controls.Add(Me.pnlCard2)
+        Me.Controls.Add(Me.pnlCard3)
+        Me.Controls.Add(Me.pnlCard4)
+        Me.Controls.Add(Me.pnlCard5)
         Me.Controls.Add(Me.cboQuickRange)
         Me.Controls.Add(Me.lblQuick)
         Me.Controls.Add(Me.btnFind)
@@ -307,4 +552,24 @@ Partial Class frmSalesReport
     Friend WithEvents btnFind As Button
     Friend WithEvents lblQuick As Label
     Friend WithEvents cboQuickRange As ComboBox
+    Friend WithEvents pnlCard1 As Panel
+    Friend WithEvents lblCardTitle1 As Label
+    Friend WithEvents lblStat1 As Label
+    Friend WithEvents lblCardSub1 As Label
+    Friend WithEvents pnlCard2 As Panel
+    Friend WithEvents lblCardTitle2 As Label
+    Friend WithEvents lblStat2 As Label
+    Friend WithEvents lblCardSub2 As Label
+    Friend WithEvents pnlCard3 As Panel
+    Friend WithEvents lblCardTitle3 As Label
+    Friend WithEvents lblStat3 As Label
+    Friend WithEvents lblCardSub3 As Label
+    Friend WithEvents pnlCard4 As Panel
+    Friend WithEvents lblCardTitle4 As Label
+    Friend WithEvents lblStat4 As Label
+    Friend WithEvents lblCardSub4 As Label
+    Friend WithEvents pnlCard5 As Panel
+    Friend WithEvents lblCardTitle5 As Label
+    Friend WithEvents lblStat5 As Label
+    Friend WithEvents lblCardSub5 As Label
 End Class
