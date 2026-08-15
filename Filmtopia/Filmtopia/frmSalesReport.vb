@@ -205,12 +205,124 @@ Public Class frmSalesReport
     End Sub
 
     Private Sub btnExport_Click(sender As Object, e As EventArgs) Handles btnExport.Click
-        Dim fileName As String = cboReportType.Text.Replace(" ", "") & ".csv"
-
-        If ExportGridToCsv(dgvSalesByFilm, fileName, "Sales Report") Then
-            WriteLog("REPORT", "Sales report exported (" & cboReportType.Text & "), " & dgvSalesByFilm.Rows.Count & " rows")
+        If reportTable Is Nothing OrElse reportTable.Rows.Count = 0 Then
+            MessageBox.Show("There is nothing on screen to export.", "Export", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
         End If
+
+        Dim saveBox As New SaveFileDialog
+        saveBox.Filter = "CSV files (*.csv)|*.csv"
+        saveBox.RestoreDirectory = True
+        saveBox.FileName = ExportFileName()
+
+        If saveBox.ShowDialog() <> DialogResult.OK Then
+            Exit Sub
+        End If
+
+        WriteCsv(saveBox.FileName)
+
+        WriteLog("REPORT", "Sales report exported (" & cboReportType.Text & "), " & reportTable.Rows.Count & " rows")
+        MessageBox.Show(reportTable.Rows.Count & " rows saved.", "Export", MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
+
+    Private Sub WriteCsv(fileName As String)
+        Dim writer As New IO.StreamWriter(fileName, False, New System.Text.UTF8Encoding(True))
+
+        writer.WriteLine(CsvField("Filmtopia sales report"))
+        writer.WriteLine(CsvField("Report") & "," & CsvField(cboReportType.Text))
+        writer.WriteLine(CsvField("Measured by") & "," & CsvField(cboMeasureBy.Text))
+        writer.WriteLine(CsvField("From") & "," & CsvField(dtpFrom.Value.ToString("dd/MM/yyyy")))
+        writer.WriteLine(CsvField("To") & "," & CsvField(dtpTo.Value.ToString("dd/MM/yyyy")))
+        writer.WriteLine(CsvField("Taken out") & "," & CsvField(Now().ToString("dd/MM/yyyy HH:mm")))
+        writer.WriteLine(CsvField("Taken out by") & "," & CsvField(CurrentLogUser()))
+        writer.WriteLine()
+
+        Dim line As String = ""
+
+        For Each col As DataGridViewColumn In dgvSalesByFilm.Columns
+            If line <> "" Then
+                line = line & ","
+            End If
+
+            line = line & CsvField(col.HeaderText)
+        Next
+
+        writer.WriteLine(line)
+
+        For i As Integer = 0 To reportTable.Rows.Count - 1
+            line = ""
+
+            For Each col As DataGridViewColumn In dgvSalesByFilm.Columns
+                If line <> "" Then
+                    line = line & ","
+                End If
+
+                line = line & CsvField(ExportValue(i, col.DataPropertyName))
+            Next
+
+            writer.WriteLine(line)
+        Next
+
+        writer.WriteLine()
+        line = ""
+
+        For Each col As DataGridViewColumn In dgvSalesByFilm.Columns
+            If line <> "" Then
+                line = line & ","
+            End If
+
+            If col.Index = 0 Then
+                line = line & CsvField("Total")
+            ElseIf IsNumberColumn(col.DataPropertyName) Then
+                line = line & CsvField(TotalColumn(reportTable, col.DataPropertyName).ToString())
+            Else
+                line = line & CsvField("")
+            End If
+        Next
+
+        writer.WriteLine(line)
+        writer.Close()
+    End Sub
+
+    Private Function ExportFileName() As String
+        Return "Sales " & cboReportType.Text.Replace(" ", "") & " " & dtpFrom.Value.ToString("yyyy-MM-dd") & " to " & dtpTo.Value.ToString("yyyy-MM-dd") & ".csv"
+    End Function
+
+    Private Function ExportValue(rowIndex As Integer, columnName As String) As String
+        If columnName = "" OrElse Not reportTable.Columns.Contains(columnName) Then
+            Return ""
+        End If
+
+        Dim cell As Object = reportTable.Rows(rowIndex)(columnName)
+
+        If IsDBNull(cell) Then
+            Return ""
+        End If
+
+        If TypeOf cell Is Date Then
+            If columnName = "CancelledDate" Then
+                Return CDate(cell).ToString("dd/MM/yyyy HH:mm")
+            End If
+
+            Return CDate(cell).ToString("dd/MM/yyyy")
+        End If
+
+        Return cell.ToString()
+    End Function
+
+    Private Function IsNumberColumn(columnName As String) As Boolean
+        If columnName = "" OrElse Not reportTable.Columns.Contains(columnName) Then
+            Return False
+        End If
+
+        If columnName = "BookingID" Then
+            Return False
+        End If
+
+        Dim kind As Type = reportTable.Columns(columnName).DataType
+
+        Return kind Is GetType(Double) Or kind Is GetType(Integer) Or kind Is GetType(Decimal)
+    End Function
 
     Private Sub btnFind_Click(sender As Object, e As EventArgs) Handles btnFind.Click
         FindInReport()
