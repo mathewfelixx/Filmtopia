@@ -1,5 +1,4 @@
 Public Class frmMainForm
-    'turns all the nav buttons back to transparent so only the active one is highlighted
     Private Sub SetAllButtonsTransp()
         btnBookings.BackColor = Color.Transparent
         btnFindBooking.BackColor = Color.Transparent
@@ -76,14 +75,12 @@ Public Class frmMainForm
     Private Sub btnLogout_Click(sender As Object, e As EventArgs) Handles btnLogout.Click
         LogedIn = False
         UserAccessLevel = 99
-        'put the settings back to default so the next person to log in does not get this users theme
         ClearUserSettings()
         Me.Close()
         frmLogin.Show()
         ApplyThemeToAllForms()
     End Sub
 
-    'works out a greeting based on the current time of day
     Private Function GetGreeting() As String
         Dim hour As Integer = Date.Now.Hour
 
@@ -96,7 +93,6 @@ Public Class frmMainForm
         End If
     End Function
 
-    'shows or hides the management buttons depending on who is logged in
     Private Sub ConfigureAccessLevel()
 
         lblWelcome.Text = GetGreeting() & ", " & frmLogin.globalusername & "!"

@@ -1,4 +1,3 @@
-'this form is just for jumping straight to other forms while testing, not part of the real app
 Public Class frmTesting
     Private Sub btnOpenLogin_Click(sender As Object, e As EventArgs) Handles btnOpenLogin.Click
         frmLogin.Show()
@@ -27,7 +26,6 @@ Public Class frmTesting
         frmVersionControlUTIL.Show()
     End Sub
 
-    'opens the new dashboard style menu as a manager so all the buttons show
     Private Sub btnMainMenuV2_Click(sender As Object, e As EventArgs) Handles btnMainMenuV2.Click
         frmLogin.globalusername = "Admin"
         UserAccessLevel = 1

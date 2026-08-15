@@ -2,17 +2,10 @@ Imports System.Data.OleDb
 
 Public Class frmLogs
 
-    'the most rows the grid will ever load at once. there are already hundreds of entries and the
-    'log only grows, so loading the lot would get slower and slower and nobody reads a thousand
-    'rows anyway. the newest ones are loaded and the label underneath says if any were left off
     Private Const MaxRows As Integer = 500
 
-    'true while the form is setting itself up, so filling the filter boxes does not run a search
-    'for every single item that gets added to them
     Private stillLoading As Boolean = True
 
-    'how many entries matched the filters altogether, which is not the same as how many are on
-    'screen once the cap above has been applied
     Private matchingRows As Integer = 0
 
     Private Sub frmLogs_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -25,7 +18,6 @@ Public Class frmLogs
 
         CommonFormStartup(Me)
 
-        'a week is a sensible amount to be looking at, the date boxes can be widened if more is wanted
         dtpFrom.Value = Date.Today.AddDays(-7)
         dtpTo.Value = Date.Today
 
@@ -35,7 +27,6 @@ Public Class frmLogs
 
         stillLoading = False
 
-        'lets the form see escape before the box that has focus does
         Me.KeyPreview = True
 
         LoadLogs()
@@ -43,7 +34,6 @@ Public Class frmLogs
         WriteLog("LOGS", "Audit log form opened")
     End Sub
 
-    'escape empties the search box, or shuts the form if there is nothing to empty
     Private Sub frmLogs_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
         If e.KeyCode = Keys.F5 Then
             LoadLogs()
@@ -56,8 +46,6 @@ Public Class frmLogs
         End If
     End Sub
 
-    'fills the area box with the log types that are actually in the table, so it can never offer
-    'a type that has never been used
     Private Sub LoadTypeFilter()
         cboType.Items.Clear()
         cboType.Items.Add("All areas")
@@ -77,7 +65,6 @@ Public Class frmLogs
         cboType.SelectedIndex = 0
     End Sub
 
-    'same idea for the user box, so you can pick a person and see everything they did
     Private Sub LoadUserFilter()
         cboUser.Items.Clear()
         cboUser.Items.Add("All users")
@@ -88,7 +75,6 @@ Public Class frmLogs
             SQLCmd.CommandText = "SELECT DISTINCT LogUser FROM tblLogs ORDER BY LogUser"
             Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
             While rs.Read()
-                'older entries were written before the user was being recorded so they are empty
                 If rs("LogUser").ToString() <> "" Then
                     cboUser.Items.Add(rs("LogUser").ToString())
                 End If
@@ -100,8 +86,6 @@ Public Class frmLogs
         cboUser.SelectedIndex = 0
     End Sub
 
-    'the levels are fixed so this one is just typed in. anything but routine is the one that gets
-    'used most, it drops all the ordinary looking about and leaves the things that actually matter
     Private Sub LoadSeverityFilter()
         cboSeverity.Items.Clear()
         cboSeverity.Items.Add("All levels")
@@ -118,8 +102,6 @@ Public Class frmLogs
     End Sub
 
     Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
-        'the type and user boxes are filled again as well, in case somebody has logged in or used
-        'part of the system for the first time since this form was opened
         Dim keepType As String = cboType.Text
         Dim keepUser As String = cboUser.Text
 
@@ -128,7 +110,6 @@ Public Class frmLogs
         LoadUserFilter()
         stillLoading = False
 
-        'put the boxes back where they were if those choices still exist
         If cboType.Items.Contains(keepType) Then
             cboType.SelectedItem = keepType
         End If
@@ -139,7 +120,6 @@ Public Class frmLogs
         LoadLogs()
     End Sub
 
-    'puts every filter back to how it starts and shows the last week again
     Private Sub btnClearFilters_Click(sender As Object, e As EventArgs) Handles btnClearFilters.Click
         stillLoading = True
         dtpFrom.Value = Date.Today.AddDays(-7)
@@ -153,7 +133,6 @@ Public Class frmLogs
         LoadLogs()
     End Sub
 
-    'changing any of the drop downs searches again straight away
     Private Sub Filter_Changed(sender As Object, e As EventArgs) Handles cboType.SelectedIndexChanged,
         cboSeverity.SelectedIndexChanged, cboUser.SelectedIndexChanged, dtpFrom.ValueChanged, dtpTo.ValueChanged
 
@@ -164,7 +143,6 @@ Public Class frmLogs
         LoadLogs()
     End Sub
 
-    'pressing enter in the search box searches, rather than having to reach for the button
     Private Sub txtSearch_KeyDown(sender As Object, e As KeyEventArgs) Handles txtSearch.KeyDown
         If e.KeyCode = Keys.Enter Then
             LoadLogs()
@@ -172,9 +150,6 @@ Public Class frmLogs
         End If
     End Sub
 
-    'builds the WHERE part of the query out of whichever filters have been set. it is built as a
-    'string on its own because the same conditions are needed twice, once to get the rows and once
-    'to count how many there were altogether
     Private Function BuildWhere() As String
         Dim where As String = "WHERE LogDateTime >= @FromDate AND LogDateTime < @ToDate"
 
@@ -199,12 +174,8 @@ Public Class frmLogs
         Return where
     End Function
 
-    'adds the values for whatever BuildWhere put in. OleDb does not go by the name, it goes by the
-    'order they were added, so these have to be added in exactly the same order as above
     Private Sub AddWhereParams(SQLCmd As OleDbCommand)
         SQLCmd.Parameters.AddWithValue("@FromDate", dtpFrom.Value.Date)
-        'the to date is moved on a day and the query uses less than, otherwise anything logged
-        'during the last day would be missed because its time of day is after midnight
         SQLCmd.Parameters.AddWithValue("@ToDate", dtpTo.Value.Date.AddDays(1))
 
         If cboType.SelectedIndex > 0 Then
@@ -226,7 +197,6 @@ Public Class frmLogs
         End If
     End Sub
 
-    'loads the entries that match the filters, newest first
     Private Sub LoadLogs()
         Dim dt As New DataTable
         matchingRows = 0
@@ -234,14 +204,12 @@ Public Class frmLogs
         If DbConnect() Then
             Dim where As String = BuildWhere()
 
-            'how many there are altogether before the cap is applied
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "SELECT COUNT(*) FROM tblLogs " & where
             AddWhereParams(SQLCmd)
             matchingRows = CInt(SQLCmd.ExecuteScalar())
 
-            'then the rows themselves, newest first so the cap keeps the most recent ones
             Dim SQLCmd2 As New OleDbCommand
             SQLCmd2.Connection = cn
             SQLCmd2.CommandText = "SELECT TOP " & MaxRows & " LogDateTime, LogSeverity, LogType, LogUser, LogMessage " &
@@ -276,9 +244,6 @@ Public Class frmLogs
         dgvLogs.ClearSelection()
     End Sub
 
-    'colours each row by its level so the important ones are obvious without reading every line.
-    'the colours are picked to suit whichever theme is on, otherwise dark mode would end up with
-    'pale backgrounds and white writing on top of them
     Private Sub ColourRows()
         For Each row As DataGridViewRow In dgvLogs.Rows
             Dim level As String = CellText(row, "LogSeverity")
@@ -313,7 +278,6 @@ Public Class frmLogs
                 End If
 
             Else
-                'routine entries are left alone apart from being greyed off a bit so they sit back
                 If DarkModeOn Then
                     row.DefaultCellStyle.ForeColor = Color.FromArgb(160, 160, 160)
                 Else
@@ -323,7 +287,6 @@ Public Class frmLogs
         Next
     End Sub
 
-    'says how much is on screen, and owns up when the cap has left some out
     Private Sub ShowCount()
         Dim showing As Integer = dgvLogs.Rows.Count
 
@@ -339,7 +302,6 @@ Public Class frmLogs
         End If
     End Sub
 
-    'saves whatever is on screen to a csv file, so a manager can keep a copy of what was looked at
     Private Sub btnExport_Click(sender As Object, e As EventArgs) Handles btnExport.Click
         If dgvLogs.Rows.Count = 0 Then
             MessageBox.Show("There is nothing on screen to export", "Audit Log", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -365,14 +327,11 @@ Public Class frmLogs
 
             writer.Close()
 
-            'the export itself is worth logging, somebody taking a copy of the audit trail out of
-            'the system is exactly the sort of thing an audit trail should be recording
             WriteLog("LOGS", "Audit log exported, " & dgvLogs.Rows.Count & " entries", LogSecurity)
             MessageBox.Show("Audit log exported", "Audit Log", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
     End Sub
 
-    'gets a cell as text, an empty cell would crash ToString on its own
     Private Function CellText(row As DataGridViewRow, columnName As String) As String
         If row.Cells(columnName).Value Is Nothing Then
             Return ""

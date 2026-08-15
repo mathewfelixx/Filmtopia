@@ -2,18 +2,12 @@ Imports System.Data.OleDb
 
 Public Class frmCustomers
 
-    'tracks the CustomerID of the row currently selected in the grid, 0 means nothing selected
     Private selectedCustomerID As Long = 0
 
-    'true while the form is setting itself up, so filling the search box does not load the grid
-    'before everything is ready
     Private stillLoading As Boolean = True
 
-    'true once something has been typed into the boxes that has not been saved yet. it is what
-    'the warning before another row replaces it is based on
     Private boxesChanged As Boolean = False
 
-    'true while a row is being copied into the boxes, so filling them in does not count as typing
     Private fillingBoxes As Boolean = False
 
     Private Sub frmCustomers_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -21,26 +15,21 @@ Public Class frmCustomers
 
         stillLoading = False
 
-        'lets the form see escape before the box that has focus does
         Me.KeyPreview = True
 
         LoadCustomers()
         ClearFields()
 
-        'looking somebody up is the usual reason for opening this, so the cursor starts in the search
         txtSearch.Focus()
         WriteLog("CUSTOMER", "Customers form opened")
     End Sub
 
-    'saves the customer list as it is on screen. this one is worth logging as a security entry,
-    'somebody taking peoples names and phone numbers out of the system should leave a trace
     Private Sub btnExport_Click(sender As Object, e As EventArgs) Handles btnExport.Click
         If ExportGridToCsv(dgvCustomers, "Customers.csv", "Customers") Then
             WriteLog("CUSTOMER", "Customer list exported, " & dgvCustomers.Rows.Count & " customers", LogSecurity)
         End If
     End Sub
 
-    'escape empties the search box, or shuts the form if there is nothing to empty
     Private Sub frmCustomers_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
         If e.KeyCode = Keys.F5 Then
             LoadCustomers()
@@ -53,7 +42,6 @@ Public Class frmCustomers
         End If
     End Sub
 
-    'checks a phone number is made up of digits only, no spaces or dashes
     Private Function IsDigitsOnly(phoneText As String) As Boolean
         For Each ch As Char In phoneText
             If Not Char.IsDigit(ch) Then
@@ -63,8 +51,6 @@ Public Class frmCustomers
         Return True
     End Function
 
-    'loads the customers into the grid, only the ones matching the search box if anything is
-    'typed in it. how many bookings each person has made is counted at the same time
     Private Sub LoadCustomers()
         Dim dt As New DataTable
 
@@ -72,23 +58,16 @@ Public Class frmCustomers
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
 
-            'a LEFT JOIN is used rather than an ordinary one so that somebody who has never booked
-            'anything still appears in the list, with a count of nothing next to them
             Dim baseQuery As String = "SELECT tblCustomer.CustomerID, CustomerForename, CustomerSurname, CustomerEmail, CustomerPhone, " &
                                       "COUNT(tblBooking.BookingID) AS Bookings " &
                                       "FROM tblCustomer LEFT JOIN tblBooking ON tblCustomer.CustomerID = tblBooking.CustomerID"
 
-            'the id on the end of the ORDER BY has to say which table it comes from. tblBooking has
-            'a CustomerID on it as well, that is what the join is on, so an unqualified one leaves
-            'Access with two columns of that name to choose between and it refuses the whole query
             Dim grouping As String = " GROUP BY tblCustomer.CustomerID, CustomerForename, CustomerSurname, CustomerEmail, CustomerPhone " &
                                      "ORDER BY CustomerSurname, CustomerForename, tblCustomer.CustomerID"
 
             If txtSearch.Text.Trim() = "" Then
                 SQLCmd.CommandText = baseQuery & grouping
             Else
-                'the name, the email and the phone number are all searched, because whoever is on
-                'the desk might only have one of the three to go on
                 SQLCmd.CommandText = baseQuery &
                                      " WHERE CustomerForename & ' ' & CustomerSurname LIKE @SearchName " &
                                      "OR CustomerEmail LIKE @SearchEmail " &
@@ -127,7 +106,6 @@ Public Class frmCustomers
         dgvCustomers.ClearSelection()
     End Sub
 
-    'says how many customers are showing, and whether the search is hiding any
     Private Sub ShowCount(shown As Integer)
         If txtSearch.Text.Trim() = "" Then
             If shown = 1 Then
@@ -142,34 +120,21 @@ Public Class frmCustomers
         End If
     End Sub
 
-    'the list narrows as it is typed in, there is no need for a search button
     Private Sub txtSearch_TextChanged(sender As Object, e As EventArgs) Handles txtSearch.TextChanged
         If stillLoading Then
             Exit Sub
         End If
 
-        'the grid used to reload on every single key press, so typing an eight letter customer name
-        'was eight separate trips to the database and eight rebuilds of the grid. the timer is
-        'restarted instead, and only when it has been quiet for a moment does the search run,
-        'so typing straight through only searches once
         timerSearch.Stop()
         timerSearch.Start()
     End Sub
 
-    'runs a fraction of a second after the last key press in the search box
     Private Sub timerSearch_Tick(sender As Object, e As EventArgs) Handles timerSearch.Tick
         timerSearch.Stop()
         LoadCustomers()
     End Sub
 
-    'checks what has been typed in before it goes anywhere near the database. it is in one place
-    'because adding a customer and changing one both need exactly the same checks doing, and they
-    'were written out twice before which meant remembering to change both of them
     Private Function DetailsAreOk() As Boolean
-        'everything is trimmed once here and the checks below all work on those copies. before,
-        'the empty checks and the insert trimmed but the length and digit checks did not, so a
-        'phone number typed with a space on the end was 11 characters long and got as far as
-        'being told it had a letter in it
         Dim forename As String = txtForename.Text.Trim()
         Dim surname As String = txtSurname.Text.Trim()
         Dim email As String = txtEmail.Text.Trim()
@@ -193,9 +158,6 @@ Public Class frmCustomers
             Return False
         End If
 
-        'looking for an at sign and a dot separately let things like a@. through, because both
-        'characters really were in there. the at sign has to have something in front of it, and
-        'the dot has to come after the at sign with something on both sides of it
         Dim atPos As Integer = email.IndexOf("@")
         Dim dotPos As Integer = email.LastIndexOf(".")
 
@@ -226,9 +188,6 @@ Public Class frmCustomers
         Return True
     End Function
 
-    'counts anybody else already on the system with the same name. the film, screen and food item
-    'screens all refuse a duplicate name outright, but two real people genuinely can be called the
-    'same thing, so this one only asks
     Private Function SameNameCount() As Integer
         Dim total As Integer = 0
 
@@ -248,8 +207,6 @@ Public Class frmCustomers
         Return total
     End Function
 
-    'warns if the name is already on the system and lets the user decide. the one being edited is
-    'left out of the count, so saving somebody without renaming them does not warn about themselves
     Private Function DuplicateNameIsOk() As Boolean
         If SameNameCount() = 0 Then
             Return True
@@ -263,7 +220,6 @@ Public Class frmCustomers
                                "Name already used", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes
     End Function
 
-    'adds a new customer using the values typed into the boxes
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
         If Not DetailsAreOk() Then
             Exit Sub
@@ -289,8 +245,6 @@ Public Class frmCustomers
             saved = True
         End If
 
-        'nothing was written if the database could not be opened, so it must not be
-        'logged or announced as though it had been
         If Not saved Then
             Exit Sub
         End If
@@ -302,10 +256,7 @@ Public Class frmCustomers
         SayDone(lblSaved, "Added '" & savedName & "'")
     End Sub
 
-    'saves the changes made to the customer selected in the grid
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
-        'this cannot normally happen, the button is switched off until a row is picked.
-        'it stays in so the sub can never run without an id, whatever calls it
         If selectedCustomerID = 0 Then
             MessageBox.Show("Select a customer in the grid first", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
@@ -337,8 +288,6 @@ Public Class frmCustomers
             saved = True
         End If
 
-        'nothing was written if the database could not be opened, so it must not be
-        'logged or announced as though it had been
         If Not saved Then
             Exit Sub
         End If
@@ -350,17 +299,12 @@ Public Class frmCustomers
         SayDone(lblSaved, "Saved changes to '" & savedName & "'")
     End Sub
 
-    'deletes the customer selected in the grid
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
-        'this cannot normally happen, the button is switched off until a row is picked.
-        'it stays in so the sub can never run without an id, whatever calls it
         If selectedCustomerID = 0 Then
             MessageBox.Show("Select a customer in the grid first", "Customers", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
-        'somebody who has booked cannot just be removed, their bookings would be left pointing at
-        'a customer who is not there and the booking list would show blanks where the name goes
         Dim bookings As Integer = BookingsFor(selectedCustomerID)
 
         If bookings > 0 Then
@@ -388,8 +332,6 @@ Public Class frmCustomers
             saved = True
         End If
 
-        'nothing was written if the database could not be opened, so it must not be
-        'logged or announced as though it had been
         If Not saved Then
             Exit Sub
         End If
@@ -401,7 +343,6 @@ Public Class frmCustomers
         SayDone(lblSaved, "Deleted '" & savedName & "'")
     End Sub
 
-    'counts how many bookings somebody has, used to stop them being deleted while they have some
     Private Function BookingsFor(customerID As Long) As Integer
         Dim total As Integer = 0
 
@@ -417,12 +358,10 @@ Public Class frmCustomers
         Return total
     End Function
 
-    'clears the boxes and the selection
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         ClearFields()
     End Sub
 
-    'anything changed in the boxes by hand counts as an unsaved change
     Private Sub Details_Changed(sender As Object, e As EventArgs) Handles txtForename.TextChanged, txtSurname.TextChanged,
         txtEmail.TextChanged, txtPhone.TextChanged
         If fillingBoxes Then
@@ -432,8 +371,6 @@ Public Class frmCustomers
         boxesChanged = True
     End Sub
 
-    'asks before typing that has not been saved gets thrown away. it only asks when something has
-    'actually been changed, so clicking down a list of rows to read them never interrupts
     Private Function ChangesCanBeLost() As Boolean
         If Not boxesChanged Then
             Return True
@@ -448,7 +385,6 @@ Public Class frmCustomers
     Private Sub ClearFields()
         fillingBoxes = True
 
-        'the confirmation only lasts until the next thing is started
         lblSaved.Text = ""
         selectedCustomerID = 0
         txtForename.Text = ""
@@ -462,9 +398,6 @@ Public Class frmCustomers
         ShowWhatIsBeingEdited()
     End Sub
 
-    'the heading over the boxes says whether a new customer is being typed in or an existing one
-    'is being changed. save and delete are switched off until somebody is picked, rather than
-    'letting them be pressed and then telling the user off with a message box
     Private Sub ShowWhatIsBeingEdited()
         If selectedCustomerID = 0 Then
             lblStatus.Text = "Adding a new customer"
@@ -479,12 +412,9 @@ Public Class frmCustomers
         End If
     End Sub
 
-    'when a row is clicked, load its values into the boxes for editing
     Private Sub dgvCustomers_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvCustomers.CellClick
         If e.RowIndex < 0 Then Exit Sub
 
-        'clicking a row replaces whatever is in the boxes, so anything typed and not saved
-        'would have gone without a word. the selection is left alone if the answer is no
         If Not ChangesCanBeLost() Then
             Exit Sub
         End If

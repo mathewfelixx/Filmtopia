@@ -2,40 +2,23 @@
 
 Public Class frmBookings
 
-    'the screening currently picked in the combo, 0 means none
     Private currentScreeningID As Long = 0
-    'the screen that screening runs in, used to load the right seats
     Private currentScreenID As Long = 0
-    'ticket price for the picked screening, used to work out the total
     Private currentTicketPrice As Double = 0
-    'the booking id of the booking just created, used to open food ordering
     Private lastBookingID As Long = 0
 
-    'the food the customer has asked for so far. it is only held here in memory while the sale
-    'is being built up, and it is not written to the database until COMPLETE SALE is pressed
     Private pendingFood As DataTable
 
-    'the seats picked so far, kept the same way the food is. before this the form worked out which
-    'seats were picked by looking at what colour each button had gone, which meant the sale
-    'depended on the theme. if a theme ever gave two seat states the same colour the wrong seats
-    'would have been sold and nothing would have said so. the colour is now only how a seat is
-    'drawn, and this table is what is actually being bought
     Private pendingSeats As DataTable
 
-    'every seat in the screen being shown, with what sort it is and its price multiplier. it is
-    'read once when the map is drawn so that clicking a seat does not need another look at the
-    'database just to find out what that seat costs
     Private currentSeats As DataTable
 
-    'shows what a seat is and what it costs when the mouse rests on it
     Private seatTips As New ToolTip
 
-    'the three seat colours, these get set from the theme so they work in dark mode too
     Private availableColour As Color
     Private selectedColour As Color
     Private takenColour As Color
 
-    'takes the seat colours from whichever theme is on and puts them on the little key labels
     Private Sub ApplySeatColours()
         availableColour = SeatAvailable
         selectedColour = SeatSelected
@@ -45,17 +28,12 @@ Public Class frmBookings
         lblSwatchSelected.BackColor = selectedColour
         lblSwatchTaken.BackColor = takenColour
 
-        'the two sort swatches are a free seat with the border on, because that is exactly what
-        'they are showing. the border itself is drawn in the paint below
         lblSwatchPremium.BackColor = availableColour
         lblSwatchAccessible.BackColor = availableColour
         lblSwatchPremium.Invalidate()
         lblSwatchAccessible.Invalidate()
     End Sub
 
-    'draws the border on the two seat sort swatches in the key. they are painted rather than just
-    'filled in like the other three, because what they are showing is the edge round a seat and
-    'not the colour of the seat itself
     Private Sub SeatTypeSwatch_Paint(sender As Object, e As PaintEventArgs) Handles lblSwatchPremium.Paint,
         lblSwatchAccessible.Paint
         Dim swatch As Label = CType(sender, Label)
@@ -80,18 +58,14 @@ Public Class frmBookings
         WriteLog("BOOKING", "Bookings form opened")
     End Sub
 
-    'picks a screening in the combo from outside the form, used when a screening is double clicked
-    'on the main menu, setting the value fires the combo's changed event which builds the seat map
     Public Sub SelectScreening(screeningID As Long)
         cboScreening.SelectedValue = screeningID
     End Sub
 
-    'fills the screening combo with each screening and its film, date and time
     Private Sub LoadScreenings()
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            'join screening to film so the combo can show the film title alongside the date and time
             SQLCmd.CommandText = "SELECT ScreeningID, FilmTitle & ' - ' & ScreeningDate & ' ' & ScreeningTime AS Info " &
                                  "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
                                  "WHERE (ScreeningStatus IS NULL OR ScreeningStatus <> 'Cancelled')"
@@ -106,7 +80,6 @@ Public Class frmBookings
         End If
     End Sub
 
-    'fills the customer combo with each customers full name
     Private Sub LoadCustomers()
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -124,13 +97,11 @@ Public Class frmBookings
         End If
     End Sub
 
-    'when a screening is picked, get its details and draw the seat map
     Private Sub cboScreening_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboScreening.SelectedIndexChanged
         If cboScreening.SelectedIndex = -1 Then
             Exit Sub
         End If
 
-        'while the combo is still binding the value isnt a number yet, so skip
         If Not IsNumeric(cboScreening.SelectedValue) Then
             Exit Sub
         End If
@@ -140,9 +111,7 @@ Public Class frmBookings
         BuildSeatMap()
     End Sub
 
-    'when a customer is picked, show their existing bookings in the small grid
     Private Sub cboCustomer_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboCustomer.SelectedIndexChanged
-        'a different customer means the booking that was picked before is no longer relevant
         lastBookingID = 0
         btnOrderFood.Enabled = False
         lblCustomerBookings.Text = "Pick a booking to add food to it"
@@ -159,14 +128,10 @@ Public Class frmBookings
         LoadCustomerBookings(CLng(cboCustomer.SelectedValue))
     End Sub
 
-    'loads every booking made by this customer into the small grid
     Private Sub LoadCustomerBookings(customerID As Long)
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            'join booking to screening, then to film, so we can show the film title and date.
-            'cancelled bookings are left out because this list is what food gets added to, and
-            'adding food to a sale that has already been refunded makes no sense
             SQLCmd.CommandText = "SELECT tblBooking.BookingID, FilmTitle & ' (' & ScreeningDate & ')' AS Info " &
                                  "FROM (tblBooking INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
                                  "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
@@ -181,14 +146,12 @@ Public Class frmBookings
             cn.Close()
         End If
 
-        'keep the small grid tidy, one line per booking
         If dgvCustomerBookings.Columns.Count > 0 Then
             dgvCustomerBookings.Columns("BookingID").Width = 40
             dgvCustomerBookings.Columns("Info").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
         End If
     End Sub
 
-    'when a booking is picked from the customer's list, allow food to be ordered for it
     Private Sub dgvCustomerBookings_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvCustomerBookings.CellClick
         If e.RowIndex < 0 Then Exit Sub
 
@@ -198,7 +161,6 @@ Public Class frmBookings
         lblCustomerBookings.Text = "Food will be added to booking " & lastBookingID
     End Sub
 
-    'when walk-in is ticked, the customer combo isnt needed so grey it out
     Private Sub chkWalkIn_CheckedChanged(sender As Object, e As EventArgs) Handles chkWalkIn.CheckedChanged
         cboCustomer.Enabled = Not chkWalkIn.Checked
 
@@ -210,7 +172,6 @@ Public Class frmBookings
         End If
     End Sub
 
-    'gets the screen and ticket price for the picked screening
     Private Sub LoadScreeningDetails()
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -229,22 +190,16 @@ Public Class frmBookings
         End If
     End Sub
 
-    'draws a button for every seat in the screens layout and greys out the taken ones
-    'makes the empty table that holds the seats picked for the sale being built up
     Private Sub SetUpPendingSeats()
         pendingSeats = New DataTable
         pendingSeats.Columns.Add("SeatID", GetType(Integer))
-        'the multiplier is kept with the seat so the running total can be worked out without going
-        'back to the database every time a seat is clicked
         pendingSeats.Columns.Add("Multiplier", GetType(Double))
     End Sub
 
-    'says whether a seat has been picked for this sale
     Private Function IsSeatSelected(seatID As Long) As Boolean
         Return pendingSeats.Select("SeatID = " & seatID).Length > 0
     End Function
 
-    'makes the empty table that holds the food for the sale being built up
     Private Sub SetUpPendingFood()
         pendingFood = New DataTable
         pendingFood.Columns.Add("FoodItemID", GetType(Integer))
@@ -257,12 +212,10 @@ Public Class frmBookings
         TidyFoodGrid()
     End Sub
 
-    'fills the food and drink combo
     Private Sub LoadFoodItems()
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            'anything taken off the menu is left out, nothing new can be sold on one
             SQLCmd.CommandText = "SELECT FoodItemID, FoodItemName, FoodItemPrice " &
                                  "FROM tblFoodItem " &
                                  "WHERE (FoodItemStatus IS NULL OR FoodItemStatus <> @Withdrawn) " &
@@ -292,7 +245,6 @@ Public Class frmBookings
         dgvPendingFood.Columns("Subtotal").DefaultCellStyle.Format = "C"
     End Sub
 
-    'adds the picked item to the order being built up. nothing goes in the database yet
     Private Sub btnAddFood_Click(sender As Object, e As EventArgs) Handles btnAddFood.Click
         If cboFoodItem.SelectedIndex = -1 Then
             MessageBox.Show("Pick a food or drink item first", "Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -309,7 +261,6 @@ Public Class frmBookings
         Dim itemID As Integer = CInt(chosen("FoodItemID"))
         Dim price As Double = CDbl(chosen("FoodItemPrice"))
 
-        'if that item is already on the order just add to how many, rather than a second line
         Dim i As Integer
         For i = 0 To pendingFood.Rows.Count - 1
             If CInt(pendingFood.Rows(i)("FoodItemID")) = itemID Then
@@ -334,7 +285,6 @@ Public Class frmBookings
         txtQuantity.Text = "1"
     End Sub
 
-    'takes a line back off the order
     Private Sub btnRemoveFood_Click(sender As Object, e As EventArgs) Handles btnRemoveFood.Click
         If dgvPendingFood.CurrentRow Is Nothing Then
             MessageBox.Show("Pick a line in the food list first", "Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -345,7 +295,6 @@ Public Class frmBookings
         UpdateTotal()
     End Sub
 
-    'adds up everything on the order so far
     Private Function FoodTotal() As Double
         Dim total As Double = 0
         Dim i As Integer
@@ -358,14 +307,9 @@ Public Class frmBookings
     End Function
 
     Private Sub BuildSeatMap()
-        'make sure the colours match the theme in case it was changed since the form opened
         ApplySeatColours()
         pnlSeatMap.Controls.Clear()
 
-        'the map is about to be drawn again, so anything picked on the old one is forgotten.
-        'this used to happen by itself because the buttons were thrown away and the new ones came
-        'back the available colour. now the picked seats are kept in a table they have to be
-        'emptied on purpose, otherwise changing screening would carry the old seats across
         pendingSeats.Rows.Clear()
 
         currentSeats = New DataTable
@@ -376,8 +320,6 @@ Public Class frmBookings
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
 
-            'all the seats that belong to this screen, with what sort of seat each one is and what
-            'that does to its price
             SQLCmd.CommandText = "SELECT tblSeat.SeatID, tblSeat.SeatRow, tblSeat.SeatNumber, " &
                                  "tblSeatType.SeatTypeName, tblSeatType.PriceMultiplier " &
                                  "FROM tblSeat INNER JOIN tblSeatType ON tblSeat.SeatTypeID = tblSeatType.SeatTypeID " &
@@ -387,8 +329,6 @@ Public Class frmBookings
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dtSeats)
 
-            'the seats already booked for this screening, read straight off the seat rows since
-            'they carry the screening themselves
             SQLCmd.CommandText = "SELECT SeatID FROM tblBookingSeat " &
                                  "WHERE ScreeningID = @ScreeningID"
             SQLCmd.Parameters.Clear()
@@ -399,7 +339,6 @@ Public Class frmBookings
             cn.Close()
         End If
 
-        'make one button per seat, positioned by its row letter and seat number
         For i As Integer = 0 To dtSeats.Rows.Count - 1
             Dim seatID As Long = CLng(dtSeats.Rows(i)("SeatID"))
             Dim seatRow As String = dtSeats.Rows(i)("SeatRow").ToString()
@@ -413,17 +352,9 @@ Public Class frmBookings
             b.Size = New Size(40, 35)
             b.Font = New Font("Segoe UI", 7)
 
-            'the row letter A,B,C sets how far down, the seat number sets how far across
             Dim rowIndex As Integer = Asc(seatRow) - 65
             b.Location = New Point((seatNumber - 1) * 45 + 10, rowIndex * 45 + 10)
 
-            'the sort of seat gets a border round it, a different colour for each, so it can be
-            'seen on the map. the background is left to show whether it is free, picked or gone,
-            'so the two things do not fight each other for the same colour.
-            'this used to key off the price multiplier instead of the sort, which meant an
-            'accessible seat looked exactly like a standard one, because it is charged at the
-            'standard price. that was survivable while accessible always meant the front row, but
-            'the seat plan can put them anywhere now, so there was nothing left saying where they were
             If seatType = SeatPremium Then
                 b.FlatStyle = FlatStyle.Flat
                 b.FlatAppearance.BorderSize = 2
@@ -434,11 +365,9 @@ Public Class frmBookings
                 b.FlatAppearance.BorderColor = SeatAccessibleEdge
             End If
 
-            'say what sort of seat it is and what it costs when the mouse rests on it
             seatTips.SetToolTip(b, seatRow & seatNumber & " - " & seatType & " - " &
                                    FormatCurrency(SeatPrice(currentTicketPrice, multiplier)))
 
-            'if this seat is already taken grey it out, otherwise let it be clicked
             If dtTaken.Select("SeatID = " & seatID).Length > 0 Then
                 b.BackColor = takenColour
                 b.ForeColor = SeatTakenFore
@@ -455,8 +384,6 @@ Public Class frmBookings
         UpdateTotal()
     End Sub
 
-    'toggles a seat between selected and available when its clicked. the table is what changes,
-    'the colour is just put on afterwards to show what the table now says
     Private Sub Seat_Click(sender As Object, e As EventArgs)
         Dim b As Button = CType(sender, Button)
         Dim seatID As Long = CLng(b.Tag)
@@ -473,7 +400,6 @@ Public Class frmBookings
         UpdateTotal()
     End Sub
 
-    'looks up what a seat does to the price, from the seats that were read when the map was drawn
     Private Function MultiplierForSeat(seatID As Long) As Double
         Dim rows() As DataRow = currentSeats.Select("SeatID = " & seatID)
 
@@ -481,17 +407,13 @@ Public Class frmBookings
             Return CDbl(rows(0)("PriceMultiplier"))
         End If
 
-        'if it cannot be found the seat is charged as a standard one, which is the safe way round
         Return 1
     End Function
 
-    'counts how many seats are picked for this sale
     Private Function CountSelectedSeats() As Integer
         Return pendingSeats.Rows.Count
     End Function
 
-    'adds up what the picked seats come to. they are added one at a time rather than counted and
-    'multiplied, because a premium seat is worth more than a standard one
     Private Function TicketsTotal() As Double
         Dim total As Double = 0
         Dim i As Integer
@@ -503,27 +425,18 @@ Public Class frmBookings
         Return total
     End Function
 
-    'shows the running total of selected seats and their cost
-    'shows what the sale comes to as it is being built up, tickets and food kept separate so the
-    'customer can be told what they are paying for
     Private Sub UpdateTotal()
         Dim seatCount As Integer = CountSelectedSeats()
         Dim ticketsCost As Double = TicketsTotal()
         Dim foodCost As Double = FoodTotal()
 
-        'a tab does not line up in a label because the font is not fixed width, so a plain
-        'separator is used instead
         lblTickets.Text = "Tickets (" & seatCount & ")  -  " & FormatCurrency(ticketsCost)
         lblFoodTotal.Text = "Food and drink  -  " & FormatCurrency(foodCost)
         lblTotal.Text = "TOTAL  " & FormatCurrency(ticketsCost + foodCost)
 
-        'there is nothing to sell until they have picked either a seat or something to eat
         btnCreateBooking.Enabled = (seatCount > 0 Or pendingFood.Rows.Count > 0)
     End Sub
 
-    'creates a booking from the picked screening, customer and selected seats
-    'saves the whole sale in one go. nothing has been written to the database up to this point,
-    'so if anything is wrong the user is simply told and the sale stays on screen to be fixed
     Private Sub btnCreateBooking_Click(sender As Object, e As EventArgs) Handles btnCreateBooking.Click
         If currentScreeningID = 0 Then
             MessageBox.Show("Pick a screening first", "Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -536,21 +449,17 @@ Public Class frmBookings
 
         Dim seatCount As Integer = CountSelectedSeats()
 
-        'a sale has to be for something, but it can be seats only, food only, or both
         If seatCount = 0 And pendingFood.Rows.Count = 0 Then
             MessageBox.Show("Pick some seats, or add something from the food and drink list", "Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
-        'safety check in case a selected seat got booked since the map loaded
         If AnySelectedSeatTaken() Then
             MessageBox.Show("One of your seats has just been booked, please reselect", "Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             BuildSeatMap()
             Exit Sub
         End If
 
-        'the same routine the running total on screen uses, so what gets saved is exactly what the
-        'customer was shown
         Dim ticketsCost As Double = TicketsTotal()
         Dim totalCost As Double = ticketsCost + FoodTotal()
 
@@ -559,14 +468,11 @@ Public Class frmBookings
             customerID = CLng(cboCustomer.SelectedValue)
         End If
 
-        'one transaction writes the customer, the booking, the seats and the food together.
-        'whoever is signed in is stood at the till, so the sale goes down as theirs
         Dim newBookingID As Long = CompleteSale(customerID, chkWalkIn.Checked, currentScreeningID,
                                                 GetSelectedSeatIDs(), pendingFood, totalCost,
                                                 CurrentLoginID)
 
         If newBookingID = 0 Then
-            'nothing was saved, the message has already been shown, so leave the sale on screen
             Exit Sub
         End If
 
@@ -579,22 +485,17 @@ Public Class frmBookings
                         "Total " & FormatCurrency(totalCost),
                         "Sale Complete", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
-        'start a fresh sale
-        'the sale is finished, so clear it down ready for the next customer. the booking just
-        'made is kept selected so food can still be added to it if they change their mind
         lastBookingID = newBookingID
         btnOrderFood.Enabled = True
         BuildSeatMap()
         ClearSaleInputs()
         lblCustomerBookings.Text = "Food can still be added to booking " & newBookingID
 
-        'walk-ins dont have a customer picked in the combo, so theres no list to refresh
         If Not chkWalkIn.Checked Then
             LoadCustomerBookings(CLng(cboCustomer.SelectedValue))
         End If
     End Sub
 
-    'collects the SeatID of every seat the user has picked, ready to be saved
     Private Function GetSelectedSeatIDs() As Long()
         Dim seatIDs(pendingSeats.Rows.Count - 1) As Long
         Dim i As Integer
@@ -606,8 +507,6 @@ Public Class frmBookings
         Return seatIDs
     End Function
 
-    'opens the food order form for a booking and tidies up afterwards. the food order changes
-    'the booking total, so the customer's list of bookings is reloaded once it closes
     Private Sub OpenFoodOrder(bookingID As Long)
         frmFoodOrder.currentBookingID = bookingID
         frmFoodOrder.ShowDialog()
@@ -617,7 +516,6 @@ Public Class frmBookings
         End If
     End Sub
 
-    'opens the food ordering form for the booking just created
     Private Sub btnOrderFood_Click(sender As Object, e As EventArgs) Handles btnOrderFood.Click
         If lastBookingID = 0 Then
             MessageBox.Show("Create a booking first", "Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -627,14 +525,11 @@ Public Class frmBookings
         OpenFoodOrder(lastBookingID)
     End Sub
 
-    'rechecks the database to see if any selected seat has just been taken
     Private Function AnySelectedSeatTaken() As Boolean
         Dim dtTaken As New DataTable
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            'the screening is written on the seat row itself, which is the whole reason it is there,
-            'so this reads it straight off rather than joining back to the booking to find it out
             SQLCmd.CommandText = "SELECT SeatID FROM tblBookingSeat " &
                                  "WHERE ScreeningID = @ScreeningID"
             SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
@@ -653,12 +548,7 @@ Public Class frmBookings
         Return False
     End Function
 
-    'clears any seat selection on the map
-    'takes every seat back off the map and empties the food order. this is everything that makes
-    'up the sale being built, so after this the form is ready to start a fresh one
     Private Sub ClearSaleInputs()
-        'the picked seats go first, then every button that is still clickable is put back to the
-        'available colour to match. a taken seat is disabled so it is left alone
         pendingSeats.Rows.Clear()
 
         For Each ctrl As Control In pnlSeatMap.Controls
@@ -677,8 +567,6 @@ Public Class frmBookings
         UpdateTotal()
     End Sub
 
-    'the button clears the sale and also forgets which past booking was being pointed at, so
-    'nothing at all is left over from what the user was doing before
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         ClearSaleInputs()
 
@@ -688,7 +576,6 @@ Public Class frmBookings
         dgvCustomerBookings.ClearSelection()
     End Sub
 
-    'pressing enter in the quantity box adds the item, rather than reaching for the Add button
     Private Sub txtQuantity_KeyDown(sender As Object, e As KeyEventArgs) Handles txtQuantity.KeyDown
         If e.KeyCode = Keys.Enter Then
             btnAddFood.PerformClick()
@@ -696,7 +583,6 @@ Public Class frmBookings
         End If
     End Sub
 
-    'selects what is in the quantity box when it is clicked into, so a new number just replaces it
     Private Sub txtQuantity_Enter(sender As Object, e As EventArgs) Handles txtQuantity.Enter
         txtQuantity.SelectAll()
     End Sub

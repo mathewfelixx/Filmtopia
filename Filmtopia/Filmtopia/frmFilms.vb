@@ -2,37 +2,21 @@
 
 Public Class frmFilms
 
-    'tracks the FilmID of the row currently selected in the grid, 0 means nothing selected
     Private selectedFilmID As Long = 0
 
-    'true while the form is setting itself up, so filling the search box does not load the grid
-    'before everything is ready
     Private stillLoading As Boolean = True
 
-    'true once something has been typed into the boxes that has not been saved yet. it is what
-    'the warning before another row replaces it is based on
     Private boxesChanged As Boolean = False
 
-    'true while a row is being copied into the boxes, so filling them in does not count as typing
     Private fillingBoxes As Boolean = False
 
-    'the poster file name held against the film in the database, empty if it has not got one
     Private posterFileName As String = ""
 
-    'what the poster was when the row was picked, so an old picture can be tidied up once a new
-    'name is safely saved. it is kept separate because posterFileName changes as soon as the
-    'poster is swapped on screen, which is before anything has been written
     Private posterOriginalName As String = ""
 
-    'a picture chosen off the computer that has not been saved yet. it is a full path rather than
-    'a file name, because until the film is saved the picture is still sat wherever it came from
     Private posterSourceFile As String = ""
 
     Private Sub frmFilms_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        'the menu hides the button that opens this from anybody who is not a manager, but the form
-        'itself never checked, so it would open quite happily if it was ever reached another way.
-        'checking here as well keeps the rule with the thing it is protecting rather than only on
-        'the screen that happens to link to it
         If UserAccessLevel <> 1 Then
             MessageBox.Show("Only a manager can open the films screen.", "Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             WriteLog("FILM", "Films screen refused, access level " & UserAccessLevel, LogSecurity)
@@ -42,8 +26,6 @@ Public Class frmFilms
 
         CommonFormStartup(Me)
 
-        'the ratings a film can be given. it is a drop down rather than a box to type in because
-        'the rating has to be one of these, and typing it by hand meant 15 and 15A both turning up
         cboAgeRating.Items.Add("U")
         cboAgeRating.Items.Add("PG")
         cboAgeRating.Items.Add("12A")
@@ -51,9 +33,6 @@ Public Class frmFilms
         cboAgeRating.Items.Add("15")
         cboAgeRating.Items.Add("18")
 
-        'the genres to filter the list by. this is a set list rather than a SELECT DISTINCT because
-        'a film keeps all its genres in the one field, so a distinct query would come back with
-        'Action,Adventure,Drama as a single option instead of three separate ones
         cboGenreFilter.Items.Add("All genres")
         cboGenreFilter.Items.Add("Action")
         cboGenreFilter.Items.Add("Adventure")
@@ -71,46 +50,30 @@ Public Class frmFilms
         cboGenreFilter.Items.Add("Thriller")
         cboGenreFilter.Items.Add("War")
         cboGenreFilter.Items.Add("Western")
-        'start on whichever genre this user was last looking at rather than always at All genres.
-        'if the saved one is not in the list any more, SelectedIndex comes back as -1, so it falls
-        'back to the top of the list instead of leaving the box empty
         cboGenreFilter.SelectedIndex = cboGenreFilter.Items.IndexOf(LastGenreFilter)
         If cboGenreFilter.SelectedIndex = -1 Then
             cboGenreFilter.SelectedIndex = 0
         End If
 
-        'the shortest a row in the grid is allowed to be. the rows grow to fit whatever is written
-        'about a film, and this stops one with hardly anything in it ending up as a thin line next
-        'to a tall one. it is set here rather than in the designer because opening the form in the
-        'designer wipes it, and then every row goes thin again with nothing to say why
         dgvFilms.RowTemplate.MinimumHeight = 44
 
         stillLoading = False
 
-        'lets the form see escape before the box that has focus does
         Me.KeyPreview = True
 
         LoadFilms()
         ClearFields()
 
-        'the first thing somebody usually wants is to find a film, so the cursor starts there
         txtSearch.Focus()
         WriteLog("FILM", "Films form opened")
     End Sub
 
-    'remembers the genre filter for next time. it is saved when the form is shut rather than every
-    'time the box is changed, so flicking through the genres is not a write to the database each time
     Private Sub frmFilms_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
-        'the picture on screen is let go of on the way out as well. it is done before the check
-        'below, because the form shutting itself on somebody who is not a manager still went
-        'through here and would have left the last picture behind
         If picPoster.Image IsNot Nothing Then
             picPoster.Image.Dispose()
             picPoster.Image = Nothing
         End If
 
-        'an empty box means the form shut itself before it had filled anything in, which happens
-        'when somebody who is not a manager gets in here. saving that would wipe what was remembered
         If cboGenreFilter.Text = "" Then
             Exit Sub
         End If
@@ -119,19 +82,13 @@ Public Class frmFilms
         SaveUserSettings()
     End Sub
 
-    'saves the list as it is on screen, so whatever the search box and the genre filter have
-    'narrowed it down to is what comes out
     Private Sub btnExport_Click(sender As Object, e As EventArgs) Handles btnExport.Click
         If ExportGridToCsv(dgvFilms, "Films.csv", "Films") Then
             WriteLog("FILM", "Film list exported, " & dgvFilms.Rows.Count & " films")
         End If
     End Sub
 
-    'escape empties the search box, or shuts the form if there is nothing to empty. doing both off
-    'the one key means it never has to be explained, you press it until you are out
     Private Sub frmFilms_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
-        'f5 reloads the list, which is what most programs use that key for and what the main menu
-        'already does. before this the only way to pick up somebody elses change was to close it
         If e.KeyCode = Keys.F5 Then
             LoadFilms()
         ElseIf e.KeyCode = Keys.Escape Then
@@ -143,7 +100,6 @@ Public Class frmFilms
         End If
     End Sub
 
-    'loads the films into the grid, only the ones matching the search box if anything is typed in it
     Private Sub LoadFilms()
         Dim dt As New DataTable
 
@@ -154,15 +110,9 @@ Public Class frmFilms
             Dim baseQuery As String = "SELECT FilmID, FilmTitle, FilmYear, FilmAgeRating, FilmDuration, FilmGenres, FilmDescription, FilmPoster " &
                                       "FROM tblFilm"
 
-            'there are two things that can narrow the list now, so the conditions are built up into
-            'a string and only put on the end if there is anything in it. the values are added in
-            'the same order as the conditions, because OleDb goes by the order the parameters were
-            'added and not by their names
             Dim conditions As String = ""
 
             If txtSearch.Text.Trim() <> "" Then
-                'searching the description as well means half remembering what a film is about
-                'is enough to find it
                 conditions = "(FilmTitle LIKE @Search OR FilmDescription LIKE @Search2)"
             End If
 
@@ -173,9 +123,6 @@ Public Class frmFilms
                 conditions = conditions & "FilmGenres LIKE @Genre"
             End If
 
-            'films that came in from the IMDb file with nothing written about them. an empty box and
-            'a box that was never filled in are not the same thing to Access, so both have to be
-            'asked for
             If chkNeedsDescription.Checked Then
                 If conditions <> "" Then
                     conditions = conditions & " AND "
@@ -203,10 +150,6 @@ Public Class frmFilms
             cn.Close()
         End If
 
-        'the duration is stored as a number of minutes, which is right for working things out but
-        'hard to read. an extra column is added holding it as hours and minutes, and the real one
-        'is hidden. it has to be a separate column because the minutes column only holds numbers,
-        'so putting 2h 15m into it would fall over
         dt.Columns.Add("RunsFor", GetType(String))
         For Each row As DataRow In dt.Rows
             If Not IsDBNull(row("FilmDuration")) Then
@@ -225,16 +168,10 @@ Public Class frmFilms
             dgvFilms.Columns("FilmGenres").HeaderText = "Genres"
             dgvFilms.Columns("FilmDescription").HeaderText = "Description"
 
-            'the minutes are still there to be read back when a row is clicked, just not shown
             dgvFilms.Columns("FilmDuration").Visible = False
 
-            'same for the poster. it is only the name of a file, which means nothing to look at,
-            'but it has to come back with the row so the picture can be found when one is clicked
             dgvFilms.Columns("FilmPoster").Visible = False
 
-            'the running time column is worked out after the others so it comes back off the end of
-            'the table, which would put it on the right hand side of the grid after the description.
-            'setting the order here puts the columns in the order they make sense to read in
             dgvFilms.Columns("FilmID").DisplayIndex = 0
             dgvFilms.Columns("FilmTitle").DisplayIndex = 1
             dgvFilms.Columns("FilmYear").DisplayIndex = 2
@@ -243,11 +180,6 @@ Public Class frmFilms
             dgvFilms.Columns("FilmGenres").DisplayIndex = 5
             dgvFilms.Columns("FilmDescription").DisplayIndex = 6
 
-            'the columns share out the width of the grid between them instead of each being set to a
-            'number of pixels. setting them by hand meant the widths never added up to the width of
-            'the grid, so there was either an empty strip down the right hand side or a scroll bar
-            'along the bottom. the weights are out of a hundred, so the title gets a quarter of
-            'whatever room there is and the year gets a fifteenth of it
             dgvFilms.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
 
             dgvFilms.Columns("FilmID").FillWeight = 4
@@ -258,7 +190,6 @@ Public Class frmFilms
             dgvFilms.Columns("FilmGenres").FillWeight = 16
             dgvFilms.Columns("FilmDescription").FillWeight = 36
 
-            'the narrow columns are not allowed to be squashed smaller than their heading
             dgvFilms.Columns("FilmID").MinimumWidth = 40
             dgvFilms.Columns("FilmYear").MinimumWidth = 55
             dgvFilms.Columns("FilmAgeRating").MinimumWidth = 60
@@ -269,24 +200,15 @@ Public Class frmFilms
             dgvFilms.Columns("RunsFor").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
             dgvFilms.Columns("FilmID").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
 
-            'the three columns that hold proper text are allowed to wrap onto another line, so a long
-            'title or a long list of genres can still be read instead of being cut off with dots
             dgvFilms.Columns("FilmTitle").DefaultCellStyle.WrapMode = DataGridViewTriState.True
             dgvFilms.Columns("FilmGenres").DefaultCellStyle.WrapMode = DataGridViewTriState.True
             dgvFilms.Columns("FilmDescription").DefaultCellStyle.WrapMode = DataGridViewTriState.True
 
-            'each row is then made tall enough to show everything that is in it. the rows have a
-            'minimum height set in the designer as well, so a film with hardly anything written
-            'about it still gets a decent sized row instead of a thin one
             dgvFilms.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells
 
-            'a bit of breathing room around the text so it is not right up against the lines, and
-            'the text sits in the middle of the row rather than stuck to the top of it
             dgvFilms.DefaultCellStyle.Padding = New Padding(6, 4, 6, 4)
             dgvFilms.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft
 
-            'the header height is only allowed to be set once it has been told to stop working it
-            'out for itself
             dgvFilms.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing
             dgvFilms.ColumnHeadersHeight = 32
         End If
@@ -295,8 +217,6 @@ Public Class frmFilms
         dgvFilms.ClearSelection()
     End Sub
 
-    'the genre that has been picked to filter by, or an empty string if the list is not being
-    'filtered. it is a function because both the query and the count label need to know
     Private Function GenrePicked() As String
         If cboGenreFilter.SelectedIndex <= 0 Then
             Return ""
@@ -305,7 +225,6 @@ Public Class frmFilms
         Return cboGenreFilter.Text
     End Function
 
-    'the list narrows when a different genre is picked, same as typing in the search box does
     Private Sub cboGenreFilter_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboGenreFilter.SelectedIndexChanged
         If stillLoading Then
             Exit Sub
@@ -314,7 +233,6 @@ Public Class frmFilms
         LoadFilms()
     End Sub
 
-    'shows just the films still waiting for somebody to write what they are about
     Private Sub chkNeedsDescription_CheckedChanged(sender As Object, e As EventArgs) Handles chkNeedsDescription.CheckedChanged
         If stillLoading Then
             Exit Sub
@@ -323,7 +241,6 @@ Public Class frmFilms
         LoadFilms()
     End Sub
 
-    'turns a number of minutes into something like 2h 15m
     Private Function MinutesAsText(minutes As Integer) As String
         Dim hours As Integer = minutes \ 60
         Dim left As Integer = minutes Mod 60
@@ -335,9 +252,7 @@ Public Class frmFilms
         Return hours & "h " & left & "m"
     End Function
 
-    'says how many films are showing, and whether the search box or the genre box is hiding any
     Private Sub ShowCount(shown As Integer)
-        'what the list is being narrowed by, written out so it can go on the end of the message
         Dim narrowedBy As String = ""
 
         If txtSearch.Text.Trim() <> "" Then
@@ -371,28 +286,20 @@ Public Class frmFilms
         End If
     End Sub
 
-    'the list narrows as it is typed in, there is no need for a search button
     Private Sub txtSearch_TextChanged(sender As Object, e As EventArgs) Handles txtSearch.TextChanged
         If stillLoading Then
             Exit Sub
         End If
 
-        'the grid used to reload on every single key press, so typing an eight letter film name
-        'was eight separate trips to the database and eight rebuilds of the grid. the timer is
-        'restarted instead, and only when it has been quiet for a moment does the search run,
-        'so typing straight through only searches once
         timerSearch.Stop()
         timerSearch.Start()
     End Sub
 
-    'runs a fraction of a second after the last key press in the search box
     Private Sub timerSearch_Tick(sender As Object, e As EventArgs) Handles timerSearch.Tick
         timerSearch.Stop()
         LoadFilms()
     End Sub
 
-    'checks what has been typed in before it goes anywhere near the database. it is in one place
-    'because adding and changing a film both need exactly the same checks doing
     Private Function DetailsAreOk() As Boolean
         If txtTitle.Text.Trim() = "" Then
             MessageBox.Show("Enter a film title", "Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -424,17 +331,12 @@ Public Class frmFilms
             Return False
         End If
 
-        'nothing runs for longer than about five hours, so a number bigger than that is somebody
-        'typing the running time in seconds or slipping on the keyboard
         If Val(txtDuration.Text) > 300 Then
             MessageBox.Show("That duration looks too long, it should be in minutes", "Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtDuration.Focus()
             Return False
         End If
 
-        'the year is allowed to be left empty, because the films that were on the system before
-        'there was a year field do not have one. if something has been typed in though it still
-        'has to make sense
         If txtYear.Text.Trim() <> "" Then
             If Not IsNumeric(txtYear.Text) Then
                 MessageBox.Show("The year has to be a number, like 2021", "Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -442,8 +344,6 @@ Public Class frmFilms
                 Return False
             End If
 
-            'the first films were made in the 1880s, and a cinema might have next year's blockbuster
-            'on the system early, but not one from twenty years time
             If Val(txtYear.Text) < 1888 Or Val(txtYear.Text) > Year(Date.Today) + 5 Then
                 MessageBox.Show("That year does not look right, it should be between 1888 and " & (Year(Date.Today) + 5),
                                 "Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -463,10 +363,6 @@ Public Class frmFilms
         Return True
     End Function
 
-    'says whether another film already has this title and year. the year is part of it because the
-    'same title genuinely does come round again, a remake is not a duplicate. the selected film is
-    'left out of the count so saving a film without changing its title does not trip over itself,
-    'and when nothing is selected selectedFilmID is 0, which no real film has
     Private Function TitleAlreadyUsed() As Boolean
         Dim total As Integer = 0
 
@@ -474,8 +370,6 @@ Public Class frmFilms
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
 
-            'a film with no year has to be matched on the title on its own, because in SQL a null
-            'is never equal to anything, not even another null
             If txtYear.Text.Trim() = "" Then
                 SQLCmd.CommandText = "SELECT COUNT(*) FROM tblFilm " &
                                      "WHERE FilmTitle = @FilmTitle AND FilmYear IS NULL AND FilmID <> @FilmID"
@@ -498,8 +392,6 @@ Public Class frmFilms
         Return total > 0
     End Function
 
-    'the year box as something the database will take. an empty box has to go in as a proper null
-    'rather than a zero, otherwise every film that has not been given a year shows 0 in the grid
     Private Function YearForDatabase() As Object
         If txtYear.Text.Trim() = "" Then
             Return DBNull.Value
@@ -508,7 +400,6 @@ Public Class frmFilms
         Return SafeInt(txtYear.Text)
     End Function
 
-    'adds a new film using the values typed into the boxes
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
         If Not DetailsAreOk() Then
             Exit Sub
@@ -516,7 +407,6 @@ Public Class frmFilms
 
         Dim saved As Boolean = False
 
-        'the id Access gives the new row, needed to name its poster after
         Dim newFilmID As Long = 0
 
         If DbConnect() Then
@@ -532,9 +422,6 @@ Public Class frmFilms
             SQLCmd.Parameters.AddWithValue("@FilmDescription", txtDescription.Text.Trim())
             SQLCmd.ExecuteNonQuery()
 
-            'the poster file is named after the film, so the film has to exist before its picture
-            'can be saved. the id Access has just given the new row is asked for here while the
-            'connection is still open
             SQLCmd.CommandText = "SELECT @@IDENTITY"
             SQLCmd.Parameters.Clear()
             newFilmID = CLng(SQLCmd.ExecuteScalar())
@@ -543,16 +430,10 @@ Public Class frmFilms
             saved = True
         End If
 
-        'nothing was written if the database could not be opened, so it must not be
-        'logged or announced as though it had been
         If Not saved Then
             Exit Sub
         End If
 
-        'the picture is copied in and the row pointed at it now the film has an id. this is a
-        'second write rather than part of the insert, and it deliberately is not wrapped up with
-        'it, because a file copy cannot be undone by a transaction the way a row can. if it fails
-        'the film is still added and simply has no poster, which is far better than losing it
         If posterSourceFile <> "" AndAlso newFilmID > 0 Then
             Dim addedPoster As String = SavePosterFile(posterSourceFile, newFilmID)
             If addedPoster <> "" Then
@@ -567,10 +448,7 @@ Public Class frmFilms
         SayDone(lblSaved, "Added '" & savedName & "'")
     End Sub
 
-    'saves the changes made to the film that is selected in the grid
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
-        'this cannot normally happen, the button is switched off until a row is picked.
-        'it stays in so the sub can never run without an id, whatever calls it
         If selectedFilmID = 0 Then
             MessageBox.Show("Select a film in the grid first", "Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
@@ -580,9 +458,6 @@ Public Class frmFilms
             Exit Sub
         End If
 
-        'a picture that has just been picked is copied into the posters folder first, so the name
-        'about to go in the database is the name of a file that is really there. the film already
-        'has an id, so unlike adding one this can be done before the row is written
         If posterSourceFile <> "" Then
             Dim newPoster As String = SavePosterFile(posterSourceFile, selectedFilmID)
             If newPoster <> "" Then
@@ -612,17 +487,10 @@ Public Class frmFilms
             saved = True
         End If
 
-        'nothing was written if the database could not be opened, so it must not be
-        'logged or announced as though it had been
         If Not saved Then
             Exit Sub
         End If
 
-        'the picture that was on the film before is only deleted once the new name is safely in
-        'the database. a film keeps its id, so a new jpg usually writes straight over the old one
-        'and there is nothing left over to tidy up. this is for when the poster is taken off
-        'altogether, or when a png replaces a jpg and the old file is left with nothing pointing
-        'at it
         If posterOriginalName <> "" AndAlso posterOriginalName <> posterFileName Then
             DeletePosterFile(posterOriginalName)
         End If
@@ -634,25 +502,18 @@ Public Class frmFilms
         SayDone(lblSaved, "Saved changes to '" & savedName & "'")
     End Sub
 
-    'deletes the film that is selected in the grid
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
-        'this cannot normally happen, the button is switched off until a row is picked.
-        'it stays in so the sub can never run without an id, whatever calls it
         If selectedFilmID = 0 Then
             MessageBox.Show("Select a film in the grid first", "Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
-        'a film that is on the schedule cannot just be removed, its screenings would be left
-        'pointing at a film that is not there any more and the whats on list would break
         Dim screenings As Integer = ScreeningsForFilm(selectedFilmID)
 
         If screenings > 0 Then
             MessageBox.Show("'" & txtTitle.Text & "' has " & screenings & " screening(s) scheduled." & vbCrLf &
                             "Delete those screenings first, then the film can be removed.",
                             "Cannot delete", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            'the refusals are worth recording as well as the deletions. a log that only ever says
-            'what worked makes it look like nothing is ever attempted and stopped
             WriteLog("FILM", "Delete refused for '" & txtTitle.Text & "', it has " & screenings & " screening(s)", LogWarning)
             Exit Sub
         End If
@@ -674,8 +535,6 @@ Public Class frmFilms
             saved = True
         End If
 
-        'nothing was written if the database could not be opened, so it must not be
-        'logged or announced as though it had been
         If Not saved Then
             Exit Sub
         End If
@@ -687,7 +546,6 @@ Public Class frmFilms
         SayDone(lblSaved, "Deleted '" & savedName & "'")
     End Sub
 
-    'counts how many screenings a film has, used to stop it being deleted while it is scheduled
     Private Function ScreeningsForFilm(filmID As Long) As Integer
         Dim total As Integer = 0
 
@@ -703,12 +561,10 @@ Public Class frmFilms
         Return total
     End Function
 
-    'clears the boxes and the selection
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         ClearFields()
     End Sub
 
-    'anything changed in the boxes by hand counts as an unsaved change
     Private Sub Details_Changed(sender As Object, e As EventArgs) Handles txtTitle.TextChanged, txtYear.TextChanged,
         cboAgeRating.TextChanged, txtDuration.TextChanged, txtGenres.TextChanged, txtDescription.TextChanged
         If fillingBoxes Then
@@ -718,8 +574,6 @@ Public Class frmFilms
         boxesChanged = True
     End Sub
 
-    'asks before typing that has not been saved gets thrown away. it only asks when something has
-    'actually been changed, so clicking down a list of rows to read them never interrupts
     Private Function ChangesCanBeLost() As Boolean
         If Not boxesChanged Then
             Return True
@@ -734,7 +588,6 @@ Public Class frmFilms
     Private Sub ClearFields()
         fillingBoxes = True
 
-        'the confirmation only lasts until the next thing is started
         lblSaved.Text = ""
         selectedFilmID = 0
         txtTitle.Text = ""
@@ -757,10 +610,6 @@ Public Class frmFilms
         ShowWhatIsBeingEdited()
     End Sub
 
-    'the heading over the boxes says whether a new film is being typed in or an existing one is
-    'being changed, so it is never a guess as to what the buttons are about to do. save and delete
-    'are switched off until something is picked, rather than letting them be pressed and then
-    'telling the user off with a message box
     Private Sub ShowWhatIsBeingEdited()
         If selectedFilmID = 0 Then
             lblStatus.Text = "Adding a new film"
@@ -775,12 +624,9 @@ Public Class frmFilms
         End If
     End Sub
 
-    'when a row is clicked, load its values into the boxes for editing
     Private Sub dgvFilms_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvFilms.CellClick
         If e.RowIndex < 0 Then Exit Sub
 
-        'clicking a row replaces whatever is in the boxes, so anything typed and not saved
-        'would have gone without a word. the selection is left alone if the answer is no
         If Not ChangesCanBeLost() Then
             Exit Sub
         End If
@@ -795,12 +641,8 @@ Public Class frmFilms
         txtGenres.Text = row.Cells("FilmGenres").Value.ToString()
         txtDescription.Text = row.Cells("FilmDescription").Value.ToString()
 
-        'the box wants the plain number of minutes, which is the hidden column, not the 2h 15m
-        'version that is on show
         txtDuration.Text = row.Cells("FilmDuration").Value.ToString()
 
-        'anything half picked on the film before this one is dropped, the poster now on screen is
-        'the one this film actually has
         posterFileName = row.Cells("FilmPoster").Value.ToString()
         posterOriginalName = posterFileName
         posterSourceFile = ""
@@ -812,42 +654,31 @@ Public Class frmFilms
         ShowWhatIsBeingEdited()
     End Sub
 
-    'puts the film's poster on screen. whatever was showing is thrown away first, because a picture
-    'box left holding the old one keeps a handle that is not given back until the program is shut,
-    'and clicking down a list of films would lose one every time
     Private Sub ShowPoster()
         If picPoster.Image IsNot Nothing Then
             picPoster.Image.Dispose()
             picPoster.Image = Nothing
         End If
 
-        'a picture that has been picked but not saved yet is still sat wherever it was chosen from,
-        'so it is read from there. once it has been saved it comes out of the posters folder
         If posterSourceFile <> "" Then
             picPoster.Image = PictureFromFile(posterSourceFile)
         Else
             picPoster.Image = PosterImage(posterFileName)
         End If
 
-        'the words only show when there is no picture in front of them
         lblNoPoster.Visible = (picPoster.Image Is Nothing)
     End Sub
 
-    'picks a picture off the computer to use as the poster. nothing is copied anywhere yet, it is
-    'only remembered and shown, so choosing one and then not saving leaves nothing behind
     Private Sub btnChoosePoster_Click(sender As Object, e As EventArgs) Handles btnChoosePoster.Click
         Dim openDialog As New OpenFileDialog
         openDialog.Filter = "Pictures (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png"
         openDialog.Title = "Choose a poster"
-        'without this the whole program is left sat in whatever folder was last opened
         openDialog.RestoreDirectory = True
 
         If openDialog.ShowDialog() <> DialogResult.OK Then
             Exit Sub
         End If
 
-        'a picture that cannot be read is refused here rather than being copied in and then showing
-        'as an empty box afterwards with no telling why
         Dim check As Image = PictureFromFile(openDialog.FileName)
         If check Is Nothing Then
             MessageBox.Show("That file could not be read as a picture.", "Poster", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -860,9 +691,6 @@ Public Class frmFilms
         ShowPoster()
     End Sub
 
-    'asks TMDB for the poster instead of going and finding one by hand. it is only a quicker way of
-    'doing what Choose picture already does, so it ends up in exactly the same place, the picture is
-    'remembered and shown and nothing is written until the film is saved
     Private Sub btnFetchPoster_Click(sender As Object, e As EventArgs) Handles btnFetchPoster.Click
         If txtTitle.Text.Trim() = "" Then
             MessageBox.Show("Type the film title in first, that is what TMDB is asked for.", "Fetch poster",
@@ -870,15 +698,11 @@ Public Class frmFilms
             Exit Sub
         End If
 
-        'this goes off to the internet and waits for the answer, so the form sits still while it
-        'happens. it is only a second or two for one film, but with no cursor it looks like nothing
-        'has happened and the button gets pressed again
         Me.Cursor = Cursors.WaitCursor
         Dim matchedAs As String = ""
         Dim fetched As String = FetchPosterFromTmdb(txtTitle.Text.Trim(), txtYear.Text.Trim(), matchedAs)
         Me.Cursor = Cursors.Default
 
-        'anything that went wrong has already been said on screen by now
         If fetched = "" Then
             Exit Sub
         End If
@@ -887,15 +711,10 @@ Public Class frmFilms
         boxesChanged = True
         ShowPoster()
 
-        'what TMDB thought the film was is worth saying out loud. searching by title and year is not
-        'exact, a remake or a documentary with the same name can come back instead, and the picture
-        'on its own is not always enough to tell. nothing has been saved yet either way
         SayDone(lblSaved, "Found " & matchedAs & " - check it is right, then save")
         WriteLog("FILM", "Poster fetched from TMDB for '" & txtTitle.Text.Trim() & "', matched as " & matchedAs)
     End Sub
 
-    'takes the poster off the film. the file itself is not deleted until the change is saved, so
-    'pressing this and then not saving changes nothing
     Private Sub btnRemovePoster_Click(sender As Object, e As EventArgs) Handles btnRemovePoster.Click
         If posterSourceFile = "" AndAlso posterFileName = "" Then
             Exit Sub
@@ -907,8 +726,6 @@ Public Class frmFilms
         ShowPoster()
     End Sub
 
-    'writes which picture belongs to a film. it is its own sub because adding a film has to do it
-    'as a second step, once Access has given the new row an id to name the file after
     Private Sub SavePosterName(filmID As Long, fileName As String)
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -921,8 +738,6 @@ Public Class frmFilms
         End If
     End Sub
 
-    'opens the screen that pulls film details out of an IMDb data file. the list is reloaded when
-    'that screen closes so anything imported shows up straight away
     Private Sub btnImportFromFile_Click(sender As Object, e As EventArgs) Handles btnImportFromFile.Click
         If UserAccessLevel <> 1 Then
             MessageBox.Show("Only a manager can import films", "Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)

@@ -2,15 +2,12 @@
 
 Public Class frmBookingSearch
 
-    'the booking currently selected in the grid, 0 means nothing selected
     Private selectedBookingID As Integer = 0
-    'a description of that booking, kept so it can go in the log after the booking is deleted
     Private selectedBookingText As String = ""
 
     Private Sub frmBookingSearch_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup(Me)
 
-        'lets the form see escape before the box that has focus does
         Me.KeyPreview = True
 
         LoadBookings("")
@@ -19,7 +16,6 @@ Public Class frmBookingSearch
         WriteLog("BOOKING", "Booking search form opened")
     End Sub
 
-    'escape empties the search box, or shuts the form if there is nothing to empty
     Private Sub frmBookingSearch_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
         If e.KeyCode = Keys.F5 Then
             LoadBookings(txtSearch.Text.Trim())
@@ -33,7 +29,6 @@ Public Class frmBookingSearch
         End If
     End Sub
 
-    'fills the screening combo for the door list section
     Private Sub LoadScreeningsCombo()
         Dim dt As New DataTable
 
@@ -53,10 +48,6 @@ Public Class frmBookingSearch
         cboDoorListScreening.SelectedIndex = -1
     End Sub
 
-    'searches by booking id if a number was typed, otherwise by customer name
-    'lets another screen open this one already looking at one booking, the same way
-    'frmBookings.SelectScreening lets the menu open that one on a chosen screening.
-    'it has to be called after Show, because the grid is filled when the form loads
     Public Sub SelectBooking(bookingID As Long)
         txtSearch.Text = bookingID.ToString()
         LoadBookings(txtSearch.Text.Trim())
@@ -67,13 +58,11 @@ Public Class frmBookingSearch
         WriteLog("BOOKING", "Booking search run for '" & txtSearch.Text.Trim() & "'")
     End Sub
 
-    'clears the search box and shows every booking
     Private Sub btnShowAll_Click(sender As Object, e As EventArgs) Handles btnShowAll.Click
         txtSearch.Text = ""
         LoadBookings("")
     End Sub
 
-    'loads the bookings grid, filtered by booking id or customer name if given
     Private Sub LoadBookings(searchText As String)
         Dim dt As New DataTable
 
@@ -81,17 +70,11 @@ Public Class frmBookingSearch
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
 
-            'join booking to customer (for the name), then to screening, then to film (for the title)
             Dim baseQuery As String = "SELECT tblBooking.BookingID, CustomerForename & ' ' & CustomerSurname AS CustomerName, FilmTitle, ScreeningDate, ScreeningTime, TotalCost, BookingStatus " &
                                       "FROM ((tblBooking INNER JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
                                       "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
                                       "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID"
 
-            'this grid had no ORDER BY on it at all, so the order was whatever Access felt like
-            'handing back and two runs of the same search could come out differently. newest first
-            'is what somebody looking a booking up actually wants, and the id can never tie. it goes
-            'on the end of each branch rather than being stuck on afterwards so the query is still
-            'one whole string the checking script can pull out and run
             If searchText = "" Then
                 SQLCmd.CommandText = baseQuery & " ORDER BY tblBooking.BookingID DESC"
             ElseIf IsNumeric(searchText) Then
@@ -99,8 +82,6 @@ Public Class frmBookingSearch
                                      "ORDER BY tblBooking.BookingID DESC"
                 SQLCmd.Parameters.AddWithValue("@SearchID", CInt(searchText))
             Else
-                'search the customer name and the film title, so typing a film finds everyone
-                'booked onto it. the two parameters are added in the order they appear in the SQL
                 SQLCmd.CommandText = baseQuery & " WHERE CustomerForename & ' ' & CustomerSurname LIKE @SearchName " &
                                      "OR FilmTitle LIKE @SearchFilm " &
                                      "ORDER BY tblBooking.BookingID DESC"
@@ -138,7 +119,6 @@ Public Class frmBookingSearch
             dgvBookings.ClearSelection()
         End If
 
-        'say how many were found so an empty grid does not look like something went wrong
         If dt.Rows.Count = 1 Then
             lblResultCount.Text = "1 booking found"
         Else
@@ -148,9 +128,6 @@ Public Class frmBookingSearch
         ClearSelectedBooking()
     End Sub
 
-    'a cancelled booking is shown greyed out rather than being hidden, so it is obvious the sale
-    'happened and was cancelled instead of it just not being there. the colour comes from the theme
-    'so it still reads properly in dark mode
     Private Sub GreyOutCancelled()
         For Each row As DataGridViewRow In dgvBookings.Rows
             If row.Cells("BookingStatus").Value IsNot Nothing Then
@@ -161,7 +138,6 @@ Public Class frmBookingSearch
         Next
     End Sub
 
-    'nothing is picked, so there is nothing to cancel
     Private Sub ClearSelectedBooking()
         selectedBookingID = 0
         selectedBookingText = ""
@@ -169,7 +145,6 @@ Public Class frmBookingSearch
         btnCancelBooking.Enabled = False
     End Sub
 
-    'pressing enter in the search box searches, rather than having to reach for the button
     Private Sub txtSearch_KeyDown(sender As Object, e As KeyEventArgs) Handles txtSearch.KeyDown
         If e.KeyCode = Keys.Enter Then
             LoadBookings(txtSearch.Text.Trim())
@@ -177,8 +152,6 @@ Public Class frmBookingSearch
         End If
     End Sub
 
-    'remembers which booking was clicked and says on screen which one it is, so the user can see
-    'exactly what they are about to cancel before they press the button
     Private Sub dgvBookings_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvBookings.CellClick
         If e.RowIndex < 0 Then Exit Sub
 
@@ -188,8 +161,6 @@ Public Class frmBookingSearch
         selectedBookingText = row.Cells("CustomerName").Value.ToString() & " - " &
                               row.Cells("FilmTitle").Value.ToString()
 
-        'a booking that has already been cancelled cannot be cancelled again, so the button is
-        'turned off rather than letting it be pressed and then refused
         Dim isCancelled As Boolean = False
         If row.Cells("BookingStatus").Value IsNot Nothing Then
             isCancelled = (row.Cells("BookingStatus").Value.ToString() = BookingCancelled)
@@ -204,7 +175,6 @@ Public Class frmBookingSearch
         btnCancelBooking.Enabled = Not isCancelled
     End Sub
 
-    'cancels the selected booking, putting its seats back on sale and marking it cancelled
     Private Sub btnCancelBooking_Click(sender As Object, e As EventArgs) Handles btnCancelBooking.Click
         If selectedBookingID = 0 Then
             MessageBox.Show("Select a booking in the grid first", "Booking Search", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -223,9 +193,6 @@ Public Class frmBookingSearch
         Dim worked As Boolean = False
 
         If DbConnect() Then
-            'the seats going back on sale and the booking being marked cancelled are done as one
-            'transaction. without this, if something went wrong partway through, the seats could be
-            'freed on a booking that still says it is active. this way either both happen or neither
             Dim trans As OleDbTransaction = cn.BeginTransaction()
 
             Try
@@ -233,23 +200,11 @@ Public Class frmBookingSearch
                 SQLCmd.Connection = cn
                 SQLCmd.Transaction = trans
 
-                'the seats really are removed rather than just marked. they have to be, because the
-                'database will not let the same seat be sold twice on a screening, so leaving the
-                'rows behind would keep the seat off sale for good. the food order is left alone so
-                'there is still a record of what was bought and refunded
                 SQLCmd.CommandText = "DELETE FROM tblBookingSeat " &
                                      "WHERE BookingID = @BookingID"
                 SQLCmd.Parameters.AddWithValue("@BookingID", cancelledID)
                 seatsFreed = SQLCmd.ExecuteNonQuery()
 
-                'the booking is kept and marked instead of being deleted. before this it was thrown
-                'away completely, which meant a cancelled sale vanished out of the history and the
-                'sales report could never show what had been refunded
-                'the date is put in with Now() in the query rather than as a parameter. passing a
-                'date that has a time on it through AddWithValue makes Access refuse the whole
-                'update with a data type mismatch, which is why cancelling was failing and nothing
-                'was being written. every other date in the program is a midnight one so none of
-                'them hit it. WriteLog already puts its timestamp in this way
                 SQLCmd.CommandText = "UPDATE tblBooking " &
                                      "SET BookingStatus = @BookingStatus, CancelledDate = Now() " &
                                      "WHERE BookingID = @BookingID AND BookingStatus <> @AlreadyCancelled"
@@ -258,7 +213,6 @@ Public Class frmBookingSearch
                 SQLCmd.Parameters.AddWithValue("@BookingID", cancelledID)
                 SQLCmd.Parameters.AddWithValue("@AlreadyCancelled", BookingCancelled)
 
-                'if this is zero the booking has gone or was already cancelled, so nothing is committed
                 If SQLCmd.ExecuteNonQuery() = 0 Then
                     trans.Rollback()
                     MessageBox.Show("That booking could not be cancelled. It may have already been cancelled.", "Cancel Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -275,7 +229,6 @@ Public Class frmBookingSearch
             cn.Close()
         End If
 
-        'the log is written after the connection is closed because WriteLog opens it again
         If worked Then
             WriteLog("BOOKING", "Booking " & cancelledID & " cancelled (" & cancelledWhat & "), " & seatsFreed & " seat(s) freed", LogChange)
             MessageBox.Show("Booking cancelled and " & seatsFreed & " seat(s) put back on sale." & vbCrLf &
@@ -286,8 +239,6 @@ Public Class frmBookingSearch
         LoadBookings(txtSearch.Text.Trim())
     End Sub
 
-    'loads the door list grid: every seat booked on the selected screening, in seat order, with
-    'the booking number so a ticket on the door can be matched to the list
     Private Sub btnLoadDoorList_Click(sender As Object, e As EventArgs) Handles btnLoadDoorList.Click
         If cboDoorListScreening.SelectedIndex = -1 Then
             MessageBox.Show("Pick a screening first", "Booking Search", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -299,7 +250,6 @@ Public Class frmBookingSearch
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            'join booking to customer (name), then to bookingseat and seat to get the seat itself
             SQLCmd.CommandText = "SELECT tblBooking.BookingID, CustomerForename & ' ' & CustomerSurname AS CustomerName, tblSeat.SeatRow & tblSeat.SeatNumber AS SeatNumber " &
                                  "FROM ((tblBooking INNER JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
                                  "INNER JOIN tblBookingSeat ON tblBooking.BookingID = tblBookingSeat.BookingID) " &
@@ -323,7 +273,6 @@ Public Class frmBookingSearch
             dgvDoorList.Columns("SeatNumber").Width = 120
         End If
 
-        'put the number of seats on the group box heading so it is obvious how busy it is
         If dt.Rows.Count = 0 Then
             GroupBox2.Text = "Door list - nobody has booked this one yet"
         Else
@@ -333,7 +282,6 @@ Public Class frmBookingSearch
         WriteLog("BOOKING", "Door list loaded for ScreeningID " & cboDoorListScreening.SelectedValue.ToString())
     End Sub
 
-    'saves the door list grid to a csv file so it can be printed and taken to the door
     Private Sub btnExportDoorList_Click(sender As Object, e As EventArgs) Handles btnExportDoorList.Click
         If dgvDoorList.Rows.Count = 0 Then
             MessageBox.Show("Load a door list first", "Booking Search", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -347,10 +295,8 @@ Public Class frmBookingSearch
         If saveDialog.ShowDialog() = DialogResult.OK Then
             Dim writer As New System.IO.StreamWriter(saveDialog.FileName)
 
-            'write the header row
             writer.WriteLine("Booking,Customer Name,Seat")
 
-            'write each row of the door list
             For Each row As DataGridViewRow In dgvDoorList.Rows
                 writer.WriteLine(CsvField(row.Cells("BookingID").Value.ToString()) & "," &
                                  CsvField(row.Cells("CustomerName").Value.ToString()) & "," &

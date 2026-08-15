@@ -2,44 +2,27 @@
 
 Public Class frmScreens
 
-    'tracks the ScreenID of the row currently selected in the grid, 0 means nothing selected
     Private selectedScreenID As Long = 0
 
-    'the layout the selected screen had when it was clicked on. it is kept so that saving can tell
-    'whether the layout has actually been changed, because the seats only need making again if it has
     Private rowsWhenPicked As Integer = 0
     Private perRowWhenPicked As Integer = 0
 
-    'true once something has been typed into the boxes that has not been saved yet. it is what
-    'the warning before another row replaces it is based on
     Private boxesChanged As Boolean = False
 
-    'true while a row is being copied into the boxes, so filling them in does not count as typing
     Private fillingBoxes As Boolean = False
 
-    'whether the screen showing in the panel on the right is open for business, and why it was
-    'taken out of service if it is not. both come off the grid row that was clicked
     Private selectedStatus As String = ScreenInService
     Private selectedReason As String = ""
 
-    'how many times each seat in the selected screen has been sold, laid out the same way the
-    'room is. heatCounts(rowIndex, seatIndex) so heatCounts(0, 0) is seat A1. it is filled in
-    'when a screen is picked and the panel just draws whatever is in it
     Private heatCounts(,) As Integer
     Private heatRows As Integer = 0
     Private heatPerRow As Integer = 0
     Private heatBusiest As Integer = 0
 
-    'what sort each seat in the room being edited is meant to be, laid out the same way the room
-    'is. planTypes(rowIndex, seatIndex) holds "Standard", "Premium" or "Accessible", so
-    'planTypes(0, 0) is seat A1. it is what the seat plan tab draws and what the seats get made
-    'from, and it means the premium and accessible seats no longer have to be whole fixed rows
     Private planTypes(,) As String
     Private planRows As Integer = 0
     Private planPerRow As Integer = 0
 
-    'true once a seat on the plan has been changed and not saved yet. it is kept separate from
-    'boxesChanged because saving uses it to decide whether the seats need writing to at all
     Private planChanged As Boolean = False
 
     Private Sub frmScreens_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -52,15 +35,10 @@ Public Class frmScreens
 
         CommonFormStartup(Me)
 
-        'lets the form see escape before the box that has focus does
         Me.KeyPreview = True
 
-        'the seat popularity map is drawn rather than made out of buttons. it cannot be clicked
-        'on, so five hundred buttons would be five hundred controls doing nothing
         pnlHeatmap.BackColor = Color.White
 
-        'the seat plan is drawn the same way, but this one does get clicked on. it is one panel
-        'with the seats painted into it, and the click is worked out from where it landed
         pnlSeatPlan.BackColor = Color.White
 
         LoadScreens()
@@ -69,7 +47,6 @@ Public Class frmScreens
         WriteLog("SCREEN", "Screens form opened")
     End Sub
 
-    'escape shuts the form, same as the close button on the ones that have one
     Private Sub frmScreens_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
         If e.KeyCode = Keys.F5 Then
             LoadScreens()
@@ -78,9 +55,6 @@ Public Class frmScreens
         End If
     End Sub
 
-    'loads the screens into the grid along with how many seats have actually been made for each
-    'one and how many screenings it has, so a screen that is in use is obvious before anybody
-    'starts changing it
     Private Sub LoadScreens()
         Dim dt As New DataTable
 
@@ -95,8 +69,6 @@ Public Class frmScreens
             cn.Close()
         End If
 
-        'the extra columns are worked out a screen at a time. there are only ever a handful of
-        'screens so this is quick enough, and it is far easier to follow than one big query
         dt.Columns.Add("Rows", GetType(String))
         dt.Columns.Add("Seats", GetType(Integer))
         dt.Columns.Add("Screenings", GetType(Integer))
@@ -120,12 +92,9 @@ Public Class frmScreens
             dgvScreens.Columns("Seats").HeaderText = "Seats made"
             dgvScreens.Columns("Screenings").HeaderText = "Screenings"
 
-            'the two layout numbers are what the boxes underneath get filled from, they are not
-            'worth a column of their own when the Layout column already says it in words
             dgvScreens.Columns("ScreenRows").Visible = False
             dgvScreens.Columns("SeatsPerRow").Visible = False
 
-            'the reason is only worth reading one screen at a time, it is far too long for a column
             dgvScreens.Columns("ScreenStatusReason").Visible = False
 
             dgvScreens.Columns("ScreenID").Width = 42
@@ -143,16 +112,12 @@ Public Class frmScreens
 
         MarkScreensThatDoNotAddUp()
 
-        'done second on purpose. a screen can be the wrong size and shut at the same time, and
-        'being shut is the more important of the two to see, so it paints over the other one
         MarkScreensOutOfService()
 
         ShowCount(dt)
         dgvScreens.ClearSelection()
     End Sub
 
-    'a screen whose capacity does not match the seats that were actually made is a sign something
-    'went wrong when it was set up, so it is coloured in rather than left to be spotted by eye
     Private Sub MarkScreensThatDoNotAddUp()
         For Each row As DataGridViewRow In dgvScreens.Rows
             If CInt(row.Cells("ScreenCapacity").Value) <> CInt(row.Cells("Seats").Value) Then
@@ -167,9 +132,6 @@ Public Class frmScreens
         Next
     End Sub
 
-    'a screen that has been taken out of service is coloured so it stands out in the list.
-    'without this the only sign would be one word in a column, and somebody scheduling a film
-    'would not notice it until the save was refused
     Private Sub MarkScreensOutOfService()
         For Each row As DataGridViewRow In dgvScreens.Rows
             If StatusOfRow(row) = ScreenOutOfService Then
@@ -184,8 +146,6 @@ Public Class frmScreens
         Next
     End Sub
 
-    'reads the status off a grid row. a screen that was made before the status column existed has
-    'nothing in that cell, and an empty one counts as open so nothing that used to work stops
     Private Function StatusOfRow(row As DataGridViewRow) As String
         If row.Cells("ScreenStatus").Value Is Nothing OrElse IsDBNull(row.Cells("ScreenStatus").Value) Then
             Return ScreenInService
@@ -198,7 +158,6 @@ Public Class frmScreens
         Return row.Cells("ScreenStatus").Value.ToString()
     End Function
 
-    'says how many screens there are and how many seats that is altogether
     Private Sub ShowCount(dt As DataTable)
         Dim seats As Integer = 0
 
@@ -206,8 +165,6 @@ Public Class frmScreens
             seats = seats + CInt(row("Seats"))
         Next
 
-        'the shut ones are counted separately, because "300 seats in the building" is not true
-        'if one of the rooms is closed
         Dim shut As Integer = 0
 
         For Each row As DataGridViewRow In dgvScreens.Rows
@@ -223,7 +180,6 @@ Public Class frmScreens
         End If
     End Sub
 
-    'describes a screen's layout in words, e.g. 4 rows of 12, A to D
     Private Function RowsAsText(numRows As Integer, perRow As Integer) As String
         If numRows <= 0 Or perRow <= 0 Then
             Return "none"
@@ -236,7 +192,6 @@ Public Class frmScreens
         Return numRows & " rows of " & perRow & ", A to " & Chr(64 + numRows)
     End Function
 
-    'counts the seats that have actually been made for a screen
     Private Function SeatsOnScreen(screenID As Long) As Integer
         Dim total As Integer = 0
 
@@ -252,7 +207,6 @@ Public Class frmScreens
         Return total
     End Function
 
-    'counts the screenings scheduled in a screen
     Private Function ScreeningsOnScreen(screenID As Long) As Integer
         Dim total As Integer = 0
 
@@ -268,9 +222,6 @@ Public Class frmScreens
         Return total
     End Function
 
-    'counts how many seats in a screen have been booked by somebody. this is what makes changing
-    'the size of a screen dangerous, because making the seats again would leave those bookings
-    'pointing at seats that no longer exist
     Private Function BookedSeatsOnScreen(screenID As Long) As Integer
         Dim total As Integer = 0
 
@@ -288,10 +239,7 @@ Public Class frmScreens
         Return total
     End Function
 
-    'as either box is typed in it says what the screen will come out as, so the size and the mix of
-    'seats can be seen before anything is saved
     Private Sub Layout_TextChanged(sender As Object, e As EventArgs) Handles txtRows.TextChanged, txtPerRow.TextChanged
-        'the plan is rebuilt first, because the line under the boxes counts the seats up off it
         BuildSeatPlan()
         ShowLayoutPreview()
     End Sub
@@ -316,13 +264,10 @@ Public Class frmScreens
         End If
 
         If numRows > 26 Then
-            'the rows are lettered A to Z, so there is nowhere to go after 26
             lblLayout.Text = "The rows are lettered A to Z, so 26 rows is the most there can be"
             Exit Sub
         End If
 
-        'count how the seats split between the three sorts so the mix can be shown. it is counted
-        'off the plan rather than off the row rule, because the plan is what actually gets made
         Dim standardSeats As Integer = 0
         Dim premiumSeats As Integer = 0
         Dim accessibleSeats As Integer = 0
@@ -342,7 +287,6 @@ Public Class frmScreens
                          "Use the seat plan tab to move the premium and accessible ones about."
     End Sub
 
-    'adds a new screen and makes its seats
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
         If txtName.Text.Trim() = "" Then
             MessageBox.Show("Enter a screen name", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -363,9 +307,6 @@ Public Class frmScreens
         Dim numRows As Integer = SafeInt(txtRows.Text)
         Dim perRow As Integer = SafeInt(txtPerRow.Text)
 
-        'the screen and its seats go in together inside one transaction. they used to be two
-        'separate connections, so if the seats failed there was a screen sitting there with nothing
-        'in it and the seat map came up empty with nothing to say why
         If DbConnect() Then
             Dim trans As OleDbTransaction = cn.BeginTransaction()
 
@@ -373,8 +314,6 @@ Public Class frmScreens
                 Dim SQLCmd As New OleDbCommand
                 SQLCmd.Connection = cn
                 SQLCmd.Transaction = trans
-                'the capacity is still stored, but it is worked out from the layout rather than typed,
-                'so it can no longer disagree with the number of seats that actually get made
                 SQLCmd.CommandText = "INSERT INTO tblScreen (ScreenName, ScreenCapacity, ScreenRows, SeatsPerRow) " &
                                      "VALUES (@ScreenName, @ScreenCapacity, @ScreenRows, @SeatsPerRow)"
                 SQLCmd.Parameters.AddWithValue("@ScreenName", txtName.Text.Trim())
@@ -383,8 +322,6 @@ Public Class frmScreens
                 SQLCmd.Parameters.AddWithValue("@SeatsPerRow", perRow)
                 SQLCmd.ExecuteNonQuery()
 
-                'grab the ID just given to the new screen so we can generate its seats.
-                'the parameters have to come off first, this query does not take any
                 SQLCmd.CommandText = "SELECT @@IDENTITY"
                 SQLCmd.Parameters.Clear()
                 newScreenID = CLng(SQLCmd.ExecuteScalar())
@@ -403,10 +340,8 @@ Public Class frmScreens
             cn.Close()
         End If
 
-        'kept because ClearFields empties the box before there is a chance to say what was saved
         Dim savedName As String = txtName.Text.Trim()
 
-        'logging waits until the connection is shut, WriteLog opens its own
         If newScreenID > 0 Then
             Dim standardSeats As Integer = 0
             Dim premiumSeats As Integer = 0
@@ -427,10 +362,7 @@ Public Class frmScreens
         End If
     End Sub
 
-    'saves the changes made to the screen selected in the grid
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
-        'this cannot normally happen, the button is switched off until a row is picked.
-        'it stays in so the sub can never run without an id, whatever calls it
         If selectedScreenID = 0 Then
             MessageBox.Show("Select a screen in the grid first", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
@@ -455,15 +387,9 @@ Public Class frmScreens
         Dim newPerRow As Integer = SafeInt(txtPerRow.Text)
         Dim newCapacity As Integer = newRows * newPerRow
 
-        'the seats are only worth making again if the layout has actually changed. before, renaming
-        'a screen wiped all of its seats and made them again for no reason.
-        'the rows and the seats per row are both checked, not just the total, because 6 rows of 10
-        'and 10 rows of 6 are the same number of seats but a completely different room
         Dim capacityChanged As Boolean = (newRows <> rowsWhenPicked Or newPerRow <> perRowWhenPicked)
 
         If capacityChanged Then
-            'making the seats again means deleting the old ones, and anything already booked in
-            'this screen is booked against one of those seats, so it has to be stopped
             Dim booked As Integer = BookedSeatsOnScreen(selectedScreenID)
 
             If booked > 0 Then
@@ -481,9 +407,6 @@ Public Class frmScreens
             End If
         End If
 
-        'changing the plan on a room that is already selling is allowed, but it is worth saying
-        'what it does. tickets already sold keep the price they were sold at, that is stored on
-        'the booking, so this only changes what the seat costs from now on
         If planChanged And Not capacityChanged Then
             If BookedSeatsOnScreen(selectedScreenID) > 0 Then
                 If MessageBox.Show("This screen has seats already booked." & vbCrLf &
@@ -496,10 +419,6 @@ Public Class frmScreens
             End If
         End If
 
-        'this is the most damaging thing the program can do. resizing a screen throws all of its
-        'seats away and makes them again, and that used to happen on three separate connections, so
-        'a failure after the delete left the room with no seats at all and no way of getting them
-        'back. all of it is one transaction now, so either the whole resize happens or none of it
         Dim saved As Boolean = False
 
         If DbConnect() Then
@@ -520,9 +439,6 @@ Public Class frmScreens
                 SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
                 SQLCmd.ExecuteNonQuery()
 
-                'only remake the seats if the layout actually changed, not if just the name did.
-                'if the room is the same size but the plan has been marked out differently, the
-                'seats stay exactly where they are and only the sort on each one is written
                 If capacityChanged Then
                     DeleteSeats(SQLCmd, selectedScreenID)
                     GenerateSeats(SQLCmd, selectedScreenID, newRows, newPerRow)
@@ -569,17 +485,12 @@ Public Class frmScreens
         End If
     End Sub
 
-    'deletes the screen selected in the grid
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
-        'this cannot normally happen, the button is switched off until a row is picked.
-        'it stays in so the sub can never run without an id, whatever calls it
         If selectedScreenID = 0 Then
             MessageBox.Show("Select a screen in the grid first", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
-        'a screen with something scheduled in it cannot go, those screenings would be left in a
-        'room that does not exist
         Dim screenings As Integer = ScreeningsOnScreen(selectedScreenID)
 
         If screenings > 0 Then
@@ -604,8 +515,6 @@ Public Class frmScreens
             Exit Sub
         End If
 
-        'the seats have to go before the screen does, the database will not allow it the other way
-        'round. both together in one transaction so a screen can never be left with orphan seats
         Dim deleted As Boolean = False
 
         If DbConnect() Then
@@ -650,8 +559,6 @@ Public Class frmScreens
         End If
     End Sub
 
-    'checks the two layout boxes. there is no multiple of ten rule any more, because the rows and
-    'the seats in them are given separately, so any size of screen works out exactly
     Private Function CapacityIsValid() As Boolean
         If Not IsNumeric(txtRows.Text) Then
             MessageBox.Show("How many rows has to be a number", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -680,15 +587,12 @@ Public Class frmScreens
             Return False
         End If
 
-        'twenty six rows is as far as the letters go
         If numRows > 26 Then
             MessageBox.Show("The rows are lettered A to Z, so a screen cannot have more than 26 rows", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtRows.Focus()
             Return False
         End If
 
-        'the seat map draws a button per seat across the panel, so a silly wide row would run off
-        'the side of it
         If perRow > 20 Then
             MessageBox.Show("A row cannot have more than 20 seats in it, they would not fit on the seat map", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtPerRow.Focus()
@@ -698,9 +602,6 @@ Public Class frmScreens
         Return True
     End Function
 
-    'says whether another screen already has this name. screens are picked by name all over the
-    'program, on the screenings form and the door list, so two called Screen 2 would be guesswork.
-    'the screen being edited is left out of the count so renaming nothing does not trip over itself
     Private Function NameAlreadyUsed() As Boolean
         Dim total As Integer = 0
 
@@ -718,7 +619,6 @@ Public Class frmScreens
         Return total > 0
     End Function
 
-    'the message for when the name is taken, said the same way whether adding or changing
     Private Sub SayNameIsTaken()
         MessageBox.Show("There is already a screen called '" & txtName.Text.Trim() & "'." & vbCrLf &
                         "Screens are picked by name everywhere else, so two the same cannot be told apart.",
@@ -726,12 +626,10 @@ Public Class frmScreens
         txtName.Focus()
     End Sub
 
-    'clears the boxes and the selection
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         ClearFields()
     End Sub
 
-    'anything changed in the boxes by hand counts as an unsaved change
     Private Sub Details_Changed(sender As Object, e As EventArgs) Handles txtName.TextChanged, txtRows.TextChanged,
         txtPerRow.TextChanged
         If fillingBoxes Then
@@ -741,8 +639,6 @@ Public Class frmScreens
         boxesChanged = True
     End Sub
 
-    'asks before typing that has not been saved gets thrown away. it only asks when something has
-    'actually been changed, so clicking down a list of rows to read them never interrupts
     Private Function ChangesCanBeLost() As Boolean
         If Not boxesChanged Then
             Return True
@@ -757,7 +653,6 @@ Public Class frmScreens
     Private Sub ClearFields()
         fillingBoxes = True
 
-        'the confirmation only lasts until the next thing is started
         lblSaved.Text = ""
         selectedScreenID = 0
         rowsWhenPicked = 0
@@ -779,9 +674,6 @@ Public Class frmScreens
         ClearScreenDetail()
     End Sub
 
-    'the heading over the boxes says whether a new screen is being typed in or an existing one is
-    'being changed. save and delete are switched off until something is picked, rather than
-    'letting them be pressed and then telling the user off with a message box
     Private Sub ShowWhatIsBeingEdited()
         If selectedScreenID = 0 Then
             lblStatus.Text = "Adding a new screen"
@@ -796,15 +688,7 @@ Public Class frmScreens
         End If
     End Sub
 
-    'makes a row of 10 seats for every 10 seats of capacity, rows go A, B, C...
-    'makes the seats for a screen from how many rows it has and how many seats are in each row.
-    'it used to work the rows out as capacity \ 10, which threw away the remainder, so asking for
-    '95 seats quietly made 90. the number of rows and the seats in each are now both given, so
-    'the seats made always come to exactly rows times seats per row
-    'the command is passed in already connected and inside a transaction, because making the seats
-    'has to succeed or fail together with whatever is being done to the screen itself
     Private Sub GenerateSeats(SQLCmd As OleDbCommand, screenID As Long, numRows As Integer, perRow As Integer)
-        'read the seat types once at the start rather than looking one up for every seat
         SQLCmd.CommandText = "SELECT SeatTypeID, SeatTypeName FROM tblSeatType"
         SQLCmd.Parameters.Clear()
         Dim dtTypes As New DataTable
@@ -820,8 +704,6 @@ Public Class frmScreens
         SQLCmd.Parameters.AddWithValue("@SeatNumber", 0)
         SQLCmd.Parameters.AddWithValue("@SeatTypeID", 0)
 
-        'the sort is now looked up a seat at a time rather than a row at a time, because the plan
-        'on the seat plan tab can have premium and accessible seats anywhere in the room
         For rowIndex As Integer = 0 To numRows - 1
             Dim rowLetter As String = Chr(65 + rowIndex)
 
@@ -835,7 +717,6 @@ Public Class frmScreens
         Next
     End Sub
 
-    'finds the id of a seat type in the little table that was read at the start
     Private Function TypeIDFromTable(dtTypes As DataTable, typeName As String) As Long
         For Each row As DataRow In dtTypes.Rows
             If row("SeatTypeName").ToString() = typeName Then
@@ -846,12 +727,7 @@ Public Class frmScreens
         Return 0
     End Function
 
-    'works out what sort of seat a row is. the back two rows of a screen are the premium ones,
-    'which is how most cinemas do it because the view from the back is better, and the front row
-    'is the accessible one because it is the easiest to get to. everything else is standard.
-    'the rule lives in one function so the seat map, the preview and the seat making all agree
     Private Function SeatTypeForRow(rowIndex As Integer, numRows As Integer) As String
-        'a really small screen has no room to set rows aside, so it is all standard
         If numRows < 4 Then
             Return SeatStandard
         End If
@@ -867,8 +743,6 @@ Public Class frmScreens
         Return SeatStandard
     End Function
 
-    'removes every seat that belongs to a screen. same as GenerateSeats, the command comes in
-    'already inside a transaction so the delete can be undone if what follows it goes wrong
     Private Sub DeleteSeats(SQLCmd As OleDbCommand, screenID As Long)
         SQLCmd.CommandText = "DELETE FROM tblSeat " &
                              "WHERE ScreenID = @ScreenID"
@@ -877,12 +751,9 @@ Public Class frmScreens
         SQLCmd.ExecuteNonQuery()
     End Sub
 
-    'when a row is clicked, load its values into the boxes for editing
     Private Sub dgvScreens_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvScreens.CellClick
         If e.RowIndex < 0 Then Exit Sub
 
-        'clicking a row replaces whatever is in the boxes, so anything typed and not saved
-        'would have gone without a word. the selection is left alone if the answer is no
         If Not ChangesCanBeLost() Then
             Exit Sub
         End If
@@ -895,7 +766,6 @@ Public Class frmScreens
         txtRows.Text = row.Cells("ScreenRows").Value.ToString()
         txtPerRow.Text = row.Cells("SeatsPerRow").Value.ToString()
 
-        'remembered so saving can tell whether the layout has been changed or only the name
         rowsWhenPicked = CInt(row.Cells("ScreenRows").Value)
         perRowWhenPicked = CInt(row.Cells("SeatsPerRow").Value)
 
@@ -909,7 +779,6 @@ Public Class frmScreens
         ShowScreenDetail()
     End Sub
 
-    'reads the out of service reason off a grid row, empty if there is not one
     Private Function ReasonOfRow(row As DataGridViewRow) As String
         If row.Cells("ScreenStatusReason").Value Is Nothing OrElse IsDBNull(row.Cells("ScreenStatusReason").Value) Then
             Return ""
@@ -918,8 +787,6 @@ Public Class frmScreens
         Return row.Cells("ScreenStatusReason").Value.ToString()
     End Function
 
-    'puts the grid selection back on a screen after the grid has been reloaded, so changing a
-    'screen's status does not throw away what is showing in the panel on the right
     Private Sub SelectScreenInGrid(screenID As Long)
         For Each row As DataGridViewRow In dgvScreens.Rows
             If CLng(row.Cells("ScreenID").Value) = screenID Then
@@ -931,13 +798,6 @@ Public Class frmScreens
         Next
     End Sub
 
-    '=============================================================================
-    'everything below here is the panel on the right, which is about looking after a screen that
-    'already exists rather than making a new one. the boxes on the left change what a screen is,
-    'this side says how it is doing and whether it is open
-    '=============================================================================
-
-    'fills the whole right hand panel in for whichever screen is picked in the grid
     Private Sub ShowScreenDetail()
         If selectedScreenID = 0 Then
             ClearScreenDetail()
@@ -953,8 +813,6 @@ Public Class frmScreens
         ShowStatusButtons()
     End Sub
 
-    'empties the right hand panel when nothing is picked, so it never shows numbers belonging to
-    'a screen that is no longer selected
     Private Sub ClearScreenDetail()
         lblPickedScreen.Text = "Pick a screen in the grid"
         lblOverview.Text = ""
@@ -976,7 +834,6 @@ Public Class frmScreens
         pnlHeatmap.Invalidate()
     End Sub
 
-    'the block of numbers at the top of the overview tab
     Private Sub LoadOverview()
         Dim seatsMade As Integer = SeatsOnScreen(selectedScreenID)
         Dim screenings As Integer = ScreeningsOnScreen(selectedScreenID)
@@ -984,8 +841,6 @@ Public Class frmScreens
         Dim sold As Integer = BookedSeatsOnScreen(selectedScreenID)
         Dim takings As Double = TakingsOnScreen(selectedScreenID)
 
-        'how full the room usually gets. every screening put the whole room on sale, so the seats
-        'that could have been sold is the number of screenings times the size of the room
         Dim couldHaveSold As Integer = screenings * seatsMade
         Dim howFull As String = "no screenings yet"
 
@@ -993,8 +848,6 @@ Public Class frmScreens
             howFull = Math.Round(sold * 100.0 / couldHaveSold, 1) & "% full on average"
         End If
 
-        'a tab character does not line up in a label the way it does in a text box, so each line
-        'names the thing it is showing instead of trying to make two columns out of it
         Dim lines As String = ""
         lines = lines & "Layout:  " & RowsAsText(SafeInt(txtRows.Text), SafeInt(txtPerRow.Text)) & vbCrLf
         lines = lines & "Seats made:  " & seatsMade & vbCrLf
@@ -1009,7 +862,6 @@ Public Class frmScreens
         lblOverview.Text = lines
     End Sub
 
-    'counts the screenings in a screen that have not been on yet
     Private Function UpcomingScreeningsOnScreen(screenID As Long) As Integer
         Dim total As Integer = 0
 
@@ -1027,9 +879,6 @@ Public Class frmScreens
         Return total
     End Function
 
-    'adds up what the tickets sold in a screen actually took. it sums SeatPricePaid off the seat
-    'rows rather than working the price out again, because a ticket is the price it was sold at
-    'and a later price change must not reach back and rewrite what a screen took last month
     Private Function TakingsOnScreen(screenID As Long) As Double
         Dim total As Double = 0
 
@@ -1042,7 +891,6 @@ Public Class frmScreens
             SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
             Dim answer As Object = SQLCmd.ExecuteScalar()
 
-            'SUM comes back empty rather than zero when there is nothing to add up
             If answer IsNot Nothing AndAlso Not IsDBNull(answer) Then
                 total = CDbl(answer)
             End If
@@ -1053,9 +901,6 @@ Public Class frmScreens
         Return total
     End Function
 
-    'works out which time of day fills this screen up the best. the screenings and the seats sold
-    'are read in two goes and then matched up by hand, because what is wanted is an average per
-    'time of day and there is no one query that gives that without getting clever
     Private Function BusiestTimeSlot(screenID As Long) As String
         Dim dtScreenings As New DataTable
         Dim dtSold As New DataTable
@@ -1078,8 +923,6 @@ Public Class frmScreens
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            'tblBookingSeat carries the ScreeningID itself, so the seats sold can be counted
-            'without joining back through the booking
             SQLCmd.CommandText = "SELECT tblBookingSeat.ScreeningID FROM tblBookingSeat " &
                                  "INNER JOIN tblScreening ON tblBookingSeat.ScreeningID = tblScreening.ScreeningID " &
                                  "WHERE tblScreening.ScreenID = @ScreenID"
@@ -1089,9 +932,6 @@ Public Class frmScreens
             cn.Close()
         End If
 
-        'one entry per time of day. slotTimes holds the time, slotSold how many seats went at that
-        'time altogether and slotShows how many screenings there were, so an average can be worked
-        'out at the end. three arrays kept side by side, the same position in each is the same slot
         Dim slotTimes(0) As String
         Dim slotSold(0) As Integer
         Dim slotShows(0) As Integer
@@ -1101,7 +941,6 @@ Public Class frmScreens
             Dim thisTime As String = screening("ScreeningTime").ToString()
             Dim thisID As Long = CLng(screening("ScreeningID"))
 
-            'count the seats sold for this screening by going through the sold rows
             Dim soldHere As Integer = 0
 
             For Each seat As DataRow In dtSold.Rows
@@ -1110,7 +949,6 @@ Public Class frmScreens
                 End If
             Next
 
-            'find the slot this time already has, or start a new one for it
             Dim slot As Integer = -1
 
             For i As Integer = 0 To slotCount - 1
@@ -1135,7 +973,6 @@ Public Class frmScreens
             slotShows(slot) = slotShows(slot) + 1
         Next
 
-        'now pick whichever slot sold the most seats per screening
         Dim bestSlot As Integer = -1
         Dim bestAverage As Double = -1
 
@@ -1155,14 +992,6 @@ Public Class frmScreens
         Return slotTimes(bestSlot) & ", " & Math.Round(bestAverage, 1) & " seats a showing"
     End Function
 
-    '=============================================================================
-    'the seat popularity map
-    '=============================================================================
-
-    'counts how many times every seat in the screen has been sold and puts the answers into
-    'heatCounts, laid out the same way the room is. the seats and the sold rows are read in two
-    'goes and matched up in a loop rather than being counted with a GROUP BY, because every seat
-    'has to end up in the grid, including the ones nobody has ever picked
     Private Sub LoadHeatmap()
         Dim dtSeats As New DataTable
         Dim dtSold As New DataTable
@@ -1205,9 +1034,6 @@ Public Class frmScreens
 
         ReDim heatCounts(heatRows - 1, heatPerRow - 1)
 
-        'go through every seat in the room and count how many of the sold rows point at it.
-        'it is a loop inside a loop, which is slower than letting the database group it, but a
-        'screen is a few hundred seats at most and this way the seats nobody booked are still there
         Dim totalSold As Integer = 0
 
         For Each seat As DataRow In dtSeats.Rows
@@ -1215,7 +1041,6 @@ Public Class frmScreens
             Dim rowIndex As Integer = Asc(seat("SeatRow").ToString().ToUpper()) - 65
             Dim seatIndex As Integer = CInt(seat("SeatNumber")) - 1
 
-            'a seat left over from an older, bigger layout would fall outside the grid
             If rowIndex >= 0 And rowIndex < heatRows And seatIndex >= 0 And seatIndex < heatPerRow Then
                 Dim timesSold As Integer = 0
 
@@ -1252,8 +1077,6 @@ Public Class frmScreens
         pnlHeatmap.Invalidate()
     End Sub
 
-    'draws the seat popularity map. it is painted rather than made out of buttons because nothing
-    'on it can be clicked, so there is no reason for it to be hundreds of controls
     Private Sub pnlHeatmap_Paint(sender As Object, e As PaintEventArgs) Handles pnlHeatmap.Paint
         Dim g As Graphics = e.Graphics
         g.Clear(Color.White)
@@ -1263,13 +1086,11 @@ Public Class frmScreens
             Exit Sub
         End If
 
-        'room is left down the side for the row letters and along the top for the screen
         Dim letterWidth As Integer = 22
         Dim screenBar As Integer = 22
         Dim usableWidth As Integer = pnlHeatmap.Width - letterWidth - 6
         Dim usableHeight As Integer = pnlHeatmap.Height - screenBar - 6
 
-        'every seat is the same size, so the size is whichever of the two directions runs out first
         Dim cellSize As Integer = usableWidth \ heatPerRow
 
         If usableHeight \ heatRows < cellSize Then
@@ -1281,19 +1102,15 @@ Public Class frmScreens
             Exit Sub
         End If
 
-        'a gap between the seats, but not on the tiny ones or there would be nothing left
         Dim gap As Integer = 2
 
         If cellSize < 14 Then
             gap = 1
         End If
 
-        'the block of seats is centred both ways, otherwise a small screen sits in the corner
-        'with a lot of empty white underneath it
         Dim startX As Integer = letterWidth + (usableWidth - (heatPerRow * cellSize)) \ 2
         Dim startY As Integer = screenBar + 4 + (usableHeight - (heatRows * cellSize)) \ 2
 
-        'the screen itself goes along the top, because row A is the front row
         Dim barWidth As Integer = heatPerRow * cellSize - gap
         g.FillRectangle(New SolidBrush(Color.FromArgb(70, 70, 78)), startX, startY - 20, barWidth, 14)
         g.DrawString("SCREEN", New Font("Segoe UI", 7.5), Brushes.White,
@@ -1305,7 +1122,6 @@ Public Class frmScreens
         For rowIndex As Integer = 0 To heatRows - 1
             Dim y As Integer = startY + (rowIndex * cellSize)
 
-            'the row letter down the left so a hot patch can be pointed at
             g.DrawString(Chr(65 + rowIndex), letterFont, Brushes.Gray, 4, y + 1)
 
             For seatIndex As Integer = 0 To heatPerRow - 1
@@ -1314,7 +1130,6 @@ Public Class frmScreens
 
                 g.FillRectangle(New SolidBrush(HeatColour(timesSold)), x, y, cellSize - gap, cellSize - gap)
 
-                'the number only goes on when the seats are drawn big enough to read it
                 If cellSize >= 26 And timesSold > 0 Then
                     Dim fore As Brush = Brushes.Black
 
@@ -1328,10 +1143,6 @@ Public Class frmScreens
         Next
     End Sub
 
-    'picks the colour for a seat from how many times it has been sold. a seat nobody has ever
-    'picked is grey, and everything else fades from pale yellow up to deep red depending on how
-    'it compares with the busiest seat in the room. working from the busiest seat rather than a
-    'fixed number means a quiet screen still shows which of its seats people prefer
     Private Function HeatColour(timesSold As Integer) As Color
         If timesSold <= 0 Or heatBusiest <= 0 Then
             Return Color.FromArgb(224, 224, 228)
@@ -1339,8 +1150,6 @@ Public Class frmScreens
 
         Dim howHot As Double = timesSold / heatBusiest
 
-        'the pale end is 255,236,160 and the hot end is 190,30,45, so each part of the colour is
-        'moved that far along depending on how hot the seat is
         Dim red As Integer = CInt(255 + ((190 - 255) * howHot))
         Dim green As Integer = CInt(236 + ((30 - 236) * howHot))
         Dim blue As Integer = CInt(160 + ((45 - 160) * howHot))
@@ -1348,13 +1157,6 @@ Public Class frmScreens
         Return Color.FromArgb(red, green, blue)
     End Function
 
-    '=============================================================================
-    'the seat plan, where the premium and accessible seats get put
-    '=============================================================================
-
-    'builds the plan to match whatever is in the two boxes. anything already picked is kept if it
-    'still fits, so nudging the seats per row up by one does not throw away all the marking out
-    'that has already been done. new squares start on whatever the usual layout would give them
     Private Sub BuildSeatPlan()
         Dim numRows As Integer = SafeInt(txtRows.Text)
         Dim perRow As Integer = SafeInt(txtPerRow.Text)
@@ -1367,7 +1169,6 @@ Public Class frmScreens
             Exit Sub
         End If
 
-        'hold on to what is there now, because the ReDim below empties the array
         Dim oldTypes(,) As String = planTypes
         Dim oldRows As Integer = planRows
         Dim oldPerRow As Integer = planPerRow
@@ -1390,8 +1191,6 @@ Public Class frmScreens
         pnlSeatPlan.Invalidate()
     End Sub
 
-    'what sort of seat the plan says a square is. anything the plan does not cover falls back on
-    'the usual layout, so seat making still works even if the plan was never drawn
     Private Function PlannedTypeFor(rowIndex As Integer, seatIndex As Integer, numRows As Integer) As String
         If rowIndex < 0 Or seatIndex < 0 Or rowIndex >= planRows Or seatIndex >= planPerRow Then
             Return SeatTypeForRow(rowIndex, numRows)
@@ -1404,7 +1203,6 @@ Public Class frmScreens
         Return planTypes(rowIndex, seatIndex)
     End Function
 
-    'clicking a seat moves it on to the next sort, and round again from the end
     Private Function NextSeatType(thisType As String) As String
         If thisType = SeatStandard Then
             Return SeatPremium
@@ -1417,7 +1215,6 @@ Public Class frmScreens
         Return SeatStandard
     End Function
 
-    'the colour each sort of seat is drawn in on the plan
     Private Function PlanColour(seatType As String) As Color
         If seatType = SeatPremium Then
             Return Color.FromArgb(212, 175, 55)
@@ -1430,9 +1227,6 @@ Public Class frmScreens
         Return Color.FromArgb(190, 195, 205)
     End Function
 
-    'works out how big to draw the seats and where the block of them starts. the drawing and the
-    'clicking both need these numbers, so they are worked out in one place rather than twice,
-    'which is what would let a click land on a different seat from the one drawn there
     Private Sub SeatPlanGeometry(ByRef cellSize As Integer, ByRef startX As Integer, ByRef startY As Integer)
         Dim letterWidth As Integer = 22
         Dim screenBar As Integer = 22
@@ -1449,8 +1243,6 @@ Public Class frmScreens
         startY = screenBar + 4 + (usableHeight - (planRows * cellSize)) \ 2
     End Sub
 
-    'draws the plan of the room. it is painted rather than made out of buttons because a big
-    'screen would be several hundred controls, and all it has to do is show a colour per seat
     Private Sub pnlSeatPlan_Paint(sender As Object, e As PaintEventArgs) Handles pnlSeatPlan.Paint
         Dim g As Graphics = e.Graphics
         g.Clear(Color.White)
@@ -1470,14 +1262,12 @@ Public Class frmScreens
             Exit Sub
         End If
 
-        'a gap between the seats, but a smaller one on the little ones or there is nothing left
         Dim gap As Integer = 2
 
         If cellSize < 14 Then
             gap = 1
         End If
 
-        'the screen itself goes along the top, because row A is the front row
         Dim barWidth As Integer = planPerRow * cellSize - gap
         g.FillRectangle(New SolidBrush(Color.FromArgb(70, 70, 78)), startX, startY - 20, barWidth, 14)
         g.DrawString("SCREEN", New Font("Segoe UI", 7.5), Brushes.White,
@@ -1489,7 +1279,6 @@ Public Class frmScreens
         For rowIndex As Integer = 0 To planRows - 1
             Dim y As Integer = startY + (rowIndex * cellSize)
 
-            'the row letter down the left. clicking it changes the whole row at once
             g.DrawString(Chr(65 + rowIndex), letterFont, Brushes.Gray, 4, y + 1)
 
             For seatIndex As Integer = 0 To planPerRow - 1
@@ -1498,8 +1287,6 @@ Public Class frmScreens
 
                 g.FillRectangle(New SolidBrush(PlanColour(thisType)), x, y, cellSize - gap, cellSize - gap)
 
-                'a letter on the seat as well as the colour, so the plan can still be read when
-                'it is printed in black and white for the write up
                 If cellSize >= 14 And thisType <> SeatStandard Then
                     Dim mark As String = "P"
 
@@ -1513,7 +1300,6 @@ Public Class frmScreens
         Next
     End Sub
 
-    'clicking a seat changes what sort it is, and clicking the row letter changes the whole row
     Private Sub pnlSeatPlan_MouseDown(sender As Object, e As MouseEventArgs) Handles pnlSeatPlan.MouseDown
         If planRows <= 0 Or planPerRow <= 0 Then
             Exit Sub
@@ -1528,8 +1314,6 @@ Public Class frmScreens
             Exit Sub
         End If
 
-        'above the first row is not a click on a seat at all. it has to be checked before the
-        'divide, because a negative divided down still comes out as row 0
         If e.Y < startY Then
             Exit Sub
         End If
@@ -1541,7 +1325,6 @@ Public Class frmScreens
         End If
 
         If e.X < startX Then
-            'the row letter, so the whole row goes to whatever the first seat in it would become
             Dim newType As String = NextSeatType(planTypes(rowIndex, 0))
 
             For seatIndex As Integer = 0 To planPerRow - 1
@@ -1557,7 +1340,6 @@ Public Class frmScreens
             planTypes(rowIndex, seatIndex) = NextSeatType(planTypes(rowIndex, seatIndex))
         End If
 
-        'marking seats out counts as an unsaved change the same as typing in the boxes does
         planChanged = True
         boxesChanged = True
 
@@ -1566,7 +1348,6 @@ Public Class frmScreens
         pnlSeatPlan.Invalidate()
     End Sub
 
-    'puts the plan back to the usual layout, front row accessible and the back two premium
     Private Sub btnPlanDefault_Click(sender As Object, e As EventArgs) Handles btnPlanDefault.Click
         If planRows <= 0 Then
             Exit Sub
@@ -1585,7 +1366,6 @@ Public Class frmScreens
         pnlSeatPlan.Invalidate()
     End Sub
 
-    'wipes the plan back to a room with nothing special in it
     Private Sub btnPlanAllStandard_Click(sender As Object, e As EventArgs) Handles btnPlanAllStandard.Click
         If planRows <= 0 Then
             Exit Sub
@@ -1604,7 +1384,6 @@ Public Class frmScreens
         pnlSeatPlan.Invalidate()
     End Sub
 
-    'the wording above and below the plan, including how many of each sort there are
     Private Sub ShowSeatPlanKey()
         If planRows <= 0 Or planPerRow <= 0 Then
             lblSeatPlanInfo.Text = "Type how many rows and how many seats in each row first," & vbCrLf &
@@ -1628,8 +1407,6 @@ Public Class frmScreens
                               accessibleSeats & " accessible."
     End Sub
 
-    'counts the plan up into the three sorts. the line under the boxes and the key under the
-    'plan both want the same three numbers, so they get counted once here
     Private Sub CountPlannedSeats(ByRef standardSeats As Integer, ByRef premiumSeats As Integer, ByRef accessibleSeats As Integer)
         standardSeats = 0
         premiumSeats = 0
@@ -1650,8 +1427,6 @@ Public Class frmScreens
         Next
     End Sub
 
-    'reads the sort of every seat in the selected screen back into the plan, so an existing room
-    'comes up marked out the way it really is rather than the way the usual layout would have it
     Private Sub LoadSeatPlanFromScreen()
         BuildSeatPlan()
 
@@ -1677,13 +1452,11 @@ Public Class frmScreens
             Dim rowIndex As Integer = Asc(seat("SeatRow").ToString().ToUpper()) - 65
             Dim seatIndex As Integer = CInt(seat("SeatNumber")) - 1
 
-            'a seat left over from an older, bigger layout would fall outside the plan
             If rowIndex >= 0 And rowIndex < planRows And seatIndex >= 0 And seatIndex < planPerRow Then
                 planTypes(rowIndex, seatIndex) = seat("SeatTypeName").ToString()
             End If
         Next
 
-        'what has just been read is what is already saved, so there is nothing to write back yet
         planChanged = False
 
         ShowSeatPlanKey()
@@ -1691,10 +1464,6 @@ Public Class frmScreens
         pnlSeatPlan.Invalidate()
     End Sub
 
-    'writes the plan onto seats that already exist. this is the path taken when the room is still
-    'the same size, so the seats must not be thrown away and made again - anything already booked
-    'is pointing at them. only the sort on each seat changes, the seats themselves stay put.
-    'the command comes in inside a transaction like the other seat routines do
     Private Sub SaveSeatTypes(SQLCmd As OleDbCommand, screenID As Long, numRows As Integer, perRow As Integer)
         SQLCmd.CommandText = "SELECT SeatTypeID, SeatTypeName FROM tblSeatType"
         SQLCmd.Parameters.Clear()
@@ -1724,13 +1493,6 @@ Public Class frmScreens
         Next
     End Sub
 
-    '=============================================================================
-    'what is on in this screen
-    '=============================================================================
-
-    'lists the screenings still to come in this screen, with how full each one is. it is read only
-    'on purpose, the screenings form is still the place they get changed. it is here so that
-    'whoever is about to shut a screen can see what they would be disrupting
     Private Sub LoadScreeningsForScreen()
         Dim dt As New DataTable
 
@@ -1751,9 +1513,6 @@ Public Class frmScreens
 
         Dim capacity As Integer = SeatsOnScreen(selectedScreenID)
 
-        'a second table is built to show, with its columns already in the order they should read.
-        'putting the made up columns on the end of the first one and then shuffling them about
-        'afterwards came out in the wrong order, because the hidden columns are still in the way
         Dim dtShow As New DataTable
         dtShow.Columns.Add("When", GetType(String))
         dtShow.Columns.Add("Film", GetType(String))
@@ -1800,9 +1559,6 @@ Public Class frmScreens
         End If
     End Sub
 
-    'counts the seats sold for one screening. tblBookingSeat carries the ScreeningID itself, so
-    'this does not need to go back through tblBooking, and cancelling deletes these rows so there
-    'is nothing to filter out
     Private Function SeatsSoldOnScreening(screeningID As Long) As Integer
         Dim total As Integer = 0
 
@@ -1818,11 +1574,6 @@ Public Class frmScreens
         Return total
     End Function
 
-    '=============================================================================
-    'taking a screen out of service and putting it back
-    '=============================================================================
-
-    'sets up the two buttons and the words above them for whichever screen is picked
     Private Sub ShowStatusButtons()
         If selectedStatus = ScreenOutOfService Then
             lblScreenState.Text = "This screen is OUT OF SERVICE" & vbCrLf & "Reason: " & selectedReason
@@ -1851,9 +1602,6 @@ Public Class frmScreens
         End If
     End Sub
 
-    'takes a screen out of service, which is a repair, a refit or anything else that means it
-    'cannot be used for a while. it is deliberately not a delete, because deleting would take the
-    'seats and everything that has ever been sold in the room with it
     Private Sub btnOutOfService_Click(sender As Object, e As EventArgs) Handles btnOutOfService.Click
         If selectedScreenID = 0 Then
             MessageBox.Show("Select a screen in the grid first", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -1869,8 +1617,6 @@ Public Class frmScreens
             Exit Sub
         End If
 
-        'a screening that people have already bought tickets for cannot just be left in a room that
-        'is shut. those bookings have to be dealt with first, so the screen will not go out
         Dim bookedAhead As Integer = BookedSeatsAhead(selectedScreenID)
 
         If bookedAhead > 0 Then
@@ -1883,7 +1629,6 @@ Public Class frmScreens
             Exit Sub
         End If
 
-        'screenings with nothing sold are not a reason to stop, but they are worth saying out loud
         Dim upcoming As Integer = UpcomingScreeningsOnScreen(selectedScreenID)
         Dim question As String = "Take '" & txtName.Text & "' out of service?"
 
@@ -1901,15 +1646,12 @@ Public Class frmScreens
         SetScreenStatus(ScreenOutOfService, txtReason.Text.Trim())
     End Sub
 
-    'puts a screen back on after whatever was wrong with it has been sorted out
     Private Sub btnBackInService_Click(sender As Object, e As EventArgs) Handles btnBackInService.Click
         If selectedScreenID = 0 Then
             MessageBox.Show("Select a screen in the grid first", "Screens", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
-        'a room with no seats in it cannot take a booking, so putting it back would only mean the
-        'seat map came up empty with nothing to explain why
         Dim seatsMade As Integer = SeatsOnScreen(selectedScreenID)
 
         If seatsMade = 0 Then
@@ -1930,19 +1672,12 @@ Public Class frmScreens
         SetScreenStatus(ScreenInService, "")
     End Sub
 
-    'writes the new status onto the screen. the reason and the date go with it so the list is not
-    'just a word, it says why and since when
     Private Sub SetScreenStatus(newStatus As String, reason As String)
         Dim saved As Boolean = False
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            'the date goes in with Now() in the query rather than as a parameter, the same way the
-            'cancel on the booking search does it. a date with a time on it through AddWithValue
-            'carries the milliseconds with it, and an Access date field has no room for those, so
-            'the whole update comes back as a data type mismatch. every other date in the program
-            'is a midnight one, which is why this is the only place it bit
             SQLCmd.CommandText = "UPDATE tblScreen " &
                                  "SET ScreenStatus = @ScreenStatus, ScreenStatusReason = @ScreenStatusReason, " &
                                  "ScreenStatusDate = Now() " &
@@ -1957,8 +1692,6 @@ Public Class frmScreens
 
         Dim screenName As String = txtName.Text.Trim()
 
-        'a room being shut or opened changes what the whole program will let people do, so it is
-        'worth more than an ordinary change entry in the log
         If saved Then
             If newStatus = ScreenOutOfService Then
                 WriteLog("SCREEN", "Screen taken out of service: " & screenName & " (" & reason & ")", LogWarning)
@@ -1982,8 +1715,6 @@ Public Class frmScreens
         End If
     End Sub
 
-    'counts the tickets already sold for screenings in this screen that have not been on yet.
-    'this is the thing that decides whether a screen is allowed to be shut
     Private Function BookedSeatsAhead(screenID As Long) As Integer
         Dim total As Integer = 0
 

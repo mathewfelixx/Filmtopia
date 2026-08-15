@@ -2,10 +2,8 @@
 
 Public Class frmFoodOrder
 
-    'the booking this food order belongs to, set by frmBookings before showing this form
     Public currentBookingID As Long = 0
 
-    'the order item currently selected in the grid, 0 means nothing selected
     Private selectedOrderItemID As Integer = 0
 
     Private Sub frmFoodOrder_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -14,9 +12,6 @@ Public Class frmFoodOrder
         LoadFoodItemsCombo()
         LoadOrderItems()
 
-        'a cancelled sale has been refunded, so nothing more can be put on it. the till screen
-        'already leaves cancelled bookings out of its list, but this form can be reached with any
-        'booking, and adding food to one would sit in the database without ever being charged for
         If BookingIsCancelled() Then
             lblBookingInfo.Text = lblBookingInfo.Text & "  -  CANCELLED, nothing can be added"
             btnAddItem.Enabled = False
@@ -26,7 +21,6 @@ Public Class frmFoodOrder
         WriteLog("FOODORDER", "Food order form opened for booking " & currentBookingID)
     End Sub
 
-    'says whether this booking has been cancelled
     Private Function BookingIsCancelled() As Boolean
         Dim cancelled As Boolean = False
 
@@ -44,12 +38,10 @@ Public Class frmFoodOrder
         Return cancelled
     End Function
 
-    'shows the customer, film and screening for this booking at the top of the form
     Private Sub LoadBookingInfo()
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            'join booking to customer (name), then to screening, then to film (title)
             SQLCmd.CommandText = "SELECT CustomerForename & ' ' & CustomerSurname AS CustomerName, FilmTitle, ScreeningDate, ScreeningTime " &
                                  "FROM ((tblBooking INNER JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
                                  "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
@@ -65,14 +57,10 @@ Public Class frmFoodOrder
         End If
     End Sub
 
-    'fills the food item combo with every food item
     Private Sub LoadFoodItemsCombo()
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            'an item taken off the menu must not be sellable, but it is only hidden from what is
-            'being offered now. the lines already on an order still read back fine, they join to
-            'this table for the name and the row is still there
             SQLCmd.CommandText = "SELECT FoodItemID, FoodItemName, FoodItemPrice, FoodItemCategory, FoodItemImage " &
                                  "FROM tblFoodItem " &
                                  "WHERE (FoodItemStatus IS NULL OR FoodItemStatus <> @Withdrawn) " &
@@ -89,9 +77,6 @@ Public Class frmFoodOrder
         End If
     End Sub
 
-    'shows the price, the category and the picture of the food item picked in the combo. a name in
-    'a drop down is not much to go on when somebody is being served at a counter, the picture is
-    'the quickest way of telling a medium popcorn from a large one
     Private Sub cboFoodItem_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboFoodItem.SelectedIndexChanged
         If cboFoodItem.SelectedIndex = -1 Then
             lblPrice.Text = ""
@@ -106,9 +91,6 @@ Public Class frmFoodOrder
         ShowItemPicture(row("FoodItemImage").ToString())
     End Sub
 
-    'puts the picked item's picture on screen. whatever was showing is thrown away first, because
-    'a picture box left holding the old one keeps a handle that is not given back until the
-    'program is shut, and clicking down the drop down would lose one for every item looked at
     Private Sub ShowItemPicture(fileName As String)
         If picFoodItem.Image IsNot Nothing Then
             picFoodItem.Image.Dispose()
@@ -117,11 +99,9 @@ Public Class frmFoodOrder
 
         picFoodItem.Image = FoodImage(fileName)
 
-        'the words only show when there is no picture in front of them
         lblNoPicture.Visible = (picFoodItem.Image Is Nothing)
     End Sub
 
-    'the picture is held open until it is given back, so it is dropped on the way out
     Private Sub frmFoodOrder_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
         If picFoodItem.Image IsNot Nothing Then
             picFoodItem.Image.Dispose()
@@ -129,14 +109,10 @@ Public Class frmFoodOrder
         End If
     End Sub
 
-    'loads the food items already ordered for this booking, with subtotals and a running total
     Private Sub LoadOrderItems()
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            'the price and the subtotal come off the order line, because that is what this order was
-            'actually charged. the join is only still here to fetch the name to show, since the line
-            'itself only keeps the id
             SQLCmd.CommandText = "SELECT tblOrderItem.OrderItemID, FoodItemName, ItemPricePaid, Quantity, ItemPricePaid * Quantity AS Subtotal " &
                                  "FROM tblOrderItem INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID " &
                                  "WHERE BookingID = @BookingID"
@@ -148,11 +124,8 @@ Public Class frmFoodOrder
             cn.Close()
         End If
 
-        'hide the raw id column, its only there for selecting a row to remove
         dgvOrderItems.Columns("OrderItemID").Visible = False
 
-        'the two money columns were coming out as plain numbers, so 4.5 next to a total that said
-        'four pounds fifty. same currency format the rest of the grids use
         dgvOrderItems.Columns("FoodItemName").HeaderText = "Item"
         dgvOrderItems.Columns("ItemPricePaid").HeaderText = "Price"
         dgvOrderItems.Columns("Quantity").HeaderText = "Qty"
@@ -167,9 +140,6 @@ Public Class frmFoodOrder
         dgvOrderItems.Columns("Subtotal").DefaultCellStyle.Format = "C"
         dgvOrderItems.Columns("Quantity").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
 
-        'work out the running total by adding up the subtotal column, and count the things being
-        'handed over while going down it. the total says what it comes to but not how much food it
-        'is, and three lines can be twelve items
         Dim total As Double = 0
         Dim things As Integer = 0
         For Each row As DataGridViewRow In dgvOrderItems.Rows
@@ -185,9 +155,7 @@ Public Class frmFoodOrder
         End If
     End Sub
 
-    'adds the picked food item and quantity to the order
     Private Sub btnAddItem_Click(sender As Object, e As EventArgs) Handles btnAddItem.Click
-        'checked again here rather than trusting the button being switched off on load
         If BookingIsCancelled() Then
             MessageBox.Show("Booking " & currentBookingID & " has been cancelled and refunded, so nothing can be added to it.",
                             "Cancelled booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -205,8 +173,6 @@ Public Class frmFoodOrder
             Exit Sub
         End If
 
-        'what it is being sold for right now. the price goes onto the line and is never worked out
-        'again, so a line added today keeps today's price even if the menu changes tomorrow
         Dim chosen As DataRowView = CType(cboFoodItem.SelectedItem, DataRowView)
         Dim pricePaid As Double = CDbl(chosen("FoodItemPrice"))
 
@@ -223,14 +189,12 @@ Public Class frmFoodOrder
             cn.Close()
         End If
 
-        'modBookings owns the money, this form just tells it something changed
         RecalculateBookingTotal(currentBookingID)
         WriteLog("FOODORDER", "Added " & quantity & " x " & cboFoodItem.Text & " to booking " & currentBookingID, LogChange)
         LoadOrderItems()
         txtQuantity.Text = "1"
     End Sub
 
-    'remembers which order item row was clicked so it can be removed
     Private Sub dgvOrderItems_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvOrderItems.CellClick
         If e.RowIndex < 0 Then Exit Sub
 
@@ -238,10 +202,7 @@ Public Class frmFoodOrder
         selectedOrderItemID = CInt(row.Cells("OrderItemID").Value)
     End Sub
 
-    'removes the selected item from the order
     Private Sub btnRemoveItem_Click(sender As Object, e As EventArgs) Handles btnRemoveItem.Click
-        'the food on a cancelled sale is kept on purpose so the report can show what was refunded,
-        'so it must not be taken off either
         If BookingIsCancelled() Then
             MessageBox.Show("Booking " & currentBookingID & " has been cancelled, so its order cannot be changed.",
                             "Cancelled booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -263,14 +224,12 @@ Public Class frmFoodOrder
             cn.Close()
         End If
 
-        'modBookings owns the money, this form just tells it something changed
         RecalculateBookingTotal(currentBookingID)
         WriteLog("FOODORDER", "Removed order item " & selectedOrderItemID & " from booking " & currentBookingID, LogChange)
         selectedOrderItemID = 0
         LoadOrderItems()
     End Sub
 
-    'closes the food order form
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
         Me.Close()
     End Sub

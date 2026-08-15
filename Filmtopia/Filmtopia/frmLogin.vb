@@ -5,13 +5,11 @@ Public Class frmLogin
     Dim attempts As Integer = 0
 
     Private Sub btnLogin_Click(sender As Object, e As EventArgs) Handles btnLogin.Click
-        'presence check before hitting the database
         If txtUsername.Text = "" Or txtPassword.Text = "" Then
             MessageBox.Show("Please enter a username and password.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
-        'length check on username
         If txtUsername.Text.Length > 255 Then
             MessageBox.Show("Username is too long.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
@@ -28,7 +26,6 @@ Public Class frmLogin
             LogedIn = True
             SessionStarted = Date.Now
             WriteLog("AUTH", "User '" & txtUsername.Text & "' logged in successfully", LogSecurity)
-            'each user has their own settings so they get loaded once we know who has logged in
             LoadUserSettings(CurrentLoginID)
             ClearLoginFields()
             Me.Hide()
@@ -61,7 +58,6 @@ Public Class frmLogin
             SQLCmd.Parameters.AddWithValue("@Username", username)
 
             Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
-            'tracked so the miss can be logged once the connection is shut, WriteLog opens its own
             Dim userFound As Boolean = False
 
             If rs.Read() Then
@@ -82,9 +78,6 @@ Public Class frmLogin
             rs.Close()
             cn.Close()
 
-            'a wrong password was already being recorded but a username that does not exist at all
-            'was not, and that is the more interesting of the two. a run of them is somebody
-            'guessing at names rather than one person mistyping their own
             If Not userFound And username <> "" Then
                 WriteLog("AUTH", "Login attempted with unknown username '" & username & "'", LogWarning)
             End If
