@@ -6,13 +6,6 @@ Public Class frmScreenings
 
     Private screenWhenPicked As Integer = 0
 
-    Private Const TurnaroundMinutes As Integer = 15
-
-    Private Const TrailerMinutes As Integer = 20
-
-    Private Const FirstShowMinutes As Integer = 10 * 60
-    Private Const LastShowMinutes As Integer = 23 * 60
-
     Private stillLoading As Boolean = True
 
     Private boxesChanged As Boolean = False
