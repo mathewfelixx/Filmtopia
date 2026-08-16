@@ -95,11 +95,10 @@ Public Class frmUserOverview
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "SELECT TOP 2 LogDateTime " &
                                  "FROM tblLogs " &
-                                 "WHERE LogUser = @Me AND LogType = @Auth AND LogMessage LIKE @LoggedIn " &
+                                 "WHERE LogType = @Auth AND LogMessage LIKE @LoggedIn " &
                                  "ORDER BY LogDateTime DESC, LogID DESC"
-            SQLCmd.Parameters.AddWithValue("@Me", frmLogin.globalusername)
             SQLCmd.Parameters.AddWithValue("@Auth", "AUTH")
-            SQLCmd.Parameters.AddWithValue("@LoggedIn", "%logged in successfully%")
+            SQLCmd.Parameters.AddWithValue("@LoggedIn", "User '" & frmLogin.globalusername & "' logged in successfully%")
 
             Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
             Dim howMany As Integer = 0
