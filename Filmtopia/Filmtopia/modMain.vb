@@ -1,8 +1,7 @@
 ﻿Imports System.Data.OleDb
 Imports System.Text
 Module modMain
-    Private Const DatabasePath As String = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source='Filmtopia.mdb';
-                                           Persist Security Info=false;"
+    Private Const DatabasePath As String = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source='Filmtopia.mdb';Persist Security Info=false;"
     Public cn As OleDbConnection
     Public LogedIn As Boolean = False
     Public UserAccessLevel As Integer = 99
