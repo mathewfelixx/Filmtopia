@@ -496,16 +496,20 @@ Public Class frmMainMenuV2
                     tickets = CDbl(ticketResult)
                 End If
 
-                SQLCmd.CommandText = "SELECT SUM(Quantity * ItemPricePaid) " &
-                                     "FROM tblOrderItem " &
-                                     "INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID " &
-                                     "WHERE tblBooking.BookingStatus <> @Cancelled"
+                SQLCmd.CommandText = "SELECT SUM(Quantity * ItemPricePaid) FROM tblOrderItem"
                 SQLCmd.Parameters.Clear()
-                SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
                 Dim foodResult = SQLCmd.ExecuteScalar()
                 Dim concessions As Double = 0
                 If foodResult IsNot Nothing AndAlso Not IsDBNull(foodResult) Then
                     concessions = CDbl(foodResult)
+                End If
+
+                SQLCmd.CommandText = "SELECT SUM(AmountRefunded) FROM tblRefundLine WHERE LineType = @LineType"
+                SQLCmd.Parameters.Clear()
+                SQLCmd.Parameters.AddWithValue("@LineType", RefundFoodLine)
+                Dim foodBackResult = SQLCmd.ExecuteScalar()
+                If foodBackResult IsNot Nothing AndAlso Not IsDBNull(foodBackResult) Then
+                    concessions = concessions - CDbl(foodBackResult)
                 End If
 
                 Dim takings As Double = tickets + concessions
