@@ -43,6 +43,9 @@ Partial Class frmUserOverview
         Me.btnChangePassword = New System.Windows.Forms.Button()
         Me.lblSubPWHelp = New System.Windows.Forms.Label()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
+        Me.GroupBox3 = New System.Windows.Forms.GroupBox()
+        Me.lblSubAccountSummary = New System.Windows.Forms.Label()
+        Me.dgvSignIns = New System.Windows.Forms.DataGridView()
         Me.tabMe = New System.Windows.Forms.TabControl()
         Me.tabActivity = New System.Windows.Forms.TabPage()
         Me.tabSales = New System.Windows.Forms.TabPage()
@@ -77,6 +80,7 @@ Partial Class frmUserOverview
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
+        Me.GroupBox3.SuspendLayout()
         Me.tabMe.SuspendLayout()
         Me.tabActivity.SuspendLayout()
         Me.tabSales.SuspendLayout()
@@ -84,6 +88,7 @@ Partial Class frmUserOverview
         CType(Me.dgvMySettings, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgvMySales, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgvActivity, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.dgvSignIns, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'lblHeading
@@ -252,6 +257,7 @@ Partial Class frmUserOverview
         '
         Me.tabSettings.Controls.Add(Me.GroupBox1)
         Me.tabSettings.Controls.Add(Me.GroupBox2)
+        Me.tabSettings.Controls.Add(Me.GroupBox3)
         Me.tabSettings.Location = New System.Drawing.Point(4, 24)
         Me.tabSettings.Name = "tabSettings"
         Me.tabSettings.Padding = New System.Windows.Forms.Padding(3)
@@ -643,6 +649,44 @@ Partial Class frmUserOverview
         Me.lblSubResetHint.Size = New System.Drawing.Size(492, 26)
         Me.lblSubResetHint.TabIndex = 3
         '
+        'GroupBox3
+        '
+        Me.GroupBox3.Controls.Add(Me.lblSubAccountSummary)
+        Me.GroupBox3.Controls.Add(Me.dgvSignIns)
+        Me.GroupBox3.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.GroupBox3.Location = New System.Drawing.Point(548, 12)
+        Me.GroupBox3.Name = "GroupBox3"
+        Me.GroupBox3.Size = New System.Drawing.Size(535, 520)
+        Me.GroupBox3.TabIndex = 2
+        Me.GroupBox3.TabStop = False
+        Me.GroupBox3.Text = "Everything that has happened to my account"
+        '
+        'lblSubAccountSummary
+        '
+        Me.lblSubAccountSummary.AutoSize = True
+        Me.lblSubAccountSummary.Font = New System.Drawing.Font("Segoe UI", 8.25!)
+        Me.lblSubAccountSummary.Location = New System.Drawing.Point(14, 26)
+        Me.lblSubAccountSummary.Name = "lblSubAccountSummary"
+        Me.lblSubAccountSummary.Size = New System.Drawing.Size(0, 13)
+        Me.lblSubAccountSummary.TabIndex = 0
+        '
+        'dgvSignIns
+        '
+        Me.dgvSignIns.AllowUserToAddRows = False
+        Me.dgvSignIns.AllowUserToDeleteRows = False
+        Me.dgvSignIns.AllowUserToResizeRows = False
+        Me.dgvSignIns.BackgroundColor = System.Drawing.Color.White
+        Me.dgvSignIns.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.dgvSignIns.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dgvSignIns.Location = New System.Drawing.Point(14, 48)
+        Me.dgvSignIns.MultiSelect = False
+        Me.dgvSignIns.Name = "dgvSignIns"
+        Me.dgvSignIns.ReadOnly = True
+        Me.dgvSignIns.RowHeadersVisible = False
+        Me.dgvSignIns.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
+        Me.dgvSignIns.Size = New System.Drawing.Size(507, 458)
+        Me.dgvSignIns.TabIndex = 1
+        '
         'lblVersion
         '
         Me.lblVersion.AutoSize = True
@@ -677,6 +721,12 @@ Partial Class frmUserOverview
         Me.Name = "frmUserOverview"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "My Account"
+        Me.GroupBox1.ResumeLayout(False)
+        Me.GroupBox1.PerformLayout()
+        Me.GroupBox2.ResumeLayout(False)
+        Me.GroupBox2.PerformLayout()
+        Me.GroupBox3.ResumeLayout(False)
+        Me.GroupBox3.PerformLayout()
         Me.tabSettings.ResumeLayout(False)
         Me.tabSettings.PerformLayout()
         CType(Me.dgvMySettings, System.ComponentModel.ISupportInitialize).EndInit()
@@ -686,10 +736,7 @@ Partial Class frmUserOverview
         Me.tabActivity.ResumeLayout(False)
         Me.tabActivity.PerformLayout()
         CType(Me.dgvActivity, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.GroupBox1.ResumeLayout(False)
-        Me.GroupBox1.PerformLayout()
-        Me.GroupBox2.ResumeLayout(False)
-        Me.GroupBox2.PerformLayout()
+        CType(Me.dgvSignIns, System.ComponentModel.ISupportInitialize).EndInit()
         Me.tabMe.ResumeLayout(False)
         Me.ResumeLayout(False)
         Me.PerformLayout()
@@ -717,6 +764,9 @@ Partial Class frmUserOverview
     Friend WithEvents btnChangePassword As Button
     Friend WithEvents lblSubPWHelp As Label
     Friend WithEvents GroupBox2 As GroupBox
+    Friend WithEvents GroupBox3 As GroupBox
+    Friend WithEvents lblSubAccountSummary As Label
+    Friend WithEvents dgvSignIns As DataGridView
     Friend WithEvents tabMe As TabControl
     Friend WithEvents tabActivity As TabPage
     Friend WithEvents tabSales As TabPage

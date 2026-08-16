@@ -23,6 +23,7 @@ Public Class frmUserOverview
         LoadMySales()
 
         LoadMySettings()
+        LoadAccountHistory()
 
         WriteLog("ACCOUNT", "My account screen opened")
     End Sub
@@ -95,6 +96,10 @@ Public Class frmUserOverview
         Else
             Return "over a year"
         End If
+    End Function
+
+    Private Function MyEventsPattern() As String
+        Return "User '" & frmLogin.globalusername & "' %"
     End Function
 
     Private Function SignedInPattern() As String
@@ -171,6 +176,23 @@ Public Class frmUserOverview
         Return times(1)
     End Function
 
+    Private Function TotalSignIns() As Integer
+        Dim answer As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblLogs " &
+                                 "WHERE LogType = @Auth AND LogMessage LIKE @SignedIn"
+            SQLCmd.Parameters.AddWithValue("@Auth", "AUTH")
+            SQLCmd.Parameters.AddWithValue("@SignedIn", SignedInPattern())
+            answer = CInt(ScalarOrZero(SQLCmd))
+            cn.Close()
+        End If
+
+        Return answer
+    End Function
+
     Private Function FailedSince(since As Date) As Integer
         Dim answer As Integer = 0
 
@@ -203,6 +225,29 @@ Public Class frmUserOverview
             SQLCmd.Parameters.AddWithValue("@Auth", "AUTH")
             SQLCmd.Parameters.AddWithValue("@Failed", FailedPattern())
             SQLCmd.Parameters.AddWithValue("@Since", since)
+
+            Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+            If rs.Read() Then
+                answer = CDate(rs("LogDateTime"))
+            End If
+            rs.Close()
+            cn.Close()
+        End If
+
+        Return answer
+    End Function
+
+    Private Function PasswordChangedOn() As Date
+        Dim answer As Date = Date.MinValue
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT TOP 1 LogDateTime FROM tblLogs " &
+                                 "WHERE LogType = @Auth AND LogMessage LIKE @Changed " &
+                                 "ORDER BY LogDateTime DESC, LogID DESC"
+            SQLCmd.Parameters.AddWithValue("@Auth", "AUTH")
+            SQLCmd.Parameters.AddWithValue("@Changed", "User '" & frmLogin.globalusername & "' changed their password%")
 
             Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
             If rs.Read() Then
@@ -285,12 +330,107 @@ Public Class frmUserOverview
 
     Private Sub AfterThemeChanged()
         ShowSecurityLine()
+        ColourSignInRows()
         LoadMySettings()
     End Sub
 
     Private Sub btnGoPassword_Click(sender As Object, e As EventArgs) Handles btnGoPassword.Click
         tabMe.SelectedTab = tabSettings
         txtCurrentPW.Focus()
+    End Sub
+
+    Private Function FriendlyEvent(message As String) As String
+        If InStr(message, "logged in successfully") > 0 Then
+            Return "Signed in"
+        ElseIf InStr(message, "failed login attempt") > 0 Then
+            Return "Failed sign-in attempt"
+        ElseIf InStr(message, "failed password authentication") > 0 Then
+            Return "Failed sign-in attempt, locked out"
+        ElseIf InStr(message, "changed their password") > 0 Then
+            Return "Password changed"
+        ElseIf InStr(message, "failed to change password") > 0 Then
+            Return "Password change refused"
+        ElseIf InStr(message, "logged out") > 0 Then
+            Return "Signed out"
+        ElseIf InStr(message, "closed the program") > 0 Then
+            Return "Closed Filmtopia"
+        Else
+            Return message
+        End If
+    End Function
+
+    Private Function EventIsBad(what As String) As Boolean
+        Return InStr(what, "Failed") > 0 Or InStr(what, "refused") > 0
+    End Function
+
+    Private Sub LoadAccountHistory()
+        Dim dt As New DataTable
+        dt.Columns.Add("When", GetType(Date))
+        dt.Columns.Add("What happened")
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT TOP 100 LogDateTime, LogMessage FROM tblLogs " &
+                                 "WHERE LogType = @Auth AND LogMessage LIKE @Mine " &
+                                 "ORDER BY LogDateTime DESC, LogID DESC"
+            SQLCmd.Parameters.AddWithValue("@Auth", "AUTH")
+            SQLCmd.Parameters.AddWithValue("@Mine", MyEventsPattern())
+
+            Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+            While rs.Read()
+                dt.Rows.Add(CDate(rs("LogDateTime")), FriendlyEvent(rs("LogMessage").ToString()))
+            End While
+            rs.Close()
+            cn.Close()
+        End If
+
+        dgvSignIns.DataSource = dt
+
+        If dgvSignIns.Columns.Count > 0 Then
+            dgvSignIns.Columns("When").Width = 150
+            dgvSignIns.Columns("When").DefaultCellStyle.Format = "dd/MM/yyyy HH:mm"
+            dgvSignIns.Columns("What happened").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+        End If
+
+        ShowAccountSummary(dt.Rows.Count)
+        ColourSignInRows()
+        dgvSignIns.ClearSelection()
+    End Sub
+
+    Private Sub ShowAccountSummary(howManyShown As Integer)
+        Dim total As Integer = TotalSignIns()
+        Dim changed As Date = PasswordChangedOn()
+        Dim text As String = "Signed in " & Plural(total, "time", "times") & "."
+
+        If changed = Date.MinValue Then
+            text = text & " Your password has never been changed."
+        Else
+            text = text & " Password last changed " & Format(changed, "dd/MM/yyyy") &
+                   ", " & HowLongAgo(changed) & " ago."
+        End If
+
+        If howManyShown = 0 Then
+            text = "Nothing has happened on this account yet."
+        End If
+
+        lblSubAccountSummary.Text = text
+    End Sub
+
+    Private Sub ColourSignInRows()
+        For Each row As DataGridViewRow In dgvSignIns.Rows
+            If EventIsBad(CellAsText(row, dgvSignIns.Columns("What happened").Index)) Then
+                If DarkModeOn Then
+                    row.DefaultCellStyle.BackColor = Color.FromArgb(74, 20, 40)
+                    row.DefaultCellStyle.ForeColor = Color.White
+                Else
+                    row.DefaultCellStyle.BackColor = Color.FromArgb(255, 228, 232)
+                    row.DefaultCellStyle.ForeColor = Color.FromArgb(120, 20, 40)
+                End If
+
+                row.DefaultCellStyle.Font = New Font("Segoe UI", 9.0!, FontStyle.Bold)
+            End If
+        Next
     End Sub
 
     Private Sub btnChangePassword_Click(sender As Object, e As EventArgs) Handles btnChangePassword.Click
@@ -324,6 +464,8 @@ Public Class frmUserOverview
             txtCurrentPW.Text = ""
             txtCurrentPW.Focus()
         End If
+
+        LoadAccountHistory()
     End Sub
 
     Private Sub ClearPasswordFields()
@@ -513,6 +655,7 @@ Public Class frmUserOverview
         dgvActivity.ClearSelection()
         dgvMySales.ClearSelection()
         dgvMySettings.ClearSelection()
+        dgvSignIns.ClearSelection()
     End Sub
 
     Private stillLoadingSales As Boolean = True
@@ -750,6 +893,7 @@ Public Class frmUserOverview
         ShowAppearance()
         LoadMySettings()
         ShowSecurityLine()
+        ColourSignInRows()
 
         WriteLog("SETTINGS", "Own settings reset to default, " & howMany & " removed", LogChange)
         MessageBox.Show("Your settings have been put back to default.", "My Settings",
