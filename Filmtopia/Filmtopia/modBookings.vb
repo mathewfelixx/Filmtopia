@@ -5,6 +5,9 @@ Module modBookings
     Public Const BookingActive As String = "Active"
     Public Const BookingCancelled As String = "Cancelled"
 
+    Public Const RefundSeatLine As String = "Seat"
+    Public Const RefundFoodLine As String = "Food"
+
     Public Const SeatStandard As String = "Standard"
     Public Const SeatPremium As String = "Premium"
     Public Const SeatAccessible As String = "Accessible"
@@ -263,6 +266,8 @@ Module modBookings
     Public Sub RecalculateBookingTotal(bookingID As Long)
         Dim ticketTotal As Double = 0
         Dim foodTotal As Double = 0
+        Dim dtItems As New DataTable
+        Dim dtBack As New DataTable
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -275,28 +280,64 @@ Module modBookings
                 ticketTotal = CDbl(ticketResult)
             End If
 
-            SQLCmd.CommandText = "SELECT SUM(Quantity * ItemPricePaid) " &
+            SQLCmd.CommandText = "SELECT OrderItemID, Quantity, ItemPricePaid " &
                                  "FROM tblOrderItem " &
                                  "WHERE BookingID = @BookingID"
             SQLCmd.Parameters.Clear()
             SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
-            Dim foodResult = SQLCmd.ExecuteScalar()
-            If foodResult IsNot Nothing AndAlso Not IsDBNull(foodResult) Then
-                foodTotal = CDbl(foodResult)
-            End If
+            Dim daItems As New OleDbDataAdapter(SQLCmd)
+            daItems.Fill(dtItems)
 
-            SQLCmd.CommandText = "UPDATE tblBooking " &
-                                 "SET TotalCost = @TotalCost " &
-                                 "WHERE BookingID = @BookingID AND BookingStatus <> @Cancelled"
+            SQLCmd.CommandText = "SELECT OrderItemID, SUM(QtyRefunded) AS QtyBack " &
+                                 "FROM tblRefundLine " &
+                                 "WHERE OrderItemID IN (SELECT OrderItemID FROM tblOrderItem WHERE BookingID = @BookingID) " &
+                                 "GROUP BY OrderItemID"
             SQLCmd.Parameters.Clear()
-            SQLCmd.Parameters.AddWithValue("@TotalCost", ticketTotal + foodTotal)
             SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
-            SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
-            SQLCmd.ExecuteNonQuery()
+            Dim daBack As New OleDbDataAdapter(SQLCmd)
+            daBack.Fill(dtBack)
 
             cn.Close()
         End If
+
+        Dim i As Integer
+        For i = 0 To dtItems.Rows.Count - 1
+            Dim stillOwed As Integer = CInt(dtItems.Rows(i)("Quantity")) -
+                                       RefundedQtyFromTable(dtBack, CLng(dtItems.Rows(i)("OrderItemID")))
+
+            If stillOwed > 0 Then
+                foodTotal = foodTotal + stillOwed * CDbl(dtItems.Rows(i)("ItemPricePaid"))
+            End If
+        Next
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "UPDATE tblBooking " &
+                                 "SET TotalCost = @TotalCost " &
+                                 "WHERE BookingID = @BookingID"
+            SQLCmd.Parameters.AddWithValue("@TotalCost", ticketTotal + foodTotal)
+            SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
+            SQLCmd.ExecuteNonQuery()
+            cn.Close()
+        End If
     End Sub
+
+    Public Function RefundedQtyFromTable(dtBack As DataTable, orderItemID As Long) As Integer
+        Dim r As Integer
+
+        For r = 0 To dtBack.Rows.Count - 1
+            If CLng(dtBack.Rows(r)("OrderItemID")) = orderItemID Then
+                If IsDBNull(dtBack.Rows(r)("QtyBack")) Then
+                    Return 0
+                End If
+
+                Return CInt(dtBack.Rows(r)("QtyBack"))
+            End If
+        Next
+
+        Return 0
+    End Function
 
     Public Function RecalculateAllBookingTotals() As Integer
         Dim bookingIDs(-1) As Long
@@ -327,6 +368,311 @@ Module modBookings
         Next
 
         Return howMany
+    End Function
+
+    Public Function TakeRefund(bookingID As Long, seatLines As DataTable, foodLines As DataTable,
+                               reason As String, byLoginID As Long) As Long
+        Dim newID As Long = 0
+        Dim refundTotal As Double = 0
+        Dim wholeSale As Boolean = False
+        Dim s As Integer
+        Dim f As Integer
+
+        If seatLines.Rows.Count = 0 AndAlso foodLines.Rows.Count = 0 Then
+            Return 0
+        End If
+
+        For s = 0 To seatLines.Rows.Count - 1
+            refundTotal = refundTotal + CDbl(seatLines.Rows(s)("AmountRefunded"))
+        Next
+
+        For f = 0 To foodLines.Rows.Count - 1
+            refundTotal = refundTotal + CDbl(foodLines.Rows(f)("AmountRefunded"))
+        Next
+
+        If DbConnect() Then
+            Dim trans As OleDbTransaction = cn.BeginTransaction()
+
+            Try
+                Dim SQLCmd As New OleDbCommand
+                SQLCmd.Connection = cn
+                SQLCmd.Transaction = trans
+
+                Dim alreadyDone As Boolean = False
+
+                For s = 0 To seatLines.Rows.Count - 1
+                    SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBookingSeat " &
+                                         "WHERE BookingID = @BookingID AND SeatID = @SeatID"
+                    SQLCmd.Parameters.Clear()
+                    SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
+                    SQLCmd.Parameters.AddWithValue("@SeatID", CInt(seatLines.Rows(s)("SeatID")))
+
+                    If CInt(SQLCmd.ExecuteScalar()) = 0 Then
+                        alreadyDone = True
+                    End If
+                Next
+
+                For f = 0 To foodLines.Rows.Count - 1
+                    Dim soldQty As Integer = 0
+                    Dim backQty As Integer = 0
+
+                    SQLCmd.CommandText = "SELECT Quantity FROM tblOrderItem WHERE OrderItemID = @OrderItemID"
+                    SQLCmd.Parameters.Clear()
+                    SQLCmd.Parameters.AddWithValue("@OrderItemID", CInt(foodLines.Rows(f)("OrderItemID")))
+                    Dim soldResult = SQLCmd.ExecuteScalar()
+
+                    If soldResult IsNot Nothing AndAlso Not IsDBNull(soldResult) Then
+                        soldQty = CInt(soldResult)
+                    End If
+
+                    SQLCmd.CommandText = "SELECT SUM(QtyRefunded) FROM tblRefundLine WHERE OrderItemID = @OrderItemID"
+                    SQLCmd.Parameters.Clear()
+                    SQLCmd.Parameters.AddWithValue("@OrderItemID", CInt(foodLines.Rows(f)("OrderItemID")))
+                    Dim backResult = SQLCmd.ExecuteScalar()
+
+                    If backResult IsNot Nothing AndAlso Not IsDBNull(backResult) Then
+                        backQty = CInt(backResult)
+                    End If
+
+                    If CInt(foodLines.Rows(f)("QtyRefunded")) > soldQty - backQty Then
+                        alreadyDone = True
+                    End If
+                Next
+
+                If alreadyDone Then
+                    trans.Rollback()
+                    cn.Close()
+                    MessageBox.Show("Some of that has already been refunded on another till." & vbNewLine &
+                                    "Nothing has been paid back, so open the booking again and check what is left.",
+                                    "Already refunded", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Return 0
+                End If
+
+                SQLCmd.CommandText = "INSERT INTO tblRefund (BookingID, RefundDate, RefundAmount, RefundReason, LoginID) " &
+                                     "VALUES (@BookingID, Now(), @RefundAmount, @RefundReason, @LoginID)"
+                SQLCmd.Parameters.Clear()
+                SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
+                SQLCmd.Parameters.AddWithValue("@RefundAmount", refundTotal)
+                SQLCmd.Parameters.AddWithValue("@RefundReason", reason)
+
+                If byLoginID = 0 Then
+                    SQLCmd.Parameters.AddWithValue("@LoginID", DBNull.Value)
+                Else
+                    SQLCmd.Parameters.AddWithValue("@LoginID", CInt(byLoginID))
+                End If
+
+                SQLCmd.ExecuteNonQuery()
+
+                SQLCmd.CommandText = "SELECT @@IDENTITY"
+                SQLCmd.Parameters.Clear()
+                newID = CLng(SQLCmd.ExecuteScalar())
+
+                For s = 0 To seatLines.Rows.Count - 1
+                    SQLCmd.CommandText = "INSERT INTO tblRefundLine (RefundID, LineType, SeatID, QtyRefunded, AmountRefunded) " &
+                                         "VALUES (@RefundID, @LineType, @SeatID, @QtyRefunded, @AmountRefunded)"
+                    SQLCmd.Parameters.Clear()
+                    SQLCmd.Parameters.AddWithValue("@RefundID", CInt(newID))
+                    SQLCmd.Parameters.AddWithValue("@LineType", RefundSeatLine)
+                    SQLCmd.Parameters.AddWithValue("@SeatID", CInt(seatLines.Rows(s)("SeatID")))
+                    SQLCmd.Parameters.AddWithValue("@QtyRefunded", 1)
+                    SQLCmd.Parameters.AddWithValue("@AmountRefunded", CDbl(seatLines.Rows(s)("AmountRefunded")))
+                    SQLCmd.ExecuteNonQuery()
+
+                    SQLCmd.CommandText = "DELETE FROM tblBookingSeat " &
+                                         "WHERE BookingID = @BookingID AND SeatID = @SeatID"
+                    SQLCmd.Parameters.Clear()
+                    SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
+                    SQLCmd.Parameters.AddWithValue("@SeatID", CInt(seatLines.Rows(s)("SeatID")))
+                    SQLCmd.ExecuteNonQuery()
+                Next
+
+                For f = 0 To foodLines.Rows.Count - 1
+                    SQLCmd.CommandText = "INSERT INTO tblRefundLine (RefundID, LineType, OrderItemID, QtyRefunded, AmountRefunded) " &
+                                         "VALUES (@RefundID, @LineType, @OrderItemID, @QtyRefunded, @AmountRefunded)"
+                    SQLCmd.Parameters.Clear()
+                    SQLCmd.Parameters.AddWithValue("@RefundID", CInt(newID))
+                    SQLCmd.Parameters.AddWithValue("@LineType", RefundFoodLine)
+                    SQLCmd.Parameters.AddWithValue("@OrderItemID", CInt(foodLines.Rows(f)("OrderItemID")))
+                    SQLCmd.Parameters.AddWithValue("@QtyRefunded", CInt(foodLines.Rows(f)("QtyRefunded")))
+                    SQLCmd.Parameters.AddWithValue("@AmountRefunded", CDbl(foodLines.Rows(f)("AmountRefunded")))
+                    SQLCmd.ExecuteNonQuery()
+                Next
+
+                Dim seatsLeft As Integer = 0
+                Dim soldLeft As Integer = 0
+                Dim backLeft As Integer = 0
+
+                SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBookingSeat WHERE BookingID = @BookingID"
+                SQLCmd.Parameters.Clear()
+                SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
+                seatsLeft = CInt(SQLCmd.ExecuteScalar())
+
+                SQLCmd.CommandText = "SELECT SUM(Quantity) FROM tblOrderItem WHERE BookingID = @BookingID"
+                SQLCmd.Parameters.Clear()
+                SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
+                Dim soldLeftResult = SQLCmd.ExecuteScalar()
+
+                If soldLeftResult IsNot Nothing AndAlso Not IsDBNull(soldLeftResult) Then
+                    soldLeft = CInt(soldLeftResult)
+                End If
+
+                SQLCmd.CommandText = "SELECT SUM(QtyRefunded) FROM tblRefundLine " &
+                                     "WHERE OrderItemID IN (SELECT OrderItemID FROM tblOrderItem WHERE BookingID = @BookingID)"
+                SQLCmd.Parameters.Clear()
+                SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
+                Dim backLeftResult = SQLCmd.ExecuteScalar()
+
+                If backLeftResult IsNot Nothing AndAlso Not IsDBNull(backLeftResult) Then
+                    backLeft = CInt(backLeftResult)
+                End If
+
+                If seatsLeft = 0 AndAlso soldLeft - backLeft = 0 Then
+                    SQLCmd.CommandText = "UPDATE tblBooking " &
+                                         "SET BookingStatus = @BookingStatus, CancelledDate = Now() " &
+                                         "WHERE BookingID = @BookingID AND BookingStatus <> @AlreadyCancelled"
+                    SQLCmd.Parameters.Clear()
+                    SQLCmd.Parameters.AddWithValue("@BookingStatus", BookingCancelled)
+                    SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
+                    SQLCmd.Parameters.AddWithValue("@AlreadyCancelled", BookingCancelled)
+                    SQLCmd.ExecuteNonQuery()
+                    wholeSale = True
+                End If
+
+                trans.Commit()
+
+            Catch ex As Exception
+                trans.Rollback()
+                newID = 0
+                MessageBox.Show("The refund could not be saved, so nothing at all was paid back. " & ex.Message,
+                                "Refund", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+
+            cn.Close()
+        End If
+
+        If newID > 0 Then
+            RecalculateBookingTotal(bookingID)
+
+            Dim whatHappened As String = "Refund " & newID & " of " & FormatCurrency(refundTotal) &
+                                         " on booking " & bookingID & " - " &
+                                         seatLines.Rows.Count & " seat(s), " &
+                                         foodLines.Rows.Count & " food line(s) - " & reason
+
+            If wholeSale Then
+                whatHappened = whatHappened & " - nothing left, booking now cancelled"
+            End If
+
+            WriteLog("REFUND", whatHappened, LogChange)
+        End If
+
+        Return newID
+    End Function
+
+    Public Function BookingRefundTotal(bookingID As Long) As Double
+        Dim total As Double = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT SUM(RefundAmount) FROM tblRefund WHERE BookingID = @BookingID"
+            SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
+            Dim result = SQLCmd.ExecuteScalar()
+
+            If result IsNot Nothing AndAlso Not IsDBNull(result) Then
+                total = CDbl(result)
+            End If
+
+            cn.Close()
+        End If
+
+        Return total
+    End Function
+
+    Public Function OrderItemRefundedQty(orderItemID As Long) As Integer
+        Dim qty As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT SUM(QtyRefunded) FROM tblRefundLine WHERE OrderItemID = @OrderItemID"
+            SQLCmd.Parameters.AddWithValue("@OrderItemID", CInt(orderItemID))
+            Dim result = SQLCmd.ExecuteScalar()
+
+            If result IsNot Nothing AndAlso Not IsDBNull(result) Then
+                qty = CInt(result)
+            End If
+
+            cn.Close()
+        End If
+
+        Return qty
+    End Function
+
+    Public Function RefundWholeBooking(bookingID As Long, reason As String, byLoginID As Long) As Long
+        Dim seatLines As New DataTable
+        seatLines.Columns.Add("SeatID", GetType(Long))
+        seatLines.Columns.Add("AmountRefunded", GetType(Double))
+
+        Dim foodLines As New DataTable
+        foodLines.Columns.Add("OrderItemID", GetType(Long))
+        foodLines.Columns.Add("QtyRefunded", GetType(Integer))
+        foodLines.Columns.Add("AmountRefunded", GetType(Double))
+
+        Dim dtItems As New DataTable
+        Dim dtBack As New DataTable
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT SeatID, SeatPricePaid FROM tblBookingSeat WHERE BookingID = @BookingID"
+            SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
+            Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+
+            While rs.Read()
+                Dim seatRow As DataRow = seatLines.NewRow()
+                seatRow("SeatID") = CLng(rs("SeatID"))
+                seatRow("AmountRefunded") = CDbl(rs("SeatPricePaid"))
+                seatLines.Rows.Add(seatRow)
+            End While
+
+            rs.Close()
+
+            SQLCmd.CommandText = "SELECT OrderItemID, Quantity, ItemPricePaid " &
+                                 "FROM tblOrderItem " &
+                                 "WHERE BookingID = @BookingID"
+            SQLCmd.Parameters.Clear()
+            SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
+            Dim daItems As New OleDbDataAdapter(SQLCmd)
+            daItems.Fill(dtItems)
+
+            SQLCmd.CommandText = "SELECT OrderItemID, SUM(QtyRefunded) AS QtyBack " &
+                                 "FROM tblRefundLine " &
+                                 "WHERE OrderItemID IN (SELECT OrderItemID FROM tblOrderItem WHERE BookingID = @BookingID) " &
+                                 "GROUP BY OrderItemID"
+            SQLCmd.Parameters.Clear()
+            SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
+            Dim daBack As New OleDbDataAdapter(SQLCmd)
+            daBack.Fill(dtBack)
+
+            cn.Close()
+        End If
+
+        Dim i As Integer
+
+        For i = 0 To dtItems.Rows.Count - 1
+            Dim stillOwed As Integer = CInt(dtItems.Rows(i)("Quantity")) -
+                                       RefundedQtyFromTable(dtBack, CLng(dtItems.Rows(i)("OrderItemID")))
+
+            If stillOwed > 0 Then
+                Dim foodRow As DataRow = foodLines.NewRow()
+                foodRow("OrderItemID") = CLng(dtItems.Rows(i)("OrderItemID"))
+                foodRow("QtyRefunded") = stillOwed
+                foodRow("AmountRefunded") = stillOwed * CDbl(dtItems.Rows(i)("ItemPricePaid"))
+                foodLines.Rows.Add(foodRow)
+            End If
+        Next
+
+        Return TakeRefund(bookingID, seatLines, foodLines, reason, byLoginID)
     End Function
 
 End Module
