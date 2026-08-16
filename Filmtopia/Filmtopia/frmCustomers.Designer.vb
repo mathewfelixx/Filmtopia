@@ -22,6 +22,7 @@ Partial Class frmCustomers
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.lblSearch = New System.Windows.Forms.Label()
         Me.txtSearch = New System.Windows.Forms.TextBox()
+        Me.chkHideWalkIns = New System.Windows.Forms.CheckBox()
         Me.lblGridCount = New System.Windows.Forms.Label()
         Me.dgvCustomers = New System.Windows.Forms.DataGridView()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
@@ -61,6 +62,7 @@ Partial Class frmCustomers
         '
         Me.GroupBox1.Controls.Add(Me.lblSearch)
         Me.GroupBox1.Controls.Add(Me.txtSearch)
+        Me.GroupBox1.Controls.Add(Me.chkHideWalkIns)
         Me.GroupBox1.Controls.Add(Me.lblGridCount)
         Me.GroupBox1.Controls.Add(Me.dgvCustomers)
         Me.GroupBox1.Font = New System.Drawing.Font("Segoe UI", 9.0!)
@@ -88,6 +90,17 @@ Partial Class frmCustomers
         Me.txtSearch.Name = "txtSearch"
         Me.txtSearch.Size = New System.Drawing.Size(300, 23)
         Me.txtSearch.TabIndex = 1
+        '
+        'chkHideWalkIns
+        '
+        Me.chkHideWalkIns.AutoSize = True
+        Me.chkHideWalkIns.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.chkHideWalkIns.Location = New System.Drawing.Point(404, 27)
+        Me.chkHideWalkIns.Name = "chkHideWalkIns"
+        Me.chkHideWalkIns.Size = New System.Drawing.Size(160, 19)
+        Me.chkHideWalkIns.TabIndex = 2
+        Me.chkHideWalkIns.Text = "Hide walk-in customers"
+        Me.chkHideWalkIns.UseVisualStyleBackColor = True
         '
         'lblGridCount
         '
@@ -322,6 +335,7 @@ Partial Class frmCustomers
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents lblSearch As Label
     Friend WithEvents txtSearch As TextBox
+    Friend WithEvents chkHideWalkIns As CheckBox
     Friend WithEvents lblGridCount As Label
     Friend WithEvents dgvCustomers As DataGridView
     Friend WithEvents GroupBox2 As GroupBox

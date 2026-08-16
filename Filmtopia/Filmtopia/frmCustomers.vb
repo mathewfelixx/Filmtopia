@@ -1,4 +1,4 @@
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 
 Public Class frmCustomers
 
@@ -62,16 +62,24 @@ Public Class frmCustomers
                                       "COUNT(tblBooking.BookingID) AS Bookings " &
                                       "FROM tblCustomer LEFT JOIN tblBooking ON tblCustomer.CustomerID = tblBooking.CustomerID"
 
+            Dim walkInFilter As String = " WHERE (@HideWalkIns = False OR CustomerForename & ' ' & CustomerSurname <> @WalkInName)"
+
             Dim grouping As String = " GROUP BY tblCustomer.CustomerID, CustomerForename, CustomerSurname, CustomerEmail, CustomerPhone " &
                                      "ORDER BY CustomerSurname, CustomerForename, tblCustomer.CustomerID"
 
             If txtSearch.Text.Trim() = "" Then
-                SQLCmd.CommandText = baseQuery & grouping
+                SQLCmd.CommandText = baseQuery & walkInFilter & grouping
             Else
-                SQLCmd.CommandText = baseQuery &
-                                     " WHERE CustomerForename & ' ' & CustomerSurname LIKE @SearchName " &
+                SQLCmd.CommandText = baseQuery & walkInFilter &
+                                     " AND (CustomerForename & ' ' & CustomerSurname LIKE @SearchName " &
                                      "OR CustomerEmail LIKE @SearchEmail " &
-                                     "OR CustomerPhone LIKE @SearchPhone" & grouping
+                                     "OR CustomerPhone LIKE @SearchPhone)" & grouping
+            End If
+
+            SQLCmd.Parameters.AddWithValue("@HideWalkIns", chkHideWalkIns.Checked)
+            SQLCmd.Parameters.AddWithValue("@WalkInName", WalkInForename & " " & WalkInSurname)
+
+            If txtSearch.Text.Trim() <> "" Then
                 SQLCmd.Parameters.AddWithValue("@SearchName", "%" & txtSearch.Text.Trim() & "%")
                 SQLCmd.Parameters.AddWithValue("@SearchEmail", "%" & txtSearch.Text.Trim() & "%")
                 SQLCmd.Parameters.AddWithValue("@SearchPhone", "%" & txtSearch.Text.Trim() & "%")
@@ -127,6 +135,14 @@ Public Class frmCustomers
 
         timerSearch.Stop()
         timerSearch.Start()
+    End Sub
+
+    Private Sub chkHideWalkIns_CheckedChanged(sender As Object, e As EventArgs) Handles chkHideWalkIns.CheckedChanged
+        If stillLoading Then
+            Exit Sub
+        End If
+
+        LoadCustomers()
     End Sub
 
     Private Sub timerSearch_Tick(sender As Object, e As EventArgs) Handles timerSearch.Tick
