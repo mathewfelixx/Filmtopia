@@ -27,6 +27,7 @@ Partial Class frmBookingSearch
         Me.dgvBookings = New System.Windows.Forms.DataGridView()
         Me.lblSelectedBooking = New System.Windows.Forms.Label()
         Me.btnCancelBooking = New System.Windows.Forms.Button()
+        Me.btnViewBooking = New System.Windows.Forms.Button()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
         Me.lblDoorListScreening = New System.Windows.Forms.Label()
         Me.cboDoorListScreening = New System.Windows.Forms.ComboBox()
@@ -139,6 +140,17 @@ Partial Class frmBookingSearch
         Me.lblSelectedBooking.TabIndex = 3
         Me.lblSelectedBooking.Text = "No booking selected"
         '
+        'btnViewBooking
+        '
+        Me.btnViewBooking.Enabled = False
+        Me.btnViewBooking.Font = New System.Drawing.Font("Segoe UI", 9.75!)
+        Me.btnViewBooking.Location = New System.Drawing.Point(769, 442)
+        Me.btnViewBooking.Name = "btnViewBooking"
+        Me.btnViewBooking.Size = New System.Drawing.Size(170, 32)
+        Me.btnViewBooking.TabIndex = 5
+        Me.btnViewBooking.Text = "Open booking"
+        Me.btnViewBooking.UseVisualStyleBackColor = True
+        '
         'btnCancelBooking
         '
         Me.btnCancelBooking.Enabled = False
@@ -237,6 +249,7 @@ Partial Class frmBookingSearch
         Me.ClientSize = New System.Drawing.Size(1135, 775)
         Me.Controls.Add(Me.lblVersion)
         Me.Controls.Add(Me.GroupBox2)
+        Me.Controls.Add(Me.btnViewBooking)
         Me.Controls.Add(Me.btnCancelBooking)
         Me.Controls.Add(Me.lblSelectedBooking)
         Me.Controls.Add(Me.dgvBookings)
@@ -269,6 +282,7 @@ Partial Class frmBookingSearch
     Friend WithEvents dgvBookings As DataGridView
     Friend WithEvents lblSelectedBooking As Label
     Friend WithEvents btnCancelBooking As Button
+    Friend WithEvents btnViewBooking As Button
     Friend WithEvents GroupBox2 As GroupBox
     Friend WithEvents lblDoorListScreening As Label
     Friend WithEvents cboDoorListScreening As ComboBox

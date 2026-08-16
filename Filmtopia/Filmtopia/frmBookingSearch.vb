@@ -144,6 +144,7 @@ Public Class frmBookingSearch
         selectedBookingText = ""
         lblSelectedBooking.Text = "No booking selected"
         btnCancelBooking.Enabled = False
+        btnViewBooking.Enabled = False
     End Sub
 
     Private Sub txtSearch_KeyDown(sender As Object, e As KeyEventArgs) Handles txtSearch.KeyDown
@@ -173,7 +174,29 @@ Public Class frmBookingSearch
             lblSelectedBooking.Text = "Selected: booking " & selectedBookingID & " for " & selectedBookingText
         End If
 
-        btnCancelBooking.Enabled = Not isCancelled
+        btnCancelBooking.Enabled = (Not isCancelled) AndAlso (UserAccessLevel = 1)
+        btnViewBooking.Enabled = True
+    End Sub
+
+    Private Sub dgvBookings_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvBookings.CellDoubleClick
+        If e.RowIndex < 0 Then Exit Sub
+
+        OpenSelectedBooking()
+    End Sub
+
+    Private Sub btnViewBooking_Click(sender As Object, e As EventArgs) Handles btnViewBooking.Click
+        OpenSelectedBooking()
+    End Sub
+
+    Private Sub OpenSelectedBooking()
+        If selectedBookingID = 0 Then
+            MessageBox.Show("Select a booking in the grid first", "Booking Search", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        frmRefund.currentBookingID = selectedBookingID
+        frmRefund.ShowDialog()
+        LoadBookings(txtSearch.Text.Trim())
     End Sub
 
     Private Sub btnCancelBooking_Click(sender As Object, e As EventArgs) Handles btnCancelBooking.Click
@@ -182,59 +205,29 @@ Public Class frmBookingSearch
             Exit Sub
         End If
 
-        If MessageBox.Show("Cancel this booking? Its seats go back on sale." & vbCrLf &
-                           "The booking itself is kept and marked as cancelled, so the sale is still in the history.",
+        If UserAccessLevel <> 1 Then
+            MessageBox.Show("Only a manager can give money back.", "Cancel Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        If MessageBox.Show("Refund the whole of booking " & selectedBookingID & "?" & vbCrLf &
+                           "Its seats go back on sale and everything not already refunded is paid back." & vbCrLf &
+                           "To refund only part of it, or to write down a reason of your own, use Open booking instead.",
                            "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
             Exit Sub
         End If
 
         Dim cancelledID As Integer = selectedBookingID
         Dim cancelledWhat As String = selectedBookingText
-        Dim seatsFreed As Integer = 0
-        Dim worked As Boolean = False
 
-        If DbConnect() Then
-            Dim trans As OleDbTransaction = cn.BeginTransaction()
+        Dim refundID As Long = RefundWholeBooking(cancelledID, "Whole booking refunded from booking search", CurrentLoginID)
 
-            Try
-                Dim SQLCmd As New OleDbCommand
-                SQLCmd.Connection = cn
-                SQLCmd.Transaction = trans
-
-                SQLCmd.CommandText = "DELETE FROM tblBookingSeat " &
-                                     "WHERE BookingID = @BookingID"
-                SQLCmd.Parameters.AddWithValue("@BookingID", cancelledID)
-                seatsFreed = SQLCmd.ExecuteNonQuery()
-
-                SQLCmd.CommandText = "UPDATE tblBooking " &
-                                     "SET BookingStatus = @BookingStatus, CancelledDate = Now() " &
-                                     "WHERE BookingID = @BookingID AND BookingStatus <> @AlreadyCancelled"
-                SQLCmd.Parameters.Clear()
-                SQLCmd.Parameters.AddWithValue("@BookingStatus", BookingCancelled)
-                SQLCmd.Parameters.AddWithValue("@BookingID", cancelledID)
-                SQLCmd.Parameters.AddWithValue("@AlreadyCancelled", BookingCancelled)
-
-                If SQLCmd.ExecuteNonQuery() = 0 Then
-                    trans.Rollback()
-                    MessageBox.Show("That booking could not be cancelled. It may have already been cancelled.", "Cancel Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                Else
-                    trans.Commit()
-                    worked = True
-                End If
-
-            Catch ex As Exception
-                trans.Rollback()
-                MessageBox.Show("The booking could not be cancelled, so nothing was changed. " & ex.Message, "Cancel Booking", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            End Try
-
-            cn.Close()
-        End If
-
-        If worked Then
-            WriteLog("BOOKING", "Booking " & cancelledID & " cancelled (" & cancelledWhat & "), " & seatsFreed & " seat(s) freed", LogChange)
-            MessageBox.Show("Booking cancelled and " & seatsFreed & " seat(s) put back on sale." & vbCrLf &
-                            "The booking is still in the list, marked as cancelled.",
+        If refundID > 0 Then
+            MessageBox.Show("Booking " & cancelledID & " for " & cancelledWhat & " has been refunded in full." & vbCrLf &
+                            "Its seats are back on sale and the refund is written down as refund " & refundID & ".",
                             "Cancel Booking", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        Else
+            MessageBox.Show("There was nothing left to refund on that booking.", "Cancel Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         End If
 
         LoadBookings(txtSearch.Text.Trim())
