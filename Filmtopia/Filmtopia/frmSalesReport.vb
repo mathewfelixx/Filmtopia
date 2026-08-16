@@ -15,6 +15,10 @@ Public Class frmSalesReport
 
     Private hoverBar As Integer = -1
     Private chartTips As New ToolTip
+    Private chartIsForPaper As Boolean = False
+    Private printRow As Integer = 0
+    Private printPageNumber As Integer = 0
+    Private WithEvents docReport As New System.Drawing.Printing.PrintDocument
 
     Private reportTable As DataTable
 
@@ -86,6 +90,8 @@ Public Class frmSalesReport
 
         btnRunReport.Left = Me.ClientSize.Width - edge - btnRunReport.Width
         btnExport.Left = Me.ClientSize.Width - edge - btnExport.Width
+        btnPrint.Left = Me.ClientSize.Width - edge - btnPrint.Width
+        btnSaveChart.Left = btnPrint.Left - btnSaveChart.Width - 8
 
         Dim cardWidth As Integer = (Me.ClientSize.Width - edge * 2 - gap * 4) \ 5
 
@@ -322,6 +328,157 @@ Public Class frmSalesReport
         Dim kind As Type = reportTable.Columns(columnName).DataType
 
         Return kind Is GetType(Double) Or kind Is GetType(Integer) Or kind Is GetType(Decimal)
+    End Function
+
+    Private Sub btnPrint_Click(sender As Object, e As EventArgs) Handles btnPrint.Click
+        If reportTable Is Nothing OrElse reportTable.Rows.Count = 0 Then
+            MessageBox.Show("There is nothing on screen to print.", "Print", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        printRow = 0
+        printPageNumber = 0
+
+        Dim preview As New PrintPreviewDialog
+        preview.Document = docReport
+        preview.Width = 900
+        preview.Height = 700
+        preview.ShowDialog()
+
+        WriteLog("REPORT", "Sales report printed (" & cboReportType.Text & "), " & reportTable.Rows.Count & " rows")
+    End Sub
+
+    Private Sub docReport_PrintPage(sender As Object, e As System.Drawing.Printing.PrintPageEventArgs) Handles docReport.PrintPage
+        Dim left As Integer = e.MarginBounds.Left
+        Dim right As Integer = e.MarginBounds.Right
+        Dim bottom As Integer = e.MarginBounds.Bottom
+        Dim y As Integer = e.MarginBounds.Top
+
+        printPageNumber = printPageNumber + 1
+
+        Dim titleFont As New Font("Segoe UI", 16, FontStyle.Bold)
+        Dim headFont As New Font("Segoe UI", 9, FontStyle.Bold)
+        Dim bodyFont As New Font("Segoe UI", 9)
+        Dim ink As New SolidBrush(Color.Black)
+
+        If printPageNumber = 1 Then
+            e.Graphics.DrawString("Filmtopia sales report", titleFont, ink, left, y)
+            y = y + 36
+            e.Graphics.DrawString(cboReportType.Text & ", measured by " & cboMeasureBy.Text.ToLower(), bodyFont, ink, left, y)
+            y = y + 16
+            e.Graphics.DrawString(dtpFrom.Value.ToString("dd/MM/yyyy") & " to " & dtpTo.Value.ToString("dd/MM/yyyy"), bodyFont, ink, left, y)
+            y = y + 24
+
+            Dim across As Integer = (right - left) \ 5
+
+            For card As Integer = 1 To 5
+                Dim cardX As Integer = left + ((card - 1) * across)
+                e.Graphics.DrawString(CardTitleText(card), bodyFont, ink, cardX, y)
+                e.Graphics.DrawString(CardStatText(card), headFont, ink, cardX, y + 16)
+            Next
+
+            y = y + 44
+            e.Graphics.DrawLine(Pens.Black, left, y, right, y)
+            y = y + 14
+
+            Dim chartHigh As Integer = 340
+            Dim saved As Drawing2D.GraphicsState = e.Graphics.Save()
+            e.Graphics.TranslateTransform(left, y)
+            DrawChartOnPaper(e.Graphics, right - left, chartHigh)
+            e.Graphics.Restore(saved)
+            y = y + chartHigh + 20
+        End If
+
+        Dim widths(dgvSalesByFilm.Columns.Count - 1) As Integer
+        Dim spread As Integer = 0
+
+        For Each col As DataGridViewColumn In dgvSalesByFilm.Columns
+            spread = spread + col.Width
+        Next
+
+        For Each col As DataGridViewColumn In dgvSalesByFilm.Columns
+            widths(col.Index) = CInt((col.Width / spread) * (right - left))
+        Next
+
+        Dim x As Integer = left
+
+        For Each col As DataGridViewColumn In dgvSalesByFilm.Columns
+            e.Graphics.DrawString(FitText(e.Graphics, col.HeaderText, headFont, widths(col.Index) - 6), headFont, ink, x, y)
+            x = x + widths(col.Index)
+        Next
+
+        y = y + 18
+        e.Graphics.DrawLine(Pens.Gray, left, y, right, y)
+        y = y + 5
+
+        Do While printRow < reportTable.Rows.Count
+            If y + 40 > bottom Then
+                Exit Do
+            End If
+
+            x = left
+
+            For Each col As DataGridViewColumn In dgvSalesByFilm.Columns
+                Dim shown As String = dgvSalesByFilm.Rows(printRow).Cells(col.Index).FormattedValue.ToString()
+                e.Graphics.DrawString(FitText(e.Graphics, shown, bodyFont, widths(col.Index) - 6), bodyFont, ink, x, y)
+                x = x + widths(col.Index)
+            Next
+
+            y = y + 16
+            printRow = printRow + 1
+        Loop
+
+        e.HasMorePages = (printRow < reportTable.Rows.Count)
+
+        If Not e.HasMorePages Then
+            y = y + 6
+            e.Graphics.DrawLine(Pens.Black, left, y, right, y)
+            y = y + 6
+            e.Graphics.DrawString(lblGrandTotal.Text, headFont, ink, left, y)
+        End If
+
+        Dim footer As String = "Page " & printPageNumber & "   printed " & Now().ToString("dd/MM/yyyy HH:mm") & " by " & CurrentLogUser()
+        e.Graphics.DrawString(footer, bodyFont, New SolidBrush(Color.Gray), left, bottom + 8)
+    End Sub
+
+    Private Sub DrawChartOnPaper(g As Graphics, wide As Integer, high As Integer)
+        Dim wasDark As Boolean = DarkModeOn
+        chartIsForPaper = True
+        DarkModeOn = False
+
+        DrawChart(g, wide, high)
+
+        DarkModeOn = wasDark
+        chartIsForPaper = False
+        SetThemeColours()
+    End Sub
+
+    Private Function CardTitleText(card As Integer) As String
+        If card = 1 Then
+            Return lblCardTitle1.Text
+        ElseIf card = 2 Then
+            Return lblCardTitle2.Text
+        ElseIf card = 3 Then
+            Return lblCardTitle3.Text
+        ElseIf card = 4 Then
+            Return lblCardTitle4.Text
+        Else
+            Return lblCardTitle5.Text
+        End If
+    End Function
+
+    Private Function CardStatText(card As Integer) As String
+        If card = 1 Then
+            Return lblStat1.Text
+        ElseIf card = 2 Then
+            Return lblStat2.Text
+        ElseIf card = 3 Then
+            Return lblStat3.Text
+        ElseIf card = 4 Then
+            Return lblStat4.Text
+        Else
+            Return lblStat5.Text
+        End If
     End Function
 
     Private Sub btnFind_Click(sender As Object, e As EventArgs) Handles btnFind.Click
@@ -630,6 +787,12 @@ Public Class frmSalesReport
     End Sub
 
     Private Sub SetColumnWidths()
+        For Each col As DataGridViewColumn In dgvSalesByFilm.Columns
+            If col.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill Then
+                col.MinimumWidth = 150
+            End If
+        Next
+
         SetWidth("BookingID", 90)
         SetWidth("CustomerName", 190)
         SetWidth("ScreeningDate", 100)
@@ -1164,14 +1327,16 @@ Public Class frmSalesReport
     Private Sub DrawChart(g As Graphics, wide As Integer, high As Integer)
         SetThemeColours()
 
-        g.Clear(GridBack)
+        g.FillRectangle(New SolidBrush(GridBack), 0, 0, wide, high)
         g.DrawRectangle(New Pen(BorderCol), 0, 0, wide - 1, high - 1)
 
         Dim titleFont As New Font("Segoe UI", 9.75, FontStyle.Bold)
         Dim smallFont As New Font("Segoe UI", 8.25)
         Dim faded As New SolidBrush(SubtleFore)
 
-        barCount = 0
+        If Not chartIsForPaper Then
+            barCount = 0
+        End If
 
         If reportTable Is Nothing OrElse reportTable.Rows.Count = 0 Then
             g.DrawString("Nothing to chart", smallFont, faded, 12, 12)
@@ -1227,10 +1392,12 @@ Public Class frmSalesReport
         Dim barLeft As Integer = nameRoom + 6
         Dim barRoom As Integer = wide - barLeft - 10
 
-        ReDim barRects(howMany - 1)
-        ReDim barLabels(howMany - 1)
-        ReDim barValues(howMany - 1)
-        barCount = howMany
+        If Not chartIsForPaper Then
+            ReDim barRects(howMany - 1)
+            ReDim barLabels(howMany - 1)
+            ReDim barValues(howMany - 1)
+            barCount = howMany
+        End If
 
         For i As Integer = 0 To howMany - 1
             Dim value As Double = RowValue(i, valueColumn)
@@ -1262,13 +1429,21 @@ Public Class frmSalesReport
                 g.DrawString(amount, smallFont, New SolidBrush(GridBack), barLeft + length - amountWidth - 4, y + 3)
             End If
 
-            barRects(i) = New Rectangle(barLeft, y, barRoom, barHeight)
-            barLabels(i) = name
-            barValues(i) = value
+            If Not chartIsForPaper Then
+                barRects(i) = New Rectangle(barLeft, y, barRoom, barHeight)
+                barLabels(i) = name
+                barValues(i) = value
+            End If
         Next
 
         If howMany < reportTable.Rows.Count Then
-            g.DrawString("+ " & (reportTable.Rows.Count - howMany) & " more, make the window taller", smallFont, faded, 10, top + (howMany * barHeight) + 2)
+            Dim missed As String = "+ " & (reportTable.Rows.Count - howMany) & " more not shown"
+
+            If Not chartIsForPaper Then
+                missed = missed & ", make the window taller"
+            End If
+
+            g.DrawString(missed, smallFont, faded, 10, top + (howMany * barHeight) + 2)
         End If
     End Sub
 
@@ -1295,10 +1470,12 @@ Public Class frmSalesReport
 
         g.DrawLine(New Pen(BorderCol), left, bottom, left + (howMany * columnWidth), bottom)
 
-        ReDim barRects(howMany - 1)
-        ReDim barLabels(howMany - 1)
-        ReDim barValues(howMany - 1)
-        barCount = howMany
+        If Not chartIsForPaper Then
+            ReDim barRects(howMany - 1)
+            ReDim barLabels(howMany - 1)
+            ReDim barValues(howMany - 1)
+            barCount = howMany
+        End If
 
         Dim gap As Integer = 2
 
@@ -1325,9 +1502,11 @@ Public Class frmSalesReport
                 g.FillRectangle(New SolidBrush(paint), x, bottom - tall, columnWidth - gap, tall)
             End If
 
-            barRects(i) = New Rectangle(x, top, columnWidth, bottom - top)
-            barLabels(i) = RowLabel(i, labelColumn)
-            barValues(i) = value
+            If Not chartIsForPaper Then
+                barRects(i) = New Rectangle(x, top, columnWidth, bottom - top)
+                barLabels(i) = RowLabel(i, labelColumn)
+                barValues(i) = value
+            End If
         Next
 
         g.DrawString(ShortDay(0), smallFont, faded, left, bottom + 4)

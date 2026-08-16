@@ -39,6 +39,8 @@ Partial Class frmSalesReport
         Me.lblQuick = New System.Windows.Forms.Label()
         Me.cboQuickRange = New System.Windows.Forms.ComboBox()
         Me.pnlChart = New System.Windows.Forms.Panel()
+        Me.btnPrint = New System.Windows.Forms.Button()
+        Me.btnSaveChart = New System.Windows.Forms.Button()
         Me.pnlCard1 = New System.Windows.Forms.Panel()
         Me.lblCardTitle1 = New System.Windows.Forms.Label()
         Me.lblStat1 = New System.Windows.Forms.Label()
@@ -383,6 +385,26 @@ Partial Class frmSalesReport
         Me.lblCardSub5.TabIndex = 2
         Me.lblCardSub5.Text = "for every ticket"
         '
+        'btnPrint
+        '
+        Me.btnPrint.Location = New System.Drawing.Point(940, 93)
+        Me.btnPrint.Margin = New System.Windows.Forms.Padding(4)
+        Me.btnPrint.Name = "btnPrint"
+        Me.btnPrint.Size = New System.Drawing.Size(140, 30)
+        Me.btnPrint.TabIndex = 41
+        Me.btnPrint.Text = "Print Preview"
+        Me.btnPrint.UseVisualStyleBackColor = True
+        '
+        'btnSaveChart
+        '
+        Me.btnSaveChart.Location = New System.Drawing.Point(792, 93)
+        Me.btnSaveChart.Margin = New System.Windows.Forms.Padding(4)
+        Me.btnSaveChart.Name = "btnSaveChart"
+        Me.btnSaveChart.Size = New System.Drawing.Size(140, 30)
+        Me.btnSaveChart.TabIndex = 42
+        Me.btnSaveChart.Text = "Save Chart"
+        Me.btnSaveChart.UseVisualStyleBackColor = True
+        '
         'pnlChart
         '
         Me.pnlChart.Location = New System.Drawing.Point(700, 226)
@@ -509,6 +531,8 @@ Partial Class frmSalesReport
         Me.Controls.Add(Me.pnlCard3)
         Me.Controls.Add(Me.pnlCard4)
         Me.Controls.Add(Me.pnlCard5)
+        Me.Controls.Add(Me.btnSaveChart)
+        Me.Controls.Add(Me.btnPrint)
         Me.Controls.Add(Me.pnlChart)
         Me.Controls.Add(Me.cboQuickRange)
         Me.Controls.Add(Me.lblQuick)
@@ -564,6 +588,8 @@ Partial Class frmSalesReport
     Friend WithEvents lblQuick As Label
     Friend WithEvents cboQuickRange As ComboBox
     Friend WithEvents pnlChart As Panel
+    Friend WithEvents btnPrint As Button
+    Friend WithEvents btnSaveChart As Button
     Friend WithEvents pnlCard1 As Panel
     Friend WithEvents lblCardTitle1 As Label
     Friend WithEvents lblStat1 As Label
