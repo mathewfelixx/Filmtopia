@@ -148,6 +148,12 @@
     <Compile Include="frmScreenings.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmRefund.Designer.vb">
+      <DependentUpon>frmRefund.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmRefund.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmFoodOrder.Designer.vb">
       <DependentUpon>frmFoodOrder.vb</DependentUpon>
     </Compile>
@@ -266,6 +272,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmFoodOrder.resx">
       <DependentUpon>frmFoodOrder.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmRefund.resx">
+      <DependentUpon>frmRefund.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmSalesReport.resx">
       <DependentUpon>frmSalesReport.vb</DependentUpon>

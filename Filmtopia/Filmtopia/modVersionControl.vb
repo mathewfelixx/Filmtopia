@@ -47,6 +47,7 @@ Module modVersionControl
         frmBookings.lblVersion.Text = GetVersion()
         frmScreenings.lblVersion.Text = GetVersion()
         frmFoodOrder.lblVersion.Text = GetVersion()
+        frmRefund.lblVersion.Text = GetVersion()
         frmSalesReport.lblVersion.Text = GetVersion()
         frmBookingSearch.lblVersion.Text = GetVersion()
         frmSettings.lblVersion.Text = GetVersion()
