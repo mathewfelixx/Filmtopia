@@ -104,7 +104,11 @@ Public Class frmBookings
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "SELECT CustomerID, CustomerForename & ' ' & CustomerSurname AS CustomerName " &
-                                 "FROM tblCustomer ORDER BY CustomerSurname, CustomerForename, CustomerID"
+                                 "FROM tblCustomer " &
+                                 "WHERE CustomerForename <> @WalkInForename OR CustomerSurname <> @WalkInSurname " &
+                                 "ORDER BY CustomerSurname, CustomerForename, CustomerID"
+            SQLCmd.Parameters.AddWithValue("@WalkInForename", WalkInForename)
+            SQLCmd.Parameters.AddWithValue("@WalkInSurname", WalkInSurname)
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
