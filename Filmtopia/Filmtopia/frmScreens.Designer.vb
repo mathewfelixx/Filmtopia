@@ -56,6 +56,9 @@ Partial Class frmScreens
         Me.btnPlanDefault = New System.Windows.Forms.Button()
         Me.btnPlanAllStandard = New System.Windows.Forms.Button()
         Me.lblSeatPlanKey = New System.Windows.Forms.Label()
+        Me.lblPlanPreset = New System.Windows.Forms.Label()
+        Me.cboPlanPreset = New System.Windows.Forms.ComboBox()
+        Me.btnApplyPlan = New System.Windows.Forms.Button()
         Me.tabScreenings = New System.Windows.Forms.TabPage()
         Me.dgvScreenings = New System.Windows.Forms.DataGridView()
         Me.lblScreeningsInfo = New System.Windows.Forms.Label()
@@ -91,7 +94,7 @@ Partial Class frmScreens
         Me.GroupBox1.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.GroupBox1.Location = New System.Drawing.Point(16, 46)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(868, 380)
+        Me.GroupBox1.Size = New System.Drawing.Size(868, 470)
         Me.GroupBox1.TabIndex = 1
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "The screens in the building"
@@ -127,7 +130,7 @@ Partial Class frmScreens
         Me.dgvScreens.ReadOnly = True
         Me.dgvScreens.RowHeadersVisible = False
         Me.dgvScreens.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvScreens.Size = New System.Drawing.Size(836, 310)
+        Me.dgvScreens.Size = New System.Drawing.Size(836, 400)
         Me.dgvScreens.TabIndex = 2
         '
         'GroupBox2
@@ -145,7 +148,7 @@ Partial Class frmScreens
         Me.GroupBox2.Controls.Add(Me.btnDelete)
         Me.GroupBox2.Controls.Add(Me.btnClear)
         Me.GroupBox2.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.GroupBox2.Location = New System.Drawing.Point(16, 436)
+        Me.GroupBox2.Location = New System.Drawing.Point(16, 526)
         Me.GroupBox2.Name = "GroupBox2"
         Me.GroupBox2.Size = New System.Drawing.Size(868, 180)
         Me.GroupBox2.TabIndex = 2
@@ -175,6 +178,7 @@ Partial Class frmScreens
         'txtName
         '
         Me.txtName.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.txtName.MaxLength = 255
         Me.txtName.Location = New System.Drawing.Point(90, 58)
         Me.txtName.Name = "txtName"
         Me.txtName.Size = New System.Drawing.Size(200, 23)
@@ -274,7 +278,7 @@ Partial Class frmScreens
         Me.GroupBox3.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.GroupBox3.Location = New System.Drawing.Point(900, 46)
         Me.GroupBox3.Name = "GroupBox3"
-        Me.GroupBox3.Size = New System.Drawing.Size(480, 570)
+        Me.GroupBox3.Size = New System.Drawing.Size(480, 660)
         Me.GroupBox3.TabIndex = 4
         Me.GroupBox3.TabStop = False
         Me.GroupBox3.Text = "Looking after a screen"
@@ -297,7 +301,7 @@ Partial Class frmScreens
         Me.tabScreen.Location = New System.Drawing.Point(12, 52)
         Me.tabScreen.Name = "tabScreen"
         Me.tabScreen.SelectedIndex = 0
-        Me.tabScreen.Size = New System.Drawing.Size(456, 506)
+        Me.tabScreen.Size = New System.Drawing.Size(456, 596)
         Me.tabScreen.TabIndex = 0
         '
         'tabOverview
@@ -312,7 +316,7 @@ Partial Class frmScreens
         Me.tabOverview.Location = New System.Drawing.Point(4, 25)
         Me.tabOverview.Name = "tabOverview"
         Me.tabOverview.Padding = New System.Windows.Forms.Padding(3)
-        Me.tabOverview.Size = New System.Drawing.Size(448, 477)
+        Me.tabOverview.Size = New System.Drawing.Size(448, 567)
         Me.tabOverview.TabIndex = 0
         Me.tabOverview.Text = "Overview"
         Me.tabOverview.UseVisualStyleBackColor = True
@@ -390,7 +394,7 @@ Partial Class frmScreens
         Me.tabHeatmap.Location = New System.Drawing.Point(4, 25)
         Me.tabHeatmap.Name = "tabHeatmap"
         Me.tabHeatmap.Padding = New System.Windows.Forms.Padding(3)
-        Me.tabHeatmap.Size = New System.Drawing.Size(448, 477)
+        Me.tabHeatmap.Size = New System.Drawing.Size(448, 567)
         Me.tabHeatmap.TabIndex = 1
         Me.tabHeatmap.Text = "Seat popularity"
         Me.tabHeatmap.UseVisualStyleBackColor = True
@@ -408,14 +412,14 @@ Partial Class frmScreens
         '
         Me.pnlHeatmap.Location = New System.Drawing.Point(12, 58)
         Me.pnlHeatmap.Name = "pnlHeatmap"
-        Me.pnlHeatmap.Size = New System.Drawing.Size(424, 292)
+        Me.pnlHeatmap.Size = New System.Drawing.Size(424, 382)
         Me.pnlHeatmap.TabIndex = 0
         '
         'lblHeatmapKey
         '
         Me.lblHeatmapKey.AutoSize = False
         Me.lblHeatmapKey.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.lblHeatmapKey.Location = New System.Drawing.Point(12, 358)
+        Me.lblHeatmapKey.Location = New System.Drawing.Point(12, 448)
         Me.lblHeatmapKey.Name = "lblHeatmapKey"
         Me.lblHeatmapKey.Size = New System.Drawing.Size(424, 104)
         Me.lblHeatmapKey.Text = ""
@@ -427,10 +431,13 @@ Partial Class frmScreens
         Me.tabSeatPlan.Controls.Add(Me.btnPlanDefault)
         Me.tabSeatPlan.Controls.Add(Me.btnPlanAllStandard)
         Me.tabSeatPlan.Controls.Add(Me.lblSeatPlanKey)
+        Me.tabSeatPlan.Controls.Add(Me.lblPlanPreset)
+        Me.tabSeatPlan.Controls.Add(Me.cboPlanPreset)
+        Me.tabSeatPlan.Controls.Add(Me.btnApplyPlan)
         Me.tabSeatPlan.Location = New System.Drawing.Point(4, 25)
         Me.tabSeatPlan.Name = "tabSeatPlan"
         Me.tabSeatPlan.Padding = New System.Windows.Forms.Padding(3)
-        Me.tabSeatPlan.Size = New System.Drawing.Size(448, 477)
+        Me.tabSeatPlan.Size = New System.Drawing.Size(448, 567)
         Me.tabSeatPlan.TabIndex = 3
         Me.tabSeatPlan.Text = "Seat plan"
         Me.tabSeatPlan.UseVisualStyleBackColor = True
@@ -449,13 +456,13 @@ Partial Class frmScreens
         Me.pnlSeatPlan.Cursor = System.Windows.Forms.Cursors.Hand
         Me.pnlSeatPlan.Location = New System.Drawing.Point(12, 74)
         Me.pnlSeatPlan.Name = "pnlSeatPlan"
-        Me.pnlSeatPlan.Size = New System.Drawing.Size(424, 272)
+        Me.pnlSeatPlan.Size = New System.Drawing.Size(424, 284)
         Me.pnlSeatPlan.TabIndex = 0
         '
         'btnPlanDefault
         '
         Me.btnPlanDefault.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.btnPlanDefault.Location = New System.Drawing.Point(12, 352)
+        Me.btnPlanDefault.Location = New System.Drawing.Point(12, 438)
         Me.btnPlanDefault.Name = "btnPlanDefault"
         Me.btnPlanDefault.Size = New System.Drawing.Size(204, 30)
         Me.btnPlanDefault.TabIndex = 1
@@ -465,20 +472,46 @@ Partial Class frmScreens
         'btnPlanAllStandard
         '
         Me.btnPlanAllStandard.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.btnPlanAllStandard.Location = New System.Drawing.Point(232, 352)
+        Me.btnPlanAllStandard.Location = New System.Drawing.Point(232, 438)
         Me.btnPlanAllStandard.Name = "btnPlanAllStandard"
         Me.btnPlanAllStandard.Size = New System.Drawing.Size(204, 30)
         Me.btnPlanAllStandard.TabIndex = 2
-        Me.btnPlanAllStandard.Text = "Make every seat standard"
+        Me.btnPlanAllStandard.Text = "Every seat standard"
         Me.btnPlanAllStandard.UseVisualStyleBackColor = True
+        '
+        'lblSeatPlanKey
+        '
+        Me.lblPlanPreset.AutoSize = True
+        Me.lblPlanPreset.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblPlanPreset.Location = New System.Drawing.Point(12, 372)
+        Me.lblPlanPreset.Name = "lblPlanPreset"
+        Me.lblPlanPreset.Size = New System.Drawing.Size(110, 15)
+        Me.lblPlanPreset.Text = "Ready-made plan"
+        '
+        'cboPlanPreset
+        '
+        Me.cboPlanPreset.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboPlanPreset.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.cboPlanPreset.Location = New System.Drawing.Point(160, 368)
+        Me.cboPlanPreset.Name = "cboPlanPreset"
+        Me.cboPlanPreset.Size = New System.Drawing.Size(276, 23)
+        '
+        'btnApplyPlan
+        '
+        Me.btnApplyPlan.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.btnApplyPlan.Location = New System.Drawing.Point(12, 400)
+        Me.btnApplyPlan.Name = "btnApplyPlan"
+        Me.btnApplyPlan.Size = New System.Drawing.Size(424, 30)
+        Me.btnApplyPlan.Text = "Use this ready-made plan"
+        Me.btnApplyPlan.UseVisualStyleBackColor = True
         '
         'lblSeatPlanKey
         '
         Me.lblSeatPlanKey.AutoSize = False
         Me.lblSeatPlanKey.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.lblSeatPlanKey.Location = New System.Drawing.Point(12, 390)
+        Me.lblSeatPlanKey.Location = New System.Drawing.Point(12, 476)
         Me.lblSeatPlanKey.Name = "lblSeatPlanKey"
-        Me.lblSeatPlanKey.Size = New System.Drawing.Size(424, 64)
+        Me.lblSeatPlanKey.Size = New System.Drawing.Size(424, 86)
         Me.lblSeatPlanKey.Text = ""
         '
         'tabScreenings
@@ -488,7 +521,7 @@ Partial Class frmScreens
         Me.tabScreenings.Location = New System.Drawing.Point(4, 25)
         Me.tabScreenings.Name = "tabScreenings"
         Me.tabScreenings.Padding = New System.Windows.Forms.Padding(3)
-        Me.tabScreenings.Size = New System.Drawing.Size(448, 477)
+        Me.tabScreenings.Size = New System.Drawing.Size(448, 567)
         Me.tabScreenings.TabIndex = 2
         Me.tabScreenings.Text = "What is on"
         Me.tabScreenings.UseVisualStyleBackColor = True
@@ -505,14 +538,14 @@ Partial Class frmScreens
         Me.dgvScreenings.ReadOnly = True
         Me.dgvScreenings.RowHeadersVisible = False
         Me.dgvScreenings.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvScreenings.Size = New System.Drawing.Size(424, 384)
+        Me.dgvScreenings.Size = New System.Drawing.Size(424, 474)
         Me.dgvScreenings.TabIndex = 0
         '
         'lblScreeningsInfo
         '
         Me.lblScreeningsInfo.AutoSize = False
         Me.lblScreeningsInfo.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.lblScreeningsInfo.Location = New System.Drawing.Point(12, 400)
+        Me.lblScreeningsInfo.Location = New System.Drawing.Point(12, 490)
         Me.lblScreeningsInfo.Name = "lblScreeningsInfo"
         Me.lblScreeningsInfo.Size = New System.Drawing.Size(424, 70)
         Me.lblScreeningsInfo.Text = ""
@@ -520,7 +553,7 @@ Partial Class frmScreens
         'lblSaved
         '
         Me.lblSaved.AutoSize = False
-        Me.lblSaved.Location = New System.Drawing.Point(360, 626)
+        Me.lblSaved.Location = New System.Drawing.Point(360, 716)
         Me.lblSaved.Name = "lblSaved"
         Me.lblSaved.Size = New System.Drawing.Size(524, 16)
         Me.lblSaved.Text = ""
@@ -529,7 +562,7 @@ Partial Class frmScreens
         '
         Me.lblVersion.AutoSize = True
         Me.lblVersion.ForeColor = System.Drawing.Color.Gray
-        Me.lblVersion.Location = New System.Drawing.Point(16, 626)
+        Me.lblVersion.Location = New System.Drawing.Point(16, 716)
         Me.lblVersion.Name = "lblVersion"
         Me.lblVersion.Size = New System.Drawing.Size(271, 16)
         Me.lblVersion.TabIndex = 3
@@ -539,7 +572,7 @@ Partial Class frmScreens
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1396, 655)
+        Me.ClientSize = New System.Drawing.Size(1396, 745)
         Me.Controls.Add(Me.lblSaved)
         Me.Controls.Add(Me.lblVersion)
         Me.Controls.Add(Me.GroupBox3)
@@ -608,6 +641,9 @@ Partial Class frmScreens
     Friend WithEvents btnPlanDefault As Button
     Friend WithEvents btnPlanAllStandard As Button
     Friend WithEvents lblSeatPlanKey As Label
+    Friend WithEvents lblPlanPreset As Label
+    Friend WithEvents cboPlanPreset As ComboBox
+    Friend WithEvents btnApplyPlan As Button
     Friend WithEvents tabScreenings As TabPage
     Friend WithEvents dgvScreenings As DataGridView
     Friend WithEvents lblScreeningsInfo As Label

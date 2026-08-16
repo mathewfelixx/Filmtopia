@@ -1,4 +1,4 @@
-<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class frmCustomers
     Inherits System.Windows.Forms.Form
 
@@ -159,6 +159,7 @@ Partial Class frmCustomers
         'txtForename
         '
         Me.txtForename.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.txtForename.MaxLength = 255
         Me.txtForename.Location = New System.Drawing.Point(110, 58)
         Me.txtForename.Name = "txtForename"
         Me.txtForename.Size = New System.Drawing.Size(250, 23)
@@ -177,6 +178,7 @@ Partial Class frmCustomers
         'txtSurname
         '
         Me.txtSurname.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.txtSurname.MaxLength = 255
         Me.txtSurname.Location = New System.Drawing.Point(485, 58)
         Me.txtSurname.Name = "txtSurname"
         Me.txtSurname.Size = New System.Drawing.Size(250, 23)
@@ -195,6 +197,7 @@ Partial Class frmCustomers
         'txtEmail
         '
         Me.txtEmail.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.txtEmail.MaxLength = 255
         Me.txtEmail.Location = New System.Drawing.Point(110, 94)
         Me.txtEmail.Name = "txtEmail"
         Me.txtEmail.Size = New System.Drawing.Size(250, 23)

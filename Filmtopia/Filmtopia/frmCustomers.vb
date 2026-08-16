@@ -308,8 +308,10 @@ Public Class frmCustomers
         Dim bookings As Integer = BookingsFor(selectedCustomerID)
 
         If bookings > 0 Then
-            MessageBox.Show(txtForename.Text & " " & txtSurname.Text & " has " & bookings & " booking(s)." & vbCrLf &
-                            "Cancel those bookings first, then this customer can be removed.",
+            MessageBox.Show(txtForename.Text & " " & txtSurname.Text & " has " & bookings & " booking(s) on the system." & vbCrLf & vbCrLf &
+                            "A booking is kept even after it is cancelled, so that the sale stays in the takings " &
+                            "and the refund is on record. That means somebody who has ever booked cannot be " &
+                            "removed, and cancelling their bookings will not change that.",
                             "Cannot delete", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             WriteLog("CUSTOMER", "Delete refused for " & txtForename.Text & " " & txtSurname.Text & ", they have " & bookings & " booking(s)", LogWarning)
             Exit Sub

@@ -1,4 +1,4 @@
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 
 Public Class frmMainMenuV2
 
@@ -17,6 +17,8 @@ Public Class frmMainMenuV2
     Private totalScreenings As Integer = 0
 
     Private rowBoldFont As New Font("Segoe UI", 9.75!, FontStyle.Bold)
+
+    Private tips As New ToolTip
 
     Private Sub SetAllButtonsTransp()
         btnBookings.BackColor = Color.Transparent
@@ -285,7 +287,6 @@ Public Class frmMainMenuV2
     End Sub
 
     Private Sub SetToolTips()
-        Dim tips As New ToolTip
         tips.AutoPopDelay = 8000
         tips.InitialDelay = 500
 
@@ -466,7 +467,8 @@ Public Class frmMainMenuV2
             SQLCmd.CommandText = "SELECT COUNT(*) FROM tblFilm WHERE FilmID IN (SELECT FilmID FROM tblScreening)"
             lblCardSub1.Text = SQLCmd.ExecuteScalar().ToString() & " have screenings"
 
-            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblScreening"
+            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblScreening " &
+                                 "WHERE (ScreeningStatus IS NULL OR ScreeningStatus <> 'Cancelled')"
             totalScreenings = CInt(SQLCmd.ExecuteScalar())
             lblStat2.Text = totalScreenings.ToString()
 
@@ -486,12 +488,12 @@ Public Class frmMainMenuV2
                 SQLCmd.Parameters.Clear()
                 lblCardSub3.Text = SQLCmd.ExecuteScalar().ToString() & " seats sold"
 
-                SQLCmd.CommandText = "SELECT SUM(TotalCost) FROM tblBooking WHERE BookingStatus <> @Cancelled"
-                SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
-                Dim takingsResult = SQLCmd.ExecuteScalar()
-                Dim takings As Double = 0
-                If takingsResult IsNot Nothing AndAlso Not IsDBNull(takingsResult) Then
-                    takings = CDbl(takingsResult)
+                SQLCmd.CommandText = "SELECT SUM(SeatPricePaid) FROM tblBookingSeat"
+                SQLCmd.Parameters.Clear()
+                Dim ticketResult = SQLCmd.ExecuteScalar()
+                Dim tickets As Double = 0
+                If ticketResult IsNot Nothing AndAlso Not IsDBNull(ticketResult) Then
+                    tickets = CDbl(ticketResult)
                 End If
 
                 SQLCmd.CommandText = "SELECT SUM(Quantity * ItemPricePaid) " &
@@ -506,7 +508,7 @@ Public Class frmMainMenuV2
                     concessions = CDbl(foodResult)
                 End If
 
-                Dim tickets As Double = takings - concessions
+                Dim takings As Double = tickets + concessions
 
                 lblStat4.Text = FormatCurrency(takings)
                 If takings = 0 Then

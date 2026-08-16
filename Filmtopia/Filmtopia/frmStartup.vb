@@ -1,8 +1,12 @@
 ﻿Public Class frmStartup
     Private Sub frmStartup_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         timerStartup.Start()
-        PictureBox1.Image = Image.FromFile("Anim1.gif")
-        PictureBox1.SizeMode = PictureBoxSizeMode.StretchImage
+        Dim animation As String = Application.StartupPath & "\Anim1.gif"
+
+        If System.IO.File.Exists(animation) Then
+            PictureBox1.Image = Image.FromFile(animation)
+            PictureBox1.SizeMode = PictureBoxSizeMode.StretchImage
+        End If
 
 
     End Sub

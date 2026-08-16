@@ -1,4 +1,4 @@
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 
 Public Class frmSalesReport
 
@@ -225,14 +225,24 @@ Public Class frmSalesReport
             Exit Sub
         End If
 
-        WriteCsv(saveBox.FileName)
+        If Not WriteCsv(saveBox.FileName) Then
+            Exit Sub
+        End If
 
         WriteLog("REPORT", "Sales report exported (" & cboReportType.Text & "), " & reportTable.Rows.Count & " rows")
         MessageBox.Show(reportTable.Rows.Count & " rows saved.", "Export", MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
 
-    Private Sub WriteCsv(fileName As String)
-        Dim writer As New IO.StreamWriter(fileName, False, New System.Text.UTF8Encoding(True))
+    Private Function WriteCsv(fileName As String) As Boolean
+        Dim writer As IO.StreamWriter
+
+        Try
+            writer = New IO.StreamWriter(fileName, False, New System.Text.UTF8Encoding(True))
+        Catch ex As Exception
+            MessageBox.Show("That file could not be written to. If it is open in another program, close it and try again." & vbCrLf & vbCrLf & ex.Message,
+                            "Export", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return False
+        End Try
 
         writer.WriteLine(CsvField("Filmtopia sales report"))
         writer.WriteLine(CsvField("Report") & "," & CsvField(cboReportType.Text))
@@ -288,7 +298,9 @@ Public Class frmSalesReport
 
         writer.WriteLine(line)
         writer.Close()
-    End Sub
+
+        Return True
+    End Function
 
     Private Function ExportFileName() As String
         Return "Sales " & cboReportType.Text.Replace(" ", "") & " " & dtpFrom.Value.ToString("yyyy-MM-dd") & " to " & dtpTo.Value.ToString("yyyy-MM-dd") & ".csv"
@@ -345,7 +357,7 @@ Public Class frmSalesReport
         preview.Height = 700
         preview.ShowDialog()
 
-        WriteLog("REPORT", "Sales report printed (" & cboReportType.Text & "), " & reportTable.Rows.Count & " rows")
+        WriteLog("REPORT", "Sales report print preview opened (" & cboReportType.Text & "), " & reportTable.Rows.Count & " rows")
     End Sub
 
     Private Sub btnSaveChart_Click(sender As Object, e As EventArgs) Handles btnSaveChart.Click
@@ -363,13 +375,15 @@ Public Class frmSalesReport
             Exit Sub
         End If
 
-        SaveChartPicture(saveBox.FileName)
+        If Not SaveChartPicture(saveBox.FileName) Then
+            Exit Sub
+        End If
 
         WriteLog("REPORT", "Sales report chart saved (" & cboReportType.Text & ")")
         MessageBox.Show("Chart saved.", "Save Chart", MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
 
-    Private Sub SaveChartPicture(fileName As String)
+    Private Function SaveChartPicture(fileName As String) As Boolean
         Dim wide As Integer = 900
         Dim high As Integer = 62 + (reportTable.Rows.Count * 22)
 
@@ -386,10 +400,21 @@ Public Class frmSalesReport
         g.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
         DrawChartOnPaper(g, wide, high)
 
-        picture.Save(fileName, Imaging.ImageFormat.Png)
+        Dim written As Boolean = True
+
+        Try
+            picture.Save(fileName, Imaging.ImageFormat.Png)
+        Catch ex As Exception
+            written = False
+            MessageBox.Show("That picture could not be saved. If it is open in another program, close it and try again." & vbCrLf & vbCrLf & ex.Message,
+                            "Save Chart", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+
         g.Dispose()
         picture.Dispose()
-    End Sub
+
+        Return written
+    End Function
 
     Private Function ChartFileName() As String
         Return "Chart " & cboReportType.Text.Replace(" ", "") & " " & dtpFrom.Value.ToString("yyyy-MM-dd") & " to " & dtpTo.Value.ToString("yyyy-MM-dd") & ".png"
@@ -698,9 +723,9 @@ Public Class frmSalesReport
             SQLCmd.Parameters.Clear()
             SQLCmd.CommandText = "SELECT SUM(Quantity * ItemPricePaid) " &
                                  "FROM (tblOrderItem INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID) " &
-                                 "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID " &
-                                 "WHERE IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) >= @FromDate " &
-                                 "AND IIf(@ByScreening2, tblScreening.ScreeningDate, tblBooking.BookingDate) < @ToDate " &
+                                 "LEFT JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID " &
+                                 "WHERE IIf(@ByScreening, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) >= @FromDate " &
+                                 "AND IIf(@ByScreening2, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) < @ToDate " &
                                  "AND tblBooking.BookingStatus <> @Cancelled"
             AddRangeParameters(SQLCmd, fromDate, toDate)
             Dim foodResult As Object = SQLCmd.ExecuteScalar()
@@ -711,9 +736,9 @@ Public Class frmSalesReport
 
             SQLCmd.Parameters.Clear()
             SQLCmd.CommandText = "SELECT COUNT(*) " &
-                                 "FROM tblBooking INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID " &
-                                 "WHERE IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) >= @FromDate " &
-                                 "AND IIf(@ByScreening2, tblScreening.ScreeningDate, tblBooking.BookingDate) < @ToDate " &
+                                 "FROM tblBooking LEFT JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID " &
+                                 "WHERE IIf(@ByScreening, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) >= @FromDate " &
+                                 "AND IIf(@ByScreening2, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) < @ToDate " &
                                  "AND tblBooking.BookingStatus <> @Cancelled"
             AddRangeParameters(SQLCmd, fromDate, toDate)
             bookings = CInt(SQLCmd.ExecuteScalar())
@@ -721,9 +746,11 @@ Public Class frmSalesReport
             SQLCmd.Parameters.Clear()
             SQLCmd.CommandText = "SELECT SUM(tblScreen.ScreenCapacity) " &
                                  "FROM tblScreening INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID " &
-                                 "WHERE tblScreening.ScreeningDate >= @FromDate AND tblScreening.ScreeningDate < @ToDate"
+                                 "WHERE tblScreening.ScreeningDate >= @FromDate AND tblScreening.ScreeningDate < @ToDate " &
+                                 "AND (tblScreening.ScreeningStatus IS NULL OR tblScreening.ScreeningStatus <> @Cancelled)"
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
             SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
+            SQLCmd.Parameters.AddWithValue("@Cancelled", ScreeningCancelled)
             Dim capacityResult As Object = SQLCmd.ExecuteScalar()
 
             If capacityResult IsNot Nothing AndAlso Not IsDBNull(capacityResult) Then
@@ -1166,10 +1193,10 @@ Public Class frmSalesReport
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "SELECT tblBooking.BookingID, CustomerForename & ' ' & CustomerSurname AS CustomerName, " &
-                                 "FilmTitle, CancelledDate, TotalCost " &
-                                 "FROM ((tblBooking INNER JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
-                                 "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
-                                 "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
+                                 "IIf(IsNull(tblFilm.FilmTitle), 'Counter sale', tblFilm.FilmTitle) AS FilmTitle, CancelledDate, TotalCost " &
+                                 "FROM ((tblBooking LEFT JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
+                                 "LEFT JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
+                                 "LEFT JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
                                  "WHERE tblBooking.BookingStatus = @Cancelled " &
                                  "AND tblBooking.CancelledDate >= @FromDate AND tblBooking.CancelledDate < @ToDate " &
                                  "ORDER BY tblBooking.CancelledDate DESC, tblBooking.BookingID DESC"
@@ -1196,9 +1223,9 @@ Public Class frmSalesReport
             SQLCmd.CommandText = "SELECT FoodItemName, SUM(Quantity) AS Sold, SUM(Quantity * ItemPricePaid) AS FoodRevenue " &
                                  "FROM ((tblOrderItem INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID) " &
                                  "INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID) " &
-                                 "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID " &
-                                 "WHERE IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) >= @FromDate " &
-                                 "AND IIf(@ByScreening2, tblScreening.ScreeningDate, tblBooking.BookingDate) < @ToDate " &
+                                 "LEFT JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID " &
+                                 "WHERE IIf(@ByScreening, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) >= @FromDate " &
+                                 "AND IIf(@ByScreening2, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) < @ToDate " &
                                  "AND tblBooking.BookingStatus <> @Cancelled " &
                                  "GROUP BY FoodItemName"
             SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
@@ -1299,15 +1326,15 @@ Public Class frmSalesReport
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT FilmTitle, SUM(Quantity * ItemPricePaid) AS FoodRevenue " &
+            SQLCmd.CommandText = "SELECT IIf(IsNull(tblFilm.FilmTitle), 'Counter sale', tblFilm.FilmTitle) AS FilmTitle, SUM(Quantity * ItemPricePaid) AS FoodRevenue " &
                                  "FROM ((tblOrderItem " &
                                  "INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID) " &
-                                 "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
-                                 "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
-                                 "WHERE IIf(@ByScreening, tblScreening.ScreeningDate, tblBooking.BookingDate) >= @FromDate " &
-                                 "AND IIf(@ByScreening2, tblScreening.ScreeningDate, tblBooking.BookingDate) < @ToDate " &
+                                 "LEFT JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
+                                 "LEFT JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
+                                 "WHERE IIf(@ByScreening, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) >= @FromDate " &
+                                 "AND IIf(@ByScreening2, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) < @ToDate " &
                                  "AND tblBooking.BookingStatus <> @Cancelled " &
-                                 "GROUP BY FilmTitle"
+                                 "GROUP BY IIf(IsNull(tblFilm.FilmTitle), 'Counter sale', tblFilm.FilmTitle)"
             SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
             SQLCmd.Parameters.AddWithValue("@ByScreening2", MeasuringByScreening())

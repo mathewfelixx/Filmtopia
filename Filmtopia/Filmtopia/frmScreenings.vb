@@ -1,8 +1,10 @@
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 
 Public Class frmScreenings
 
     Private selectedScreeningID As Integer = 0
+
+    Private screenWhenPicked As Integer = 0
 
     Private Const TurnaroundMinutes As Integer = 15
 
@@ -10,9 +12,6 @@ Public Class frmScreenings
 
     Private Const FirstShowMinutes As Integer = 10 * 60
     Private Const LastShowMinutes As Integer = 23 * 60
-
-    Private Const TimelineLaneHeight As Integer = 32
-    Private Const TimelineHeaderHeight As Integer = 22
 
     Private stillLoading As Boolean = True
 
@@ -22,24 +21,6 @@ Public Class frmScreenings
 
     Private rowBoldFont As New Font("Segoe UI", 9, FontStyle.Bold)
 
-    Private laneScreenID() As Integer
-    Private laneName() As String
-    Private laneCount As Integer = 0
-
-    Private timelineID() As Integer
-    Private timelineLane() As Integer
-    Private timelineStart() As Integer
-    Private timelineDuration() As Integer
-    Private timelineTitle() As String
-    Private timelineSold() As Integer
-    Private timelineCapacity() As Integer
-    Private timelineCancelled() As Boolean
-    Private timelineCount As Integer = 0
-
-    Private timelineTips As New ToolTip
-
-    Private tipShowingFor As Integer = -1
-
     Private Sub frmScreenings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup(Me)
 
@@ -47,6 +28,7 @@ Public Class frmScreenings
         LoadScreensCombo()
 
         LoadScreenFilterCombo()
+        LoadTimelineScreens()
 
         cboShow.Items.Add("Today")
         cboShow.Items.Add("This week")
@@ -97,6 +79,7 @@ Public Class frmScreenings
     Private Sub frmScreenings_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
         If e.KeyCode = Keys.F5 Then
             LoadScreenings()
+            RefreshTimelineIfShowing()
         ElseIf e.KeyCode = Keys.Escape Then
             If txtSearch.Text <> "" Then
                 txtSearch.Clear()
@@ -460,402 +443,129 @@ Public Class frmScreenings
         lblGridCount.Text = dt.Rows.Count & " screening(s), " & sold & " seat(s) sold between them"
     End Sub
 
+    Private Sub LoadTimelineScreens()
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT ScreenID, ScreenName FROM tblScreen ORDER BY ScreenName"
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            Dim dt As New DataTable
+            da.Fill(dt)
+            cn.Close()
+
+            cboTimelineScreen.DisplayMember = "ScreenName"
+            cboTimelineScreen.ValueMember = "ScreenID"
+            cboTimelineScreen.DataSource = dt
+        End If
+    End Sub
+
     Private Sub LoadTimelineDay()
-        laneCount = 0
-        timelineCount = 0
+        If cboTimelineScreen.SelectedValue Is Nothing Then
+            Exit Sub
+        End If
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-
-            SQLCmd.CommandText = "SELECT ScreenID, ScreenName FROM tblScreen ORDER BY ScreenName"
-            Dim daScreens As New OleDbDataAdapter(SQLCmd)
-            Dim dtScreens As New DataTable
-            daScreens.Fill(dtScreens)
-
-            ReDim laneScreenID(dtScreens.Rows.Count)
-            ReDim laneName(dtScreens.Rows.Count)
-
-            For Each screenRow As DataRow In dtScreens.Rows
-                laneScreenID(laneCount) = CInt(screenRow("ScreenID"))
-                laneName(laneCount) = screenRow("ScreenName").ToString()
-                laneCount = laneCount + 1
-            Next
-
-            SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, tblScreening.ScreenID, FilmTitle, ScreeningTime, " &
-                                 "FilmDuration, ScreenCapacity, ScreeningStatus, " &
+            SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, FilmTitle, ScreeningTime, FilmDuration, ScreeningStatus, " &
                                  "(SELECT COUNT(*) FROM tblBookingSeat AS bs WHERE bs.ScreeningID = tblScreening.ScreeningID) AS SeatsBooked " &
-                                 "FROM (tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID) " &
-                                 "INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID " &
-                                 "WHERE ScreeningDate = @ScreeningDate " &
+                                 "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
+                                 "WHERE ScreeningDate = @ScreeningDate AND tblScreening.ScreenID = @ScreenID " &
                                  "ORDER BY ScreeningTime, tblScreening.ScreeningID"
             SQLCmd.Parameters.AddWithValue("@ScreeningDate", dtpTimelineDate.Value.Date)
-            Dim daDay As New OleDbDataAdapter(SQLCmd)
-            Dim dtDay As New DataTable
-            daDay.Fill(dtDay)
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(cboTimelineScreen.SelectedValue))
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            Dim dt As New DataTable
+            da.Fill(dt)
             cn.Close()
 
-            ReDim timelineID(dtDay.Rows.Count)
-            ReDim timelineLane(dtDay.Rows.Count)
-            ReDim timelineStart(dtDay.Rows.Count)
-            ReDim timelineDuration(dtDay.Rows.Count)
-            ReDim timelineTitle(dtDay.Rows.Count)
-            ReDim timelineSold(dtDay.Rows.Count)
-            ReDim timelineCapacity(dtDay.Rows.Count)
-            ReDim timelineCancelled(dtDay.Rows.Count)
+            dt.Columns.Add("EndsAt", GetType(String))
+            dt.Columns.Add("SoldText", GetType(String))
 
-            For Each dayRow As DataRow In dtDay.Rows
-                Dim startsAt As Integer = TimeAsMinutes(dayRow("ScreeningTime").ToString())
-                Dim lane As Integer = LaneForScreen(CInt(dayRow("ScreenID")))
+            For Each row As DataRow In dt.Rows
+                Dim duration As Integer = 0
 
-                If startsAt >= 0 And lane >= 0 Then
-                    timelineID(timelineCount) = CInt(dayRow("ScreeningID"))
-                    timelineLane(timelineCount) = lane
-                    timelineStart(timelineCount) = startsAt
-                    timelineDuration(timelineCount) = CInt(dayRow("FilmDuration"))
-                    timelineTitle(timelineCount) = dayRow("FilmTitle").ToString()
-                    timelineSold(timelineCount) = CInt(dayRow("SeatsBooked"))
-                    timelineCapacity(timelineCount) = CInt(dayRow("ScreenCapacity"))
-                    timelineCancelled(timelineCount) = (Not IsDBNull(dayRow("ScreeningStatus"))) AndAlso
-                                                       dayRow("ScreeningStatus").ToString() = ScreeningCancelled
-                    timelineCount = timelineCount + 1
+                If Not IsDBNull(row("FilmDuration")) Then
+                    duration = CInt(row("FilmDuration"))
                 End If
+
+                row("EndsAt") = EndTimeText(row("ScreeningTime").ToString(), duration)
+                row("SoldText") = row("SeatsBooked").ToString()
             Next
+
+            dgvTimeline.DataSource = Nothing
+            dgvTimeline.Columns.Clear()
+            dgvTimeline.DataSource = dt
+
+            ShowTimelineColumns()
+            GreyOutCancelledOnDay()
+            dgvTimeline.ClearSelection()
+
+            lblTimelineCount.Text = dt.Rows.Count & " showing(s) on " & Format(dtpTimelineDate.Value.Date, "dd/MM/yyyy")
         End If
-
-        SetTimelineScrollSize()
-        pnlTimeline.Invalidate()
     End Sub
 
-    Private Function LaneForScreen(screenID As Integer) As Integer
-        For i As Integer = 0 To laneCount - 1
-            If laneScreenID(i) = screenID Then
-                Return i
-            End If
-        Next
-
-        Return -1
-    End Function
-
-    Private Function TimelineLastMinute() As Integer
-        Dim latest As Integer = 24 * 60
-
-        For i As Integer = 0 To timelineCount - 1
-            Dim finish As Integer = timelineStart(i) + ScreenTimeNeeded(timelineDuration(i))
-
-            If finish > latest Then
-                latest = finish
-            End If
-        Next
-
-        If latest Mod 60 <> 0 Then
-            latest = latest + (60 - (latest Mod 60))
-        End If
-
-        Return latest
-    End Function
-
-    Private Sub TimelineGeometry(ByRef leftEdge As Integer, ByRef topEdge As Integer,
-                                 ByRef laneHeight As Integer, ByRef minuteWidth As Double,
-                                 ByRef firstMinute As Integer, ByRef lastMinute As Integer)
-        leftEdge = 92
-        laneHeight = TimelineLaneHeight
-        firstMinute = FirstShowMinutes
-        lastMinute = TimelineLastMinute()
-
-        topEdge = TimelineHeaderHeight + pnlTimeline.AutoScrollPosition.Y
-
-        Dim usableWidth As Integer = pnlTimeline.ClientSize.Width - leftEdge - 26
-        minuteWidth = usableWidth / (lastMinute - firstMinute)
-    End Sub
-
-    Private Sub SetTimelineScrollSize()
-        pnlTimeline.AutoScroll = True
-        pnlTimeline.AutoScrollMinSize = New Size(0, TimelineHeaderHeight + (laneCount * TimelineLaneHeight) + 6)
-    End Sub
-
-    Private Sub pnlTimeline_Paint(sender As Object, e As PaintEventArgs) Handles pnlTimeline.Paint
-        Dim g As Graphics = e.Graphics
-        g.Clear(FormBack)
-
-        If laneCount = 0 Then
-            g.DrawString("There are no screens set up yet", pnlTimeline.Font, New SolidBrush(SubtleFore), 10, 10)
+    Private Sub ShowTimelineColumns()
+        If Not dgvTimeline.Columns.Contains("ScreeningID") Then
             Exit Sub
         End If
 
-        Dim leftEdge, topEdge, laneHeight As Integer
-        Dim firstMinute, lastMinute As Integer
-        Dim minuteWidth As Double
-        TimelineGeometry(leftEdge, topEdge, laneHeight, minuteWidth, firstMinute, lastMinute)
+        dgvTimeline.Columns("ScreeningID").Visible = False
+        dgvTimeline.Columns("FilmDuration").Visible = False
+        dgvTimeline.Columns("ScreeningStatus").Visible = False
+        dgvTimeline.Columns("SeatsBooked").Visible = False
 
-        Dim linePen As New Pen(BorderCol)
-        Dim subtleBrush As New SolidBrush(SubtleFore)
-        Dim textBrush As New SolidBrush(TextFore)
-        Dim bandBrush As New SolidBrush(AltRowBack)
+        dgvTimeline.Columns("ScreeningTime").HeaderText = "Starts"
+        dgvTimeline.Columns("FilmTitle").HeaderText = "Film"
+        dgvTimeline.Columns("EndsAt").HeaderText = "Ends"
+        dgvTimeline.Columns("SoldText").HeaderText = "Seats sold"
 
-        Dim dayWidth As Integer = CInt((lastMinute - firstMinute) * minuteWidth)
-        Dim lanesBottom As Integer = topEdge + (laneHeight * laneCount)
+        dgvTimeline.Columns("ScreeningTime").Width = 70
+        dgvTimeline.Columns("FilmTitle").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+        dgvTimeline.Columns("EndsAt").Width = 70
+        dgvTimeline.Columns("SoldText").Width = 90
 
-        For lane As Integer = 0 To laneCount - 1
-            Dim laneY As Integer = topEdge + (lane * laneHeight)
+        dgvTimeline.Columns("ScreeningTime").DisplayIndex = 0
+        dgvTimeline.Columns("FilmTitle").DisplayIndex = 1
+        dgvTimeline.Columns("EndsAt").DisplayIndex = 2
+        dgvTimeline.Columns("SoldText").DisplayIndex = 3
 
-            If lane Mod 2 = 1 Then
-                g.FillRectangle(bandBrush, leftEdge, laneY, dayWidth, laneHeight)
-            End If
-
-            g.DrawLine(linePen, leftEdge, laneY, leftEdge + dayWidth, laneY)
-            g.DrawString(laneName(lane), pnlTimeline.Font, textBrush, 4, laneY + (laneHeight \ 2) - 8)
-        Next
-
-        g.DrawLine(linePen, leftEdge, lanesBottom, leftEdge + dayWidth, lanesBottom)
-
-        Dim hour As Integer = firstMinute
-        While hour <= lastMinute
-            Dim hourX As Integer = leftEdge + CInt((hour - firstMinute) * minuteWidth)
-            g.DrawLine(linePen, hourX, topEdge, hourX, lanesBottom)
-            hour = hour + 60
-        End While
-
-        For i As Integer = 0 To timelineCount - 1
-            DrawOneShowing(g, i, leftEdge, topEdge, laneHeight, minuteWidth, firstMinute)
-        Next
-
-        If dtpTimelineDate.Value.Date = Date.Today Then
-            Dim nowMinutes As Integer = (Date.Now.Hour * 60) + Date.Now.Minute
-
-            If nowMinutes >= firstMinute And nowMinutes <= lastMinute Then
-                Dim nowPen As New Pen(OccupancyHigh, 2)
-                Dim nowX As Integer = leftEdge + CInt((nowMinutes - firstMinute) * minuteWidth)
-                g.DrawLine(nowPen, nowX, topEdge, nowX, lanesBottom)
-                nowPen.Dispose()
-            End If
-        End If
-
-        Dim headerBrush As New SolidBrush(FormBack)
-        g.FillRectangle(headerBrush, 0, 0, pnlTimeline.ClientSize.Width, TimelineHeaderHeight - 1)
-        g.DrawLine(linePen, 0, TimelineHeaderHeight - 1, pnlTimeline.ClientSize.Width, TimelineHeaderHeight - 1)
-
-        hour = firstMinute
-        While hour <= lastMinute
-            Dim hourX As Integer = leftEdge + CInt((hour - firstMinute) * minuteWidth)
-            g.DrawString(MinutesAsTime(hour), pnlTimeline.Font, subtleBrush, hourX - 14, 3)
-            hour = hour + 60
-        End While
-
-        headerBrush.Dispose()
-        linePen.Dispose()
-        subtleBrush.Dispose()
-        textBrush.Dispose()
-        bandBrush.Dispose()
+        dgvTimeline.Columns("ScreeningTime").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+        dgvTimeline.Columns("EndsAt").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+        dgvTimeline.Columns("SoldText").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
     End Sub
 
-    Private Sub DrawOneShowing(g As Graphics, i As Integer, leftEdge As Integer, topEdge As Integer,
-                               laneHeight As Integer, minuteWidth As Double, firstMinute As Integer)
-        Dim blockY As Integer = topEdge + (timelineLane(i) * laneHeight) + 3
-        Dim blockHeight As Integer = laneHeight - 7
+    Private Sub GreyOutCancelledOnDay()
+        For Each row As DataGridViewRow In dgvTimeline.Rows
+            If row.Cells("ScreeningStatus").Value IsNot Nothing AndAlso
+               Not IsDBNull(row.Cells("ScreeningStatus").Value) AndAlso
+               row.Cells("ScreeningStatus").Value.ToString() = ScreeningCancelled Then
 
-        Dim trailerX As Integer = leftEdge + CInt((timelineStart(i) - firstMinute) * minuteWidth)
-        Dim filmX As Integer = leftEdge + CInt((timelineStart(i) + TrailerMinutes - firstMinute) * minuteWidth)
-        Dim cleanX As Integer = leftEdge + CInt((timelineStart(i) + TrailerMinutes + timelineDuration(i) - firstMinute) * minuteWidth)
-        Dim endX As Integer = leftEdge + CInt((timelineStart(i) + ScreenTimeNeeded(timelineDuration(i)) - firstMinute) * minuteWidth)
-
-        Dim trailerBrush As New Drawing2D.HatchBrush(Drawing2D.HatchStyle.LightUpwardDiagonal, SubtleFore, FormBack)
-        Dim cleanBrush As New Drawing2D.HatchBrush(Drawing2D.HatchStyle.LightDownwardDiagonal, SubtleFore, FormBack)
-        Dim filmBrush As New SolidBrush(TimelineBlockColour(timelineSold(i), timelineCapacity(i)))
-        Dim edgePen As New Pen(BorderCol)
-
-        If timelineCancelled(i) Then
-            Dim goneBrush As New SolidBrush(FormBack)
-            Dim gonePen As New Pen(PastFore)
-            gonePen.DashStyle = Drawing2D.DashStyle.Dash
-
-            g.FillRectangle(goneBrush, filmX, blockY, cleanX - filmX, blockHeight)
-            g.DrawRectangle(gonePen, filmX, blockY, cleanX - filmX, blockHeight)
-
-            If cleanX - filmX > 45 Then
-                Dim goneText As New SolidBrush(PastFore)
-                Dim goneClip As New Rectangle(filmX + 3, blockY + 2, cleanX - filmX - 6, blockHeight - 4)
-                Dim keepClip As Region = g.Clip
-                g.SetClip(goneClip)
-                g.DrawString("OFF " & MinutesAsTime(timelineStart(i)) & " " & timelineTitle(i),
-                             pnlTimeline.Font, goneText, filmX + 4, blockY + (blockHeight \ 2) - 8)
-                g.Clip = keepClip
-                goneText.Dispose()
+                row.DefaultCellStyle.ForeColor = PastFore
+                row.DefaultCellStyle.SelectionForeColor = PastFore
+                row.Cells("SoldText").Value = "Cancelled"
             End If
+        Next
+    End Sub
 
-            goneBrush.Dispose()
-            gonePen.Dispose()
-            trailerBrush.Dispose()
-            cleanBrush.Dispose()
-            filmBrush.Dispose()
-            edgePen.Dispose()
+    Private Sub dgvTimeline_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvTimeline.CellClick
+        If e.RowIndex < 0 Then
             Exit Sub
         End If
-
-        If filmX > trailerX Then
-            g.FillRectangle(trailerBrush, trailerX, blockY, filmX - trailerX, blockHeight)
-            g.DrawRectangle(edgePen, trailerX, blockY, filmX - trailerX, blockHeight)
-        End If
-
-        If endX > cleanX Then
-            g.FillRectangle(cleanBrush, cleanX, blockY, endX - cleanX, blockHeight)
-            g.DrawRectangle(edgePen, cleanX, blockY, endX - cleanX, blockHeight)
-        End If
-
-        If cleanX > filmX Then
-            g.FillRectangle(filmBrush, filmX, blockY, cleanX - filmX, blockHeight)
-            g.DrawRectangle(edgePen, filmX, blockY, cleanX - filmX, blockHeight)
-
-            If cleanX - filmX > 45 Then
-                Dim caption As String = MinutesAsTime(timelineStart(i)) & " " & timelineTitle(i)
-                Dim clip As New Rectangle(filmX + 3, blockY + 2, cleanX - filmX - 6, blockHeight - 4)
-                Dim oldClip As Region = g.Clip
-                g.SetClip(clip)
-                g.DrawString(caption, pnlTimeline.Font, New SolidBrush(SeatFore), filmX + 4, blockY + (blockHeight \ 2) - 8)
-                g.Clip = oldClip
-            End If
-        End If
-
-        trailerBrush.Dispose()
-        cleanBrush.Dispose()
-        filmBrush.Dispose()
-        edgePen.Dispose()
-    End Sub
-
-    Private Function TimelineBlockColour(sold As Integer, capacity As Integer) As Color
-        If capacity <= 0 Then
-            Return SeatAvailable
-        End If
-
-        Dim percent As Integer = CInt(sold * 100 / capacity)
-
-        If percent >= 80 Then
-            Return OccupancyHigh
-        ElseIf percent >= 50 Then
-            Return OccupancyMed
-        End If
-
-        Return SeatAvailable
-    End Function
-
-    Private Function ShowingAt(mouseX As Integer, mouseY As Integer) As Integer
-        Dim leftEdge, topEdge, laneHeight As Integer
-        Dim firstMinute, lastMinute As Integer
-        Dim minuteWidth As Double
-        TimelineGeometry(leftEdge, topEdge, laneHeight, minuteWidth, firstMinute, lastMinute)
-
-        If mouseY < TimelineHeaderHeight Then
-            Return -1
-        End If
-
-        If mouseY < topEdge Or mouseX < leftEdge Then
-            Return -1
-        End If
-
-        Dim lane As Integer = (mouseY - topEdge) \ laneHeight
-
-        If lane < 0 Or lane > laneCount - 1 Then
-            Return -1
-        End If
-
-        Dim minute As Integer = firstMinute + CInt((mouseX - leftEdge) / minuteWidth)
-
-        For i As Integer = 0 To timelineCount - 1
-            If timelineLane(i) = lane Then
-                If minute >= timelineStart(i) And minute < timelineStart(i) + ScreenTimeNeeded(timelineDuration(i)) Then
-                    Return i
-                End If
-            End If
-        Next
-
-        Return -1
-    End Function
-
-    Private Sub pnlTimeline_MouseDown(sender As Object, e As MouseEventArgs) Handles pnlTimeline.MouseDown
-        Dim hit As Integer = ShowingAt(e.X, e.Y)
 
         If Not ChangesCanBeLost() Then
             Exit Sub
         End If
 
-        If hit >= 0 Then
-            LoadScreeningIntoBoxes(timelineID(hit))
-            Exit Sub
-        End If
-
-        StartNewScreeningAt(e.X, e.Y)
+        LoadScreeningIntoBoxes(CInt(dgvTimeline.Rows(e.RowIndex).Cells("ScreeningID").Value))
     End Sub
 
-    Private Sub StartNewScreeningAt(mouseX As Integer, mouseY As Integer)
-        Dim leftEdge, topEdge, laneHeight As Integer
-        Dim firstMinute, lastMinute As Integer
-        Dim minuteWidth As Double
-        TimelineGeometry(leftEdge, topEdge, laneHeight, minuteWidth, firstMinute, lastMinute)
-
-        If mouseY < TimelineHeaderHeight Or mouseY < topEdge Or mouseX < leftEdge Then
+    Private Sub cboTimelineScreen_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboTimelineScreen.SelectedIndexChanged
+        If stillLoading Then
             Exit Sub
         End If
 
-        Dim lane As Integer = (mouseY - topEdge) \ laneHeight
-
-        If lane < 0 Or lane > laneCount - 1 Then
-            Exit Sub
-        End If
-
-        Dim minute As Integer = firstMinute + CInt((mouseX - leftEdge) / minuteWidth)
-
-        minute = minute - (minute Mod 5)
-
-        If minute > LastShowMinutes Then
-            minute = LastShowMinutes
-        End If
-
-        fillingBoxes = True
-        selectedScreeningID = 0
-        cboScreen.SelectedValue = laneScreenID(lane)
-        dtpScreeningDate.Value = dtpTimelineDate.Value.Date
-        txtScreeningTime.Text = MinutesAsTime(minute)
-        fillingBoxes = False
-
-        boxesChanged = True
-
-        ShowWhatIsBeingEdited()
-        ShowEndTime()
-        SayDone(lblSaved, "Started a new screening in " & laneName(lane) & " at " & MinutesAsTime(minute))
-    End Sub
-
-    Private Sub pnlTimeline_MouseMove(sender As Object, e As MouseEventArgs) Handles pnlTimeline.MouseMove
-        Dim hit As Integer = ShowingAt(e.X, e.Y)
-
-        If hit = tipShowingFor Then
-            Exit Sub
-        End If
-
-        tipShowingFor = hit
-
-        If hit < 0 Then
-            timelineTips.SetToolTip(pnlTimeline, "")
-            Exit Sub
-        End If
-
-        Dim finish As Integer = timelineStart(hit) + TrailerMinutes + timelineDuration(hit)
-        Dim clear As Integer = timelineStart(hit) + ScreenTimeNeeded(timelineDuration(hit))
-
-        Dim heading As String = timelineTitle(hit)
-
-        If timelineCancelled(hit) Then
-            heading = heading & " - CANCELLED"
-        End If
-
-        timelineTips.SetToolTip(pnlTimeline,
-            heading & vbCrLf &
-            "Starts " & MinutesAsTime(timelineStart(hit)) & ", film ends " & MinutesAsTime(finish) & vbCrLf &
-            "Screen free at " & MinutesAsTime(clear) & vbCrLf &
-            timelineSold(hit) & " of " & timelineCapacity(hit) & " seats sold")
-    End Sub
-
-    Private Sub pnlTimeline_Scroll(sender As Object, e As ScrollEventArgs) Handles pnlTimeline.Scroll
-        pnlTimeline.Invalidate()
+        LoadTimelineDay()
     End Sub
 
     Private Sub dtpTimelineDate_ValueChanged(sender As Object, e As EventArgs) Handles dtpTimelineDate.ValueChanged
@@ -1711,6 +1421,18 @@ Public Class frmScreenings
 
         Dim sold As Integer = SeatsSold(selectedScreeningID)
 
+        If sold > 0 And CInt(cboScreen.SelectedValue) <> screenWhenPicked Then
+            MessageBox.Show(sold & " seat(s) are already booked on this screening, and those seats belong to " &
+                            "the screen it is in now." & vbCrLf &
+                            "Moving it to another screen would leave those bookings holding seats that are not " &
+                            "in the room the film is on in." & vbCrLf & vbCrLf &
+                            "Cancel the bookings first, or put it back in the screen it was in.",
+                            "Cannot move this screening", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            WriteLog("SCREENING", "Screen change refused for screening " & selectedScreeningID & ", " &
+                                  sold & " seat(s) already sold", LogWarning)
+            Exit Sub
+        End If
+
         If sold > 0 Then
             If MessageBox.Show(sold & " seat(s) are already booked on this screening." & vbCrLf &
                                "Changing it will not tell those customers." & vbCrLf & vbCrLf &
@@ -1761,8 +1483,12 @@ Public Class frmScreenings
         If bookings > 0 Then
             Dim sold As Integer = SeatsSold(selectedScreeningID)
             MessageBox.Show("This screening has " & bookings & " booking(s) on it, " &
-                            sold & " seat(s) in total." & vbCrLf &
-                            "Cancel those bookings first, then the screening can be removed.",
+                            sold & " seat(s) in total." & vbCrLf & vbCrLf &
+                            "A booking is kept even after it is cancelled, so that the sale stays in the takings " &
+                            "and the refund is on record. That means a screening that has ever been booked cannot " &
+                            "be removed, and cancelling those bookings will not change that." & vbCrLf & vbCrLf &
+                            "Use Cancel this screening instead. It stops the screening going ahead, refunds " &
+                            "everyone on it and keeps the history.",
                             "Cannot delete", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             WriteLog("SCREENING", "Delete refused, the screening has " & bookings & " booking(s) on it", LogWarning)
             Exit Sub
@@ -1827,6 +1553,7 @@ Public Class frmScreenings
 
         lblSaved.Text = ""
         selectedScreeningID = 0
+        screenWhenPicked = 0
         cboFilm.SelectedIndex = -1
         cboScreen.SelectedIndex = -1
         dtpScreeningDate.Value = Date.Now
@@ -1868,6 +1595,7 @@ Public Class frmScreenings
         selectedScreeningID = CInt(row.Cells("ScreeningID").Value)
         cboFilm.SelectedValue = CInt(row.Cells("FilmID").Value)
         cboScreen.SelectedValue = CInt(row.Cells("ScreenID").Value)
+        screenWhenPicked = CInt(row.Cells("ScreenID").Value)
         dtpScreeningDate.Value = CDate(row.Cells("ScreeningDate").Value)
         txtScreeningTime.Text = row.Cells("ScreeningTime").Value.ToString()
 
@@ -1892,6 +1620,7 @@ Public Class frmScreenings
             If rs.Read() Then
                 fillingBoxes = True
                 selectedScreeningID = screeningID
+                screenWhenPicked = CInt(rs("ScreenID"))
                 cboFilm.SelectedValue = CInt(rs("FilmID"))
                 cboScreen.SelectedValue = CInt(rs("ScreenID"))
                 dtpScreeningDate.Value = CDate(rs("ScreeningDate"))

@@ -1,4 +1,4 @@
-<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class frmFilms
     Inherits System.Windows.Forms.Form
 
@@ -284,6 +284,7 @@ Partial Class frmFilms
         'txtTitle
         '
         Me.txtTitle.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.txtTitle.MaxLength = 255
         Me.txtTitle.Location = New System.Drawing.Point(125, 55)
         Me.txtTitle.Name = "txtTitle"
         Me.txtTitle.Size = New System.Drawing.Size(285, 27)
@@ -301,6 +302,7 @@ Partial Class frmFilms
         '
         'cboAgeRating
         '
+        Me.cboAgeRating.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cboAgeRating.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.cboAgeRating.Location = New System.Drawing.Point(526, 55)
         Me.cboAgeRating.Name = "cboAgeRating"
@@ -376,6 +378,7 @@ Partial Class frmFilms
         'txtGenres
         '
         Me.txtGenres.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.txtGenres.MaxLength = 255
         Me.txtGenres.Location = New System.Drawing.Point(125, 167)
         Me.txtGenres.Name = "txtGenres"
         Me.txtGenres.Size = New System.Drawing.Size(560, 27)

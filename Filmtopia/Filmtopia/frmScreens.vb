@@ -41,6 +41,8 @@ Public Class frmScreens
 
         pnlSeatPlan.BackColor = Color.White
 
+        LoadPlanPresetCombo()
+
         LoadScreens()
         ClearFields()
         txtName.Focus()
@@ -62,7 +64,11 @@ Public Class frmScreens
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "SELECT ScreenID, ScreenName, ScreenCapacity, ScreenRows, SeatsPerRow, " &
-                                 "ScreenStatus, ScreenStatusReason " &
+                                 "ScreenStatus, ScreenStatusReason, " &
+                                 "(SELECT COUNT(*) FROM tblSeat " &
+                                 "WHERE tblSeat.ScreenID = tblScreen.ScreenID) AS Seats, " &
+                                 "(SELECT COUNT(*) FROM tblScreening " &
+                                 "WHERE tblScreening.ScreenID = tblScreen.ScreenID) AS Screenings " &
                                  "FROM tblScreen ORDER BY ScreenName, ScreenID"
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)
@@ -70,15 +76,9 @@ Public Class frmScreens
         End If
 
         dt.Columns.Add("Rows", GetType(String))
-        dt.Columns.Add("Seats", GetType(Integer))
-        dt.Columns.Add("Screenings", GetType(Integer))
 
         For Each row As DataRow In dt.Rows
-            Dim screenID As Long = CLng(row("ScreenID"))
-
             row("Rows") = RowsAsText(CInt(row("ScreenRows")), CInt(row("SeatsPerRow")))
-            row("Seats") = SeatsOnScreen(screenID)
-            row("Screenings") = ScreeningsOnScreen(screenID)
         Next
 
         dgvScreens.DataSource = dt
@@ -104,6 +104,8 @@ Public Class frmScreens
             dgvScreens.Columns("Rows").Width = 116
             dgvScreens.Columns("Seats").Width = 84
             dgvScreens.Columns("Screenings").Width = 82
+
+            dgvScreens.Columns("Rows").DisplayIndex = dgvScreens.Columns("Seats").DisplayIndex
 
             dgvScreens.Columns("ScreenCapacity").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
             dgvScreens.Columns("Seats").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
@@ -271,9 +273,13 @@ Public Class frmScreens
         Dim standardSeats As Integer = 0
         Dim premiumSeats As Integer = 0
         Dim accessibleSeats As Integer = 0
-        CountPlannedSeats(standardSeats, premiumSeats, accessibleSeats)
+        Dim saverSeats As Integer = 0
+        CountPlannedSeats(standardSeats, premiumSeats, accessibleSeats, saverSeats)
 
         Dim mix As String = standardSeats & " standard"
+        If saverSeats > 0 Then
+            mix = mix & ", " & saverSeats & " saver"
+        End If
         If premiumSeats > 0 Then
             mix = mix & ", " & premiumSeats & " premium"
         End If
@@ -346,12 +352,14 @@ Public Class frmScreens
             Dim standardSeats As Integer = 0
             Dim premiumSeats As Integer = 0
             Dim accessibleSeats As Integer = 0
-            CountPlannedSeats(standardSeats, premiumSeats, accessibleSeats)
+            Dim saverSeats As Integer = 0
+            CountPlannedSeats(standardSeats, premiumSeats, accessibleSeats, saverSeats)
 
             WriteLog("SCREEN", "Screen added: " & savedName, LogChange)
             WriteLog("SCREEN", "Seats generated for ScreenID " & newScreenID & ", " & numRows & " row(s) of " &
                                perRow & ", " & (numRows * perRow) & " seats (" & standardSeats & " standard, " &
-                               premiumSeats & " premium, " & accessibleSeats & " accessible)", LogChange)
+                               saverSeats & " saver, " & premiumSeats & " premium, " &
+                               accessibleSeats & " accessible)", LogChange)
         End If
 
         LoadScreens()
@@ -470,10 +478,11 @@ Public Class frmScreens
                 Dim standardSeats As Integer = 0
                 Dim premiumSeats As Integer = 0
                 Dim accessibleSeats As Integer = 0
-                CountPlannedSeats(standardSeats, premiumSeats, accessibleSeats)
+                Dim saverSeats As Integer = 0
+                CountPlannedSeats(standardSeats, premiumSeats, accessibleSeats, saverSeats)
                 WriteLog("SCREEN", "Seat plan changed for ScreenID " & selectedScreenID & ", now " &
-                                   standardSeats & " standard, " & premiumSeats & " premium, " &
-                                   accessibleSeats & " accessible", LogChange)
+                                   standardSeats & " standard, " & saverSeats & " saver, " &
+                                   premiumSeats & " premium, " & accessibleSeats & " accessible", LogChange)
             End If
         End If
 
@@ -717,16 +726,6 @@ Public Class frmScreens
         Next
     End Sub
 
-    Private Function TypeIDFromTable(dtTypes As DataTable, typeName As String) As Long
-        For Each row As DataRow In dtTypes.Rows
-            If row("SeatTypeName").ToString() = typeName Then
-                Return CLng(row("SeatTypeID"))
-            End If
-        Next
-
-        Return 0
-    End Function
-
     Private Function SeatTypeForRow(rowIndex As Integer, numRows As Integer) As String
         If numRows < 4 Then
             Return SeatStandard
@@ -835,11 +834,54 @@ Public Class frmScreens
     End Sub
 
     Private Sub LoadOverview()
-        Dim seatsMade As Integer = SeatsOnScreen(selectedScreenID)
-        Dim screenings As Integer = ScreeningsOnScreen(selectedScreenID)
-        Dim upcoming As Integer = UpcomingScreeningsOnScreen(selectedScreenID)
-        Dim sold As Integer = BookedSeatsOnScreen(selectedScreenID)
-        Dim takings As Double = TakingsOnScreen(selectedScreenID)
+        Dim seatsMade As Integer = 0
+        Dim screenings As Integer = 0
+        Dim upcoming As Integer = 0
+        Dim sold As Integer = 0
+        Dim takings As Double = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT " &
+                                 "(SELECT COUNT(*) FROM tblSeat " &
+                                 "WHERE tblSeat.ScreenID = @ScreenID) AS SeatsMade, " &
+                                 "(SELECT COUNT(*) FROM tblScreening " &
+                                 "WHERE tblScreening.ScreenID = @ScreenID2) AS Screenings, " &
+                                 "(SELECT COUNT(*) FROM tblScreening " &
+                                 "WHERE tblScreening.ScreenID = @ScreenID3 " &
+                                 "AND tblScreening.ScreeningDate >= @Today) AS Upcoming, " &
+                                 "(SELECT COUNT(*) FROM tblBookingSeat " &
+                                 "WHERE tblBookingSeat.ScreeningID IN " &
+                                 "(SELECT ScreeningID FROM tblScreening WHERE ScreenID = @ScreenID4)) AS Sold, " &
+                                 "(SELECT SUM(SeatPricePaid) FROM tblBookingSeat " &
+                                 "WHERE tblBookingSeat.ScreeningID IN " &
+                                 "(SELECT ScreeningID FROM tblScreening WHERE ScreenID = @ScreenID5)) AS Takings " &
+                                 "FROM tblScreen WHERE ScreenID = @ScreenID6"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(selectedScreenID))
+            SQLCmd.Parameters.AddWithValue("@ScreenID2", CInt(selectedScreenID))
+            SQLCmd.Parameters.AddWithValue("@ScreenID3", CInt(selectedScreenID))
+            SQLCmd.Parameters.AddWithValue("@Today", Date.Today)
+            SQLCmd.Parameters.AddWithValue("@ScreenID4", CInt(selectedScreenID))
+            SQLCmd.Parameters.AddWithValue("@ScreenID5", CInt(selectedScreenID))
+            SQLCmd.Parameters.AddWithValue("@ScreenID6", CInt(selectedScreenID))
+
+            Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+
+            If rs.Read() Then
+                seatsMade = CInt(rs("SeatsMade"))
+                screenings = CInt(rs("Screenings"))
+                upcoming = CInt(rs("Upcoming"))
+                sold = CInt(rs("Sold"))
+
+                If Not IsDBNull(rs("Takings")) Then
+                    takings = CDbl(rs("Takings"))
+                End If
+            End If
+
+            rs.Close()
+            cn.Close()
+        End If
 
         Dim couldHaveSold As Integer = screenings * seatsMade
         Dim howFull As String = "no screenings yet"
@@ -873,28 +915,6 @@ Public Class frmScreens
             SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
             SQLCmd.Parameters.AddWithValue("@Today", Date.Today)
             total = CInt(SQLCmd.ExecuteScalar())
-            cn.Close()
-        End If
-
-        Return total
-    End Function
-
-    Private Function TakingsOnScreen(screenID As Long) As Double
-        Dim total As Double = 0
-
-        If DbConnect() Then
-            Dim SQLCmd As New OleDbCommand
-            SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT SUM(SeatPricePaid) FROM tblBookingSeat " &
-                                 "INNER JOIN tblSeat ON tblBookingSeat.SeatID = tblSeat.SeatID " &
-                                 "WHERE tblSeat.ScreenID = @ScreenID"
-            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(screenID))
-            Dim answer As Object = SQLCmd.ExecuteScalar()
-
-            If answer IsNot Nothing AndAlso Not IsDBNull(answer) Then
-                total = CDbl(answer)
-            End If
-
             cn.Close()
         End If
 
@@ -1205,6 +1225,10 @@ Public Class frmScreens
 
     Private Function NextSeatType(thisType As String) As String
         If thisType = SeatStandard Then
+            Return SeatSaver
+        End If
+
+        If thisType = SeatSaver Then
             Return SeatPremium
         End If
 
@@ -1222,6 +1246,10 @@ Public Class frmScreens
 
         If seatType = SeatAccessible Then
             Return Color.FromArgb(60, 120, 200)
+        End If
+
+        If seatType = SeatSaver Then
+            Return Color.FromArgb(70, 160, 100)
         End If
 
         Return Color.FromArgb(190, 195, 205)
@@ -1292,6 +1320,10 @@ Public Class frmScreens
 
                     If thisType = SeatAccessible Then
                         mark = "A"
+                    End If
+
+                    If thisType = SeatSaver Then
+                        mark = "S"
                     End If
 
                     g.DrawString(mark, markFont, Brushes.White, x + 2, y + 1)
@@ -1366,6 +1398,36 @@ Public Class frmScreens
         pnlSeatPlan.Invalidate()
     End Sub
 
+    Private Sub LoadPlanPresetCombo()
+        cboPlanPreset.Items.Add(PlanAllStandard)
+        cboPlanPreset.Items.Add(PlanCentreBlock)
+        cboPlanPreset.Items.Add(PlanPremiumBack)
+        cboPlanPreset.Items.Add(PlanBudget)
+        cboPlanPreset.SelectedIndex = 1
+    End Sub
+
+    Private Sub btnApplyPlan_Click(sender As Object, e As EventArgs) Handles btnApplyPlan.Click
+        If planRows <= 0 Then
+            MessageBox.Show("Type how many rows and how many seats in each row first.", "No plan yet", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Exit Sub
+        End If
+
+        Dim planName As String = cboPlanPreset.Text
+
+        For rowIndex As Integer = 0 To planRows - 1
+            For seatIndex As Integer = 0 To planPerRow - 1
+                planTypes(rowIndex, seatIndex) = PlanSeatType(planName, rowIndex, seatIndex, planRows, planPerRow)
+            Next
+        Next
+
+        planChanged = True
+        boxesChanged = True
+        ShowSeatPlanKey()
+        ShowLayoutPreview()
+        pnlSeatPlan.Invalidate()
+        SayDone(lblSaved, "Plan set to '" & planName & "'. Press Save changes to keep it.")
+    End Sub
+
     Private Sub btnPlanAllStandard_Click(sender As Object, e As EventArgs) Handles btnPlanAllStandard.Click
         If planRows <= 0 Then
             Exit Sub
@@ -1393,24 +1455,26 @@ Public Class frmScreens
         End If
 
         lblSeatPlanInfo.Text = "Click a seat to change what sort it is. Standard, then" & vbCrLf &
-                               "premium, then accessible, then round again." & vbCrLf &
+                               "saver, then premium, then accessible, then round again." & vbCrLf &
                                "Clicking a row letter changes that whole row."
 
         Dim standardSeats As Integer = 0
         Dim premiumSeats As Integer = 0
         Dim accessibleSeats As Integer = 0
-        CountPlannedSeats(standardSeats, premiumSeats, accessibleSeats)
+        Dim saverSeats As Integer = 0
+        CountPlannedSeats(standardSeats, premiumSeats, accessibleSeats, saverSeats)
 
-        lblSeatPlanKey.Text = "Grey is standard, gold is premium (P), blue is" & vbCrLf &
-                              "accessible (A). What a seat costs comes from its sort." & vbCrLf &
-                              standardSeats & " standard, " & premiumSeats & " premium, " &
-                              accessibleSeats & " accessible."
+        lblSeatPlanKey.Text = "Grey is standard, green is saver (S), gold is premium (P)," & vbCrLf &
+                              "blue is accessible (A). What a seat costs comes from its sort." & vbCrLf &
+                              standardSeats & " standard, " & saverSeats & " saver, " &
+                              premiumSeats & " premium, " & accessibleSeats & " accessible."
     End Sub
 
-    Private Sub CountPlannedSeats(ByRef standardSeats As Integer, ByRef premiumSeats As Integer, ByRef accessibleSeats As Integer)
+    Private Sub CountPlannedSeats(ByRef standardSeats As Integer, ByRef premiumSeats As Integer, ByRef accessibleSeats As Integer, ByRef saverSeats As Integer)
         standardSeats = 0
         premiumSeats = 0
         accessibleSeats = 0
+        saverSeats = 0
 
         For rowIndex As Integer = 0 To planRows - 1
             For seatIndex As Integer = 0 To planPerRow - 1
@@ -1420,6 +1484,8 @@ Public Class frmScreens
                     premiumSeats = premiumSeats + 1
                 ElseIf thisType = SeatAccessible Then
                     accessibleSeats = accessibleSeats + 1
+                ElseIf thisType = SeatSaver Then
+                    saverSeats = saverSeats + 1
                 Else
                     standardSeats = standardSeats + 1
                 End If
@@ -1499,7 +1565,9 @@ Public Class frmScreens
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, ScreeningDate, ScreeningTime, FilmTitle " &
+            SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, ScreeningDate, ScreeningTime, FilmTitle, " &
+                                 "(SELECT COUNT(*) FROM tblBookingSeat " &
+                                 "WHERE tblBookingSeat.ScreeningID = tblScreening.ScreeningID) AS SeatsSold " &
                                  "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
                                  "WHERE tblScreening.ScreenID = @ScreenID AND ScreeningDate >= @Today " &
                                  "AND (ScreeningStatus IS NULL OR ScreeningStatus <> 'Cancelled') " &
@@ -1521,7 +1589,7 @@ Public Class frmScreens
         Dim withBookings As Integer = 0
 
         For Each row As DataRow In dt.Rows
-            Dim soldHere As Integer = SeatsSoldOnScreening(CLng(row("ScreeningID")))
+            Dim soldHere As Integer = CInt(row("SeatsSold"))
             Dim showRow As DataRow = dtShow.NewRow()
 
             showRow("When") = CDate(row("ScreeningDate")).ToString("ddd dd MMM") & "  " & row("ScreeningTime").ToString()
@@ -1559,21 +1627,6 @@ Public Class frmScreens
         End If
     End Sub
 
-    Private Function SeatsSoldOnScreening(screeningID As Long) As Integer
-        Dim total As Integer = 0
-
-        If DbConnect() Then
-            Dim SQLCmd As New OleDbCommand
-            SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBookingSeat WHERE ScreeningID = @ScreeningID"
-            SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(screeningID))
-            total = CInt(SQLCmd.ExecuteScalar())
-            cn.Close()
-        End If
-
-        Return total
-    End Function
-
     Private Sub ShowStatusButtons()
         If selectedStatus = ScreenOutOfService Then
             lblScreenState.Text = "This screen is OUT OF SERVICE" & vbCrLf & "Reason: " & selectedReason
@@ -1584,9 +1637,9 @@ Public Class frmScreens
             txtReason.Enabled = False
             txtReason.Text = selectedReason
 
-            lblStatusHint.Text = "Nothing new can be scheduled here until it" & vbCrLf &
-                                 "is put back. Screenings already in it have" & vbCrLf &
-                                 "been left alone."
+            lblStatusHint.Text = "Nothing new can be scheduled here and no" & vbCrLf &
+                                 "more tickets can be sold for what is already" & vbCrLf &
+                                 "in it, until it is put back."
         Else
             lblScreenState.Text = "This screen is in service"
             lblScreenState.ForeColor = AccentFore
@@ -1597,8 +1650,8 @@ Public Class frmScreens
             txtReason.Text = ""
 
             lblStatusHint.Text = "Taking a screen out of service stops new" & vbCrLf &
-                                 "screenings going in it. The screen, its seats" & vbCrLf &
-                                 "and its history all stay as they are."
+                                 "screenings going in it and stops tickets being" & vbCrLf &
+                                 "sold for it. Its seats and history stay as they are."
         End If
     End Sub
 

@@ -1,4 +1,4 @@
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 
 Public Class frmImportFilms
 
@@ -151,47 +151,73 @@ Public Class frmImportFilms
             earliestYear = SafeInt(txtYearFrom.Text)
         End If
 
-        Dim reader As New System.IO.StreamReader(txtFilePath.Text)
+        btnSearch.Enabled = False
+        btnBrowse.Enabled = False
+
+        Dim reader As System.IO.StreamReader
+
+        Try
+            reader = New System.IO.StreamReader(txtFilePath.Text)
+        Catch ex As Exception
+            btnSearch.Enabled = True
+            btnBrowse.Enabled = True
+            Me.Cursor = Cursors.Default
+            MessageBox.Show("That file could not be opened. If it is still downloading or is open in " &
+                            "another program, wait for it to finish and try again." & vbCrLf & vbCrLf & ex.Message,
+                            "Import Films", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Exit Sub
+        End Try
+
         Dim line As String = reader.ReadLine()
         Dim linesRead As Long = 0
         Dim found As Integer = 0
 
-        line = reader.ReadLine()
+        Try
+            line = reader.ReadLine()
 
-        Do While line IsNot Nothing And found < MaxResults
-            linesRead = linesRead + 1
+            Do While line IsNot Nothing AndAlso found < MaxResults
+                linesRead = linesRead + 1
 
-            Dim bits() As String = Split(line, vbTab)
+                Dim bits() As String = Split(line, vbTab)
 
-            If bits.Length >= 9 Then
-                Dim tconst As String = bits(0)
-                Dim titleType As String = bits(1)
-                Dim filmTitle As String = bits(2)
-                Dim isAdult As String = bits(4)
-                Dim startYear As String = bits(5)
-                Dim runtime As String = bits(7)
-                Dim genres As String = bits(8)
+                If bits.Length >= 9 Then
+                    Dim tconst As String = bits(0)
+                    Dim titleType As String = bits(1)
+                    Dim filmTitle As String = bits(2)
+                    Dim isAdult As String = bits(4)
+                    Dim startYear As String = bits(5)
+                    Dim runtime As String = bits(7)
+                    Dim genres As String = bits(8)
 
-                If titleType = "movie" And isAdult = "0" Then
-                    If InStr(LCase(filmTitle), wanted) > 0 Then
-                        If YearIsOk(startYear, earliestYear) Then
-                            AddMatchToGrid(tconst, filmTitle, startYear, runtime, genres)
-                            found = found + 1
+                    If titleType = "movie" And isAdult = "0" Then
+                        If InStr(LCase(filmTitle), wanted) > 0 Then
+                            If YearIsOk(startYear, earliestYear) Then
+                                AddMatchToGrid(tconst, filmTitle, startYear, runtime, genres)
+                                found = found + 1
+                            End If
                         End If
                     End If
                 End If
-            End If
 
-            If linesRead Mod 100000 = 0 Then
-                lblSearchInfo.Text = "Searching... " & Format(linesRead, "#,##0") & " lines read, " & found & " found so far"
-                Application.DoEvents()
-            End If
+                If linesRead Mod 100000 = 0 Then
+                    lblSearchInfo.Text = "Searching... " & Format(linesRead, "#,##0") & " lines read, " & found & " found so far"
+                    Application.DoEvents()
+                End If
 
-            line = reader.ReadLine()
-        Loop
+                line = reader.ReadLine()
+            Loop
 
-        reader.Close()
-        Me.Cursor = Cursors.Default
+        Catch ex As Exception
+            MessageBox.Show("Something went wrong part way through reading the file, so the list is only " &
+                            "as far as it got." & vbCrLf & vbCrLf & ex.Message,
+                            "Import Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        Finally
+            reader.Close()
+            btnSearch.Enabled = True
+            btnBrowse.Enabled = True
+            Me.Cursor = Cursors.Default
+        End Try
+
 
         lblSearchInfo.Text = Format(linesRead, "#,##0") & " lines read from the file"
 
@@ -361,37 +387,55 @@ Public Class frmImportFilms
 
         Me.Cursor = Cursors.WaitCursor
 
-        Dim reader As New System.IO.StreamReader(txtDescFilePath.Text)
+        Dim reader As System.IO.StreamReader
+
+        Try
+            reader = New System.IO.StreamReader(txtDescFilePath.Text)
+        Catch ex As Exception
+            Me.Cursor = Cursors.Default
+            MessageBox.Show("The descriptions file could not be opened, so the films will come in without " &
+                            "descriptions." & vbCrLf & vbCrLf & ex.Message,
+                            "Import Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End Try
+
         Dim line As String = reader.ReadLine()
         Dim linesRead As Long = 0
         Dim stillLooking As Integer = wantedIDs.Length
 
-        line = reader.ReadLine()
-
-        Do While line IsNot Nothing And stillLooking > 0
-            linesRead = linesRead + 1
-
-            Dim bits() As String = Split(line, vbTab)
-
-            If bits.Length >= 2 Then
-                Dim atFilm As Integer
-                For atFilm = 0 To wantedIDs.Length - 1
-                    If foundDescriptions(atFilm) = "" And bits(0) = wantedIDs(atFilm) Then
-                        foundDescriptions(atFilm) = bits(1)
-                        stillLooking = stillLooking - 1
-                    End If
-                Next
-            End If
-
-            If linesRead Mod 100000 = 0 Then
-                lblSearchInfo.Text = "Looking up descriptions... " & Format(linesRead, "#,##0") & " lines read"
-                Application.DoEvents()
-            End If
-
+        Try
             line = reader.ReadLine()
-        Loop
 
-        reader.Close()
+            Do While line IsNot Nothing AndAlso stillLooking > 0
+                linesRead = linesRead + 1
+
+                Dim bits() As String = Split(line, vbTab)
+
+                If bits.Length >= 2 Then
+                    Dim atFilm As Integer
+                    For atFilm = 0 To wantedIDs.Length - 1
+                        If foundDescriptions(atFilm) = "" And bits(0) = wantedIDs(atFilm) Then
+                            foundDescriptions(atFilm) = BlankIfMissing(bits(1).Trim())
+                            stillLooking = stillLooking - 1
+                        End If
+                    Next
+                End If
+
+                If linesRead Mod 100000 = 0 Then
+                    lblSearchInfo.Text = "Looking up descriptions... " & Format(linesRead, "#,##0") & " lines read"
+                    Application.DoEvents()
+                End If
+
+                line = reader.ReadLine()
+            Loop
+
+        Catch ex As Exception
+            MessageBox.Show("Something went wrong part way through the descriptions file, so some films may " &
+                            "come in without one." & vbCrLf & vbCrLf & ex.Message,
+                            "Import Films", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        Finally
+            reader.Close()
+        End Try
         Me.Cursor = Cursors.Default
 
         lblSearchInfo.Text = "Descriptions looked up, " & Format(linesRead, "#,##0") & " lines read"

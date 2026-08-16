@@ -1,8 +1,11 @@
 ﻿Imports System.Data.OleDb
 
 Public Class frmLogin
-    Public globalusername As String
+    Public globalusername As String = ""
     Dim attempts As Integer = 0
+
+    Private foundAccessLevel As Integer = 99
+    Private foundLoginID As Long = 0
 
     Private Sub btnLogin_Click(sender As Object, e As EventArgs) Handles btnLogin.Click
         If txtUsername.Text = "" Or txtPassword.Text = "" Then
@@ -23,6 +26,8 @@ Public Class frmLogin
 
         If txtPassword.Text = retrievedPassword Then
             attempts = 0
+            UserAccessLevel = foundAccessLevel
+            CurrentLoginID = foundLoginID
             LogedIn = True
             SessionStarted = Date.Now
             WriteLog("AUTH", "User '" & txtUsername.Text & "' logged in successfully", LogSecurity)
@@ -49,6 +54,9 @@ Public Class frmLogin
     Private Function GetUNPW(username As String) As String
         Dim plainTextPW As String = ""
 
+        foundAccessLevel = 99
+        foundLoginID = 0
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
@@ -63,8 +71,8 @@ Public Class frmLogin
             If rs.Read() Then
                 Dim strPW = rs("Password")
                 plainTextPW = Decrypt(strPW)
-                UserAccessLevel = rs("AccessLevel")
-                CurrentLoginID = rs("LoginID")
+                foundAccessLevel = rs("AccessLevel")
+                foundLoginID = rs("LoginID")
                 userFound = True
             Else
                 If username = "" Then

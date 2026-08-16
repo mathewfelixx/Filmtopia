@@ -1,4 +1,4 @@
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 
 Public Class frmFoodItems
 
@@ -198,9 +198,21 @@ Public Class frmFoodItems
         dgvFoodItems.Columns("FoodItemPrice").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
     End Sub
 
+    Private Function StatusOfRow(row As DataGridViewRow) As String
+        If row.Cells("FoodItemStatus").Value Is Nothing OrElse IsDBNull(row.Cells("FoodItemStatus").Value) Then
+            Return FoodOnSale
+        End If
+
+        If row.Cells("FoodItemStatus").Value.ToString().Trim() = "" Then
+            Return FoodOnSale
+        End If
+
+        Return row.Cells("FoodItemStatus").Value.ToString()
+    End Function
+
     Private Sub MarkWithdrawnRows()
         For Each row As DataGridViewRow In dgvFoodItems.Rows
-            If row.Cells("FoodItemStatus").Value.ToString() = FoodWithdrawn Then
+            If StatusOfRow(row) = FoodWithdrawn Then
                 row.DefaultCellStyle.ForeColor = PastFore
             End If
         Next
@@ -255,7 +267,7 @@ Public Class frmFoodItems
         For Each row As DataGridViewRow In dgvFoodItems.Rows
             total = total + CDbl(row.Cells("FoodItemPrice").Value)
 
-            If row.Cells("FoodItemStatus").Value.ToString() = FoodWithdrawn Then
+            If StatusOfRow(row) = FoodWithdrawn Then
                 withdrawn = withdrawn + 1
             End If
         Next
@@ -517,7 +529,10 @@ Public Class frmFoodItems
             Exit Sub
         End If
 
-        If MessageBox.Show("Take '" & txtName.Text & "' off the menu?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) = DialogResult.No Then
+        If MessageBox.Show("Delete '" & txtName.Text & "' for good?" & vbCrLf &
+                           "Nothing has ever been ordered off it, so it can go completely." & vbCrLf & vbCrLf &
+                           "This cannot be undone. To keep it but stop selling it, use Take off the menu instead.",
+                           "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) = DialogResult.No Then
             Exit Sub
         End If
 
@@ -544,7 +559,7 @@ Public Class frmFoodItems
 
         WriteLog("FOOD", "Food item deleted: " & goneName, LogChange)
         ReloadEverything()
-        SayDone(lblSaved, "Took '" & goneName & "' off the menu")
+        SayDone(lblSaved, "Deleted '" & goneName & "'")
     End Sub
 
     Private Sub btnWithdraw_Click(sender As Object, e As EventArgs) Handles btnWithdraw.Click
@@ -814,7 +829,7 @@ Public Class frmFoodItems
 
         Dim row As DataGridViewRow = dgvFoodItems.Rows(e.RowIndex)
         selectedFoodItemID = CLng(row.Cells("FoodItemID").Value)
-        selectedStatus = row.Cells("FoodItemStatus").Value.ToString()
+        selectedStatus = StatusOfRow(row)
         txtName.Text = row.Cells("FoodItemName").Value.ToString()
         cboCategory.Text = row.Cells("FoodItemCategory").Value.ToString()
 

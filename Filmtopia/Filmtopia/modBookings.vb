@@ -8,9 +8,98 @@ Module modBookings
     Public Const SeatStandard As String = "Standard"
     Public Const SeatPremium As String = "Premium"
     Public Const SeatAccessible As String = "Accessible"
+    Public Const SeatSaver As String = "Saver"
+
+    Public Const WalkInForename As String = "Walk-in"
+    Public Const WalkInSurname As String = "Customer"
+
+    Public Const PlanAllStandard As String = "Every seat the same"
+    Public Const PlanCentreBlock As String = "Premium block in the middle"
+    Public Const PlanPremiumBack As String = "Premium at the back"
+    Public Const PlanBudget As String = "Budget screen"
 
     Public Function SeatPrice(basePrice As Double, multiplier As Double) As Double
         Return Math.Round(basePrice * multiplier, 2)
+    End Function
+
+    Public Function TypeIDFromTable(dtTypes As DataTable, typeName As String) As Long
+        For Each row As DataRow In dtTypes.Rows
+            If row("SeatTypeName").ToString() = typeName Then
+                Return CLng(row("SeatTypeID"))
+            End If
+        Next
+
+        Return 0
+    End Function
+
+    Public Function SaverRowCount(numRows As Integer) As Integer
+        If numRows <= 2 Then
+            Return 0
+        End If
+
+        If numRows <= 5 Then
+            Return 1
+        End If
+
+        Return 2
+    End Function
+
+    Public Function PlanSeatType(planName As String, rowIndex As Integer, seatIndex As Integer,
+                                 numRows As Integer, perRow As Integer) As String
+
+        If perRow >= 4 AndAlso rowIndex = numRows \ 2 Then
+            If seatIndex = 0 OrElse seatIndex = perRow - 1 Then
+                Return SeatAccessible
+            End If
+        End If
+
+        If planName = PlanAllStandard Then
+            Return SeatStandard
+        End If
+
+        Dim saverRows As Integer = SaverRowCount(numRows)
+
+        If planName = PlanBudget Then
+            If rowIndex < numRows \ 2 Then
+                Return SeatSaver
+            End If
+
+            Return SeatStandard
+        End If
+
+        If rowIndex < saverRows Then
+            Return SeatSaver
+        End If
+
+        If planName = PlanCentreBlock AndAlso numRows >= 5 Then
+            Dim blockRows As Integer = numRows \ 3
+            If blockRows < 2 Then
+                blockRows = 2
+            End If
+
+            Dim firstBlockRow As Integer = (numRows - blockRows) \ 2
+            If firstBlockRow < saverRows Then
+                firstBlockRow = saverRows
+            End If
+
+            Dim lastBlockRow As Integer = firstBlockRow + blockRows - 1
+            Dim firstBlockSeat As Integer = perRow \ 4
+            Dim lastBlockSeat As Integer = perRow - 1 - (perRow \ 4)
+
+            If rowIndex >= firstBlockRow AndAlso rowIndex <= lastBlockRow Then
+                If seatIndex >= firstBlockSeat AndAlso seatIndex <= lastBlockSeat Then
+                    Return SeatPremium
+                End If
+            End If
+
+            Return SeatStandard
+        End If
+
+        If numRows >= 4 AndAlso rowIndex >= numRows - 2 Then
+            Return SeatPremium
+        End If
+
+        Return SeatStandard
     End Function
 
     Public Function CompleteSale(customerID As Long, isWalkIn As Boolean, screeningID As Long,
@@ -53,25 +142,42 @@ Module modBookings
                 Dim saleCustomerID As Long = customerID
 
                 If isWalkIn Then
-                    SQLCmd.CommandText = "INSERT INTO tblCustomer (CustomerForename, CustomerSurname, CustomerEmail, CustomerPhone) " &
-                                         "VALUES (@CustomerForename, @CustomerSurname, @CustomerEmail, @CustomerPhone)"
+                    SQLCmd.CommandText = "SELECT MIN(CustomerID) FROM tblCustomer " &
+                                         "WHERE CustomerForename = @CustomerForename AND CustomerSurname = @CustomerSurname"
                     SQLCmd.Parameters.Clear()
-                    SQLCmd.Parameters.AddWithValue("@CustomerForename", "Walk-in")
-                    SQLCmd.Parameters.AddWithValue("@CustomerSurname", "Customer")
-                    SQLCmd.Parameters.AddWithValue("@CustomerEmail", "")
-                    SQLCmd.Parameters.AddWithValue("@CustomerPhone", "")
-                    SQLCmd.ExecuteNonQuery()
+                    SQLCmd.Parameters.AddWithValue("@CustomerForename", WalkInForename)
+                    SQLCmd.Parameters.AddWithValue("@CustomerSurname", WalkInSurname)
+                    Dim walkInResult As Object = SQLCmd.ExecuteScalar()
 
-                    SQLCmd.CommandText = "SELECT @@IDENTITY"
-                    SQLCmd.Parameters.Clear()
-                    saleCustomerID = CLng(SQLCmd.ExecuteScalar())
+                    If walkInResult IsNot Nothing AndAlso Not IsDBNull(walkInResult) Then
+                        saleCustomerID = CLng(walkInResult)
+                    Else
+                        SQLCmd.CommandText = "INSERT INTO tblCustomer (CustomerForename, CustomerSurname, CustomerEmail, CustomerPhone) " &
+                                             "VALUES (@CustomerForename, @CustomerSurname, @CustomerEmail, @CustomerPhone)"
+                        SQLCmd.Parameters.Clear()
+                        SQLCmd.Parameters.AddWithValue("@CustomerForename", WalkInForename)
+                        SQLCmd.Parameters.AddWithValue("@CustomerSurname", WalkInSurname)
+                        SQLCmd.Parameters.AddWithValue("@CustomerEmail", "")
+                        SQLCmd.Parameters.AddWithValue("@CustomerPhone", "")
+                        SQLCmd.ExecuteNonQuery()
+
+                        SQLCmd.CommandText = "SELECT @@IDENTITY"
+                        SQLCmd.Parameters.Clear()
+                        saleCustomerID = CLng(SQLCmd.ExecuteScalar())
+                    End If
                 End If
 
                 SQLCmd.CommandText = "INSERT INTO tblBooking (CustomerID, ScreeningID, BookingDate, TotalCost, BookingStatus, LoginID) " &
                                      "VALUES (@CustomerID, @ScreeningID, @BookingDate, @TotalCost, @BookingStatus, @LoginID)"
                 SQLCmd.Parameters.Clear()
                 SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(saleCustomerID))
-                SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(screeningID))
+
+                If screeningID = 0 Then
+                    SQLCmd.Parameters.AddWithValue("@ScreeningID", DBNull.Value)
+                Else
+                    SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(screeningID))
+                End If
+
                 SQLCmd.Parameters.AddWithValue("@BookingDate", Date.Now.Date)
                 SQLCmd.Parameters.AddWithValue("@TotalCost", totalCost)
                 SQLCmd.Parameters.AddWithValue("@BookingStatus", BookingActive)
@@ -89,12 +195,15 @@ Module modBookings
                 newID = CLng(SQLCmd.ExecuteScalar())
 
                 Dim ticketPrice As Double = 0
-                SQLCmd.CommandText = "SELECT TicketPrice FROM tblScreening WHERE ScreeningID = @ScreeningID"
-                SQLCmd.Parameters.Clear()
-                SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(screeningID))
-                Dim priceResult = SQLCmd.ExecuteScalar()
-                If priceResult IsNot Nothing AndAlso Not IsDBNull(priceResult) Then
-                    ticketPrice = CDbl(priceResult)
+
+                If screeningID <> 0 Then
+                    SQLCmd.CommandText = "SELECT TicketPrice FROM tblScreening WHERE ScreeningID = @ScreeningID"
+                    SQLCmd.Parameters.Clear()
+                    SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(screeningID))
+                    Dim priceResult = SQLCmd.ExecuteScalar()
+                    If priceResult IsNot Nothing AndAlso Not IsDBNull(priceResult) Then
+                        ticketPrice = CDbl(priceResult)
+                    End If
                 End If
 
                 Dim i As Integer
@@ -142,6 +251,10 @@ Module modBookings
             End Try
 
             cn.Close()
+        End If
+
+        If newID > 0 Then
+            RecalculateBookingTotal(newID)
         End If
 
         Return newID

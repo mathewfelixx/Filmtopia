@@ -419,17 +419,17 @@ Public Class frmUserOverview
 
             SQLCmd.CommandText = "SELECT tblBooking.BookingID, " &
                                  "CustomerForename & ' ' & CustomerSurname AS CustomerName, " &
-                                 "FilmTitle, ScreeningDate, ScreeningTime, " &
+                                 "IIf(IsNull(tblFilm.FilmTitle), 'Counter sale', tblFilm.FilmTitle) AS FilmTitle, ScreeningDate, ScreeningTime, " &
                                  "(SELECT COUNT(*) FROM tblBookingSeat AS bs WHERE bs.BookingID = tblBooking.BookingID) AS Seats, " &
                                  "BookingDate, TotalCost, BookingStatus " &
-                                 "FROM ((tblBooking INNER JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
-                                 "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
-                                 "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
-                                 "WHERE tblBooking.LoginID = @Me AND BookingDate >= @From AND BookingDate <= @To " &
+                                 "FROM ((tblBooking LEFT JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
+                                 "LEFT JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
+                                 "LEFT JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
+                                 "WHERE tblBooking.LoginID = @Me AND BookingDate >= @From AND BookingDate < @To " &
                                  "ORDER BY tblBooking.BookingID DESC"
             SQLCmd.Parameters.AddWithValue("@Me", CInt(CurrentLoginID))
             SQLCmd.Parameters.AddWithValue("@From", dtpSalesFrom.Value.Date)
-            SQLCmd.Parameters.AddWithValue("@To", dtpSalesTo.Value.Date)
+            SQLCmd.Parameters.AddWithValue("@To", dtpSalesTo.Value.Date.AddDays(1))
 
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)

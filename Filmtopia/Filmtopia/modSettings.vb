@@ -35,6 +35,7 @@ Module modSettings
 
     Public SeatPremiumEdge As Color
     Public SeatAccessibleEdge As Color
+    Public SeatSaverEdge As Color
     Public OccupancyHigh As Color
     Public OccupancyMed As Color
     Public AltRowBack As Color
@@ -69,6 +70,7 @@ Module modSettings
             SeatTakenFore = Color.FromArgb(168, 128, 143)
             SeatPremiumEdge = Color.FromArgb(255, 202, 40)
             SeatAccessibleEdge = Color.FromArgb(100, 181, 246)
+            SeatSaverEdge = Color.FromArgb(90, 200, 130)
             OccupancyHigh = Color.FromArgb(255, 107, 107)
             OccupancyMed = Color.FromArgb(255, 183, 77)
             AltRowBack = Color.FromArgb(56, 56, 61)
@@ -95,6 +97,7 @@ Module modSettings
             SeatTakenFore = Color.Black
             SeatPremiumEdge = Color.FromArgb(184, 134, 11)
             SeatAccessibleEdge = Color.FromArgb(21, 101, 192)
+            SeatSaverEdge = Color.FromArgb(30, 140, 70)
             OccupancyHigh = Color.FromArgb(198, 40, 40)
             OccupancyMed = Color.FromArgb(239, 108, 0)
             AltRowBack = Color.FromArgb(245, 245, 248)

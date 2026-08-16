@@ -55,6 +55,8 @@ Partial Class frmKiosk
         Me.lblKeyPremium = New System.Windows.Forms.Label()
         Me.lblSwatchAccessible = New System.Windows.Forms.Label()
         Me.lblKeyAccessible = New System.Windows.Forms.Label()
+        Me.lblSwatchSaver = New System.Windows.Forms.Label()
+        Me.lblKeySaver = New System.Windows.Forms.Label()
         Me.lblSeatsPicked = New System.Windows.Forms.Label()
         Me.lblSeatKeyTypes = New System.Windows.Forms.Label()
         Me.pnlConfirm = New System.Windows.Forms.Panel()
@@ -315,6 +317,8 @@ Partial Class frmKiosk
         '
         Me.pnlSeats.Controls.Add(Me.lblSeatKeyTypes)
         Me.pnlSeats.Controls.Add(Me.lblSeatsPicked)
+        Me.pnlSeats.Controls.Add(Me.lblKeySaver)
+        Me.pnlSeats.Controls.Add(Me.lblSwatchSaver)
         Me.pnlSeats.Controls.Add(Me.lblKeyAccessible)
         Me.pnlSeats.Controls.Add(Me.lblSwatchAccessible)
         Me.pnlSeats.Controls.Add(Me.lblKeyPremium)
@@ -459,6 +463,23 @@ Partial Class frmKiosk
         Me.lblKeyAccessible.Size = New System.Drawing.Size(100, 25)
         Me.lblKeyAccessible.TabIndex = 15
         Me.lblKeyAccessible.Text = "Accessible"
+        '
+        'lblSwatchSaver
+        '
+        Me.lblSwatchSaver.Location = New System.Drawing.Point(490, 544)
+        Me.lblSwatchSaver.Name = "lblSwatchSaver"
+        Me.lblSwatchSaver.Size = New System.Drawing.Size(28, 28)
+        Me.lblSwatchSaver.TabIndex = 16
+        '
+        'lblKeySaver
+        '
+        Me.lblKeySaver.AutoSize = True
+        Me.lblKeySaver.Font = New System.Drawing.Font("Segoe UI", 11.0!)
+        Me.lblKeySaver.Location = New System.Drawing.Point(528, 547)
+        Me.lblKeySaver.Name = "lblKeySaver"
+        Me.lblKeySaver.Size = New System.Drawing.Size(65, 25)
+        Me.lblKeySaver.TabIndex = 17
+        Me.lblKeySaver.Text = "Saver"
         '
         'lblSeatsPicked
         '
@@ -718,6 +739,8 @@ Partial Class frmKiosk
     Friend WithEvents lblKeyPremium As Label
     Friend WithEvents lblSwatchAccessible As Label
     Friend WithEvents lblKeyAccessible As Label
+    Friend WithEvents lblSwatchSaver As Label
+    Friend WithEvents lblKeySaver As Label
     Friend WithEvents lblSeatsPicked As Label
     Friend WithEvents lblSeatKeyTypes As Label
     Friend WithEvents pnlConfirm As Panel

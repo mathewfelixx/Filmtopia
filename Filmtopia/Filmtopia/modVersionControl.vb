@@ -14,7 +14,7 @@ Module modVersionControl
             SQLCmd.CommandText = "SELECT Version " &
                                  "FROM tblVersionControl"
             Dim result = SQLCmd.ExecuteScalar()
-            If result IsNot Nothing Then
+            If result IsNot Nothing AndAlso Not IsDBNull(result) Then
                 appversion = CStr(result)
             Else
                 appversion = "v1.0.0 [VC ERROR]"

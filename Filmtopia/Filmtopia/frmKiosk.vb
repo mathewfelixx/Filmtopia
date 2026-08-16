@@ -229,12 +229,16 @@ Public Class frmKiosk
         lblKeyPremium.Left = lblSwatchPremium.Right + 12
         lblSwatchAccessible.Left = lblKeyPremium.Right + 40
         lblKeyAccessible.Left = lblSwatchAccessible.Right + 12
+        lblSwatchSaver.Left = lblKeyAccessible.Right + 40
+        lblKeySaver.Left = lblSwatchSaver.Right + 12
 
         lblSwatchPremium.Top = lblSwatchAvailable.Bottom + 12
         lblSwatchAccessible.Top = lblSwatchPremium.Top
+        lblSwatchSaver.Top = lblSwatchPremium.Top
 
         lblKeyPremium.Top = lblSwatchPremium.Top + 2
         lblKeyAccessible.Top = lblKeyPremium.Top
+        lblKeySaver.Top = lblKeyPremium.Top
 
         lblSeatKeyTypes.Left = pnlSeatMap.Left
         lblSeatKeyTypes.Top = lblKeyPremium.Bottom + 10
@@ -323,12 +327,15 @@ Public Class frmKiosk
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "SELECT DISTINCT tblFilm.FilmID, FilmTitle, FilmAgeRating, FilmDuration, FilmPoster " &
-                                 "FROM tblFilm INNER JOIN tblScreening ON tblFilm.FilmID = tblScreening.FilmID " &
+                                 "FROM (tblFilm INNER JOIN tblScreening ON tblFilm.FilmID = tblScreening.FilmID) " &
+                                 "INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID " &
                                  "WHERE ScreeningDate = @Day AND ScreeningTime >= @EarliestTime " &
                                  "AND (ScreeningStatus IS NULL OR ScreeningStatus <> 'Cancelled') " &
+                                 "AND (ScreenStatus IS NULL OR ScreenStatus <> @OutOfService) " &
                                  "ORDER BY FilmTitle"
             SQLCmd.Parameters.AddWithValue("@Day", currentDay)
             SQLCmd.Parameters.AddWithValue("@EarliestTime", EarliestTimeForDay())
+            SQLCmd.Parameters.AddWithValue("@OutOfService", ScreenOutOfService)
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)
             cn.Close()
@@ -375,7 +382,7 @@ Public Class frmKiosk
     End Function
 
     Private Sub BuildDayPicker()
-        pnlDayPicker.Controls.Clear()
+        ClearPanel(pnlDayPicker)
 
         Dim i As Integer
 
@@ -523,7 +530,7 @@ Public Class frmKiosk
             Next
         Next
 
-        pnlFoodList.Controls.Clear()
+        ClearPanel(pnlFoodList)
     End Sub
 
     Private Sub ClearFilmTiles()
@@ -544,7 +551,7 @@ Public Class frmKiosk
             Next
         Next
 
-        pnlFilmList.Controls.Clear()
+        ClearPanel(pnlFilmList)
     End Sub
 
     Private Sub ArrangeTiles(pnl As Panel, tileWidth As Integer, tileHeight As Integer)
@@ -608,10 +615,12 @@ Public Class frmKiosk
                                  "FROM tblScreening INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID " &
                                  "WHERE FilmID = @FilmID AND ScreeningDate = @Day AND ScreeningTime >= @EarliestTime " &
                                  "AND (ScreeningStatus IS NULL OR ScreeningStatus <> 'Cancelled') " &
+                                 "AND (ScreenStatus IS NULL OR ScreenStatus <> @OutOfService) " &
                                  "ORDER BY ScreeningTime"
             SQLCmd.Parameters.AddWithValue("@FilmID", CInt(currentFilmID))
             SQLCmd.Parameters.AddWithValue("@Day", currentDay)
             SQLCmd.Parameters.AddWithValue("@EarliestTime", EarliestTimeForDay())
+            SQLCmd.Parameters.AddWithValue("@OutOfService", ScreenOutOfService)
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)
             cn.Close()
@@ -637,7 +646,7 @@ Public Class frmKiosk
     End Function
 
     Private Sub BuildTimeTiles(dtShowings As DataTable)
-        pnlTimeList.Controls.Clear()
+        ClearPanel(pnlTimeList)
 
         Dim i As Integer
         For i = 0 To dtShowings.Rows.Count - 1
@@ -729,17 +738,23 @@ Public Class frmKiosk
 
         lblSwatchPremium.BackColor = SeatAvailable
         lblSwatchAccessible.BackColor = SeatAvailable
+        lblSwatchSaver.BackColor = SeatAvailable
         lblSwatchPremium.Invalidate()
         lblSwatchAccessible.Invalidate()
+        lblSwatchSaver.Invalidate()
     End Sub
 
     Private Sub SeatTypeSwatch_Paint(sender As Object, e As PaintEventArgs) Handles lblSwatchPremium.Paint,
-        lblSwatchAccessible.Paint
+        lblSwatchAccessible.Paint, lblSwatchSaver.Paint
         Dim swatch As Label = CType(sender, Label)
         Dim edge As Color = SeatPremiumEdge
 
         If swatch Is lblSwatchAccessible Then
             edge = SeatAccessibleEdge
+        End If
+
+        If swatch Is lblSwatchSaver Then
+            edge = SeatSaverEdge
         End If
 
         Dim edgePen As New Pen(edge, 3)
@@ -748,7 +763,7 @@ Public Class frmKiosk
 
     Private Sub BuildSeatMap()
         ApplySeatColours()
-        pnlSeatMap.Controls.Clear()
+        ClearPanel(pnlSeatMap)
         lblSeatsShowing.Text = currentShowingText
 
         SetUpPickedSeats()
@@ -798,6 +813,9 @@ Public Class frmKiosk
             ElseIf seatType = SeatAccessible Then
                 b.FlatAppearance.BorderSize = 3
                 b.FlatAppearance.BorderColor = SeatAccessibleEdge
+            ElseIf seatType = SeatSaver Then
+                b.FlatAppearance.BorderSize = 3
+                b.FlatAppearance.BorderColor = SeatSaverEdge
             End If
 
             If dtTaken.Select("SeatID = " & seatID).Length > 0 Then
@@ -1426,7 +1444,7 @@ Public Class frmKiosk
 
         SetUpPickedSeats()
         SetUpPendingFood()
-        pnlSeatMap.Controls.Clear()
+        ClearPanel(pnlSeatMap)
         ClearFoodTiles()
         currentSeats = Nothing
 

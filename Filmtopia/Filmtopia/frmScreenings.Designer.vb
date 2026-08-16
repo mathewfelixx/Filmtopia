@@ -34,8 +34,10 @@ Partial Class frmScreenings
         Me.tabTimeline = New System.Windows.Forms.TabPage()
         Me.lblTimelineDate = New System.Windows.Forms.Label()
         Me.dtpTimelineDate = New System.Windows.Forms.DateTimePicker()
-        Me.lblTimelineHint = New System.Windows.Forms.Label()
-        Me.pnlTimeline = New System.Windows.Forms.Panel()
+        Me.lblTimelineCount = New System.Windows.Forms.Label()
+        Me.lblTimelineScreen = New System.Windows.Forms.Label()
+        Me.cboTimelineScreen = New System.Windows.Forms.ComboBox()
+        Me.dgvTimeline = New System.Windows.Forms.DataGridView()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
         Me.lblStatus = New System.Windows.Forms.Label()
         Me.lblFilm = New System.Windows.Forms.Label()
@@ -70,6 +72,7 @@ Partial Class frmScreenings
         Me.tabTimeline.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         CType(Me.dgvScreenings, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.dgvTimeline, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'lblHeading
@@ -188,8 +191,10 @@ Partial Class frmScreenings
         '
         Me.tabTimeline.Controls.Add(Me.lblTimelineDate)
         Me.tabTimeline.Controls.Add(Me.dtpTimelineDate)
-        Me.tabTimeline.Controls.Add(Me.lblTimelineHint)
-        Me.tabTimeline.Controls.Add(Me.pnlTimeline)
+        Me.tabTimeline.Controls.Add(Me.lblTimelineScreen)
+        Me.tabTimeline.Controls.Add(Me.cboTimelineScreen)
+        Me.tabTimeline.Controls.Add(Me.lblTimelineCount)
+        Me.tabTimeline.Controls.Add(Me.dgvTimeline)
         Me.tabTimeline.Location = New System.Drawing.Point(4, 24)
         Me.tabTimeline.Name = "tabTimeline"
         Me.tabTimeline.Padding = New System.Windows.Forms.Padding(3)
@@ -217,21 +222,52 @@ Partial Class frmScreenings
         Me.dtpTimelineDate.Size = New System.Drawing.Size(140, 23)
         Me.dtpTimelineDate.TabIndex = 1
         '
-        'lblTimelineHint
+        'lblTimelineScreen
         '
-        Me.lblTimelineHint.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.lblTimelineHint.Location = New System.Drawing.Point(226, 12)
-        Me.lblTimelineHint.Name = "lblTimelineHint"
-        Me.lblTimelineHint.Size = New System.Drawing.Size(760, 17)
-        Me.lblTimelineHint.TabIndex = 2
-        Me.lblTimelineHint.Text = "Click a showing to open it, or click an empty part of a row to start a new one there"
+        Me.lblTimelineScreen.AutoSize = True
+        Me.lblTimelineScreen.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblTimelineScreen.Location = New System.Drawing.Point(230, 12)
+        Me.lblTimelineScreen.Name = "lblTimelineScreen"
+        Me.lblTimelineScreen.Size = New System.Drawing.Size(45, 15)
+        Me.lblTimelineScreen.TabIndex = 2
+        Me.lblTimelineScreen.Text = "Screen"
         '
-        'pnlTimeline
+        'cboTimelineScreen
         '
-        Me.pnlTimeline.Location = New System.Drawing.Point(6, 38)
-        Me.pnlTimeline.Name = "pnlTimeline"
-        Me.pnlTimeline.Size = New System.Drawing.Size(984, 258)
-        Me.pnlTimeline.TabIndex = 3
+        Me.cboTimelineScreen.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboTimelineScreen.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.cboTimelineScreen.Location = New System.Drawing.Point(297, 8)
+        Me.cboTimelineScreen.Name = "cboTimelineScreen"
+        Me.cboTimelineScreen.Size = New System.Drawing.Size(160, 23)
+        Me.cboTimelineScreen.TabIndex = 3
+        '
+        'lblTimelineCount
+        '
+        Me.lblTimelineCount.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.lblTimelineCount.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblTimelineCount.Location = New System.Drawing.Point(736, 12)
+        Me.lblTimelineCount.Name = "lblTimelineCount"
+        Me.lblTimelineCount.Size = New System.Drawing.Size(250, 17)
+        Me.lblTimelineCount.TabIndex = 4
+        Me.lblTimelineCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        '
+        'dgvTimeline
+        '
+        Me.dgvTimeline.AllowUserToAddRows = False
+        Me.dgvTimeline.AllowUserToDeleteRows = False
+        Me.dgvTimeline.AllowUserToResizeRows = False
+        Me.dgvTimeline.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) Or System.Windows.Forms.AnchorStyles.Left) Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.dgvTimeline.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dgvTimeline.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
+        Me.dgvTimeline.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.dgvTimeline.Location = New System.Drawing.Point(6, 38)
+        Me.dgvTimeline.MultiSelect = False
+        Me.dgvTimeline.Name = "dgvTimeline"
+        Me.dgvTimeline.ReadOnly = True
+        Me.dgvTimeline.RowHeadersVisible = False
+        Me.dgvTimeline.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
+        Me.dgvTimeline.Size = New System.Drawing.Size(984, 258)
+        Me.dgvTimeline.TabIndex = 5
         '
         'tabView
         '
@@ -574,6 +610,7 @@ Partial Class frmScreenings
         Me.GroupBox2.ResumeLayout(False)
         Me.GroupBox2.PerformLayout()
         CType(Me.dgvScreenings, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.dgvTimeline, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -595,8 +632,10 @@ Partial Class frmScreenings
     Friend WithEvents tabTimeline As TabPage
     Friend WithEvents lblTimelineDate As Label
     Friend WithEvents dtpTimelineDate As DateTimePicker
-    Friend WithEvents lblTimelineHint As Label
-    Friend WithEvents pnlTimeline As Panel
+    Friend WithEvents lblTimelineScreen As Label
+    Friend WithEvents cboTimelineScreen As ComboBox
+    Friend WithEvents lblTimelineCount As Label
+    Friend WithEvents dgvTimeline As DataGridView
     Friend WithEvents GroupBox2 As GroupBox
     Friend WithEvents lblStatus As Label
     Friend WithEvents lblFilm As Label

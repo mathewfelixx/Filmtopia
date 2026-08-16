@@ -120,13 +120,17 @@ Module modMain
             MessageBox.Show("There is nothing to decrypt", "Encryption", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         Else
 
-            Dim strDecrypt As New System.Text.UTF8Encoding
-            Dim UTF_Decrypt As System.Text.Decoder = strDecrypt.GetDecoder
-            Dim uData As Byte() = Convert.FromBase64String(CipherText)
-            Dim CharNum As Integer = UTF_Decrypt.GetCharCount(uData, 0, uData.Length)
-            Dim Decrypt_Char As Char() = New Char(CharNum - 1) {}
-            UTF_Decrypt.GetChars(uData, 0, uData.Length, Decrypt_Char, 0)
-            PlainText = New String(Decrypt_Char)
+            Try
+                Dim strDecrypt As New System.Text.UTF8Encoding
+                Dim UTF_Decrypt As System.Text.Decoder = strDecrypt.GetDecoder
+                Dim uData As Byte() = Convert.FromBase64String(CipherText)
+                Dim CharNum As Integer = UTF_Decrypt.GetCharCount(uData, 0, uData.Length)
+                Dim Decrypt_Char As Char() = New Char(CharNum - 1) {}
+                UTF_Decrypt.GetChars(uData, 0, uData.Length, Decrypt_Char, 0)
+                PlainText = New String(Decrypt_Char)
+            Catch ex As Exception
+                PlainText = CipherText
+            End Try
         End If
 
         Return PlainText
@@ -142,6 +146,14 @@ Module modMain
     Public Function CsvField(value As String) As String
         Return """" & value.Replace("""", """""") & """"
     End Function
+
+    Public Sub ClearPanel(pnl As Panel)
+        For i As Integer = pnl.Controls.Count - 1 To 0 Step -1
+            Dim ctrl As Control = pnl.Controls(i)
+            pnl.Controls.RemoveAt(i)
+            ctrl.Dispose()
+        Next
+    End Sub
 
     Public Sub SayDone(lbl As Label, message As String)
         lbl.Text = message
@@ -181,7 +193,16 @@ Module modMain
             Return False
         End If
 
-        Dim writer As New System.IO.StreamWriter(saveDialog.FileName)
+        Dim writer As System.IO.StreamWriter
+
+        Try
+            writer = New System.IO.StreamWriter(saveDialog.FileName)
+        Catch ex As Exception
+            MessageBox.Show("That file could not be written to. If it is open in another program, close it and try again." & vbCrLf & vbCrLf & ex.Message,
+                            title, MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return False
+        End Try
+
         Dim line As String = ""
 
         For Each col As DataGridViewColumn In dgv.Columns
@@ -215,7 +236,10 @@ Module modMain
         Dim folder As String = Application.StartupPath & "\" & folderName
 
         If Not System.IO.Directory.Exists(folder) Then
-            System.IO.Directory.CreateDirectory(folder)
+            Try
+                System.IO.Directory.CreateDirectory(folder)
+            Catch ex As Exception
+            End Try
         End If
 
         Return folder

@@ -1,4 +1,4 @@
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 
 Public Class frmLogs
 
@@ -108,7 +108,6 @@ Public Class frmLogs
         stillLoading = True
         LoadTypeFilter()
         LoadUserFilter()
-        stillLoading = False
 
         If cboType.Items.Contains(keepType) Then
             cboType.SelectedItem = keepType
@@ -116,6 +115,7 @@ Public Class frmLogs
         If cboUser.Items.Contains(keepUser) Then
             cboUser.SelectedItem = keepUser
         End If
+        stillLoading = False
 
         LoadLogs()
     End Sub
@@ -313,7 +313,15 @@ Public Class frmLogs
         saveDialog.FileName = "AuditLog.csv"
 
         If saveDialog.ShowDialog() = DialogResult.OK Then
-            Dim writer As New System.IO.StreamWriter(saveDialog.FileName)
+            Dim writer As System.IO.StreamWriter
+
+            Try
+                writer = New System.IO.StreamWriter(saveDialog.FileName)
+            Catch ex As Exception
+                MessageBox.Show("That file could not be written to. If it is open in another program, close it and try again." & vbCrLf & vbCrLf & ex.Message,
+                                "Audit Log", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Exit Sub
+            End Try
 
             writer.WriteLine("When,Level,Area,User,What happened")
 

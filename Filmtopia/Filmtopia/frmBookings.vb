@@ -30,17 +30,23 @@ Public Class frmBookings
 
         lblSwatchPremium.BackColor = availableColour
         lblSwatchAccessible.BackColor = availableColour
+        lblSwatchSaver.BackColor = availableColour
         lblSwatchPremium.Invalidate()
         lblSwatchAccessible.Invalidate()
+        lblSwatchSaver.Invalidate()
     End Sub
 
     Private Sub SeatTypeSwatch_Paint(sender As Object, e As PaintEventArgs) Handles lblSwatchPremium.Paint,
-        lblSwatchAccessible.Paint
+        lblSwatchAccessible.Paint, lblSwatchSaver.Paint
         Dim swatch As Label = CType(sender, Label)
         Dim edge As Color = SeatPremiumEdge
 
         If swatch Is lblSwatchAccessible Then
             edge = SeatAccessibleEdge
+        End If
+
+        If swatch Is lblSwatchSaver Then
+            edge = SeatSaverEdge
         End If
 
         Dim edgePen As New Pen(edge, 2)
@@ -60,15 +66,28 @@ Public Class frmBookings
 
     Public Sub SelectScreening(screeningID As Long)
         cboScreening.SelectedValue = screeningID
+
+        If cboScreening.SelectedIndex = -1 Then
+            MessageBox.Show("That screening cannot be sold at the moment. Either it has been cancelled or " &
+                            "the screen it is in is out of service." & vbCrLf & vbCrLf &
+                            "Pick another screening from the list.",
+                            "Not on sale", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        End If
     End Sub
 
     Private Sub LoadScreenings()
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT ScreeningID, FilmTitle & ' - ' & ScreeningDate & ' ' & ScreeningTime AS Info " &
-                                 "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
-                                 "WHERE (ScreeningStatus IS NULL OR ScreeningStatus <> 'Cancelled')"
+            SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, " &
+                                 "FilmTitle & ' - ' & Format(ScreeningDate, 'dd/mm/yyyy') & ' ' & ScreeningTime & " &
+                                 "' - ' & ScreenName AS Info " &
+                                 "FROM (tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID) " &
+                                 "INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID " &
+                                 "WHERE (ScreeningStatus IS NULL OR ScreeningStatus <> 'Cancelled') " &
+                                 "AND (ScreenStatus IS NULL OR ScreenStatus <> @OutOfService) " &
+                                 "ORDER BY ScreeningDate DESC, ScreeningTime DESC"
+            SQLCmd.Parameters.AddWithValue("@OutOfService", ScreenOutOfService)
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
@@ -85,7 +104,7 @@ Public Class frmBookings
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "SELECT CustomerID, CustomerForename & ' ' & CustomerSurname AS CustomerName " &
-                                 "FROM tblCustomer"
+                                 "FROM tblCustomer ORDER BY CustomerSurname, CustomerForename, CustomerID"
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
@@ -132,9 +151,9 @@ Public Class frmBookings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT tblBooking.BookingID, FilmTitle & ' (' & ScreeningDate & ')' AS Info " &
-                                 "FROM (tblBooking INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
-                                 "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
+            SQLCmd.CommandText = "SELECT tblBooking.BookingID, IIf(IsNull(tblFilm.FilmTitle), 'Counter sale', tblFilm.FilmTitle & ' (' & ScreeningDate & ')') AS Info " &
+                                 "FROM (tblBooking LEFT JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
+                                 "LEFT JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
                                  "WHERE tblBooking.CustomerID = @CustomerID " &
                                  "AND tblBooking.BookingStatus <> @Cancelled"
             SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(customerID))
@@ -173,6 +192,9 @@ Public Class frmBookings
     End Sub
 
     Private Sub LoadScreeningDetails()
+        currentScreenID = 0
+        currentTicketPrice = 0
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
@@ -308,7 +330,8 @@ Public Class frmBookings
 
     Private Sub BuildSeatMap()
         ApplySeatColours()
-        pnlSeatMap.Controls.Clear()
+        seatTips.RemoveAll()
+        ClearPanel(pnlSeatMap)
 
         pendingSeats.Rows.Clear()
 
@@ -363,6 +386,10 @@ Public Class frmBookings
                 b.FlatStyle = FlatStyle.Flat
                 b.FlatAppearance.BorderSize = 2
                 b.FlatAppearance.BorderColor = SeatAccessibleEdge
+            ElseIf seatType = SeatSaver Then
+                b.FlatStyle = FlatStyle.Flat
+                b.FlatAppearance.BorderSize = 2
+                b.FlatAppearance.BorderColor = SeatSaverEdge
             End If
 
             seatTips.SetToolTip(b, seatRow & seatNumber & " - " & seatType & " - " &
@@ -438,19 +465,18 @@ Public Class frmBookings
     End Sub
 
     Private Sub btnCreateBooking_Click(sender As Object, e As EventArgs) Handles btnCreateBooking.Click
-        If currentScreeningID = 0 Then
+        Dim seatCount As Integer = CountSelectedSeats()
+
+        If seatCount = 0 And pendingFood.Rows.Count = 0 Then
+            MessageBox.Show("Pick some seats, or add something from the food and drink list", "Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+        If seatCount > 0 And currentScreeningID = 0 Then
             MessageBox.Show("Pick a screening first", "Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
         If Not chkWalkIn.Checked And cboCustomer.SelectedIndex = -1 Then
             MessageBox.Show("Pick a customer first, or tick Walk-in", "Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            Exit Sub
-        End If
-
-        Dim seatCount As Integer = CountSelectedSeats()
-
-        If seatCount = 0 And pendingFood.Rows.Count = 0 Then
-            MessageBox.Show("Pick some seats, or add something from the food and drink list", "Booking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 

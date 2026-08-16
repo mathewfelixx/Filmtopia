@@ -35,8 +35,9 @@ Public Class frmBookingSearch
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT ScreeningID, FilmTitle & ' - ' & ScreeningDate & ' ' & ScreeningTime AS Info " &
-                                 "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID"
+            SQLCmd.CommandText = "SELECT ScreeningID, FilmTitle & ' - ' & Format(ScreeningDate, 'dd/mm/yyyy') & ' ' & ScreeningTime AS Info " &
+                                 "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
+                                 "ORDER BY ScreeningDate DESC, ScreeningTime DESC"
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)
             cn.Close()
@@ -70,20 +71,20 @@ Public Class frmBookingSearch
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
 
-            Dim baseQuery As String = "SELECT tblBooking.BookingID, CustomerForename & ' ' & CustomerSurname AS CustomerName, FilmTitle, ScreeningDate, ScreeningTime, TotalCost, BookingStatus " &
-                                      "FROM ((tblBooking INNER JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
-                                      "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
-                                      "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID"
+            Dim baseQuery As String = "SELECT tblBooking.BookingID, CustomerForename & ' ' & CustomerSurname AS CustomerName, IIf(IsNull(tblFilm.FilmTitle), 'Counter sale', tblFilm.FilmTitle) AS FilmTitle, ScreeningDate, ScreeningTime, TotalCost, BookingStatus " &
+                                      "FROM ((tblBooking LEFT JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
+                                      "LEFT JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
+                                      "LEFT JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID"
 
             If searchText = "" Then
                 SQLCmd.CommandText = baseQuery & " ORDER BY tblBooking.BookingID DESC"
             ElseIf IsNumeric(searchText) Then
                 SQLCmd.CommandText = baseQuery & " WHERE tblBooking.BookingID = @SearchID " &
                                      "ORDER BY tblBooking.BookingID DESC"
-                SQLCmd.Parameters.AddWithValue("@SearchID", CInt(searchText))
+                SQLCmd.Parameters.AddWithValue("@SearchID", SafeInt(searchText))
             Else
                 SQLCmd.CommandText = baseQuery & " WHERE CustomerForename & ' ' & CustomerSurname LIKE @SearchName " &
-                                     "OR FilmTitle LIKE @SearchFilm " &
+                                     "OR tblFilm.FilmTitle LIKE @SearchFilm " &
                                      "ORDER BY tblBooking.BookingID DESC"
                 SQLCmd.Parameters.AddWithValue("@SearchName", "%" & searchText & "%")
                 SQLCmd.Parameters.AddWithValue("@SearchFilm", "%" & searchText & "%")
@@ -293,7 +294,15 @@ Public Class frmBookingSearch
         saveDialog.FileName = "DoorList.csv"
 
         If saveDialog.ShowDialog() = DialogResult.OK Then
-            Dim writer As New System.IO.StreamWriter(saveDialog.FileName)
+            Dim writer As System.IO.StreamWriter
+
+            Try
+                writer = New System.IO.StreamWriter(saveDialog.FileName)
+            Catch ex As Exception
+                MessageBox.Show("That file could not be written to. If it is open in another program, close it and try again." & vbCrLf & vbCrLf & ex.Message,
+                                "Booking Search", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Exit Sub
+            End Try
 
             writer.WriteLine("Booking,Customer Name,Seat")
 

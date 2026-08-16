@@ -43,14 +43,18 @@ Public Class frmFoodOrder
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "SELECT CustomerForename & ' ' & CustomerSurname AS CustomerName, FilmTitle, ScreeningDate, ScreeningTime " &
-                                 "FROM ((tblBooking INNER JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
-                                 "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
-                                 "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
+                                 "FROM ((tblBooking LEFT JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
+                                 "LEFT JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
+                                 "LEFT JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
                                  "WHERE tblBooking.BookingID = @BookingID"
             SQLCmd.Parameters.AddWithValue("@BookingID", CInt(currentBookingID))
             Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
             If rs.Read() Then
-                lblBookingInfo.Text = "Booking #" & currentBookingID & " - " & rs("CustomerName").ToString() & " - " & rs("FilmTitle").ToString() & " (" & rs("ScreeningDate").ToString() & " " & rs("ScreeningTime").ToString() & ")"
+                If IsDBNull(rs("ScreeningDate")) Then
+                    lblBookingInfo.Text = "Booking #" & currentBookingID & " - " & rs("CustomerName").ToString() & " - Counter sale"
+                Else
+                    lblBookingInfo.Text = "Booking #" & currentBookingID & " - " & rs("CustomerName").ToString() & " - " & rs("FilmTitle").ToString() & " (" & rs("ScreeningDate").ToString() & " " & rs("ScreeningTime").ToString() & ")"
+                End If
             End If
             rs.Close()
             cn.Close()
@@ -124,6 +128,10 @@ Public Class frmFoodOrder
             cn.Close()
         End If
 
+        If dgvOrderItems.Columns.Count = 0 Then
+            Exit Sub
+        End If
+
         dgvOrderItems.Columns("OrderItemID").Visible = False
 
         dgvOrderItems.Columns("FoodItemName").HeaderText = "Item"
@@ -175,6 +183,15 @@ Public Class frmFoodOrder
 
         Dim chosen As DataRowView = CType(cboFoodItem.SelectedItem, DataRowView)
         Dim pricePaid As Double = CDbl(chosen("FoodItemPrice"))
+
+        If Not FoodItemIsOnSale(CLng(chosen("FoodItemID"))) Then
+            MessageBox.Show("'" & cboFoodItem.Text & "' has been taken off the menu since this screen was opened, " &
+                            "so it cannot be sold." & vbCrLf & vbCrLf &
+                            "The list has been refreshed.",
+                            "Off the menu", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            LoadFoodItemsCombo()
+            Exit Sub
+        End If
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand

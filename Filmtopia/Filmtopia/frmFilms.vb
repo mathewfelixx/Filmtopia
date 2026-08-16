@@ -539,6 +539,8 @@ Public Class frmFilms
             Exit Sub
         End If
 
+        DeletePosterFile(posterOriginalName)
+
         Dim savedName As String = txtTitle.Text.Trim()
         WriteLog("FILM", "Film deleted: " & txtTitle.Text, LogChange)
         LoadFilms()
