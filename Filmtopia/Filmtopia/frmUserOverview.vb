@@ -8,7 +8,7 @@ Public Class frmUserOverview
 
         ShowWhoIsSignedIn()
         ConfigureAccessLevel()
-        LoadMyStats()
+        ShowAppearance()
 
         dtpActFrom.Value = Date.Today.AddDays(-7)
         dtpActTo.Value = Date.Today
@@ -52,14 +52,8 @@ Public Class frmUserOverview
     Private Sub ShowWhoIsSignedIn()
         lblWelcome.Text = GetGreeting() & ", " & frmLogin.globalusername
 
-        If UserAccessLevel = 1 Then
-            lblRole.Text = "Manager"
-        Else
-            lblRole.Text = "Staff"
-        End If
-
-        lblSubSession.Text = "Signed in at " & Format(SessionStarted, "HH:mm") & ", " &
-                             HowLongAgo(SessionStarted) & " ago"
+        lblSubSession.Text = "On since " & Format(SessionStarted, "HH:mm") & ", " &
+                             HowLongAgo(SessionStarted)
 
         Dim lastTime As Date = LastSignedInBefore()
 
@@ -69,6 +63,8 @@ Public Class frmUserOverview
             lblSubLastLogin.Text = "Last signed in " & Format(lastTime, "dd/MM/yyyy") & " at " &
                                    Format(lastTime, "HH:mm")
         End If
+
+        ShowSecurityLine()
     End Sub
 
     Private Function HowLongAgo(since As Date) As String
@@ -82,48 +78,32 @@ Public Class frmUserOverview
             Return minutes & " minutes"
         ElseIf minutes < 120 Then
             Return "about an hour"
-        Else
+        ElseIf minutes < 1440 Then
             Return "about " & (minutes \ 60) & " hours"
         End If
-    End Function
 
-    Private Function LastSignedInBefore() As Date
-        Dim answer As Date = Date.MinValue
+        Dim days As Integer = minutes \ 1440
 
-        If DbConnect() Then
-            Dim SQLCmd As New OleDbCommand
-            SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT TOP 2 LogDateTime " &
-                                 "FROM tblLogs " &
-                                 "WHERE LogType = @Auth AND LogMessage LIKE @LoggedIn " &
-                                 "ORDER BY LogDateTime DESC, LogID DESC"
-            SQLCmd.Parameters.AddWithValue("@Auth", "AUTH")
-            SQLCmd.Parameters.AddWithValue("@LoggedIn", "User '" & frmLogin.globalusername & "' logged in successfully%")
-
-            Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
-            Dim howMany As Integer = 0
-
-            While rs.Read()
-                howMany = howMany + 1
-                If howMany = 2 Then
-                    answer = CDate(rs("LogDateTime"))
-                End If
-            End While
-
-            rs.Close()
-            cn.Close()
-        End If
-
-        Return answer
-    End Function
-
-    Private Sub ConfigureAccessLevel()
-        If UserAccessLevel = 1 Then
-            lblCardTitle4.Text = "What I have taken"
+        If days = 1 Then
+            Return "a day"
+        ElseIf days < 14 Then
+            Return days & " days"
+        ElseIf days < 60 Then
+            Return (days \ 7) & " weeks"
+        ElseIf days < 365 Then
+            Return (days \ 30) & " months"
         Else
-            lblCardTitle4.Text = "Snacks I have handed over"
+            Return "over a year"
         End If
-    End Sub
+    End Function
+
+    Private Function SignedInPattern() As String
+        Return "User '" & frmLogin.globalusername & "' logged in successfully%"
+    End Function
+
+    Private Function FailedPattern() As String
+        Return "User '" & frmLogin.globalusername & "' failed%"
+    End Function
 
     Private Function ScalarOrZero(SQLCmd As OleDbCommand) As Double
         Dim answer As Object = SQLCmd.ExecuteScalar()
@@ -135,93 +115,182 @@ Public Class frmUserOverview
         Return CDbl(answer)
     End Function
 
-    Private Sub LoadMyStats()
+    Private Function Plural(howMany As Integer, oneWord As String, manyWord As String) As String
+        If howMany = 1 Then
+            Return "1 " & oneWord
+        Else
+            Return howMany & " " & manyWord
+        End If
+    End Function
+
+    Private Function WhenItHappened(moment As Date) As String
+        If moment.Date = Date.Today Then
+            Return "at " & Format(moment, "HH:mm") & " today"
+        ElseIf moment.Date = Date.Today.AddDays(-1) Then
+            Return "at " & Format(moment, "HH:mm") & " yesterday"
+        Else
+            Return "on " & Format(moment, "dd/MM/yyyy") & " at " & Format(moment, "HH:mm")
+        End If
+    End Function
+
+    Private Function SignInTimes(howMany As Integer) As Date()
+        Dim found(howMany - 1) As Date
+        Dim i As Integer
+
+        For i = 0 To howMany - 1
+            found(i) = Date.MinValue
+        Next
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT TOP 10 LogDateTime FROM tblLogs " &
+                                 "WHERE LogType = @Auth AND LogMessage LIKE @SignedIn " &
+                                 "ORDER BY LogDateTime DESC, LogID DESC"
+            SQLCmd.Parameters.AddWithValue("@Auth", "AUTH")
+            SQLCmd.Parameters.AddWithValue("@SignedIn", SignedInPattern())
 
-            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBooking " &
-                                 "WHERE LoginID = @Me AND BookingStatus <> @Cancelled"
-            SQLCmd.Parameters.AddWithValue("@Me", CInt(CurrentLoginID))
-            SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
-            lblStat1.Text = CInt(ScalarOrZero(SQLCmd)).ToString()
+            Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+            Dim got As Integer = 0
 
-            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBooking " &
-                                 "WHERE LoginID = @Me AND BookingStatus = @Cancelled"
-            SQLCmd.Parameters.Clear()
-            SQLCmd.Parameters.AddWithValue("@Me", CInt(CurrentLoginID))
-            SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
-            lblCardSub1.Text = CInt(ScalarOrZero(SQLCmd)) & " of mine were cancelled"
+            While rs.Read() And got < howMany
+                found(got) = CDate(rs("LogDateTime"))
+                got = got + 1
+            End While
 
-            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblBookingSeat " &
-                                 "WHERE BookingID IN (SELECT BookingID FROM tblBooking WHERE LoginID = @Me)"
-            SQLCmd.Parameters.Clear()
-            SQLCmd.Parameters.AddWithValue("@Me", CInt(CurrentLoginID))
-            lblStat2.Text = CInt(ScalarOrZero(SQLCmd)).ToString()
-
-            SQLCmd.CommandText = "SELECT COUNT(*) FROM (SELECT DISTINCT ScreeningID FROM tblBookingSeat " &
-                                 "WHERE BookingID IN (SELECT BookingID FROM tblBooking WHERE LoginID = @Me)) AS mine"
-            SQLCmd.Parameters.Clear()
-            SQLCmd.Parameters.AddWithValue("@Me", CInt(CurrentLoginID))
-            lblCardSub2.Text = "across " & CInt(ScalarOrZero(SQLCmd)) & " screenings"
-
-            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblLogs WHERE LogUser = @Me"
-            SQLCmd.Parameters.Clear()
-            SQLCmd.Parameters.AddWithValue("@Me", frmLogin.globalusername)
-            lblStat3.Text = CInt(ScalarOrZero(SQLCmd)).ToString()
-
-            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblLogs " &
-                                 "WHERE LogUser = @Me AND LogDateTime >= @Since"
-            SQLCmd.Parameters.Clear()
-            SQLCmd.Parameters.AddWithValue("@Me", frmLogin.globalusername)
-            SQLCmd.Parameters.AddWithValue("@Since", Date.Today.AddDays(-7))
-            lblCardSub3.Text = CInt(ScalarOrZero(SQLCmd)) & " in the last 7 days"
-
-            If UserAccessLevel = 1 Then
-                LoadMoneyCard(SQLCmd)
-            Else
-                LoadSnacksCard(SQLCmd)
-            End If
-
+            rs.Close()
             cn.Close()
         End If
+
+        Return found
+    End Function
+
+    Private Function LastSignedInBefore() As Date
+        Dim times() As Date = SignInTimes(2)
+
+        Return times(1)
+    End Function
+
+    Private Function FailedSince(since As Date) As Integer
+        Dim answer As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblLogs " &
+                                 "WHERE LogType = @Auth AND LogMessage LIKE @Failed " &
+                                 "AND LogDateTime > @Since"
+            SQLCmd.Parameters.AddWithValue("@Auth", "AUTH")
+            SQLCmd.Parameters.AddWithValue("@Failed", FailedPattern())
+            SQLCmd.Parameters.AddWithValue("@Since", since)
+            answer = CInt(ScalarOrZero(SQLCmd))
+            cn.Close()
+        End If
+
+        Return answer
+    End Function
+
+    Private Function LastFailedSince(since As Date) As Date
+        Dim answer As Date = Date.MinValue
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT TOP 1 LogDateTime FROM tblLogs " &
+                                 "WHERE LogType = @Auth AND LogMessage LIKE @Failed " &
+                                 "AND LogDateTime > @Since " &
+                                 "ORDER BY LogDateTime DESC, LogID DESC"
+            SQLCmd.Parameters.AddWithValue("@Auth", "AUTH")
+            SQLCmd.Parameters.AddWithValue("@Failed", FailedPattern())
+            SQLCmd.Parameters.AddWithValue("@Since", since)
+
+            Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+            If rs.Read() Then
+                answer = CDate(rs("LogDateTime"))
+            End If
+            rs.Close()
+            cn.Close()
+        End If
+
+        Return answer
+    End Function
+
+    Private Sub ShowSecurityLine()
+        Dim previous As Date = LastSignedInBefore()
+        Dim failed As Integer = FailedSince(previous)
+
+        If failed = 0 Then
+            If previous = Date.MinValue Then
+                lblSubSecurity.Text = "No failed attempts on your account."
+            Else
+                lblSubSecurity.Text = "No failed attempts since you last signed in."
+            End If
+
+            lblSubSecurity.ForeColor = SubtleFore
+        Else
+            Dim lastFail As Date = LastFailedSince(previous)
+            Dim wording As String = Plural(failed, "failed attempt", "failed attempts")
+
+            If previous = Date.MinValue Then
+                lblSubSecurity.Text = wording & " on your account, the last " & WhenItHappened(lastFail)
+            Else
+                lblSubSecurity.Text = wording & " since you last signed in, the last " & WhenItHappened(lastFail)
+            End If
+
+            lblSubSecurity.ForeColor = HighlightBack
+        End If
+
+        pnlAccentDivider.BackColor = BorderCol
     End Sub
 
-    Private Sub LoadMoneyCard(SQLCmd As OleDbCommand)
-        SQLCmd.CommandText = "SELECT SUM(TotalCost) FROM tblBooking " &
-                             "WHERE LoginID = @Me AND BookingStatus <> @Cancelled"
-        SQLCmd.Parameters.Clear()
-        SQLCmd.Parameters.AddWithValue("@Me", CInt(CurrentLoginID))
-        SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
-        Dim taken As Double = ScalarOrZero(SQLCmd)
-
-        lblStat4.Text = FormatCurrency(taken)
-
-        Dim sales As Integer = SafeInt(lblStat1.Text)
-
-        If sales = 0 Then
-            lblCardSub4.Text = "nothing taken yet"
+    Private Sub ConfigureAccessLevel()
+        If UserAccessLevel = 1 Then
+            lblRole.Text = "Manager, full access to everything"
         Else
-            lblCardSub4.Text = FormatCurrency(taken / sales) & " a sale on average"
+            lblRole.Text = "Staff, the tills and the booking screens"
         End If
     End Sub
 
-    Private Sub LoadSnacksCard(SQLCmd As OleDbCommand)
-        SQLCmd.CommandText = "SELECT SUM(Quantity) " &
-                             "FROM tblOrderItem INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID " &
-                             "WHERE tblBooking.LoginID = @Me AND tblBooking.BookingStatus <> @Cancelled"
-        SQLCmd.Parameters.Clear()
-        SQLCmd.Parameters.AddWithValue("@Me", CInt(CurrentLoginID))
-        SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
-        lblStat4.Text = CInt(ScalarOrZero(SQLCmd)).ToString()
+    Private Sub ShowAppearance()
+        settingAppearance = True
 
-        SQLCmd.CommandText = "SELECT COUNT(*) FROM (SELECT DISTINCT tblOrderItem.BookingID " &
-                             "FROM tblOrderItem INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID " &
-                             "WHERE tblBooking.LoginID = @Me AND tblBooking.BookingStatus <> @Cancelled) AS mine"
-        SQLCmd.Parameters.Clear()
-        SQLCmd.Parameters.AddWithValue("@Me", CInt(CurrentLoginID))
-        SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
-        lblCardSub4.Text = "on " & CInt(ScalarOrZero(SQLCmd)) & " of my sales"
+        If DarkModeOn Then
+            rdoDark.Checked = True
+        Else
+            rdoLight.Checked = True
+        End If
+
+        settingAppearance = False
+    End Sub
+
+    Private settingAppearance As Boolean = False
+
+    Private Sub rdoLight_Click(sender As Object, e As EventArgs) Handles rdoLight.Click
+        If settingAppearance Then
+            Exit Sub
+        End If
+
+        LightMode()
+        AfterThemeChanged()
+    End Sub
+
+    Private Sub rdoDark_Click(sender As Object, e As EventArgs) Handles rdoDark.Click
+        If settingAppearance Then
+            Exit Sub
+        End If
+
+        DarkMode()
+        AfterThemeChanged()
+    End Sub
+
+    Private Sub AfterThemeChanged()
+        ShowSecurityLine()
+        LoadMySettings()
+    End Sub
+
+    Private Sub btnGoPassword_Click(sender As Object, e As EventArgs) Handles btnGoPassword.Click
+        frmSettings.Show()
+        frmSettings.BringToFront()
     End Sub
 
     Private Const MaxActivityRows As Integer = 500
@@ -639,7 +708,9 @@ Public Class frmUserOverview
 
         LoadUserSettings(CurrentLoginID)
         ApplyThemeToAllForms()
+        ShowAppearance()
         LoadMySettings()
+        ShowSecurityLine()
 
         WriteLog("SETTINGS", "Own settings reset to default, " & howMany & " removed", LogChange)
         MessageBox.Show("Your settings have been put back to default.", "My Settings",
