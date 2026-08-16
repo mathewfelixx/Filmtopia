@@ -22,25 +22,10 @@ Partial Class frmSettings
         Me.btnChooseFolder = New System.Windows.Forms.Button()
         Me.btnCreateBackup = New System.Windows.Forms.Button()
         Me.lblHelp = New System.Windows.Forms.Label()
-        Me.GroupBox2 = New System.Windows.Forms.GroupBox()
-        Me.lblCurrent = New System.Windows.Forms.Label()
-        Me.txtCurrentPW = New System.Windows.Forms.TextBox()
-        Me.lblNew = New System.Windows.Forms.Label()
-        Me.txtNewPW = New System.Windows.Forms.TextBox()
-        Me.lblConfirm = New System.Windows.Forms.Label()
-        Me.txtConfirmPW = New System.Windows.Forms.TextBox()
-        Me.btnChangePassword = New System.Windows.Forms.Button()
-        Me.lblPWHelp = New System.Windows.Forms.Label()
-        Me.GroupBox3 = New System.Windows.Forms.GroupBox()
-        Me.rdoLight = New System.Windows.Forms.RadioButton()
-        Me.rdoDark = New System.Windows.Forms.RadioButton()
-        Me.lblThemeNote = New System.Windows.Forms.Label()
         Me.lblVersion = New System.Windows.Forms.Label()
         Me.btnClose = New System.Windows.Forms.Button()
         Me.FolderBrowserDialog1 = New System.Windows.Forms.FolderBrowserDialog()
         Me.GroupBox1.SuspendLayout()
-        Me.GroupBox2.SuspendLayout()
-        Me.GroupBox3.SuspendLayout()
         Me.SuspendLayout()
         '
         'lblHeading
@@ -51,7 +36,7 @@ Partial Class frmSettings
         Me.lblHeading.Name = "lblHeading"
         Me.lblHeading.Size = New System.Drawing.Size(88, 24)
         Me.lblHeading.TabIndex = 0
-        Me.lblHeading.Text = "Settings"
+        Me.lblHeading.Text = "Backup"
         '
         'GroupBox1
         '
@@ -112,141 +97,11 @@ Partial Class frmSettings
         Me.lblHelp.TabIndex = 3
         Me.lblHelp.Text = "Choose a folder first, then create a backup of the database."
         '
-        'GroupBox2
-        '
-        Me.GroupBox2.Controls.Add(Me.lblCurrent)
-        Me.GroupBox2.Controls.Add(Me.txtCurrentPW)
-        Me.GroupBox2.Controls.Add(Me.lblNew)
-        Me.GroupBox2.Controls.Add(Me.txtNewPW)
-        Me.GroupBox2.Controls.Add(Me.lblConfirm)
-        Me.GroupBox2.Controls.Add(Me.txtConfirmPW)
-        Me.GroupBox2.Controls.Add(Me.btnChangePassword)
-        Me.GroupBox2.Controls.Add(Me.lblPWHelp)
-        Me.GroupBox2.Location = New System.Drawing.Point(16, 210)
-        Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(516, 175)
-        Me.GroupBox2.TabIndex = 2
-        Me.GroupBox2.TabStop = False
-        Me.GroupBox2.Text = "Change Password"
-        '
-        'lblCurrent
-        '
-        Me.lblCurrent.AutoSize = True
-        Me.lblCurrent.Location = New System.Drawing.Point(12, 31)
-        Me.lblCurrent.Name = "lblCurrent"
-        Me.lblCurrent.Size = New System.Drawing.Size(94, 13)
-        Me.lblCurrent.TabIndex = 0
-        Me.lblCurrent.Text = "Current password:"
-        '
-        'txtCurrentPW
-        '
-        Me.txtCurrentPW.Location = New System.Drawing.Point(152, 28)
-        Me.txtCurrentPW.Name = "txtCurrentPW"
-        Me.txtCurrentPW.PasswordChar = Global.Microsoft.VisualBasic.ChrW(42)
-        Me.txtCurrentPW.Size = New System.Drawing.Size(200, 20)
-        Me.txtCurrentPW.TabIndex = 1
-        '
-        'lblNew
-        '
-        Me.lblNew.AutoSize = True
-        Me.lblNew.Location = New System.Drawing.Point(12, 61)
-        Me.lblNew.Name = "lblNew"
-        Me.lblNew.Size = New System.Drawing.Size(81, 13)
-        Me.lblNew.TabIndex = 2
-        Me.lblNew.Text = "New password:"
-        '
-        'txtNewPW
-        '
-        Me.txtNewPW.Location = New System.Drawing.Point(152, 58)
-        Me.txtNewPW.Name = "txtNewPW"
-        Me.txtNewPW.PasswordChar = Global.Microsoft.VisualBasic.ChrW(42)
-        Me.txtNewPW.Size = New System.Drawing.Size(200, 20)
-        Me.txtNewPW.TabIndex = 3
-        '
-        'lblConfirm
-        '
-        Me.lblConfirm.AutoSize = True
-        Me.lblConfirm.Location = New System.Drawing.Point(12, 91)
-        Me.lblConfirm.Name = "lblConfirm"
-        Me.lblConfirm.Size = New System.Drawing.Size(122, 13)
-        Me.lblConfirm.TabIndex = 4
-        Me.lblConfirm.Text = "Confirm new password:"
-        '
-        'txtConfirmPW
-        '
-        Me.txtConfirmPW.Location = New System.Drawing.Point(152, 88)
-        Me.txtConfirmPW.Name = "txtConfirmPW"
-        Me.txtConfirmPW.PasswordChar = Global.Microsoft.VisualBasic.ChrW(42)
-        Me.txtConfirmPW.Size = New System.Drawing.Size(200, 20)
-        Me.txtConfirmPW.TabIndex = 5
-        '
-        'btnChangePassword
-        '
-        Me.btnChangePassword.Location = New System.Drawing.Point(152, 122)
-        Me.btnChangePassword.Name = "btnChangePassword"
-        Me.btnChangePassword.Size = New System.Drawing.Size(140, 30)
-        Me.btnChangePassword.TabIndex = 6
-        Me.btnChangePassword.Text = "Change Password"
-        Me.btnChangePassword.UseVisualStyleBackColor = True
-        '
-        'lblPWHelp
-        '
-        Me.lblPWHelp.AutoSize = True
-        Me.lblPWHelp.ForeColor = System.Drawing.Color.Gray
-        Me.lblPWHelp.Location = New System.Drawing.Point(358, 31)
-        Me.lblPWHelp.Name = "lblPWHelp"
-        Me.lblPWHelp.Size = New System.Drawing.Size(140, 13)
-        Me.lblPWHelp.TabIndex = 7
-        Me.lblPWHelp.Text = "At least 6 characters."
-        '
-        'GroupBox3
-        '
-        Me.GroupBox3.Controls.Add(Me.rdoLight)
-        Me.GroupBox3.Controls.Add(Me.rdoDark)
-        Me.GroupBox3.Controls.Add(Me.lblThemeNote)
-        Me.GroupBox3.Location = New System.Drawing.Point(16, 395)
-        Me.GroupBox3.Name = "GroupBox3"
-        Me.GroupBox3.Size = New System.Drawing.Size(516, 65)
-        Me.GroupBox3.TabIndex = 3
-        Me.GroupBox3.TabStop = False
-        Me.GroupBox3.Text = "Appearance"
-        '
-        'rdoLight
-        '
-        Me.rdoLight.AutoSize = True
-        Me.rdoLight.Location = New System.Drawing.Point(15, 28)
-        Me.rdoLight.Name = "rdoLight"
-        Me.rdoLight.Size = New System.Drawing.Size(80, 17)
-        Me.rdoLight.TabIndex = 0
-        Me.rdoLight.TabStop = True
-        Me.rdoLight.Text = "Light mode"
-        Me.rdoLight.UseVisualStyleBackColor = True
-        '
-        'rdoDark
-        '
-        Me.rdoDark.AutoSize = True
-        Me.rdoDark.Location = New System.Drawing.Point(152, 28)
-        Me.rdoDark.Name = "rdoDark"
-        Me.rdoDark.Size = New System.Drawing.Size(79, 17)
-        Me.rdoDark.TabIndex = 1
-        Me.rdoDark.Text = "Dark mode"
-        Me.rdoDark.UseVisualStyleBackColor = True
-        '
-        'lblThemeNote
-        '
-        Me.lblThemeNote.AutoSize = True
-        Me.lblThemeNote.ForeColor = System.Drawing.Color.Gray
-        Me.lblThemeNote.Location = New System.Drawing.Point(290, 30)
-        Me.lblThemeNote.Name = "lblThemeNote"
-        Me.lblThemeNote.Size = New System.Drawing.Size(150, 13)
-        Me.lblThemeNote.TabIndex = 2
-        Me.lblThemeNote.Text = "The choice is remembered."
-        '
         'lblVersion
         '
         Me.lblVersion.AutoSize = True
         Me.lblVersion.ForeColor = System.Drawing.Color.Gray
-        Me.lblVersion.Location = New System.Drawing.Point(13, 475)
+        Me.lblVersion.Location = New System.Drawing.Point(13, 220)
         Me.lblVersion.Name = "lblVersion"
         Me.lblVersion.Size = New System.Drawing.Size(45, 13)
         Me.lblVersion.TabIndex = 4
@@ -254,7 +109,7 @@ Partial Class frmSettings
         '
         'btnClose
         '
-        Me.btnClose.Location = New System.Drawing.Point(444, 470)
+        Me.btnClose.Location = New System.Drawing.Point(444, 215)
         Me.btnClose.Name = "btnClose"
         Me.btnClose.Size = New System.Drawing.Size(88, 26)
         Me.btnClose.TabIndex = 5
@@ -265,25 +120,19 @@ Partial Class frmSettings
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(548, 510)
+        Me.ClientSize = New System.Drawing.Size(548, 255)
         Me.Controls.Add(Me.btnClose)
         Me.Controls.Add(Me.lblVersion)
-        Me.Controls.Add(Me.GroupBox3)
-        Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)
         Me.Controls.Add(Me.lblHeading)
         Me.CancelButton = Me.btnClose
         Me.Name = "frmSettings"
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.MaximizeBox = False
-        Me.Text = "Settings"
+        Me.Text = "Backup"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.GroupBox1.ResumeLayout(False)
         Me.GroupBox1.PerformLayout()
-        Me.GroupBox2.ResumeLayout(False)
-        Me.GroupBox2.PerformLayout()
-        Me.GroupBox3.ResumeLayout(False)
-        Me.GroupBox3.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -295,19 +144,6 @@ Partial Class frmSettings
     Friend WithEvents btnChooseFolder As Button
     Friend WithEvents btnCreateBackup As Button
     Friend WithEvents lblHelp As Label
-    Friend WithEvents GroupBox2 As GroupBox
-    Friend WithEvents lblCurrent As Label
-    Friend WithEvents txtCurrentPW As TextBox
-    Friend WithEvents lblNew As Label
-    Friend WithEvents txtNewPW As TextBox
-    Friend WithEvents lblConfirm As Label
-    Friend WithEvents txtConfirmPW As TextBox
-    Friend WithEvents btnChangePassword As Button
-    Friend WithEvents lblPWHelp As Label
-    Friend WithEvents GroupBox3 As GroupBox
-    Friend WithEvents rdoLight As RadioButton
-    Friend WithEvents rdoDark As RadioButton
-    Friend WithEvents lblThemeNote As Label
     Friend WithEvents lblVersion As Label
     Friend WithEvents btnClose As Button
     Friend WithEvents FolderBrowserDialog1 As FolderBrowserDialog

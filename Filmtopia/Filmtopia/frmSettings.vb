@@ -24,45 +24,6 @@
         End If
     End Sub
 
-    Private Sub btnChangePassword_Click(sender As Object, e As EventArgs) Handles btnChangePassword.Click
-        If txtCurrentPW.Text = "" Or txtNewPW.Text = "" Or txtConfirmPW.Text = "" Then
-            MessageBox.Show("Please fill in all three password boxes.", "Change Password", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            Exit Sub
-        End If
-
-        If txtNewPW.Text.Length < 6 Then
-            MessageBox.Show("Your new password must be at least 6 characters.", "Change Password", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            Exit Sub
-        End If
-
-        If txtNewPW.Text <> txtConfirmPW.Text Then
-            MessageBox.Show("The new passwords do not match.", "Change Password", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            txtNewPW.Text = ""
-            txtConfirmPW.Text = ""
-            txtNewPW.Focus()
-            Exit Sub
-        End If
-
-        If txtNewPW.Text = txtCurrentPW.Text Then
-            MessageBox.Show("Your new password must be different from your current one.", "Change Password", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            Exit Sub
-        End If
-
-        If ChangePassword(frmLogin.globalusername, txtCurrentPW.Text, txtNewPW.Text) Then
-            MessageBox.Show("Your password has been changed.", "Change Password", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            ClearPasswordFields()
-        Else
-            txtCurrentPW.Text = ""
-            txtCurrentPW.Focus()
-        End If
-    End Sub
-
-    Private Sub ClearPasswordFields()
-        txtCurrentPW.Text = ""
-        txtNewPW.Text = ""
-        txtConfirmPW.Text = ""
-    End Sub
-
     Private Sub ConfigureAccessLevel()
         If UserAccessLevel = 1 Then
             btnChooseFolder.Enabled = True
@@ -73,14 +34,6 @@
         End If
     End Sub
 
-    Private Sub rdoLight_Click(sender As Object, e As EventArgs) Handles rdoLight.Click
-        LightMode()
-    End Sub
-
-    Private Sub rdoDark_Click(sender As Object, e As EventArgs) Handles rdoDark.Click
-        DarkMode()
-    End Sub
-
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
         Me.Close()
     End Sub
@@ -89,15 +42,8 @@
         CommonFormStartup(Me)
         txtFolder.Text = ""
         btnCreateBackup.Enabled = False
-        ClearPasswordFields()
         ConfigureAccessLevel()
-        WriteLog("SETTINGS", "Settings form opened")
-
-        If DarkModeOn Then
-            rdoDark.Checked = True
-        Else
-            rdoLight.Checked = True
-        End If
+        WriteLog("SETTINGS", "Backup form opened")
     End Sub
 
 End Class

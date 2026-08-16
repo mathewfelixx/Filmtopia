@@ -33,6 +33,16 @@ Partial Class frmUserOverview
         Me.rdoLight = New System.Windows.Forms.RadioButton()
         Me.rdoDark = New System.Windows.Forms.RadioButton()
         Me.pnlAccentDivider = New System.Windows.Forms.Panel()
+        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.lblCurrent = New System.Windows.Forms.Label()
+        Me.txtCurrentPW = New System.Windows.Forms.TextBox()
+        Me.lblNew = New System.Windows.Forms.Label()
+        Me.txtNewPW = New System.Windows.Forms.TextBox()
+        Me.lblConfirm = New System.Windows.Forms.Label()
+        Me.txtConfirmPW = New System.Windows.Forms.TextBox()
+        Me.btnChangePassword = New System.Windows.Forms.Button()
+        Me.lblSubPWHelp = New System.Windows.Forms.Label()
+        Me.GroupBox2 = New System.Windows.Forms.GroupBox()
         Me.tabMe = New System.Windows.Forms.TabControl()
         Me.tabActivity = New System.Windows.Forms.TabPage()
         Me.tabSales = New System.Windows.Forms.TabPage()
@@ -65,6 +75,8 @@ Partial Class frmUserOverview
         Me.btnResetMySettings = New System.Windows.Forms.Button()
         Me.lblSubResetHint = New System.Windows.Forms.Label()
         Me.lblVersion = New System.Windows.Forms.Label()
+        Me.GroupBox1.SuspendLayout()
+        Me.GroupBox2.SuspendLayout()
         Me.tabMe.SuspendLayout()
         Me.tabActivity.SuspendLayout()
         Me.tabSales.SuspendLayout()
@@ -238,16 +250,14 @@ Partial Class frmUserOverview
         '
         'tabSettings
         '
-        Me.tabSettings.Controls.Add(Me.lblSubResetHint)
-        Me.tabSettings.Controls.Add(Me.btnResetMySettings)
-        Me.tabSettings.Controls.Add(Me.dgvMySettings)
-        Me.tabSettings.Controls.Add(Me.lblSubSettingsHint)
+        Me.tabSettings.Controls.Add(Me.GroupBox1)
+        Me.tabSettings.Controls.Add(Me.GroupBox2)
         Me.tabSettings.Location = New System.Drawing.Point(4, 24)
         Me.tabSettings.Name = "tabSettings"
         Me.tabSettings.Padding = New System.Windows.Forms.Padding(3)
         Me.tabSettings.Size = New System.Drawing.Size(1095, 544)
         Me.tabSettings.TabIndex = 2
-        Me.tabSettings.Text = "My settings"
+        Me.tabSettings.Text = "My password and settings"
         Me.tabSettings.UseVisualStyleBackColor = True
         '
         'lblActFrom
@@ -488,52 +498,150 @@ Partial Class frmUserOverview
         Me.lblSalesCount.Size = New System.Drawing.Size(0, 17)
         Me.lblSalesCount.TabIndex = 7
         '
+        'GroupBox1
+        '
+        Me.GroupBox1.Controls.Add(Me.lblCurrent)
+        Me.GroupBox1.Controls.Add(Me.txtCurrentPW)
+        Me.GroupBox1.Controls.Add(Me.lblNew)
+        Me.GroupBox1.Controls.Add(Me.txtNewPW)
+        Me.GroupBox1.Controls.Add(Me.lblConfirm)
+        Me.GroupBox1.Controls.Add(Me.txtConfirmPW)
+        Me.GroupBox1.Controls.Add(Me.btnChangePassword)
+        Me.GroupBox1.Controls.Add(Me.lblSubPWHelp)
+        Me.GroupBox1.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.GroupBox1.Location = New System.Drawing.Point(12, 12)
+        Me.GroupBox1.Name = "GroupBox1"
+        Me.GroupBox1.Size = New System.Drawing.Size(520, 170)
+        Me.GroupBox1.TabIndex = 0
+        Me.GroupBox1.TabStop = False
+        Me.GroupBox1.Text = "Change my password"
+        '
+        'lblCurrent
+        '
+        Me.lblCurrent.AutoSize = True
+        Me.lblCurrent.Location = New System.Drawing.Point(14, 34)
+        Me.lblCurrent.Name = "lblCurrent"
+        Me.lblCurrent.Size = New System.Drawing.Size(107, 15)
+        Me.lblCurrent.TabIndex = 0
+        Me.lblCurrent.Text = "Current password"
+        '
+        'txtCurrentPW
+        '
+        Me.txtCurrentPW.Location = New System.Drawing.Point(166, 31)
+        Me.txtCurrentPW.Name = "txtCurrentPW"
+        Me.txtCurrentPW.Size = New System.Drawing.Size(200, 23)
+        Me.txtCurrentPW.TabIndex = 1
+        Me.txtCurrentPW.UseSystemPasswordChar = True
+        '
+        'lblNew
+        '
+        Me.lblNew.AutoSize = True
+        Me.lblNew.Location = New System.Drawing.Point(14, 66)
+        Me.lblNew.Name = "lblNew"
+        Me.lblNew.Size = New System.Drawing.Size(88, 15)
+        Me.lblNew.TabIndex = 2
+        Me.lblNew.Text = "New password"
+        '
+        'txtNewPW
+        '
+        Me.txtNewPW.Location = New System.Drawing.Point(166, 63)
+        Me.txtNewPW.Name = "txtNewPW"
+        Me.txtNewPW.Size = New System.Drawing.Size(200, 23)
+        Me.txtNewPW.TabIndex = 3
+        Me.txtNewPW.UseSystemPasswordChar = True
+        '
+        'lblConfirm
+        '
+        Me.lblConfirm.AutoSize = True
+        Me.lblConfirm.Location = New System.Drawing.Point(14, 98)
+        Me.lblConfirm.Name = "lblConfirm"
+        Me.lblConfirm.Size = New System.Drawing.Size(137, 15)
+        Me.lblConfirm.TabIndex = 4
+        Me.lblConfirm.Text = "Confirm new password"
+        '
+        'txtConfirmPW
+        '
+        Me.txtConfirmPW.Location = New System.Drawing.Point(166, 95)
+        Me.txtConfirmPW.Name = "txtConfirmPW"
+        Me.txtConfirmPW.Size = New System.Drawing.Size(200, 23)
+        Me.txtConfirmPW.TabIndex = 5
+        Me.txtConfirmPW.UseSystemPasswordChar = True
+        '
+        'btnChangePassword
+        '
+        Me.btnChangePassword.Location = New System.Drawing.Point(166, 128)
+        Me.btnChangePassword.Name = "btnChangePassword"
+        Me.btnChangePassword.Size = New System.Drawing.Size(140, 30)
+        Me.btnChangePassword.TabIndex = 6
+        Me.btnChangePassword.Text = "Change password"
+        Me.btnChangePassword.UseVisualStyleBackColor = True
+        '
+        'lblSubPWHelp
+        '
+        Me.lblSubPWHelp.Font = New System.Drawing.Font("Segoe UI", 8.25!)
+        Me.lblSubPWHelp.Location = New System.Drawing.Point(378, 31)
+        Me.lblSubPWHelp.Name = "lblSubPWHelp"
+        Me.lblSubPWHelp.Size = New System.Drawing.Size(130, 90)
+        Me.lblSubPWHelp.TabIndex = 7
+        Me.lblSubPWHelp.Text = "At least 6 characters, and not the one you are using now."
+        '
+        'GroupBox2
+        '
+        Me.GroupBox2.Controls.Add(Me.dgvMySettings)
+        Me.GroupBox2.Controls.Add(Me.btnResetMySettings)
+        Me.GroupBox2.Controls.Add(Me.lblSubResetHint)
+        Me.GroupBox2.Controls.Add(Me.lblSubSettingsHint)
+        Me.GroupBox2.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.GroupBox2.Location = New System.Drawing.Point(12, 194)
+        Me.GroupBox2.Name = "GroupBox2"
+        Me.GroupBox2.Size = New System.Drawing.Size(520, 338)
+        Me.GroupBox2.TabIndex = 1
+        Me.GroupBox2.TabStop = False
+        Me.GroupBox2.Text = "What Filmtopia remembers about me"
+        '
         'lblSubSettingsHint
         '
         Me.lblSubSettingsHint.AutoSize = True
-        Me.lblSubSettingsHint.Font = New System.Drawing.Font("Segoe UI", 9.75!)
-        Me.lblSubSettingsHint.Location = New System.Drawing.Point(12, 14)
+        Me.lblSubSettingsHint.Font = New System.Drawing.Font("Segoe UI", 8.25!)
+        Me.lblSubSettingsHint.Location = New System.Drawing.Point(14, 26)
         Me.lblSubSettingsHint.Name = "lblSubSettingsHint"
-        Me.lblSubSettingsHint.Size = New System.Drawing.Size(0, 17)
+        Me.lblSubSettingsHint.Size = New System.Drawing.Size(0, 13)
         Me.lblSubSettingsHint.TabIndex = 0
-        Me.lblSubSettingsHint.Text = "These are the settings Filmtopia is remembering for you. Your password and colour scheme are changed on the Settings screen."
+        Me.lblSubSettingsHint.Text = "These are the choices the screens are keeping for you."
         '
         'dgvMySettings
         '
         Me.dgvMySettings.AllowUserToAddRows = False
         Me.dgvMySettings.AllowUserToDeleteRows = False
         Me.dgvMySettings.AllowUserToResizeRows = False
-        Me.dgvMySettings.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.dgvMySettings.BackgroundColor = System.Drawing.Color.White
+        Me.dgvMySettings.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.dgvMySettings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvMySettings.Location = New System.Drawing.Point(12, 46)
+        Me.dgvMySettings.Location = New System.Drawing.Point(14, 48)
         Me.dgvMySettings.MultiSelect = False
         Me.dgvMySettings.Name = "dgvMySettings"
         Me.dgvMySettings.ReadOnly = True
         Me.dgvMySettings.RowHeadersVisible = False
-        Me.dgvMySettings.RowTemplate.Height = 28
         Me.dgvMySettings.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvMySettings.Size = New System.Drawing.Size(640, 260)
+        Me.dgvMySettings.Size = New System.Drawing.Size(492, 200)
         Me.dgvMySettings.TabIndex = 1
         '
         'btnResetMySettings
         '
-        Me.btnResetMySettings.Font = New System.Drawing.Font("Segoe UI", 9.75!)
-        Me.btnResetMySettings.Location = New System.Drawing.Point(12, 320)
+        Me.btnResetMySettings.Location = New System.Drawing.Point(14, 262)
         Me.btnResetMySettings.Name = "btnResetMySettings"
-        Me.btnResetMySettings.Size = New System.Drawing.Size(210, 30)
+        Me.btnResetMySettings.Size = New System.Drawing.Size(230, 30)
         Me.btnResetMySettings.TabIndex = 2
         Me.btnResetMySettings.Text = "Put my settings back to default"
         Me.btnResetMySettings.UseVisualStyleBackColor = True
         '
         'lblSubResetHint
         '
-        Me.lblSubResetHint.AutoSize = True
         Me.lblSubResetHint.Font = New System.Drawing.Font("Segoe UI", 8.25!)
-        Me.lblSubResetHint.Location = New System.Drawing.Point(232, 328)
+        Me.lblSubResetHint.Location = New System.Drawing.Point(14, 298)
         Me.lblSubResetHint.Name = "lblSubResetHint"
-        Me.lblSubResetHint.Size = New System.Drawing.Size(0, 13)
+        Me.lblSubResetHint.Size = New System.Drawing.Size(492, 26)
         Me.lblSubResetHint.TabIndex = 3
-        Me.lblSubResetHint.Text = "This only affects you. Nobody elses settings are touched."
         '
         'lblVersion
         '
@@ -578,6 +686,10 @@ Partial Class frmUserOverview
         Me.tabActivity.ResumeLayout(False)
         Me.tabActivity.PerformLayout()
         CType(Me.dgvActivity, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.GroupBox1.ResumeLayout(False)
+        Me.GroupBox1.PerformLayout()
+        Me.GroupBox2.ResumeLayout(False)
+        Me.GroupBox2.PerformLayout()
         Me.tabMe.ResumeLayout(False)
         Me.ResumeLayout(False)
         Me.PerformLayout()
@@ -595,6 +707,16 @@ Partial Class frmUserOverview
     Friend WithEvents rdoLight As RadioButton
     Friend WithEvents rdoDark As RadioButton
     Friend WithEvents pnlAccentDivider As Panel
+    Friend WithEvents GroupBox1 As GroupBox
+    Friend WithEvents lblCurrent As Label
+    Friend WithEvents txtCurrentPW As TextBox
+    Friend WithEvents lblNew As Label
+    Friend WithEvents txtNewPW As TextBox
+    Friend WithEvents lblConfirm As Label
+    Friend WithEvents txtConfirmPW As TextBox
+    Friend WithEvents btnChangePassword As Button
+    Friend WithEvents lblSubPWHelp As Label
+    Friend WithEvents GroupBox2 As GroupBox
     Friend WithEvents tabMe As TabControl
     Friend WithEvents tabActivity As TabPage
     Friend WithEvents tabSales As TabPage
