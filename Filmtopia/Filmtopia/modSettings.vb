@@ -5,6 +5,20 @@ Module modSettings
 
     Public DarkModeOn As Boolean = False
 
+    Public TrailerMinutes As Integer = 20
+    Public TurnaroundMinutes As Integer = 15
+    Public FirstShowMinutes As Integer = 10 * 60
+    Public LastShowMinutes As Integer = 23 * 60
+
+    Public DefaultTicketPrice As Double = 7.5
+
+    Public MaxSeatsPerSale As Integer = 8
+    Public IdleSecondsAllowed As Integer = 90
+    Public IdleSecondsOnThankYou As Integer = 25
+
+    Public LoginTriesAllowed As Integer = 3
+    Public MinPasswordLength As Integer = 6
+
     Public LastGenreFilter As String = "All genres"
     Public LastScreeningsShow As String = "Still to come"
     Public LastScreeningsScreen As String = "All screens"
@@ -341,6 +355,171 @@ Module modSettings
         CurrentLoginID = 0
         UseDefaultSettings()
         SetThemeColours()
+    End Sub
+
+    Private Sub UseDefaultSystemSettings()
+        TrailerMinutes = 20
+        TurnaroundMinutes = 15
+        FirstShowMinutes = 10 * 60
+        LastShowMinutes = 23 * 60
+        DefaultTicketPrice = 7.5
+        MaxSeatsPerSale = 8
+        IdleSecondsAllowed = 90
+        IdleSecondsOnThankYou = 25
+        LoginTriesAllowed = 3
+        MinPasswordLength = 6
+    End Sub
+
+    Public Function TimeTextAsMinutes(timeText As String, fallbackMinutes As Integer) As Integer
+        If timeText.Length <> 5 Then
+            Return fallbackMinutes
+        End If
+
+        If Not IsNumeric(timeText.Substring(0, 2)) Or Not IsNumeric(timeText.Substring(3, 2)) Then
+            Return fallbackMinutes
+        End If
+
+        Dim hours As Integer = CInt(timeText.Substring(0, 2))
+        Dim mins As Integer = CInt(timeText.Substring(3, 2))
+
+        If hours < 0 Or hours > 23 Or mins < 0 Or mins > 59 Then
+            Return fallbackMinutes
+        End If
+
+        Return (hours * 60) + mins
+    End Function
+
+    Public Function IsValidTimeText(timeText As String) As Boolean
+        If timeText.Length <> 5 Then
+            Return False
+        End If
+
+        If timeText.Substring(2, 1) <> ":" Then
+            Return False
+        End If
+
+        If Not IsNumeric(timeText.Substring(0, 2)) Or Not IsNumeric(timeText.Substring(3, 2)) Then
+            Return False
+        End If
+
+        Dim hours As Integer = CInt(timeText.Substring(0, 2))
+        Dim mins As Integer = CInt(timeText.Substring(3, 2))
+
+        If hours < 0 Or hours > 23 Or mins < 0 Or mins > 59 Then
+            Return False
+        End If
+
+        Return True
+    End Function
+
+    Public Function MinutesAsTimeText(minutes As Integer) As String
+        Dim wrapped As Integer = minutes Mod (24 * 60)
+
+        Return Format(wrapped \ 60, "00") & ":" & Format(wrapped Mod 60, "00")
+    End Function
+
+    Private Function WholeNumberOr(settingValue As String, fallback As Integer) As Integer
+        If Not IsNumeric(settingValue) Then
+            Return fallback
+        End If
+
+        Return CInt(settingValue)
+    End Function
+
+    Private Function MoneyOr(settingValue As String, fallback As Double) As Double
+        If Not IsNumeric(settingValue) Then
+            Return fallback
+        End If
+
+        Return Val(settingValue)
+    End Function
+
+    Private Sub ReadOneSystemSetting(settingName As String, settingValue As String)
+        If settingName.ToUpper() = "TRAILERMINUTES" Then
+            TrailerMinutes = WholeNumberOr(settingValue, 20)
+        End If
+
+        If settingName.ToUpper() = "TURNAROUNDMINUTES" Then
+            TurnaroundMinutes = WholeNumberOr(settingValue, 15)
+        End If
+
+        If settingName.ToUpper() = "FIRSTSHOWTIME" Then
+            FirstShowMinutes = TimeTextAsMinutes(settingValue, 10 * 60)
+        End If
+
+        If settingName.ToUpper() = "LASTSHOWTIME" Then
+            LastShowMinutes = TimeTextAsMinutes(settingValue, 23 * 60)
+        End If
+
+        If settingName.ToUpper() = "DEFAULTTICKETPRICE" Then
+            DefaultTicketPrice = MoneyOr(settingValue, 7.5)
+        End If
+
+        If settingName.ToUpper() = "MAXSEATSPERSALE" Then
+            MaxSeatsPerSale = WholeNumberOr(settingValue, 8)
+        End If
+
+        If settingName.ToUpper() = "KIOSKIDLESECONDS" Then
+            IdleSecondsAllowed = WholeNumberOr(settingValue, 90)
+        End If
+
+        If settingName.ToUpper() = "KIOSKTHANKYOUSECONDS" Then
+            IdleSecondsOnThankYou = WholeNumberOr(settingValue, 25)
+        End If
+
+        If settingName.ToUpper() = "LOGINTRIESALLOWED" Then
+            LoginTriesAllowed = WholeNumberOr(settingValue, 3)
+        End If
+
+        If settingName.ToUpper() = "MINPASSWORDLENGTH" Then
+            MinPasswordLength = WholeNumberOr(settingValue, 6)
+        End If
+    End Sub
+
+    Public Sub LoadSystemSettings()
+        UseDefaultSystemSettings()
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT SettingName, SettingValue FROM tblSystemSetting"
+
+            Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+            While rs.Read()
+                Dim thisValue As String = ""
+
+                If Not IsDBNull(rs("SettingValue")) Then
+                    thisValue = rs("SettingValue").ToString()
+                End If
+
+                ReadOneSystemSetting(rs("SettingName").ToString(), thisValue)
+            End While
+            rs.Close()
+            cn.Close()
+        End If
+    End Sub
+
+    Public Sub SaveSystemSetting(settingName As String, settingValue As String)
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "UPDATE tblSystemSetting SET SettingValue = @SettingValue WHERE SettingName = @SettingName"
+            SQLCmd.Parameters.AddWithValue("@SettingValue", settingValue)
+            SQLCmd.Parameters.AddWithValue("@SettingName", settingName)
+
+            Dim rowsChanged As Integer = SQLCmd.ExecuteNonQuery()
+
+            If rowsChanged = 0 Then
+                Dim SQLCmd2 As New OleDbCommand
+                SQLCmd2.Connection = cn
+                SQLCmd2.CommandText = "INSERT INTO tblSystemSetting (SettingName, SettingValue) VALUES (@SettingName, @SettingValue)"
+                SQLCmd2.Parameters.AddWithValue("@SettingName", settingName)
+                SQLCmd2.Parameters.AddWithValue("@SettingValue", settingValue)
+                SQLCmd2.ExecuteNonQuery()
+            End If
+
+            cn.Close()
+        End If
     End Sub
 
     Public Function ChangePassword(Username As String, OldPassword As String, NewPassword As String) As Boolean

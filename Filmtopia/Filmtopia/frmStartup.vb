@@ -1,5 +1,6 @@
 ﻿Public Class frmStartup
     Private Sub frmStartup_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        LoadSystemSettings()
         timerStartup.Start()
         Dim animation As String = Application.StartupPath & "\Anim1.gif"
 
