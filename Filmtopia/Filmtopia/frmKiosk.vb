@@ -31,15 +31,10 @@ Public Class frmKiosk
 
     Private Const SeatMapMargin As Integer = 24
 
-    Private Const MaxSeatsPerSale As Integer = 8
-
     Private Const LeftColumnWidth As Integer = 330
 
     Private Const FooterHeight As Integer = 104
     Private Const FooterButtonHeight As Integer = 72
-
-    Private Const IdleSecondsAllowed As Integer = 90
-    Private Const IdleSecondsOnThankYou As Integer = 25
 
     Private Const DaysAhead As Integer = 7
 
