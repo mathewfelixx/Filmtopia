@@ -45,7 +45,7 @@ Public Class frmSalesReport
         cboReportType.Items.Add("By screening")
         cboReportType.Items.Add("By screen")
         cboReportType.Items.Add("By staff member")
-        cboReportType.Items.Add("Cancellations")
+        cboReportType.Items.Add("Refunds")
         cboReportType.SelectedIndex = 0
 
         cboMeasureBy.Items.Add("Booking date")
@@ -657,12 +657,12 @@ Public Class frmSalesReport
             lblTicketRevenue.Text = "Ticket revenue: " & FormatCurrency(ticketRevenue)
             lblGrandTotal.Text = "Tickets total: " & FormatCurrency(ticketRevenue)
 
-        ElseIf cboReportType.Text = "Cancellations" Then
-            Dim refunded As Double = LoadCancellations(fromDate, toDate)
+        ElseIf cboReportType.Text = "Refunds" Then
+            Dim refunded As Double = LoadRefunds(fromDate, toDate)
 
             lblTicketRevenue.Visible = False
             lblFoodRevenue.Visible = True
-            lblFoodRevenue.Text = "These sales are not counted in the takings"
+            lblFoodRevenue.Text = "Money paid back, so it is out of the takings"
             lblGrandTotal.Text = "Refunded: " & FormatCurrency(refunded)
 
         Else
@@ -725,13 +725,26 @@ Public Class frmSalesReport
                                  "FROM (tblOrderItem INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID) " &
                                  "LEFT JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID " &
                                  "WHERE IIf(@ByScreening, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) >= @FromDate " &
-                                 "AND IIf(@ByScreening2, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) < @ToDate " &
-                                 "AND tblBooking.BookingStatus <> @Cancelled"
-            AddRangeParameters(SQLCmd, fromDate, toDate)
+                                 "AND IIf(@ByScreening2, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) < @ToDate"
+            AddDateParameters(SQLCmd, fromDate, toDate)
             Dim foodResult As Object = SQLCmd.ExecuteScalar()
 
             If foodResult IsNot Nothing AndAlso Not IsDBNull(foodResult) Then
                 foodMoney = CDbl(foodResult)
+            End If
+
+            SQLCmd.Parameters.Clear()
+            SQLCmd.CommandText = "SELECT SUM(tblRefundLine.AmountRefunded) " &
+                                 "FROM ((tblRefundLine INNER JOIN tblOrderItem ON tblRefundLine.OrderItemID = tblOrderItem.OrderItemID) " &
+                                 "INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID) " &
+                                 "LEFT JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID " &
+                                 "WHERE IIf(@ByScreening, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) >= @FromDate " &
+                                 "AND IIf(@ByScreening2, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) < @ToDate"
+            AddDateParameters(SQLCmd, fromDate, toDate)
+            Dim foodBackResult As Object = SQLCmd.ExecuteScalar()
+
+            If foodBackResult IsNot Nothing AndAlso Not IsDBNull(foodBackResult) Then
+                foodMoney = foodMoney - CDbl(foodBackResult)
             End If
 
             SQLCmd.Parameters.Clear()
@@ -817,6 +830,13 @@ Public Class frmSalesReport
         TipCard(pnlCard5, lblCardTitle5, lblStat5, lblCardSub5, "How much was spent on food and drink for every ticket sold.")
     End Sub
 
+    Private Sub AddDateParameters(SQLCmd As OleDbCommand, fromDate As Date, toDate As Date)
+        SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
+        SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
+        SQLCmd.Parameters.AddWithValue("@ByScreening2", MeasuringByScreening())
+        SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
+    End Sub
+
     Private Sub AddRangeParameters(SQLCmd As OleDbCommand, fromDate As Date, toDate As Date)
         SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
         SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
@@ -834,9 +854,9 @@ Public Class frmSalesReport
         If cboReportType.Text = "Concessions only" Then
             thing = "item"
             things = "items"
-        ElseIf cboReportType.Text = "Cancellations" Then
-            thing = "cancelled booking"
-            things = "cancelled bookings"
+        ElseIf cboReportType.Text = "Refunds" Then
+            thing = "refund"
+            things = "refunds"
         ElseIf cboReportType.Text = "By day" Then
             thing = "day"
             things = "days"
@@ -963,15 +983,19 @@ Public Class frmSalesReport
             dgvSalesByFilm.Columns("TicketRevenue").HeaderText = "Ticket revenue"
             dgvSalesByFilm.Columns("SoldBy").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             dgvSalesByFilm.Columns("TicketRevenue").DefaultCellStyle.Format = "C"
-        ElseIf cboReportType.Text = "Cancellations" Then
+        ElseIf cboReportType.Text = "Refunds" Then
+            dgvSalesByFilm.Columns("RefundID").HeaderText = "Refund"
             dgvSalesByFilm.Columns("BookingID").HeaderText = "Booking"
             dgvSalesByFilm.Columns("CustomerName").HeaderText = "Customer"
             dgvSalesByFilm.Columns("FilmTitle").HeaderText = "Film"
-            dgvSalesByFilm.Columns("CancelledDate").HeaderText = "Cancelled"
-            dgvSalesByFilm.Columns("TotalCost").HeaderText = "Refunded"
-            dgvSalesByFilm.Columns("FilmTitle").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            dgvSalesByFilm.Columns("CancelledDate").DefaultCellStyle.Format = "dd/MM/yyyy HH:mm"
-            dgvSalesByFilm.Columns("TotalCost").DefaultCellStyle.Format = "C"
+            dgvSalesByFilm.Columns("RefundDate").HeaderText = "Refunded on"
+            dgvSalesByFilm.Columns("RefundReason").HeaderText = "Reason"
+            dgvSalesByFilm.Columns("RefundAmount").HeaderText = "Paid back"
+            dgvSalesByFilm.Columns("RefundID").Width = 80
+            dgvSalesByFilm.Columns("BookingID").Width = 80
+            dgvSalesByFilm.Columns("RefundReason").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            dgvSalesByFilm.Columns("RefundDate").DefaultCellStyle.Format = "dd/MM/yyyy HH:mm"
+            dgvSalesByFilm.Columns("RefundAmount").DefaultCellStyle.Format = "C"
         ElseIf cboReportType.Text = "Concessions only" Then
             dgvSalesByFilm.Columns("FoodItemName").HeaderText = "Item"
             dgvSalesByFilm.Columns("Sold").HeaderText = "Sold"
@@ -1186,21 +1210,22 @@ Public Class frmSalesReport
         Return TotalColumn(dt, "TicketRevenue")
     End Function
 
-    Private Function LoadCancellations(fromDate As Date, toDate As Date) As Double
+    Private Function LoadRefunds(fromDate As Date, toDate As Date) As Double
         Dim dt As New DataTable
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT tblBooking.BookingID, CustomerForename & ' ' & CustomerSurname AS CustomerName, " &
-                                 "IIf(IsNull(tblFilm.FilmTitle), 'Counter sale', tblFilm.FilmTitle) AS FilmTitle, CancelledDate, TotalCost " &
-                                 "FROM ((tblBooking LEFT JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
+            SQLCmd.CommandText = "SELECT tblRefund.RefundID, tblRefund.BookingID, " &
+                                 "CustomerForename & ' ' & CustomerSurname AS CustomerName, " &
+                                 "IIf(IsNull(tblFilm.FilmTitle), 'Counter sale', tblFilm.FilmTitle) AS FilmTitle, " &
+                                 "tblRefund.RefundDate, tblRefund.RefundReason, tblRefund.RefundAmount " &
+                                 "FROM (((tblRefund INNER JOIN tblBooking ON tblRefund.BookingID = tblBooking.BookingID) " &
+                                 "LEFT JOIN tblCustomer ON tblBooking.CustomerID = tblCustomer.CustomerID) " &
                                  "LEFT JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
                                  "LEFT JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
-                                 "WHERE tblBooking.BookingStatus = @Cancelled " &
-                                 "AND tblBooking.CancelledDate >= @FromDate AND tblBooking.CancelledDate < @ToDate " &
-                                 "ORDER BY tblBooking.CancelledDate DESC, tblBooking.BookingID DESC"
-            SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
+                                 "WHERE tblRefund.RefundDate >= @FromDate AND tblRefund.RefundDate < @ToDate " &
+                                 "ORDER BY tblRefund.RefundDate DESC, tblRefund.RefundID DESC"
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
             SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
             Dim da As New OleDbDataAdapter(SQLCmd)
@@ -1211,11 +1236,12 @@ Public Class frmSalesReport
         reportTable = dt
         ShowReport()
 
-        Return TotalColumn(dt, "TotalCost")
+        Return TotalColumn(dt, "RefundAmount")
     End Function
 
     Private Function LoadConcessionsByItem(fromDate As Date, toDate As Date) As Double
         Dim dt As New DataTable
+        Dim dtBack As New DataTable
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -1226,17 +1252,48 @@ Public Class frmSalesReport
                                  "LEFT JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID " &
                                  "WHERE IIf(@ByScreening, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) >= @FromDate " &
                                  "AND IIf(@ByScreening2, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) < @ToDate " &
-                                 "AND tblBooking.BookingStatus <> @Cancelled " &
                                  "GROUP BY FoodItemName"
             SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
             SQLCmd.Parameters.AddWithValue("@ByScreening2", MeasuringByScreening())
             SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
-            SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)
+
+            SQLCmd.CommandText = "SELECT FoodItemName, SUM(tblRefundLine.QtyRefunded) AS QtyBack, " &
+                                 "SUM(tblRefundLine.AmountRefunded) AS MoneyBack " &
+                                 "FROM (((tblRefundLine INNER JOIN tblOrderItem ON tblRefundLine.OrderItemID = tblOrderItem.OrderItemID) " &
+                                 "INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID) " &
+                                 "INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID) " &
+                                 "LEFT JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID " &
+                                 "WHERE IIf(@ByScreening, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) >= @FromDate " &
+                                 "AND IIf(@ByScreening2, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) < @ToDate " &
+                                 "GROUP BY FoodItemName"
+            SQLCmd.Parameters.Clear()
+            SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
+            SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
+            SQLCmd.Parameters.AddWithValue("@ByScreening2", MeasuringByScreening())
+            SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
+            Dim daBack As New OleDbDataAdapter(SQLCmd)
+            daBack.Fill(dtBack)
+
             cn.Close()
         End If
+
+        Dim i As Integer
+
+        For i = dt.Rows.Count - 1 To 0 Step -1
+            Dim itemName As String = dt.Rows(i)("FoodItemName").ToString()
+            Dim soldLeft As Integer = CInt(dt.Rows(i)("Sold")) - FindItemRefundQty(dtBack, itemName)
+            Dim moneyLeft As Double = CDbl(dt.Rows(i)("FoodRevenue")) - FindItemRefundMoney(dtBack, itemName)
+
+            If soldLeft <= 0 Then
+                dt.Rows.RemoveAt(i)
+            Else
+                dt.Rows(i)("Sold") = soldLeft
+                dt.Rows(i)("FoodRevenue") = moneyLeft
+            End If
+        Next
 
         reportTable = dt
         ShowReport()
@@ -1322,6 +1379,7 @@ Public Class frmSalesReport
 
     Private Function GetFoodByFilmTable(fromDate As Date, toDate As Date) As DataTable
         Dim dt As New DataTable
+        Dim dtBack As New DataTable
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -1333,17 +1391,46 @@ Public Class frmSalesReport
                                  "LEFT JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
                                  "WHERE IIf(@ByScreening, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) >= @FromDate " &
                                  "AND IIf(@ByScreening2, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) < @ToDate " &
-                                 "AND tblBooking.BookingStatus <> @Cancelled " &
                                  "GROUP BY IIf(IsNull(tblFilm.FilmTitle), 'Counter sale', tblFilm.FilmTitle)"
             SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
             SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
             SQLCmd.Parameters.AddWithValue("@ByScreening2", MeasuringByScreening())
             SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
-            SQLCmd.Parameters.AddWithValue("@Cancelled", BookingCancelled)
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dt)
+
+            SQLCmd.CommandText = "SELECT IIf(IsNull(tblFilm.FilmTitle), 'Counter sale', tblFilm.FilmTitle) AS FilmTitle, " &
+                                 "SUM(tblRefundLine.AmountRefunded) AS MoneyBack " &
+                                 "FROM (((tblRefundLine INNER JOIN tblOrderItem ON tblRefundLine.OrderItemID = tblOrderItem.OrderItemID) " &
+                                 "INNER JOIN tblBooking ON tblOrderItem.BookingID = tblBooking.BookingID) " &
+                                 "LEFT JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
+                                 "LEFT JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
+                                 "WHERE IIf(@ByScreening, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) >= @FromDate " &
+                                 "AND IIf(@ByScreening2, IIf(IsNull(tblScreening.ScreeningDate), tblBooking.BookingDate, tblScreening.ScreeningDate), tblBooking.BookingDate) < @ToDate " &
+                                 "GROUP BY IIf(IsNull(tblFilm.FilmTitle), 'Counter sale', tblFilm.FilmTitle)"
+            SQLCmd.Parameters.Clear()
+            SQLCmd.Parameters.AddWithValue("@ByScreening", MeasuringByScreening())
+            SQLCmd.Parameters.AddWithValue("@FromDate", fromDate)
+            SQLCmd.Parameters.AddWithValue("@ByScreening2", MeasuringByScreening())
+            SQLCmd.Parameters.AddWithValue("@ToDate", PeriodEnd(toDate))
+            Dim daBack As New OleDbDataAdapter(SQLCmd)
+            daBack.Fill(dtBack)
+
             cn.Close()
         End If
+
+        Dim i As Integer
+
+        For i = dt.Rows.Count - 1 To 0 Step -1
+            Dim title As String = dt.Rows(i)("FilmTitle").ToString()
+            Dim moneyLeft As Double = CDbl(dt.Rows(i)("FoodRevenue")) - FindFilmRefundMoney(dtBack, title)
+
+            If moneyLeft <= 0 Then
+                dt.Rows.RemoveAt(i)
+            Else
+                dt.Rows(i)("FoodRevenue") = moneyLeft
+            End If
+        Next
 
         Return dt
     End Function
@@ -1798,7 +1885,7 @@ Public Class frmSalesReport
             Return "Ticket revenue by screening"
         ElseIf cboReportType.Text = "By staff member" Then
             Return "Ticket revenue by person"
-        ElseIf cboReportType.Text = "Cancellations" Then
+        ElseIf cboReportType.Text = "Refunds" Then
             Return "Refunded"
         ElseIf cboReportType.Text = "Tickets only" Then
             Return "Ticket revenue by film"
@@ -1878,6 +1965,48 @@ Public Class frmSalesReport
                     Return 0
                 Else
                     Return CDbl(row("FoodRevenue"))
+                End If
+            End If
+        Next
+
+        Return 0
+    End Function
+
+    Private Function FindItemRefundQty(dtBack As DataTable, itemName As String) As Integer
+        For Each row As DataRow In dtBack.Rows
+            If row("FoodItemName").ToString() = itemName Then
+                If IsDBNull(row("QtyBack")) Then
+                    Return 0
+                Else
+                    Return CInt(row("QtyBack"))
+                End If
+            End If
+        Next
+
+        Return 0
+    End Function
+
+    Private Function FindItemRefundMoney(dtBack As DataTable, itemName As String) As Double
+        For Each row As DataRow In dtBack.Rows
+            If row("FoodItemName").ToString() = itemName Then
+                If IsDBNull(row("MoneyBack")) Then
+                    Return 0
+                Else
+                    Return CDbl(row("MoneyBack"))
+                End If
+            End If
+        Next
+
+        Return 0
+    End Function
+
+    Private Function FindFilmRefundMoney(dtBack As DataTable, filmTitle As String) As Double
+        For Each row As DataRow In dtBack.Rows
+            If row("FilmTitle").ToString() = filmTitle Then
+                If IsDBNull(row("MoneyBack")) Then
+                    Return 0
+                Else
+                    Return CDbl(row("MoneyBack"))
                 End If
             End If
         Next
