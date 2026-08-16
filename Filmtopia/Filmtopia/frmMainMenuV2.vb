@@ -317,7 +317,7 @@ Public Class frmMainMenuV2
         tips.SetToolTip(btnLogs, "See a history of what has been done")
         tips.SetToolTip(btnMyAccount, "What you have sold and done, and when you tend to be on")
         tips.SetToolTip(lblWelcome, "Your own sales, your own history and your settings")
-        tips.SetToolTip(btnSettings, "Back up the database")
+        tips.SetToolTip(btnSettings, "Settings for the whole cinema, and database backup")
         tips.SetToolTip(btnLogout, "Log out and go back to the login screen")
     End Sub
 

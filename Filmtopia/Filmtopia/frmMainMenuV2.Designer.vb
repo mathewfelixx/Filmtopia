@@ -395,7 +395,7 @@ Partial Class frmMainMenuV2
         Me.btnSettings.Padding = New System.Windows.Forms.Padding(16, 0, 0, 0)
         Me.btnSettings.Size = New System.Drawing.Size(237, 49)
         Me.btnSettings.TabIndex = 13
-        Me.btnSettings.Text = "Backup"
+        Me.btnSettings.Text = "Cinema Settings"
         Me.btnSettings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnSettings.UseVisualStyleBackColor = False
         '
