@@ -317,7 +317,7 @@ Public Class frmMainMenuV2
         tips.SetToolTip(btnLogs, "See a history of what has been done")
         tips.SetToolTip(btnMyAccount, "What you have sold and done, and when you tend to be on")
         tips.SetToolTip(lblWelcome, "Your own sales, your own history and your settings")
-        tips.SetToolTip(btnSettings, "Backups, password and appearance")
+        tips.SetToolTip(btnSettings, "Back up the database")
         tips.SetToolTip(btnLogout, "Log out and go back to the login screen")
     End Sub
 
@@ -898,6 +898,7 @@ Public Class frmMainMenuV2
             btnFood.Visible = True
             btnReports.Visible = True
             btnLogs.Visible = True
+            btnSettings.Visible = True
             lblNavManage.Visible = True
             btnMyAccount.Visible = True
         Else
@@ -910,6 +911,7 @@ Public Class frmMainMenuV2
             btnFood.Visible = False
             btnReports.Visible = False
             btnLogs.Visible = False
+            btnSettings.Visible = False
             lblNavManage.Visible = False
             btnMyAccount.Visible = True
         End If
