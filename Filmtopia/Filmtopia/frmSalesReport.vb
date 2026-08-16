@@ -348,6 +348,53 @@ Public Class frmSalesReport
         WriteLog("REPORT", "Sales report printed (" & cboReportType.Text & "), " & reportTable.Rows.Count & " rows")
     End Sub
 
+    Private Sub btnSaveChart_Click(sender As Object, e As EventArgs) Handles btnSaveChart.Click
+        If reportTable Is Nothing OrElse reportTable.Rows.Count = 0 Then
+            MessageBox.Show("There is nothing on screen to save.", "Save Chart", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        Dim saveBox As New SaveFileDialog
+        saveBox.Filter = "PNG pictures (*.png)|*.png"
+        saveBox.RestoreDirectory = True
+        saveBox.FileName = ChartFileName()
+
+        If saveBox.ShowDialog() <> DialogResult.OK Then
+            Exit Sub
+        End If
+
+        SaveChartPicture(saveBox.FileName)
+
+        WriteLog("REPORT", "Sales report chart saved (" & cboReportType.Text & ")")
+        MessageBox.Show("Chart saved.", "Save Chart", MessageBoxButtons.OK, MessageBoxIcon.Information)
+    End Sub
+
+    Private Sub SaveChartPicture(fileName As String)
+        Dim wide As Integer = 900
+        Dim high As Integer = 62 + (reportTable.Rows.Count * 22)
+
+        If high < 200 Then
+            high = 200
+        End If
+
+        If high > 1400 Then
+            high = 1400
+        End If
+        Dim picture As New Bitmap(wide, high)
+        Dim g As Graphics = Graphics.FromImage(picture)
+
+        g.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
+        DrawChartOnPaper(g, wide, high)
+
+        picture.Save(fileName, Imaging.ImageFormat.Png)
+        g.Dispose()
+        picture.Dispose()
+    End Sub
+
+    Private Function ChartFileName() As String
+        Return "Chart " & cboReportType.Text.Replace(" ", "") & " " & dtpFrom.Value.ToString("yyyy-MM-dd") & " to " & dtpTo.Value.ToString("yyyy-MM-dd") & ".png"
+    End Function
+
     Private Sub docReport_PrintPage(sender As Object, e As System.Drawing.Printing.PrintPageEventArgs) Handles docReport.PrintPage
         Dim left As Integer = e.MarginBounds.Left
         Dim right As Integer = e.MarginBounds.Right
@@ -1385,8 +1432,8 @@ Public Class frmSalesReport
 
         Dim nameRoom As Integer = CInt(wide * 0.42)
 
-        If nameRoom > 140 Then
-            nameRoom = 140
+        If nameRoom > 260 Then
+            nameRoom = 260
         End If
 
         Dim barLeft As Integer = nameRoom + 6
