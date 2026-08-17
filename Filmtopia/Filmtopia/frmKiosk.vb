@@ -204,6 +204,9 @@ Public Class frmKiosk
 
         lblConfirmTotal.Top = lblConfirmDetail.Bottom + 10
         lblConfirmNote.Top = lblConfirmTotal.Bottom + 8
+
+        picConfirmPoster.Left = pnlConfirm.Width - picConfirmPoster.Width - 60
+        picConfirmPoster.Top = lblConfirmDetail.Top
     End Sub
 
     Private Sub LayoutDoneStep()
@@ -699,6 +702,7 @@ Public Class frmKiosk
 
     Private Sub ClearPosters()
         ClearOnePoster(picTimesPoster)
+        ClearOnePoster(picConfirmPoster)
     End Sub
 
     Private Sub LoadShowingsForFilm()
@@ -1452,6 +1456,9 @@ Public Class frmKiosk
 
         lblConfirmDetail.Text = detail
         lblConfirmTotal.Text = "To pay  " & FormatCurrency(OrderTotal())
+
+        SetPoster(picConfirmPoster, DetailPosterWidth, DetailPosterHeight)
+        LayoutConfirmStep()
     End Sub
 
     Private Sub btnBack_Click(sender As Object, e As EventArgs) Handles btnBack.Click

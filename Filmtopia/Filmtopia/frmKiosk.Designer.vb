@@ -65,6 +65,7 @@ Partial Class frmKiosk
         Me.pnlConfirm = New System.Windows.Forms.Panel()
         Me.lblConfirmHeading = New System.Windows.Forms.Label()
         Me.lblConfirmDetail = New System.Windows.Forms.Label()
+        Me.picConfirmPoster = New System.Windows.Forms.PictureBox()
         Me.lblConfirmTotal = New System.Windows.Forms.Label()
         Me.lblConfirmNote = New System.Windows.Forms.Label()
         Me.pnlDone = New System.Windows.Forms.Panel()
@@ -88,6 +89,7 @@ Partial Class frmKiosk
         Me.pnlDone.SuspendLayout()
         Me.pnlFood.SuspendLayout()
         CType(Me.picTimesPoster, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.picConfirmPoster, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'pnlHeader
@@ -537,6 +539,7 @@ Partial Class frmKiosk
         '
         'pnlConfirm
         '
+        Me.pnlConfirm.Controls.Add(Me.picConfirmPoster)
         Me.pnlConfirm.Controls.Add(Me.lblConfirmNote)
         Me.pnlConfirm.Controls.Add(Me.lblConfirmTotal)
         Me.pnlConfirm.Controls.Add(Me.lblConfirmDetail)
@@ -586,6 +589,15 @@ Partial Class frmKiosk
         Me.lblConfirmNote.Size = New System.Drawing.Size(520, 28)
         Me.lblConfirmNote.TabIndex = 3
         Me.lblConfirmNote.Text = "Your seats are not held until you have paid"
+        '
+        'picConfirmPoster
+        '
+        Me.picConfirmPoster.Location = New System.Drawing.Point(800, 80)
+        Me.picConfirmPoster.Name = "picConfirmPoster"
+        Me.picConfirmPoster.Size = New System.Drawing.Size(140, 216)
+        Me.picConfirmPoster.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Normal
+        Me.picConfirmPoster.TabIndex = 4
+        Me.picConfirmPoster.TabStop = False
         '
         'pnlDone
         '
@@ -732,6 +744,7 @@ Partial Class frmKiosk
         Me.pnlFood.ResumeLayout(False)
         Me.pnlFood.PerformLayout()
         CType(Me.picTimesPoster, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.picConfirmPoster, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -786,6 +799,7 @@ Partial Class frmKiosk
     Friend WithEvents lblConfirmDetail As Label
     Friend WithEvents lblConfirmTotal As Label
     Friend WithEvents lblConfirmNote As Label
+    Friend WithEvents picConfirmPoster As PictureBox
     Friend WithEvents pnlDone As Panel
     Friend WithEvents lblDoneHeading As Label
     Friend WithEvents lblDoneRef As Label
