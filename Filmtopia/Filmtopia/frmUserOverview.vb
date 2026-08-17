@@ -10,6 +10,8 @@ Public Class frmUserOverview
         ConfigureAccessLevel()
         ShowAppearance()
 
+        lblSubPWHelp.Text = "At least " & MinPasswordLength & " characters, and not the one you are using now."
+
         dtpActFrom.Value = Date.Today.AddDays(-7)
         dtpActTo.Value = Date.Today
         LoadActivityTypeFilter()
@@ -439,8 +441,8 @@ Public Class frmUserOverview
             Exit Sub
         End If
 
-        If txtNewPW.Text.Length < 6 Then
-            MessageBox.Show("Your new password must be at least 6 characters.", "Change Password", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        If txtNewPW.Text.Length < MinPasswordLength Then
+            MessageBox.Show("Your new password must be at least " & MinPasswordLength & " characters.", "Change Password", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
