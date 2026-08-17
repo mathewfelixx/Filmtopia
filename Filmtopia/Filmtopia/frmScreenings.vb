@@ -1552,7 +1552,7 @@ Public Class frmScreenings
         dtpScreeningDate.Value = Date.Now
         dtpRepeatUntil.Value = Date.Today.AddDays(6)
         txtScreeningTime.Text = ""
-        txtTicketPrice.Text = ""
+        txtTicketPrice.Text = Format(DefaultTicketPrice, "0.00")
         fillingBoxes = False
         boxesChanged = False
 
