@@ -304,7 +304,6 @@ Public Class frmMainMenuV2
         tips.SetToolTip(txtSearch, "Type part of a film or screen name to narrow the list down")
         tips.SetToolTip(cboShow, "Choose which screenings the list shows")
         tips.SetToolTip(btnRefresh, "Update the figures now. F5 does the same.")
-        tips.SetToolTip(dgvWhatsOn, "Double click a screening to sell tickets for it")
         tips.SetToolTip(btnBookings, "Make a new booking and pick seats")
         tips.SetToolTip(btnFindBooking, "Look up or cancel a booking")
         tips.SetToolTip(btnScreenings, "See and set up what is showing")

@@ -67,11 +67,21 @@ Partial Class frmSettings
         Me.lblMinPasswordUnit = New System.Windows.Forms.Label()
         Me.lblSecurityHelp = New System.Windows.Forms.Label()
         Me.btnSaveSecurity = New System.Windows.Forms.Button()
+        Me.GroupBox6 = New System.Windows.Forms.GroupBox()
+        Me.lblNewUsername = New System.Windows.Forms.Label()
+        Me.txtNewUsername = New System.Windows.Forms.TextBox()
+        Me.lblNewPassword = New System.Windows.Forms.Label()
+        Me.txtNewPassword = New System.Windows.Forms.TextBox()
+        Me.lblNewAccessLevel = New System.Windows.Forms.Label()
+        Me.cboNewAccessLevel = New System.Windows.Forms.ComboBox()
+        Me.lblAccountsHelp = New System.Windows.Forms.Label()
+        Me.btnCreateUser = New System.Windows.Forms.Button()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         Me.GroupBox3.SuspendLayout()
         Me.GroupBox4.SuspendLayout()
         Me.GroupBox5.SuspendLayout()
+        Me.GroupBox6.SuspendLayout()
         Me.SuspendLayout()
         '
         'lblHeading
@@ -147,7 +157,7 @@ Partial Class frmSettings
         '
         Me.lblVersion.AutoSize = True
         Me.lblVersion.ForeColor = System.Drawing.Color.Gray
-        Me.lblVersion.Location = New System.Drawing.Point(13, 500)
+        Me.lblVersion.Location = New System.Drawing.Point(13, 565)
         Me.lblVersion.Name = "lblVersion"
         Me.lblVersion.Size = New System.Drawing.Size(45, 13)
         Me.lblVersion.TabIndex = 4
@@ -155,7 +165,7 @@ Partial Class frmSettings
         '
         'btnClose
         '
-        Me.btnClose.Location = New System.Drawing.Point(972, 495)
+        Me.btnClose.Location = New System.Drawing.Point(972, 560)
         Me.btnClose.Name = "btnClose"
         Me.btnClose.Size = New System.Drawing.Size(88, 26)
         Me.btnClose.TabIndex = 5
@@ -568,17 +578,105 @@ Partial Class frmSettings
         Me.btnSaveSecurity.Text = "Save security"
         Me.btnSaveSecurity.UseVisualStyleBackColor = True
         '
+        'GroupBox6
+        '
+        Me.GroupBox6.Controls.Add(Me.lblNewUsername)
+        Me.GroupBox6.Controls.Add(Me.txtNewUsername)
+        Me.GroupBox6.Controls.Add(Me.lblNewPassword)
+        Me.GroupBox6.Controls.Add(Me.txtNewPassword)
+        Me.GroupBox6.Controls.Add(Me.lblNewAccessLevel)
+        Me.GroupBox6.Controls.Add(Me.cboNewAccessLevel)
+        Me.GroupBox6.Controls.Add(Me.lblAccountsHelp)
+        Me.GroupBox6.Controls.Add(Me.btnCreateUser)
+        Me.GroupBox6.Location = New System.Drawing.Point(544, 384)
+        Me.GroupBox6.Name = "GroupBox6"
+        Me.GroupBox6.Size = New System.Drawing.Size(516, 155)
+        Me.GroupBox6.TabIndex = 10
+        Me.GroupBox6.TabStop = False
+        Me.GroupBox6.Text = "Staff Accounts"
+        '
+        'lblNewUsername
+        '
+        Me.lblNewUsername.AutoSize = True
+        Me.lblNewUsername.Location = New System.Drawing.Point(12, 31)
+        Me.lblNewUsername.Name = "lblNewUsername"
+        Me.lblNewUsername.Size = New System.Drawing.Size(157, 13)
+        Me.lblNewUsername.TabIndex = 0
+        Me.lblNewUsername.Text = "Username for the new account"
+        '
+        'txtNewUsername
+        '
+        Me.txtNewUsername.Location = New System.Drawing.Point(250, 28)
+        Me.txtNewUsername.MaxLength = 20
+        Me.txtNewUsername.Name = "txtNewUsername"
+        Me.txtNewUsername.Size = New System.Drawing.Size(180, 20)
+        Me.txtNewUsername.TabIndex = 1
+        '
+        'lblNewPassword
+        '
+        Me.lblNewPassword.AutoSize = True
+        Me.lblNewPassword.Location = New System.Drawing.Point(12, 61)
+        Me.lblNewPassword.Name = "lblNewPassword"
+        Me.lblNewPassword.Size = New System.Drawing.Size(151, 13)
+        Me.lblNewPassword.TabIndex = 2
+        Me.lblNewPassword.Text = "Password to start them with"
+        '
+        'txtNewPassword
+        '
+        Me.txtNewPassword.Location = New System.Drawing.Point(250, 58)
+        Me.txtNewPassword.MaxLength = 20
+        Me.txtNewPassword.Name = "txtNewPassword"
+        Me.txtNewPassword.Size = New System.Drawing.Size(180, 20)
+        Me.txtNewPassword.TabIndex = 3
+        '
+        'lblNewAccessLevel
+        '
+        Me.lblNewAccessLevel.AutoSize = True
+        Me.lblNewAccessLevel.Location = New System.Drawing.Point(12, 91)
+        Me.lblNewAccessLevel.Name = "lblNewAccessLevel"
+        Me.lblNewAccessLevel.Size = New System.Drawing.Size(148, 13)
+        Me.lblNewAccessLevel.TabIndex = 4
+        Me.lblNewAccessLevel.Text = "What they are allowed to do"
+        '
+        'cboNewAccessLevel
+        '
+        Me.cboNewAccessLevel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboNewAccessLevel.FormattingEnabled = True
+        Me.cboNewAccessLevel.Location = New System.Drawing.Point(250, 88)
+        Me.cboNewAccessLevel.Name = "cboNewAccessLevel"
+        Me.cboNewAccessLevel.Size = New System.Drawing.Size(240, 21)
+        Me.cboNewAccessLevel.TabIndex = 5
+        '
+        'lblAccountsHelp
+        '
+        Me.lblAccountsHelp.AutoSize = True
+        Me.lblAccountsHelp.Location = New System.Drawing.Point(12, 128)
+        Me.lblAccountsHelp.Name = "lblAccountsHelp"
+        Me.lblAccountsHelp.Size = New System.Drawing.Size(233, 13)
+        Me.lblAccountsHelp.TabIndex = 6
+        Me.lblAccountsHelp.Text = "Tell them the password, they can change it later."
+        '
+        'btnCreateUser
+        '
+        Me.btnCreateUser.Location = New System.Drawing.Point(392, 121)
+        Me.btnCreateUser.Name = "btnCreateUser"
+        Me.btnCreateUser.Size = New System.Drawing.Size(108, 26)
+        Me.btnCreateUser.TabIndex = 7
+        Me.btnCreateUser.Text = "Create account"
+        Me.btnCreateUser.UseVisualStyleBackColor = True
+        '
         'frmSettings
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1076, 535)
+        Me.ClientSize = New System.Drawing.Size(1076, 600)
         Me.Controls.Add(Me.btnClose)
         Me.Controls.Add(Me.lblVersion)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox3)
         Me.Controls.Add(Me.GroupBox4)
         Me.Controls.Add(Me.GroupBox5)
+        Me.Controls.Add(Me.GroupBox6)
         Me.Controls.Add(Me.GroupBox1)
         Me.Controls.Add(Me.lblHeading)
         Me.CancelButton = Me.btnClose
@@ -597,6 +695,8 @@ Partial Class frmSettings
         Me.GroupBox4.PerformLayout()
         Me.GroupBox5.ResumeLayout(False)
         Me.GroupBox5.PerformLayout()
+        Me.GroupBox6.ResumeLayout(False)
+        Me.GroupBox6.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -653,4 +753,13 @@ Partial Class frmSettings
     Friend WithEvents lblMinPasswordUnit As Label
     Friend WithEvents lblSecurityHelp As Label
     Friend WithEvents btnSaveSecurity As Button
+    Friend WithEvents GroupBox6 As GroupBox
+    Friend WithEvents lblNewUsername As Label
+    Friend WithEvents txtNewUsername As TextBox
+    Friend WithEvents lblNewPassword As Label
+    Friend WithEvents txtNewPassword As TextBox
+    Friend WithEvents lblNewAccessLevel As Label
+    Friend WithEvents cboNewAccessLevel As ComboBox
+    Friend WithEvents lblAccountsHelp As Label
+    Friend WithEvents btnCreateUser As Button
 End Class

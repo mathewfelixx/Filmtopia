@@ -1,4 +1,6 @@
-﻿Public Class frmSettings
+﻿Imports System.Data.OleDb
+
+Public Class frmSettings
 
     Private Sub btnChooseFolder_Click(sender As Object, e As EventArgs) Handles btnChooseFolder.Click
         FolderBrowserDialog1.Description = "Choose a folder to save the backup in"
@@ -201,6 +203,124 @@
         MessageBox.Show("Security settings saved.", "Cinema Settings", MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
 
+    Private Sub ShowAccessLevels()
+        cboNewAccessLevel.Items.Clear()
+        cboNewAccessLevel.Items.Add("Manager, full access to everything")
+        cboNewAccessLevel.Items.Add("Staff, the tills and the booking screens")
+        cboNewAccessLevel.SelectedIndex = 1
+    End Sub
+
+    Private Function ChosenAccessLevel() As Integer
+        If cboNewAccessLevel.SelectedIndex = 0 Then
+            Return 1
+        Else
+            Return 2
+        End If
+    End Function
+
+    Private Function RoleName(accessLevel As Integer) As String
+        If accessLevel = 1 Then
+            Return "a manager"
+        Else
+            Return "staff"
+        End If
+    End Function
+
+    Private Function UsernameLooksOk(username As String) As Boolean
+        Dim position As Integer
+
+        For position = 1 To Len(username)
+            Dim letter As Char = CChar(Mid(username, position, 1))
+
+            If Not Char.IsLetterOrDigit(letter) Then
+                Return False
+            End If
+        Next
+
+        Return True
+    End Function
+
+    Private Function UsernameTaken(username As String) As Boolean
+        Dim taken As Boolean = False
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT COUNT(*) FROM tblLogin WHERE Username = @Username"
+            SQLCmd.Parameters.AddWithValue("@Username", username)
+
+            If Val(SQLCmd.ExecuteScalar()) > 0 Then
+                taken = True
+            End If
+
+            cn.Close()
+        End If
+
+        Return taken
+    End Function
+
+    Private Sub ClearNewAccount()
+        txtNewUsername.Text = ""
+        txtNewPassword.Text = ""
+        cboNewAccessLevel.SelectedIndex = 1
+        txtNewUsername.Focus()
+    End Sub
+
+    Private Sub btnCreateUser_Click(sender As Object, e As EventArgs) Handles btnCreateUser.Click
+        Dim newUsername As String = txtNewUsername.Text.Trim()
+        Dim newPassword As String = txtNewPassword.Text
+
+        If newUsername.Length < 3 Then
+            MessageBox.Show("The username must be at least 3 characters.", "Cinema Settings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtNewUsername.Focus()
+            Exit Sub
+        End If
+
+        If Not UsernameLooksOk(newUsername) Then
+            MessageBox.Show("The username can only have letters and numbers in it.", "Cinema Settings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtNewUsername.Focus()
+            Exit Sub
+        End If
+
+        If newPassword.Length < MinPasswordLength Then
+            MessageBox.Show("The password must be at least " & MinPasswordLength & " characters.", "Cinema Settings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtNewPassword.Focus()
+            Exit Sub
+        End If
+
+        If cboNewAccessLevel.SelectedIndex < 0 Then
+            MessageBox.Show("Choose what the new user is allowed to do.", "Cinema Settings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            cboNewAccessLevel.Focus()
+            Exit Sub
+        End If
+
+        If UsernameTaken(newUsername) Then
+            MessageBox.Show("There is already an account called '" & newUsername & "'.", "Cinema Settings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtNewUsername.Focus()
+            Exit Sub
+        End If
+
+        Dim newLevel As Integer = ChosenAccessLevel()
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "INSERT INTO tblLogin (Username, [Password], AccessLevel) " &
+                                 "VALUES (@Username, @Password, @AccessLevel)"
+            SQLCmd.Parameters.AddWithValue("@Username", newUsername)
+            SQLCmd.Parameters.AddWithValue("@Password", Encrypt(newPassword))
+            SQLCmd.Parameters.AddWithValue("@AccessLevel", newLevel)
+            SQLCmd.ExecuteNonQuery()
+            cn.Close()
+        End If
+
+        WriteLog("AUTH", "Account '" & newUsername & "' created as " & RoleName(newLevel), LogSecurity)
+
+        MessageBox.Show("Account '" & newUsername & "' created. Tell them the password so they can sign in.", "Cinema Settings", MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+        ClearNewAccount()
+    End Sub
+
     Private Sub ConfigureAccessLevel()
         If UserAccessLevel = 1 Then
             btnChooseFolder.Enabled = True
@@ -230,6 +350,11 @@
             txtMinPassword.ReadOnly = True
             btnSaveSecurity.Enabled = False
             lblSecurityHelp.Text = "Only a manager can change these."
+            txtNewUsername.ReadOnly = True
+            txtNewPassword.ReadOnly = True
+            cboNewAccessLevel.Enabled = False
+            btnCreateUser.Enabled = False
+            lblAccountsHelp.Text = "Only a manager can create accounts."
         End If
     End Sub
 
@@ -245,6 +370,7 @@
         ShowSelling()
         ShowKiosk()
         ShowSecurity()
+        ShowAccessLevels()
         ConfigureAccessLevel()
         WriteLog("SETTINGS", "Cinema settings opened")
     End Sub
