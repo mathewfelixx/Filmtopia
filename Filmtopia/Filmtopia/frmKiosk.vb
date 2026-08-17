@@ -54,13 +54,17 @@ Public Class frmKiosk
 
     Private currentFilmID As Long = 0
     Private currentFilmTitle As String = ""
+    Private currentFilmRating As String = ""
+    Private currentFilmDuration As Integer = 0
+    Private currentFilmYear As String = ""
+    Private currentFilmGenres As String = ""
+    Private currentFilmSynopsis As String = ""
+    Private currentFilmPoster As String = ""
 
     Private currentScreeningID As Long = 0
     Private currentScreenID As Long = 0
     Private currentTicketPrice As Double = 0
     Private currentShowingText As String = ""
-
-    Private filmsOnDay As DataTable
 
     Private currentSeats As DataTable
 
@@ -315,8 +319,7 @@ Public Class frmKiosk
     End Sub
 
     Private Sub LoadFilmsForDay()
-        filmsOnDay = New DataTable
-        Dim dt As DataTable = filmsOnDay
+        Dim dt As New DataTable
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -583,21 +586,45 @@ Public Class frmKiosk
 
         Dim ctrl As Control = CType(sender, Control)
         currentFilmID = CLng(ctrl.Tag)
-        currentFilmTitle = TitleOfFilm(currentFilmID)
+
+        LoadFilmDetails()
 
         LoadShowingsForFilm()
         ShowStep(StepTimes)
     End Sub
 
-    Private Function TitleOfFilm(filmID As Long) As String
-        Dim rows() As DataRow = filmsOnDay.Select("FilmID = " & filmID)
+    Private Sub LoadFilmDetails()
+        currentFilmTitle = ""
+        currentFilmRating = ""
+        currentFilmDuration = 0
+        currentFilmYear = ""
+        currentFilmGenres = ""
+        currentFilmSynopsis = ""
+        currentFilmPoster = ""
 
-        If rows.Length > 0 Then
-            Return rows(0)("FilmTitle").ToString()
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT FilmTitle, FilmAgeRating, FilmDuration, FilmYear, FilmGenres, " &
+                                 "FilmDescription, FilmPoster FROM tblFilm WHERE FilmID = @FilmID"
+            SQLCmd.Parameters.AddWithValue("@FilmID", CInt(currentFilmID))
+            Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+            If rs.Read() Then
+                currentFilmTitle = rs("FilmTitle").ToString()
+                currentFilmRating = rs("FilmAgeRating").ToString()
+                currentFilmGenres = rs("FilmGenres").ToString()
+                currentFilmSynopsis = rs("FilmDescription").ToString()
+                currentFilmPoster = rs("FilmPoster").ToString()
+                currentFilmYear = rs("FilmYear").ToString()
+
+                If Not IsDBNull(rs("FilmDuration")) Then
+                    currentFilmDuration = CInt(rs("FilmDuration"))
+                End If
+            End If
+            rs.Close()
+            cn.Close()
         End If
-
-        Return ""
-    End Function
+    End Sub
 
     Private Sub LoadShowingsForFilm()
         Dim dt As New DataTable
@@ -1432,6 +1459,12 @@ Public Class frmKiosk
         currentDay = Date.Today
         currentFilmID = 0
         currentFilmTitle = ""
+        currentFilmRating = ""
+        currentFilmDuration = 0
+        currentFilmYear = ""
+        currentFilmGenres = ""
+        currentFilmSynopsis = ""
+        currentFilmPoster = ""
         currentScreeningID = 0
         currentScreenID = 0
         currentTicketPrice = 0
