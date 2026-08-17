@@ -72,6 +72,7 @@ Partial Class frmKiosk
         Me.lblDoneHeading = New System.Windows.Forms.Label()
         Me.lblDoneRef = New System.Windows.Forms.Label()
         Me.lblDoneDetail = New System.Windows.Forms.Label()
+        Me.picDonePoster = New System.Windows.Forms.PictureBox()
         Me.lblDoneNote = New System.Windows.Forms.Label()
         Me.timerIdle = New System.Windows.Forms.Timer(Me.components)
         Me.pnlFood = New System.Windows.Forms.Panel()
@@ -90,6 +91,7 @@ Partial Class frmKiosk
         Me.pnlFood.SuspendLayout()
         CType(Me.picTimesPoster, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.picConfirmPoster, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.picDonePoster, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'pnlHeader
@@ -601,6 +603,7 @@ Partial Class frmKiosk
         '
         'pnlDone
         '
+        Me.pnlDone.Controls.Add(Me.picDonePoster)
         Me.pnlDone.Controls.Add(Me.lblDoneNote)
         Me.pnlDone.Controls.Add(Me.lblDoneDetail)
         Me.pnlDone.Controls.Add(Me.lblDoneRef)
@@ -651,6 +654,15 @@ Partial Class frmKiosk
         Me.lblDoneNote.Size = New System.Drawing.Size(500, 32)
         Me.lblDoneNote.TabIndex = 3
         Me.lblDoneNote.Text = "Please take your tickets from the slot below"
+        '
+        'picDonePoster
+        '
+        Me.picDonePoster.Location = New System.Drawing.Point(580, 30)
+        Me.picDonePoster.Name = "picDonePoster"
+        Me.picDonePoster.Size = New System.Drawing.Size(120, 186)
+        Me.picDonePoster.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Normal
+        Me.picDonePoster.TabIndex = 4
+        Me.picDonePoster.TabStop = False
         '
         'timerIdle
         '
@@ -745,6 +757,7 @@ Partial Class frmKiosk
         Me.pnlFood.PerformLayout()
         CType(Me.picTimesPoster, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.picConfirmPoster, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.picDonePoster, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -805,6 +818,7 @@ Partial Class frmKiosk
     Friend WithEvents lblDoneRef As Label
     Friend WithEvents lblDoneDetail As Label
     Friend WithEvents lblDoneNote As Label
+    Friend WithEvents picDonePoster As PictureBox
     Friend WithEvents timerIdle As Timer
     Friend WithEvents pnlFood As Panel
     Friend WithEvents lblFoodHeading As Label

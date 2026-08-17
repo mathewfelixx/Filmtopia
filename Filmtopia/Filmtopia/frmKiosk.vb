@@ -12,6 +12,9 @@ Public Class frmKiosk
     Private Const DetailPosterWidth As Integer = 170
     Private Const DetailPosterHeight As Integer = 263
 
+    Private Const DonePosterWidth As Integer = 120
+    Private Const DonePosterHeight As Integer = 186
+
     Private Const TimesColumnWidth As Integer = 430
 
     Private Const TextLeftWithPoster As Integer = 126
@@ -210,8 +213,11 @@ Public Class frmKiosk
     End Sub
 
     Private Sub LayoutDoneStep()
+        picDonePoster.Left = (pnlDone.Width - picDonePoster.Width) \ 2
+        picDonePoster.Top = (pnlDone.Height \ 2) - 250
+
         lblDoneHeading.Left = (pnlDone.Width - lblDoneHeading.Width) \ 2
-        lblDoneHeading.Top = (pnlDone.Height \ 2) - 190
+        lblDoneHeading.Top = picDonePoster.Bottom + 20
 
         lblDoneRef.Left = (pnlDone.Width - lblDoneRef.Width) \ 2
         lblDoneRef.Top = lblDoneHeading.Bottom + 24
@@ -703,6 +709,7 @@ Public Class frmKiosk
     Private Sub ClearPosters()
         ClearOnePoster(picTimesPoster)
         ClearOnePoster(picConfirmPoster)
+        ClearOnePoster(picDonePoster)
     End Sub
 
     Private Sub LoadShowingsForFilm()
@@ -1536,6 +1543,8 @@ Public Class frmKiosk
             End If
             seatList = seatList & pickedSeats.Rows(i)("SeatName").ToString()
         Next
+
+        SetPoster(picDonePoster, DonePosterWidth, DonePosterHeight)
 
         lblDoneRef.Text = "Booking " & bookingID
         lblDoneDetail.Text = currentShowingText & vbNewLine &
