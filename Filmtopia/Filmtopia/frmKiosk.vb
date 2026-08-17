@@ -9,6 +9,11 @@ Public Class frmKiosk
     Private Const PosterWidth As Integer = 92
     Private Const PosterHeight As Integer = 142
 
+    Private Const DetailPosterWidth As Integer = 170
+    Private Const DetailPosterHeight As Integer = 263
+
+    Private Const TimesColumnWidth As Integer = 430
+
     Private Const TextLeftWithPoster As Integer = 126
     Private Const TextLeftNoPoster As Integer = 26
 
@@ -156,10 +161,26 @@ Public Class frmKiosk
     End Sub
 
     Private Sub LayoutTimesStep()
-        lblTimesFilm.Top = lblTimesHeading.Bottom + 6
+        Dim columnWidth As Integer = TimesColumnWidth - 60
 
-        pnlTimeList.Top = lblTimesFilm.Bottom + 20
-        pnlTimeList.Width = pnlTimes.Width - 40
+        lblTimesFilm.Left = 36
+        lblTimesFilm.Top = lblTimesHeading.Bottom + 10
+        lblTimesFilm.Width = columnWidth
+
+        picTimesPoster.Left = 36
+        picTimesPoster.Top = lblTimesFilm.Bottom + 12
+
+        lblSubTimesMeta.Left = 36
+        lblSubTimesMeta.Top = picTimesPoster.Bottom + 14
+
+        lblSubTimesSynopsis.Left = 36
+        lblSubTimesSynopsis.Top = lblSubTimesMeta.Bottom + 12
+        lblSubTimesSynopsis.Width = columnWidth
+        lblSubTimesSynopsis.Height = pnlTimes.Height - lblSubTimesSynopsis.Top - 20
+
+        pnlTimeList.Left = TimesColumnWidth
+        pnlTimeList.Top = lblTimesFilm.Top
+        pnlTimeList.Width = pnlTimes.Width - TimesColumnWidth - 30
         pnlTimeList.Height = pnlTimes.Height - pnlTimeList.Top - 20
         ArrangeTimeTiles()
     End Sub
@@ -588,6 +609,7 @@ Public Class frmKiosk
         currentFilmID = CLng(ctrl.Tag)
 
         LoadFilmDetails()
+        ShowFilmDetail()
 
         LoadShowingsForFilm()
         ShowStep(StepTimes)
@@ -624,6 +646,59 @@ Public Class frmKiosk
             rs.Close()
             cn.Close()
         End If
+    End Sub
+
+    Private Function FilmMetaLine() As String
+        Dim meta As String = currentFilmRating
+
+        If currentFilmDuration > 0 Then
+            meta = meta & "   -   " & RunningTime(currentFilmDuration)
+        End If
+
+        If currentFilmYear <> "" Then
+            meta = meta & "   -   " & currentFilmYear
+        End If
+
+        Return meta
+    End Function
+
+    Private Sub ShowFilmDetail()
+        lblTimesFilm.Text = currentFilmTitle
+
+        Dim meta As String = FilmMetaLine()
+
+        If currentFilmGenres <> "" Then
+            meta = meta & vbNewLine & currentFilmGenres
+        End If
+
+        lblSubTimesMeta.Text = meta
+
+        If currentFilmSynopsis = "" Then
+            lblSubTimesSynopsis.Text = "There is no description for this film."
+        Else
+            lblSubTimesSynopsis.Text = currentFilmSynopsis
+        End If
+
+        SetPoster(picTimesPoster, DetailPosterWidth, DetailPosterHeight)
+        LayoutTimesStep()
+    End Sub
+
+    Private Sub SetPoster(pic As PictureBox, posterWidth As Integer, posterHeight As Integer)
+        ClearOnePoster(pic)
+
+        pic.Size = New Size(posterWidth, posterHeight)
+        pic.Image = SmallPicture("Posters", currentFilmPoster, posterWidth, posterHeight)
+    End Sub
+
+    Private Sub ClearOnePoster(pic As PictureBox)
+        If pic.Image IsNot Nothing Then
+            pic.Image.Dispose()
+            pic.Image = Nothing
+        End If
+    End Sub
+
+    Private Sub ClearPosters()
+        ClearOnePoster(picTimesPoster)
     End Sub
 
     Private Sub LoadShowingsForFilm()
@@ -1474,6 +1549,7 @@ Public Class frmKiosk
         SetUpPendingFood()
         ClearPanel(pnlSeatMap)
         ClearFoodTiles()
+        ClearPosters()
         currentSeats = Nothing
 
         ShowStep(StepWelcome)

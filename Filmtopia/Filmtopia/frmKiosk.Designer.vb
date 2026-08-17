@@ -40,6 +40,9 @@ Partial Class frmKiosk
         Me.lblTimesHeading = New System.Windows.Forms.Label()
         Me.lblTimesFilm = New System.Windows.Forms.Label()
         Me.pnlTimeList = New System.Windows.Forms.Panel()
+        Me.picTimesPoster = New System.Windows.Forms.PictureBox()
+        Me.lblSubTimesMeta = New System.Windows.Forms.Label()
+        Me.lblSubTimesSynopsis = New System.Windows.Forms.Label()
         Me.pnlSeats = New System.Windows.Forms.Panel()
         Me.lblSeatsHeading = New System.Windows.Forms.Label()
         Me.lblSeatsShowing = New System.Windows.Forms.Label()
@@ -84,6 +87,7 @@ Partial Class frmKiosk
         Me.pnlConfirm.SuspendLayout()
         Me.pnlDone.SuspendLayout()
         Me.pnlFood.SuspendLayout()
+        CType(Me.picTimesPoster, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'pnlHeader
@@ -276,6 +280,9 @@ Partial Class frmKiosk
         '
         'pnlTimes
         '
+        Me.pnlTimes.Controls.Add(Me.lblSubTimesSynopsis)
+        Me.pnlTimes.Controls.Add(Me.lblSubTimesMeta)
+        Me.pnlTimes.Controls.Add(Me.picTimesPoster)
         Me.pnlTimes.Controls.Add(Me.pnlTimeList)
         Me.pnlTimes.Controls.Add(Me.lblTimesFilm)
         Me.pnlTimes.Controls.Add(Me.lblTimesHeading)
@@ -297,13 +304,40 @@ Partial Class frmKiosk
         '
         'lblTimesFilm
         '
-        Me.lblTimesFilm.AutoSize = True
-        Me.lblTimesFilm.Font = New System.Drawing.Font("Segoe UI", 13.0!)
+        Me.lblTimesFilm.Font = New System.Drawing.Font("Segoe UI", 17.0!, System.Drawing.FontStyle.Bold)
         Me.lblTimesFilm.Location = New System.Drawing.Point(36, 68)
         Me.lblTimesFilm.Name = "lblTimesFilm"
-        Me.lblTimesFilm.Size = New System.Drawing.Size(160, 30)
+        Me.lblTimesFilm.Size = New System.Drawing.Size(370, 76)
         Me.lblTimesFilm.TabIndex = 1
         Me.lblTimesFilm.Text = "Film"
+        '
+        'picTimesPoster
+        '
+        Me.picTimesPoster.Location = New System.Drawing.Point(36, 156)
+        Me.picTimesPoster.Name = "picTimesPoster"
+        Me.picTimesPoster.Size = New System.Drawing.Size(140, 216)
+        Me.picTimesPoster.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Normal
+        Me.picTimesPoster.TabIndex = 3
+        Me.picTimesPoster.TabStop = False
+        '
+        'lblSubTimesMeta
+        '
+        Me.lblSubTimesMeta.AutoSize = True
+        Me.lblSubTimesMeta.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.lblSubTimesMeta.Location = New System.Drawing.Point(36, 386)
+        Me.lblSubTimesMeta.Name = "lblSubTimesMeta"
+        Me.lblSubTimesMeta.Size = New System.Drawing.Size(200, 46)
+        Me.lblSubTimesMeta.TabIndex = 4
+        Me.lblSubTimesMeta.Text = "Rating"
+        '
+        'lblSubTimesSynopsis
+        '
+        Me.lblSubTimesSynopsis.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.lblSubTimesSynopsis.Location = New System.Drawing.Point(36, 444)
+        Me.lblSubTimesSynopsis.Name = "lblSubTimesSynopsis"
+        Me.lblSubTimesSynopsis.Size = New System.Drawing.Size(370, 130)
+        Me.lblSubTimesSynopsis.TabIndex = 5
+        Me.lblSubTimesSynopsis.Text = "Description"
         '
         'pnlTimeList
         '
@@ -697,6 +731,7 @@ Partial Class frmKiosk
         Me.pnlDone.PerformLayout()
         Me.pnlFood.ResumeLayout(False)
         Me.pnlFood.PerformLayout()
+        CType(Me.picTimesPoster, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -724,6 +759,9 @@ Partial Class frmKiosk
     Friend WithEvents lblTimesHeading As Label
     Friend WithEvents lblTimesFilm As Label
     Friend WithEvents pnlTimeList As Panel
+    Friend WithEvents picTimesPoster As PictureBox
+    Friend WithEvents lblSubTimesMeta As Label
+    Friend WithEvents lblSubTimesSynopsis As Label
     Friend WithEvents pnlSeats As Panel
     Friend WithEvents lblSeatsHeading As Label
     Friend WithEvents lblSeatsShowing As Label
