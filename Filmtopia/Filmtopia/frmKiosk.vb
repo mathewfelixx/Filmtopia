@@ -1146,7 +1146,13 @@ Public Class frmKiosk
             If rs.Read() Then
                 currentScreenID = CLng(rs("ScreenID"))
                 currentTicketPrice = CDbl(rs("TicketPrice"))
-                currentShowingText = currentFilmTitle & " at " & rs("ScreeningTime").ToString()
+                Dim shownAs As String = currentFilmTitle
+
+                If currentFilmRating <> "" Then
+                    shownAs = shownAs & " (" & currentFilmRating & ")"
+                End If
+
+                currentShowingText = shownAs & " at " & rs("ScreeningTime").ToString()
             End If
             rs.Close()
             cn.Close()
