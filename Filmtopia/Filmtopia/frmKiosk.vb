@@ -444,7 +444,7 @@ Public Class frmKiosk
             Dim rating As String = dtFilms.Rows(i)("FilmAgeRating").ToString()
             Dim duration As Integer = CInt(dtFilms.Rows(i)("FilmDuration"))
 
-            Dim poster As Image = PosterImage(dtFilms.Rows(i)("FilmPoster").ToString())
+            Dim poster As Image = SmallPicture("Posters", dtFilms.Rows(i)("FilmPoster").ToString(), PosterWidth, PosterHeight)
             Dim textLeft As Integer = TextLeftNoPoster
 
             If poster IsNot Nothing Then
