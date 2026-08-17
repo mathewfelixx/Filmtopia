@@ -40,13 +40,13 @@ Public Class frmLogin
             txtPassword.Text = ""
             txtPassword.Focus()
 
-            If attempts >= 3 Then
+            If attempts >= LoginTriesAllowed Then
                 MessageBox.Show("Too many failed attempts. The application will now close.", "Access Denied", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 WriteLog("AUTH", "User '" & txtUsername.Text & "' failed password authentication.", LogWarning)
                 Application.Exit()
             Else
-                WriteLog("AUTH", "User '" & txtUsername.Text & "' failed login attempt " & attempts & " of 3.", LogWarning)
-                MessageBox.Show("Incorrect password. Attempt " & attempts & " of 3.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                WriteLog("AUTH", "User '" & txtUsername.Text & "' failed login attempt " & attempts & " of " & LoginTriesAllowed & ".", LogWarning)
+                MessageBox.Show("Incorrect password. Attempt " & attempts & " of " & LoginTriesAllowed & ".", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             End If
         End If
     End Sub
