@@ -315,7 +315,7 @@ Public Class frmKiosk
         ElseIf stepName = StepFilms Then
             lblStep.Text = "Step 1 of 5  -  choose a film"
         ElseIf stepName = StepTimes Then
-            lblStep.Text = "Step 2 of 5  -  choose a showing"
+            lblStep.Text = "Step 2 of 5  -  choose a screening"
         ElseIf stepName = StepSeats Then
             lblStep.Text = "Step 3 of 5  -  choose your seats"
         ElseIf stepName = StepFood Then

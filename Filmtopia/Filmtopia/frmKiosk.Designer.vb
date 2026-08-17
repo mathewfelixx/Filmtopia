@@ -304,7 +304,7 @@ Partial Class frmKiosk
         Me.lblTimesHeading.Name = "lblTimesHeading"
         Me.lblTimesHeading.Size = New System.Drawing.Size(240, 37)
         Me.lblTimesHeading.TabIndex = 0
-        Me.lblTimesHeading.Text = "Pick a showing"
+        Me.lblTimesHeading.Text = "Pick a screening"
         '
         'lblTimesFilm
         '
@@ -395,7 +395,7 @@ Partial Class frmKiosk
         Me.lblSeatsShowing.Name = "lblSeatsShowing"
         Me.lblSeatsShowing.Size = New System.Drawing.Size(200, 30)
         Me.lblSeatsShowing.TabIndex = 1
-        Me.lblSeatsShowing.Text = "Showing"
+        Me.lblSeatsShowing.Text = "Screening"
         '
         'lblScreen
         '
