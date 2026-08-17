@@ -185,6 +185,7 @@ Public Class frmScreenings
 
             Dim baseQuery As String = "SELECT tblScreening.ScreeningID, FilmTitle, ScreenName, ScreeningDate, ScreeningTime, TicketPrice, " &
                                       "FilmDuration, ScreenCapacity, tblScreening.FilmID, tblScreening.ScreenID, ScreeningStatus, " &
+                                      "tblScreening.TrailerMinutes, tblScreening.TurnaroundMinutes, " &
                                       "(SELECT COUNT(*) FROM tblBookingSeat AS bs WHERE bs.ScreeningID = tblScreening.ScreeningID) AS SeatsBooked " &
                                       "FROM (tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID) " &
                                       "INNER JOIN tblScreen ON tblScreening.ScreenID = tblScreen.ScreenID"
@@ -265,7 +266,8 @@ Public Class frmScreenings
                 row("PercentFull") = 0
             End If
 
-            row("EndsAt") = EndTimeText(row("ScreeningTime").ToString(), CInt(row("FilmDuration")))
+            row("EndsAt") = EndTimeText(row("ScreeningTime").ToString(), CInt(row("FilmDuration")),
+                                        StoredMinutesOr(row("TrailerMinutes"), TrailerMinutes))
         Next
 
         dgvScreenings.DataSource = dt
@@ -461,6 +463,7 @@ Public Class frmScreenings
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, FilmTitle, ScreeningTime, FilmDuration, ScreeningStatus, " &
+                                 "tblScreening.TrailerMinutes, tblScreening.TurnaroundMinutes, " &
                                  "(SELECT COUNT(*) FROM tblBookingSeat AS bs WHERE bs.ScreeningID = tblScreening.ScreeningID) AS SeatsBooked " &
                                  "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
                                  "WHERE ScreeningDate = @ScreeningDate AND tblScreening.ScreenID = @ScreenID " &
@@ -482,7 +485,8 @@ Public Class frmScreenings
                     duration = CInt(row("FilmDuration"))
                 End If
 
-                row("EndsAt") = EndTimeText(row("ScreeningTime").ToString(), duration)
+                row("EndsAt") = EndTimeText(row("ScreeningTime").ToString(), duration,
+                                            StoredMinutesOr(row("TrailerMinutes"), TrailerMinutes))
                 row("SoldText") = row("SeatsBooked").ToString()
             Next
 
@@ -603,14 +607,26 @@ Public Class frmScreenings
         Return TrailerMinutes + duration + TurnaroundMinutes
     End Function
 
-    Private Function EndTimeText(startTime As String, duration As Integer) As String
+    Private Function ScreenTimeUsedBy(duration As Integer, trailerMins As Integer, turnaroundMins As Integer) As Integer
+        Return trailerMins + duration + turnaroundMins
+    End Function
+
+    Private Function StoredMinutesOr(value As Object, fallback As Integer) As Integer
+        If IsDBNull(value) Then
+            Return fallback
+        End If
+
+        Return CInt(value)
+    End Function
+
+    Private Function EndTimeText(startTime As String, duration As Integer, trailerMins As Integer) As String
         Dim startMinutes As Integer = TimeAsMinutes(startTime)
 
         If startMinutes < 0 Then
             Return ""
         End If
 
-        Return MinutesAsTime(startMinutes + TrailerMinutes + duration)
+        Return MinutesAsTime(startMinutes + trailerMins + duration)
     End Function
 
     Private Function IsValidScreeningTime(timeText As String) As Boolean
@@ -712,7 +728,8 @@ Public Class frmScreenings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, FilmTitle, ScreeningTime, FilmDuration " &
+            SQLCmd.CommandText = "SELECT tblScreening.ScreeningID, FilmTitle, ScreeningTime, FilmDuration, " &
+                                 "tblScreening.TrailerMinutes, tblScreening.TurnaroundMinutes " &
                                  "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
                                  "WHERE tblScreening.ScreenID = @ScreenID AND ScreeningDate = @ScreeningDate " &
                                  "AND (ScreeningStatus IS NULL OR ScreeningStatus <> 'Cancelled')"
@@ -733,7 +750,9 @@ Public Class frmScreenings
 
                     If thisStart >= 0 Then
                         starts(howMany) = thisStart
-                        finishes(howMany) = thisStart + ScreenTimeNeeded(CInt(row("FilmDuration")))
+                        finishes(howMany) = thisStart + ScreenTimeUsedBy(CInt(row("FilmDuration")),
+                                                                        StoredMinutesOr(row("TrailerMinutes"), TrailerMinutes),
+                                                                        StoredMinutesOr(row("TurnaroundMinutes"), TurnaroundMinutes))
                         titles(howMany) = row("FilmTitle").ToString()
                         howMany = howMany + 1
                     End If
@@ -970,13 +989,15 @@ Public Class frmScreenings
     Private Sub InsertScreening(SQLCmd As OleDbCommand, filmID As Integer, screenID As Integer,
                                 theDate As Date, timeText As String, price As Double)
         SQLCmd.Parameters.Clear()
-        SQLCmd.CommandText = "INSERT INTO tblScreening (FilmID, ScreenID, ScreeningDate, ScreeningTime, TicketPrice) " &
-                             "VALUES (@FilmID, @ScreenID, @ScreeningDate, @ScreeningTime, @TicketPrice)"
+        SQLCmd.CommandText = "INSERT INTO tblScreening (FilmID, ScreenID, ScreeningDate, ScreeningTime, TicketPrice, TrailerMinutes, TurnaroundMinutes) " &
+                             "VALUES (@FilmID, @ScreenID, @ScreeningDate, @ScreeningTime, @TicketPrice, @TrailerMinutes, @TurnaroundMinutes)"
         SQLCmd.Parameters.AddWithValue("@FilmID", filmID)
         SQLCmd.Parameters.AddWithValue("@ScreenID", screenID)
         SQLCmd.Parameters.AddWithValue("@ScreeningDate", theDate)
         SQLCmd.Parameters.AddWithValue("@ScreeningTime", timeText)
         SQLCmd.Parameters.AddWithValue("@TicketPrice", price)
+        SQLCmd.Parameters.AddWithValue("@TrailerMinutes", TrailerMinutes)
+        SQLCmd.Parameters.AddWithValue("@TurnaroundMinutes", TurnaroundMinutes)
         SQLCmd.ExecuteNonQuery()
     End Sub
 
@@ -1378,13 +1399,15 @@ Public Class frmScreenings
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "INSERT INTO tblScreening (FilmID, ScreenID, ScreeningDate, ScreeningTime, TicketPrice) " &
-                                 "VALUES (@FilmID, @ScreenID, @ScreeningDate, @ScreeningTime, @TicketPrice)"
+            SQLCmd.CommandText = "INSERT INTO tblScreening (FilmID, ScreenID, ScreeningDate, ScreeningTime, TicketPrice, TrailerMinutes, TurnaroundMinutes) " &
+                                 "VALUES (@FilmID, @ScreenID, @ScreeningDate, @ScreeningTime, @TicketPrice, @TrailerMinutes, @TurnaroundMinutes)"
             SQLCmd.Parameters.AddWithValue("@FilmID", CInt(cboFilm.SelectedValue))
             SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(cboScreen.SelectedValue))
             SQLCmd.Parameters.AddWithValue("@ScreeningDate", dtpScreeningDate.Value.Date)
             SQLCmd.Parameters.AddWithValue("@ScreeningTime", txtScreeningTime.Text)
             SQLCmd.Parameters.AddWithValue("@TicketPrice", PriceFromBox())
+            SQLCmd.Parameters.AddWithValue("@TrailerMinutes", TrailerMinutes)
+            SQLCmd.Parameters.AddWithValue("@TurnaroundMinutes", TurnaroundMinutes)
             SQLCmd.ExecuteNonQuery()
             cn.Close()
             saved = True
@@ -1440,13 +1463,16 @@ Public Class frmScreenings
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "UPDATE tblScreening " &
-                                 "SET FilmID = @FilmID, ScreenID = @ScreenID, ScreeningDate = @ScreeningDate, ScreeningTime = @ScreeningTime, TicketPrice = @TicketPrice " &
+                                 "SET FilmID = @FilmID, ScreenID = @ScreenID, ScreeningDate = @ScreeningDate, ScreeningTime = @ScreeningTime, TicketPrice = @TicketPrice, " &
+                                 "TrailerMinutes = @TrailerMinutes, TurnaroundMinutes = @TurnaroundMinutes " &
                                  "WHERE ScreeningID = @ScreeningID"
             SQLCmd.Parameters.AddWithValue("@FilmID", CInt(cboFilm.SelectedValue))
             SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(cboScreen.SelectedValue))
             SQLCmd.Parameters.AddWithValue("@ScreeningDate", dtpScreeningDate.Value.Date)
             SQLCmd.Parameters.AddWithValue("@ScreeningTime", txtScreeningTime.Text)
             SQLCmd.Parameters.AddWithValue("@TicketPrice", PriceFromBox())
+            SQLCmd.Parameters.AddWithValue("@TrailerMinutes", TrailerMinutes)
+            SQLCmd.Parameters.AddWithValue("@TurnaroundMinutes", TurnaroundMinutes)
             SQLCmd.Parameters.AddWithValue("@ScreeningID", selectedScreeningID)
             SQLCmd.ExecuteNonQuery()
             cn.Close()
