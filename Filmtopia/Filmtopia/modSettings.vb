@@ -9,6 +9,7 @@ Module modSettings
     Public TurnaroundMinutes As Integer = 15
     Public FirstShowMinutes As Integer = 10 * 60
     Public LastShowMinutes As Integer = 23 * 60
+    Public RoundToMinutes As Integer = 15
 
     Public DefaultTicketPrice As Double = 7.5
 
@@ -362,6 +363,7 @@ Module modSettings
         TurnaroundMinutes = 15
         FirstShowMinutes = 10 * 60
         LastShowMinutes = 23 * 60
+        RoundToMinutes = 15
         DefaultTicketPrice = 7.5
         MaxSeatsPerSale = 8
         IdleSecondsAllowed = 90
@@ -418,6 +420,20 @@ Module modSettings
         Return Format(wrapped \ 60, "00") & ":" & Format(wrapped Mod 60, "00")
     End Function
 
+    Public Function RoundedUpTo(minutes As Integer, roundTo As Integer) As Integer
+        If roundTo <= 1 Then
+            Return minutes
+        End If
+
+        Dim past As Integer = minutes Mod roundTo
+
+        If past = 0 Then
+            Return minutes
+        End If
+
+        Return minutes + (roundTo - past)
+    End Function
+
     Private Function WholeNumberOr(settingValue As String, fallback As Integer) As Integer
         If Not IsNumeric(settingValue) Then
             Return fallback
@@ -449,6 +465,10 @@ Module modSettings
 
         If settingName.ToUpper() = "LASTSHOWTIME" Then
             LastShowMinutes = TimeTextAsMinutes(settingValue, 23 * 60)
+        End If
+
+        If settingName.ToUpper() = "ROUNDTOMINUTES" Then
+            RoundToMinutes = WholeNumberOr(settingValue, 15)
         End If
 
         If settingName.ToUpper() = "DEFAULTTICKETPRICE" Then
