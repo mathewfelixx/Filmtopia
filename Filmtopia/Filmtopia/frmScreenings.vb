@@ -784,10 +784,10 @@ Public Class frmScreenings
 
     Private Function FirstFitFrom(after As Integer, needed As Integer, starts() As Integer,
                                   finishes() As Integer, howMany As Integer) As Integer
-        Dim earliest As Integer = after
+        Dim earliest As Integer = RoundedUpTo(after, RoundToMinutes)
 
         If earliest < FirstShowMinutes Then
-            earliest = FirstShowMinutes
+            earliest = RoundedUpTo(FirstShowMinutes, RoundToMinutes)
         End If
 
         For i As Integer = 0 To howMany - 1
@@ -796,7 +796,7 @@ Public Class frmScreenings
             End If
 
             If finishes(i) > earliest Then
-                earliest = finishes(i)
+                earliest = RoundedUpTo(finishes(i), RoundToMinutes)
             End If
         Next
 
