@@ -31,6 +31,7 @@ Public Class frmSettings
         txtTurnaroundMinutes.Text = TurnaroundMinutes.ToString()
         txtFirstShow.Text = MinutesAsTimeText(FirstShowMinutes)
         txtLastShow.Text = MinutesAsTimeText(LastShowMinutes)
+        txtRoundToMinutes.Text = RoundToMinutes.ToString()
     End Sub
 
     Private Function NumberTypedIn(box As TextBox, caption As String, unit As String, lowest As Integer, highest As Integer, ByRef value As Integer) As Boolean
@@ -56,12 +57,25 @@ Public Class frmSettings
     Private Sub btnSaveTimes_Click(sender As Object, e As EventArgs) Handles btnSaveTimes.Click
         Dim newTrailer As Integer = 0
         Dim newTurnaround As Integer = 0
+        Dim newRoundTo As Integer = 0
 
         If Not NumberTypedIn(txtTrailerMinutes, "The adverts and trailers", "minutes", 0, 120, newTrailer) Then
             Exit Sub
         End If
 
         If Not NumberTypedIn(txtTurnaroundMinutes, "The clearing up time", "minutes", 0, 120, newTurnaround) Then
+            Exit Sub
+        End If
+
+        If Not NumberTypedIn(txtRoundToMinutes, "Rounding the start times", "minutes", 1, 60, newRoundTo) Then
+            Exit Sub
+        End If
+
+        If 60 Mod newRoundTo <> 0 Then
+            MessageBox.Show("Round start times to a number of minutes that divides into an hour, like 5, 10, 15 or 30." & vbCrLf & vbCrLf &
+                            "Anything else and the times drift through the hour instead of looking tidy.",
+                            "Cinema Settings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtRoundToMinutes.Focus()
             Exit Sub
         End If
 
@@ -90,13 +104,15 @@ Public Class frmSettings
         SaveSystemSetting("TurnaroundMinutes", newTurnaround.ToString())
         SaveSystemSetting("FirstShowTime", firstTyped)
         SaveSystemSetting("LastShowTime", lastTyped)
+        SaveSystemSetting("RoundToMinutes", newRoundTo.ToString())
 
         LoadSystemSettings()
         ShowScreeningTimes()
 
         WriteLog("SETTINGS", "Screening times changed to " & newTrailer & " minutes of adverts, " &
                              newTurnaround & " minutes clearing up, showing between " &
-                             firstTyped & " and " & lastTyped, LogChange)
+                             firstTyped & " and " & lastTyped & ", start times rounded up to " &
+                             newRoundTo & " minutes", LogChange)
 
         MessageBox.Show("Screening times saved.", "Cinema Settings", MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
@@ -333,6 +349,7 @@ Public Class frmSettings
             txtTurnaroundMinutes.ReadOnly = True
             txtFirstShow.ReadOnly = True
             txtLastShow.ReadOnly = True
+            txtRoundToMinutes.ReadOnly = True
             btnSaveTimes.Enabled = False
             lblTimesHelp.Text = "Only a manager can change the screening times."
 

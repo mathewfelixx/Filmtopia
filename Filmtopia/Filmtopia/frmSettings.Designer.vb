@@ -38,6 +38,9 @@ Partial Class frmSettings
         Me.lblLastShow = New System.Windows.Forms.Label()
         Me.txtLastShow = New System.Windows.Forms.TextBox()
         Me.lblLastShowUnit = New System.Windows.Forms.Label()
+        Me.lblRoundTo = New System.Windows.Forms.Label()
+        Me.txtRoundToMinutes = New System.Windows.Forms.TextBox()
+        Me.lblRoundToUnit = New System.Windows.Forms.Label()
         Me.lblTimesHelp = New System.Windows.Forms.Label()
         Me.btnSaveTimes = New System.Windows.Forms.Button()
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
@@ -186,11 +189,14 @@ Partial Class frmSettings
         Me.GroupBox2.Controls.Add(Me.lblLastShow)
         Me.GroupBox2.Controls.Add(Me.txtLastShow)
         Me.GroupBox2.Controls.Add(Me.lblLastShowUnit)
+        Me.GroupBox2.Controls.Add(Me.lblRoundTo)
+        Me.GroupBox2.Controls.Add(Me.txtRoundToMinutes)
+        Me.GroupBox2.Controls.Add(Me.lblRoundToUnit)
         Me.GroupBox2.Controls.Add(Me.lblTimesHelp)
         Me.GroupBox2.Controls.Add(Me.btnSaveTimes)
         Me.GroupBox2.Location = New System.Drawing.Point(16, 45)
         Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(516, 200)
+        Me.GroupBox2.Size = New System.Drawing.Size(516, 230)
         Me.GroupBox2.TabIndex = 6
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Screening Times"
@@ -299,21 +305,47 @@ Partial Class frmSettings
         Me.lblLastShowUnit.TabIndex = 11
         Me.lblLastShowUnit.Text = "(HH:MM)"
         '
+        'lblRoundTo
+        '
+        Me.lblRoundTo.AutoSize = True
+        Me.lblRoundTo.Location = New System.Drawing.Point(12, 151)
+        Me.lblRoundTo.Name = "lblRoundTo"
+        Me.lblRoundTo.Size = New System.Drawing.Size(168, 13)
+        Me.lblRoundTo.TabIndex = 12
+        Me.lblRoundTo.Text = "Round start times up to the next"
+        '
+        'txtRoundToMinutes
+        '
+        Me.txtRoundToMinutes.Location = New System.Drawing.Point(230, 148)
+        Me.txtRoundToMinutes.MaxLength = 2
+        Me.txtRoundToMinutes.Name = "txtRoundToMinutes"
+        Me.txtRoundToMinutes.Size = New System.Drawing.Size(60, 20)
+        Me.txtRoundToMinutes.TabIndex = 13
+        '
+        'lblRoundToUnit
+        '
+        Me.lblRoundToUnit.AutoSize = True
+        Me.lblRoundToUnit.Location = New System.Drawing.Point(296, 151)
+        Me.lblRoundToUnit.Name = "lblRoundToUnit"
+        Me.lblRoundToUnit.Size = New System.Drawing.Size(44, 13)
+        Me.lblRoundToUnit.TabIndex = 14
+        Me.lblRoundToUnit.Text = "minutes"
+        '
         'lblTimesHelp
         '
         Me.lblTimesHelp.AutoSize = True
-        Me.lblTimesHelp.Location = New System.Drawing.Point(12, 168)
+        Me.lblTimesHelp.Location = New System.Drawing.Point(12, 198)
         Me.lblTimesHelp.Name = "lblTimesHelp"
         Me.lblTimesHelp.Size = New System.Drawing.Size(330, 13)
-        Me.lblTimesHelp.TabIndex = 12
+        Me.lblTimesHelp.TabIndex = 15
         Me.lblTimesHelp.Text = "These apply to new screenings. Ones already made keep their own."
         '
         'btnSaveTimes
         '
-        Me.btnSaveTimes.Location = New System.Drawing.Point(392, 162)
+        Me.btnSaveTimes.Location = New System.Drawing.Point(392, 192)
         Me.btnSaveTimes.Name = "btnSaveTimes"
         Me.btnSaveTimes.Size = New System.Drawing.Size(108, 26)
-        Me.btnSaveTimes.TabIndex = 13
+        Me.btnSaveTimes.TabIndex = 16
         Me.btnSaveTimes.Text = "Save times"
         Me.btnSaveTimes.UseVisualStyleBackColor = True
         '
@@ -324,7 +356,7 @@ Partial Class frmSettings
         Me.GroupBox3.Controls.Add(Me.lblDefaultPriceUnit)
         Me.GroupBox3.Controls.Add(Me.lblSellingHelp)
         Me.GroupBox3.Controls.Add(Me.btnSaveSelling)
-        Me.GroupBox3.Location = New System.Drawing.Point(16, 257)
+        Me.GroupBox3.Location = New System.Drawing.Point(16, 287)
         Me.GroupBox3.Name = "GroupBox3"
         Me.GroupBox3.Size = New System.Drawing.Size(516, 95)
         Me.GroupBox3.TabIndex = 7
@@ -501,7 +533,7 @@ Partial Class frmSettings
         Me.GroupBox5.Controls.Add(Me.lblMinPasswordUnit)
         Me.GroupBox5.Controls.Add(Me.lblSecurityHelp)
         Me.GroupBox5.Controls.Add(Me.btnSaveSecurity)
-        Me.GroupBox5.Location = New System.Drawing.Point(16, 364)
+        Me.GroupBox5.Location = New System.Drawing.Point(16, 394)
         Me.GroupBox5.Name = "GroupBox5"
         Me.GroupBox5.Size = New System.Drawing.Size(516, 120)
         Me.GroupBox5.TabIndex = 9
@@ -724,6 +756,9 @@ Partial Class frmSettings
     Friend WithEvents lblLastShow As Label
     Friend WithEvents txtLastShow As TextBox
     Friend WithEvents lblLastShowUnit As Label
+    Friend WithEvents lblRoundTo As Label
+    Friend WithEvents txtRoundToMinutes As TextBox
+    Friend WithEvents lblRoundToUnit As Label
     Friend WithEvents lblTimesHelp As Label
     Friend WithEvents btnSaveTimes As Button
     Friend WithEvents GroupBox3 As GroupBox
