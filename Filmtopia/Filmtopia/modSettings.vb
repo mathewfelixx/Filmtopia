@@ -542,6 +542,34 @@ Module modSettings
         End If
     End Sub
 
+    Public Function PasswordIsCorrect(Username As String, Password As String) As Boolean
+        Dim correct As Boolean = False
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT Password " &
+                                 "FROM tblLogin " &
+                                 "WHERE Username = @Username"
+            SQLCmd.Parameters.AddWithValue("@Username", Username)
+
+            Dim storedPW As String = ""
+            Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+            If rs.Read() Then
+                storedPW = Decrypt(rs("Password"))
+            End If
+            rs.Close()
+
+            If storedPW <> "" And storedPW = Password Then
+                correct = True
+            End If
+
+            cn.Close()
+        End If
+
+        Return correct
+    End Function
+
     Public Function ChangePassword(Username As String, OldPassword As String, NewPassword As String) As Boolean
         Dim changed As Boolean = False
         Dim wrongPassword As Boolean = False

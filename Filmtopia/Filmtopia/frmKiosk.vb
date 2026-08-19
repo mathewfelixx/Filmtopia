@@ -46,6 +46,8 @@ Public Class frmKiosk
 
     Private Const DaysAhead As Integer = 7
 
+    Private Const ExitPromptWidth As Integer = 560
+
     Private Const StepWelcome As String = "WELCOME"
     Private Const StepFilms As String = "FILMS"
     Private Const StepTimes As String = "TIMES"
@@ -117,6 +119,7 @@ Public Class frmKiosk
         LayoutFoodStep()
         LayoutConfirmStep()
         LayoutDoneStep()
+        LayoutExitPrompt()
     End Sub
 
     Private Sub LayoutHeader()
@@ -1553,6 +1556,8 @@ Public Class frmKiosk
     End Sub
 
     Private Sub StartAgain()
+        HideExitPrompt()
+
         currentDay = Date.Today
         currentFilmID = 0
         currentFilmTitle = ""
@@ -1629,13 +1634,81 @@ Public Class frmKiosk
         End If
     End Sub
 
-    Private Sub btnExitKiosk_Click(sender As Object, e As EventArgs) Handles btnExitKiosk.Click
-        Dim answer As DialogResult = MessageBox.Show("Close the kiosk and go back to the main menu?",
-                                                     "Staff Exit", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+    Private Sub LayoutExitPrompt()
+        pnlExit.Width = ExitPromptWidth
 
-        If answer = DialogResult.Yes Then
-            WriteLog("KIOSK", "Kiosk closed by staff")
+        lblExitHeading.Left = 30
+        lblExitHeading.Top = 26
+
+        lblExitHelp.Left = 30
+        lblExitHelp.Top = lblExitHeading.Bottom + 12
+        lblExitHelp.Width = pnlExit.Width - 60
+
+        txtExitPassword.Left = 30
+        txtExitPassword.Top = lblExitHelp.Bottom + 14
+        txtExitPassword.Width = pnlExit.Width - 60
+
+        btnExitConfirm.Left = pnlExit.Width - btnExitConfirm.Width - 30
+        btnExitConfirm.Top = txtExitPassword.Bottom + 24
+        btnExitCancel.Left = btnExitConfirm.Left - btnExitCancel.Width - 12
+        btnExitCancel.Top = btnExitConfirm.Top
+
+        pnlExit.Height = btnExitConfirm.Bottom + 26
+
+        pnlExit.Left = (Me.ClientSize.Width - pnlExit.Width) \ 2
+        pnlExit.Top = (Me.ClientSize.Height - pnlExit.Height) \ 2
+    End Sub
+
+    Private Sub ShowExitPrompt()
+        txtExitPassword.Text = ""
+        LayoutExitPrompt()
+        pnlExit.Visible = True
+        pnlExit.BringToFront()
+        txtExitPassword.Focus()
+    End Sub
+
+    Private Sub HideExitPrompt()
+        txtExitPassword.Text = ""
+        pnlExit.Visible = False
+    End Sub
+
+    Private Sub btnExitKiosk_Click(sender As Object, e As EventArgs) Handles btnExitKiosk.Click
+        Touched()
+        ShowExitPrompt()
+    End Sub
+
+    Private Sub btnExitCancel_Click(sender As Object, e As EventArgs) Handles btnExitCancel.Click
+        Touched()
+        HideExitPrompt()
+    End Sub
+
+    Private Sub txtExitPassword_KeyDown(sender As Object, e As KeyEventArgs) Handles txtExitPassword.KeyDown
+        Touched()
+
+        If e.KeyCode = Keys.Enter Then
+            e.SuppressKeyPress = True
+            btnExitConfirm.PerformClick()
+        End If
+    End Sub
+
+    Private Sub btnExitConfirm_Click(sender As Object, e As EventArgs) Handles btnExitConfirm.Click
+        Touched()
+
+        If txtExitPassword.Text = "" Then
+            MessageBox.Show("Please enter your password.", "Staff Exit", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtExitPassword.Focus()
+            Exit Sub
+        End If
+
+        If PasswordIsCorrect(frmLogin.globalusername, txtExitPassword.Text) Then
+            HideExitPrompt()
+            WriteLog("KIOSK", "Kiosk closed by staff", LogSecurity)
             Me.Close()
+        Else
+            txtExitPassword.Text = ""
+            txtExitPassword.Focus()
+            WriteLog("KIOSK", "Wrong password entered trying to leave kiosk mode", LogWarning)
+            MessageBox.Show("That password is not correct.", "Staff Exit", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         End If
     End Sub
 

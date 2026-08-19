@@ -80,6 +80,12 @@ Partial Class frmKiosk
         Me.lblFoodSub = New System.Windows.Forms.Label()
         Me.pnlFoodList = New System.Windows.Forms.Panel()
         Me.lblFoodOrder = New System.Windows.Forms.Label()
+        Me.pnlExit = New System.Windows.Forms.Panel()
+        Me.lblExitHeading = New System.Windows.Forms.Label()
+        Me.lblExitHelp = New System.Windows.Forms.Label()
+        Me.txtExitPassword = New System.Windows.Forms.TextBox()
+        Me.btnExitConfirm = New System.Windows.Forms.Button()
+        Me.btnExitCancel = New System.Windows.Forms.Button()
         Me.pnlHeader.SuspendLayout()
         Me.pnlFooter.SuspendLayout()
         Me.pnlWelcome.SuspendLayout()
@@ -89,6 +95,7 @@ Partial Class frmKiosk
         Me.pnlConfirm.SuspendLayout()
         Me.pnlDone.SuspendLayout()
         Me.pnlFood.SuspendLayout()
+        Me.pnlExit.SuspendLayout()
         CType(Me.picTimesPoster, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.picConfirmPoster, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.picDonePoster, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -718,11 +725,74 @@ Partial Class frmKiosk
         Me.lblFoodOrder.TabIndex = 3
         Me.lblFoodOrder.Text = "Nothing added yet"
         '
+        'pnlExit
+        '
+        Me.pnlExit.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.pnlExit.Controls.Add(Me.btnExitCancel)
+        Me.pnlExit.Controls.Add(Me.btnExitConfirm)
+        Me.pnlExit.Controls.Add(Me.txtExitPassword)
+        Me.pnlExit.Controls.Add(Me.lblExitHelp)
+        Me.pnlExit.Controls.Add(Me.lblExitHeading)
+        Me.pnlExit.Location = New System.Drawing.Point(360, 240)
+        Me.pnlExit.Name = "pnlExit"
+        Me.pnlExit.Size = New System.Drawing.Size(560, 320)
+        Me.pnlExit.TabIndex = 10
+        Me.pnlExit.Visible = False
+        '
+        'lblExitHeading
+        '
+        Me.lblExitHeading.AutoSize = True
+        Me.lblExitHeading.Font = New System.Drawing.Font("Segoe UI", 16.0!, System.Drawing.FontStyle.Bold)
+        Me.lblExitHeading.Location = New System.Drawing.Point(30, 26)
+        Me.lblExitHeading.Name = "lblExitHeading"
+        Me.lblExitHeading.Size = New System.Drawing.Size(180, 30)
+        Me.lblExitHeading.TabIndex = 0
+        Me.lblExitHeading.Text = "Staff exit"
+        '
+        'lblExitHelp
+        '
+        Me.lblExitHelp.Font = New System.Drawing.Font("Segoe UI", 11.0!)
+        Me.lblExitHelp.Location = New System.Drawing.Point(30, 70)
+        Me.lblExitHelp.Name = "lblExitHelp"
+        Me.lblExitHelp.Size = New System.Drawing.Size(500, 60)
+        Me.lblExitHelp.TabIndex = 1
+        Me.lblExitHelp.Text = "Enter your password to close the kiosk and go back to the main menu."
+        '
+        'txtExitPassword
+        '
+        Me.txtExitPassword.Font = New System.Drawing.Font("Segoe UI", 14.0!)
+        Me.txtExitPassword.Location = New System.Drawing.Point(30, 146)
+        Me.txtExitPassword.Name = "txtExitPassword"
+        Me.txtExitPassword.Size = New System.Drawing.Size(500, 32)
+        Me.txtExitPassword.TabIndex = 2
+        Me.txtExitPassword.UseSystemPasswordChar = True
+        '
+        'btnExitConfirm
+        '
+        Me.btnExitConfirm.Font = New System.Drawing.Font("Segoe UI", 11.0!)
+        Me.btnExitConfirm.Location = New System.Drawing.Point(380, 212)
+        Me.btnExitConfirm.Name = "btnExitConfirm"
+        Me.btnExitConfirm.Size = New System.Drawing.Size(150, 46)
+        Me.btnExitConfirm.TabIndex = 3
+        Me.btnExitConfirm.Text = "Close kiosk"
+        Me.btnExitConfirm.UseVisualStyleBackColor = True
+        '
+        'btnExitCancel
+        '
+        Me.btnExitCancel.Font = New System.Drawing.Font("Segoe UI", 11.0!)
+        Me.btnExitCancel.Location = New System.Drawing.Point(218, 212)
+        Me.btnExitCancel.Name = "btnExitCancel"
+        Me.btnExitCancel.Size = New System.Drawing.Size(150, 46)
+        Me.btnExitCancel.TabIndex = 4
+        Me.btnExitCancel.Text = "Cancel"
+        Me.btnExitCancel.UseVisualStyleBackColor = True
+        '
         'frmKiosk
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1280, 800)
+        Me.Controls.Add(Me.pnlExit)
         Me.Controls.Add(Me.pnlFood)
         Me.Controls.Add(Me.pnlDone)
         Me.Controls.Add(Me.pnlConfirm)
@@ -755,6 +825,8 @@ Partial Class frmKiosk
         Me.pnlDone.PerformLayout()
         Me.pnlFood.ResumeLayout(False)
         Me.pnlFood.PerformLayout()
+        Me.pnlExit.ResumeLayout(False)
+        Me.pnlExit.PerformLayout()
         CType(Me.picTimesPoster, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.picConfirmPoster, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.picDonePoster, System.ComponentModel.ISupportInitialize).EndInit()
@@ -825,4 +897,10 @@ Partial Class frmKiosk
     Friend WithEvents lblFoodSub As Label
     Friend WithEvents pnlFoodList As Panel
     Friend WithEvents lblFoodOrder As Label
+    Friend WithEvents pnlExit As Panel
+    Friend WithEvents lblExitHeading As Label
+    Friend WithEvents lblExitHelp As Label
+    Friend WithEvents txtExitPassword As TextBox
+    Friend WithEvents btnExitConfirm As Button
+    Friend WithEvents btnExitCancel As Button
 End Class
