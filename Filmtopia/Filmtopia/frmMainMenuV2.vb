@@ -226,11 +226,11 @@ Public Class frmMainMenuV2
 
     Private Sub SetCardCursors()
         lblWelcome.Cursor = Cursors.Hand
-        HandCard(pnlCard2, lblCardTitle2, lblStat2, lblCardSub2)
         HandCard(pnlCard3, lblCardTitle3, lblStat3, lblCardSub3)
 
         If UserAccessLevel = 1 Then
             HandCard(pnlCard1, lblCardTitle1, lblStat1, lblCardSub1)
+            HandCard(pnlCard2, lblCardTitle2, lblStat2, lblCardSub2)
             HandCard(pnlCard4, lblCardTitle4, lblStat4, lblCardSub4)
         End If
     End Sub
@@ -291,12 +291,13 @@ Public Class frmMainMenuV2
         tips.InitialDelay = 500
 
         TipCard(tips, pnlCard1, lblCardTitle1, lblStat1, lblCardSub1, "How many films are on the system. Click to manage them.")
-        TipCard(tips, pnlCard2, lblCardTitle2, lblStat2, lblCardSub2, "How many screenings are scheduled. Click to manage them.")
 
         If UserAccessLevel = 1 Then
+            TipCard(tips, pnlCard2, lblCardTitle2, lblStat2, lblCardSub2, "How many screenings are scheduled. Click to manage them.")
             TipCard(tips, pnlCard3, lblCardTitle3, lblStat3, lblCardSub3, "How many bookings have been made. Click to make one.")
             TipCard(tips, pnlCard4, lblCardTitle4, lblStat4, lblCardSub4, "Everything taken, split into tickets and concessions. Click for the sales report.")
         Else
+            TipCard(tips, pnlCard2, lblCardTitle2, lblStat2, lblCardSub2, "How many screenings are scheduled today.")
             TipCard(tips, pnlCard3, lblCardTitle3, lblStat3, lblCardSub3, "How many seats have been sold. Click to make a booking.")
             TipCard(tips, pnlCard4, lblCardTitle4, lblStat4, lblCardSub4, "How many food and drink items have been sold.")
         End If
@@ -893,6 +894,7 @@ Public Class frmMainMenuV2
             lblCardTitle4.Text = "Money taken"
 
             btnFilms.Visible = True
+            btnScreenings.Visible = True
             btnScreens.Visible = True
             btnFood.Visible = True
             btnReports.Visible = True
@@ -906,6 +908,7 @@ Public Class frmMainMenuV2
             lblCardTitle4.Text = "Snacks sold"
 
             btnFilms.Visible = False
+            btnScreenings.Visible = False
             btnScreens.Visible = False
             btnFood.Visible = False
             btnReports.Visible = False

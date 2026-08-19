@@ -15,6 +15,13 @@ Public Class frmScreenings
     Private rowBoldFont As New Font("Segoe UI", 9, FontStyle.Bold)
 
     Private Sub frmScreenings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        If UserAccessLevel <> 1 Then
+            MessageBox.Show("Only a manager can open the screenings screen.", "Screenings", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            WriteLog("SCREENING", "Screenings screen refused, access level " & UserAccessLevel, LogSecurity)
+            Me.Close()
+            Exit Sub
+        End If
+
         CommonFormStartup(Me)
 
         LoadFilmsCombo()
