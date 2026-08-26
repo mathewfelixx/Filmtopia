@@ -48,6 +48,8 @@ Public Class frmKiosk
 
     Private Const ExitPromptWidth As Integer = 560
 
+    Private Const WelcomeButtonGap As Integer = 40
+
     Private Const StepWelcome As String = "WELCOME"
     Private Const StepFilms As String = "FILMS"
     Private Const StepTimes As String = "TIMES"
@@ -57,6 +59,8 @@ Public Class frmKiosk
     Private Const StepDone As String = "DONE"
 
     Private currentStep As String = StepWelcome
+
+    Private foodOnly As Boolean = False
 
     Private secondsIdle As Integer = 0
 
@@ -219,8 +223,14 @@ Public Class frmKiosk
         picDonePoster.Left = (pnlDone.Width - picDonePoster.Width) \ 2
         picDonePoster.Top = (pnlDone.Height \ 2) - 250
 
+        Dim headingTop As Integer = picDonePoster.Bottom + 20
+
+        If foodOnly Then
+            headingTop = (pnlDone.Height \ 2) - 180
+        End If
+
         lblDoneHeading.Left = (pnlDone.Width - lblDoneHeading.Width) \ 2
-        lblDoneHeading.Top = picDonePoster.Bottom + 20
+        lblDoneHeading.Top = headingTop
 
         lblDoneRef.Left = (pnlDone.Width - lblDoneRef.Width) \ 2
         lblDoneRef.Top = lblDoneHeading.Bottom + 24
@@ -290,9 +300,14 @@ Public Class frmKiosk
         lblWelcomeSub.Left = (pnlWelcome.Width - lblWelcomeSub.Width) \ 2
         lblWelcomeSub.Top = lblWelcomeTitle.Bottom + 16
 
-        btnStart.Size = New Size(460, 140)
-        btnStart.Left = (pnlWelcome.Width - btnStart.Width) \ 2
+        btnStart.Size = New Size(420, 150)
+        btnStartFood.Size = New Size(420, 150)
+
+        btnStart.Left = (pnlWelcome.Width \ 2) - btnStart.Width - (WelcomeButtonGap \ 2)
         btnStart.Top = lblWelcomeSub.Bottom + 60
+
+        btnStartFood.Left = (pnlWelcome.Width \ 2) + (WelcomeButtonGap \ 2)
+        btnStartFood.Top = btnStart.Top
     End Sub
 
     Private Sub frmKiosk_Resize(sender As Object, e As EventArgs) Handles Me.Resize
@@ -321,12 +336,20 @@ Public Class frmKiosk
             lblStep.Text = "Step 2 of 5  -  choose a screening"
         ElseIf stepName = StepSeats Then
             lblStep.Text = "Step 3 of 5  -  choose your seats"
+        ElseIf stepName = StepFood AndAlso foodOnly Then
+            lblStep.Text = "Step 1 of 2  -  food and drink"
         ElseIf stepName = StepFood Then
             lblStep.Text = "Step 4 of 5  -  food and drink"
+        ElseIf stepName = StepConfirm AndAlso foodOnly Then
+            lblStep.Text = "Step 2 of 2  -  pay"
         ElseIf stepName = StepConfirm Then
             lblStep.Text = "Step 5 of 5  -  pay"
         ElseIf stepName = StepDone Then
             lblStep.Text = "Self service"
+        End If
+
+        If stepName = StepFood Then
+            ShowFoodHeadings()
         End If
 
         btnBack.Visible = (stepName <> StepWelcome And stepName <> StepDone)
@@ -343,7 +366,7 @@ Public Class frmKiosk
             btnNext.Enabled = True
         ElseIf stepName = StepFood Then
             btnNext.Text = NextTextForFood()
-            btnNext.Enabled = True
+            btnNext.Enabled = FoodNextAllowed()
         Else
             btnNext.Text = "Continue"
         End If
@@ -1173,12 +1196,27 @@ Public Class frmKiosk
         End If
     End Sub
 
-    Private Sub Welcome_Click(sender As Object, e As EventArgs) Handles btnStart.Click, pnlWelcome.Click,
-        lblWelcomeTitle.Click, lblWelcomeSub.Click
-
+    Private Sub Welcome_Click(sender As Object, e As EventArgs) Handles btnStart.Click
+        foodOnly = False
         BuildDayPicker()
         LoadFilmsForDay()
         ShowStep(StepFilms)
+    End Sub
+
+    Private Sub btnStartFood_Click(sender As Object, e As EventArgs) Handles btnStartFood.Click
+        foodOnly = True
+        LoadFoodItems()
+        ShowStep(StepFood)
+    End Sub
+
+    Private Sub ShowFoodHeadings()
+        If foodOnly Then
+            lblFoodHeading.Text = "Food and drink"
+            lblFoodSub.Text = "Touch an item to add one, then pay at the machine"
+        Else
+            lblFoodHeading.Text = "Anything to eat or drink?"
+            lblFoodSub.Text = "Touch an item to add one, or just carry on"
+        End If
     End Sub
 
     Private Sub SetUpPendingFood()
@@ -1382,6 +1420,7 @@ Public Class frmKiosk
 
         lblRunningTotal.Text = "Total  " & FormatCurrency(OrderTotal())
         btnNext.Text = NextTextForFood()
+        btnNext.Enabled = FoodNextAllowed()
         PaintKioskButton(btnNext, True)
     End Sub
 
@@ -1411,11 +1450,23 @@ Public Class frmKiosk
     End Sub
 
     Private Function NextTextForFood() As String
+        If foodOnly Then
+            Return "Continue"
+        End If
+
         If pendingFood Is Nothing OrElse pendingFood.Rows.Count = 0 Then
             Return "No thanks"
         End If
 
         Return "Continue"
+    End Function
+
+    Private Function FoodNextAllowed() As Boolean
+        If foodOnly Then
+            Return pendingFood IsNot Nothing AndAlso pendingFood.Rows.Count > 0
+        End If
+
+        Return True
     End Function
 
     Private Function FoodTotal() As Double
@@ -1434,7 +1485,11 @@ Public Class frmKiosk
     End Function
 
     Private Sub BuildConfirmation()
-        Dim detail As String = currentShowingText & vbNewLine & vbNewLine
+        Dim detail As String = ""
+
+        If Not foodOnly Then
+            detail = currentShowingText & vbNewLine & vbNewLine
+        End If
 
         Dim i As Integer
         For i = 0 To pickedSeats.Rows.Count - 1
@@ -1457,7 +1512,7 @@ Public Class frmKiosk
             Dim itemName As String = pendingFood.Rows(f)("Item").ToString()
             Dim lineCost As Double = CDbl(pendingFood.Rows(f)("Price")) * quantity
 
-            If f = 0 Then
+            If f = 0 AndAlso Not foodOnly Then
                 detail = detail & vbNewLine
             End If
 
@@ -1467,7 +1522,16 @@ Public Class frmKiosk
         lblConfirmDetail.Text = detail
         lblConfirmTotal.Text = "To pay  " & FormatCurrency(OrderTotal())
 
-        SetPoster(picConfirmPoster, DetailPosterWidth, DetailPosterHeight)
+        If foodOnly Then
+            lblConfirmNote.Text = "Your order is made up once you have paid"
+            ClearOnePoster(picConfirmPoster)
+            picConfirmPoster.Visible = False
+        Else
+            lblConfirmNote.Text = "Your seats are not held until you have paid"
+            picConfirmPoster.Visible = True
+            SetPoster(picConfirmPoster, DetailPosterWidth, DetailPosterHeight)
+        End If
+
         LayoutConfirmStep()
     End Sub
 
@@ -1480,6 +1544,8 @@ Public Class frmKiosk
         ElseIf currentStep = StepSeats Then
             LoadShowingsForFilm()
             ShowStep(StepTimes)
+        ElseIf currentStep = StepFood AndAlso foodOnly Then
+            StartAgain()
         ElseIf currentStep = StepFood Then
             BuildSeatMap()
             ShowStep(StepSeats)
@@ -1505,7 +1571,7 @@ Public Class frmKiosk
     Private Sub TakePayment()
         Dim seatCount As Integer = pickedSeats.Rows.Count
 
-        If seatCount = 0 Then
+        If seatCount = 0 AndAlso pendingFood.Rows.Count = 0 Then
             Exit Sub
         End If
 
@@ -1513,13 +1579,22 @@ Public Class frmKiosk
         Dim newBookingID As Long = CompleteSale(0, True, currentScreeningID, PickedSeatIDs(), pendingFood, total, 0)
 
         If newBookingID = 0 Then
-            BuildSeatMap()
-            ShowStep(StepSeats)
+            If foodOnly Then
+                ShowStep(StepFood)
+            Else
+                BuildSeatMap()
+                ShowStep(StepSeats)
+            End If
             Exit Sub
         End If
 
-        WriteLog("KIOSK", "Kiosk sale " & newBookingID & ", " & seatCount & " seat(s) and " &
-                          pendingFood.Rows.Count & " food line(s), " & FormatCurrency(total))
+        If foodOnly Then
+            WriteLog("KIOSK", "Kiosk food and drink sale " & newBookingID & ", " &
+                              pendingFood.Rows.Count & " food line(s), " & FormatCurrency(total))
+        Else
+            WriteLog("KIOSK", "Kiosk sale " & newBookingID & ", " & seatCount & " seat(s) and " &
+                              pendingFood.Rows.Count & " food line(s), " & FormatCurrency(total))
+        End If
 
         BuildReceipt(newBookingID, seatCount, total)
         ShowStep(StepDone)
@@ -1537,6 +1612,16 @@ Public Class frmKiosk
     End Function
 
     Private Sub BuildReceipt(bookingID As Long, seatCount As Integer, total As Double)
+        If foodOnly Then
+            ClearOnePoster(picDonePoster)
+            picDonePoster.Visible = False
+
+            lblDoneRef.Text = "Order " & bookingID
+            lblDoneDetail.Text = FoodListForReceipt() & "Paid " & FormatCurrency(total)
+            lblDoneNote.Text = "Please collect your order from the counter"
+            Exit Sub
+        End If
+
         Dim seatList As String = ""
         Dim i As Integer
 
@@ -1547,17 +1632,32 @@ Public Class frmKiosk
             seatList = seatList & pickedSeats.Rows(i)("SeatName").ToString()
         Next
 
+        picDonePoster.Visible = True
         SetPoster(picDonePoster, DonePosterWidth, DonePosterHeight)
 
         lblDoneRef.Text = "Booking " & bookingID
         lblDoneDetail.Text = currentShowingText & vbNewLine &
                              seatCount & " ticket(s), seat " & seatList & vbNewLine &
                              "Paid " & FormatCurrency(total)
+        lblDoneNote.Text = "Please take your tickets from the slot below"
     End Sub
+
+    Private Function FoodListForReceipt() As String
+        Dim listing As String = ""
+        Dim i As Integer
+
+        For i = 0 To pendingFood.Rows.Count - 1
+            listing = listing & CInt(pendingFood.Rows(i)("Quantity")) & " x " &
+                      pendingFood.Rows(i)("Item").ToString() & vbNewLine
+        Next
+
+        Return listing
+    End Function
 
     Private Sub StartAgain()
         HideExitPrompt()
 
+        foodOnly = False
         currentDay = Date.Today
         currentFilmID = 0
         currentFilmTitle = ""
@@ -1584,6 +1684,7 @@ Public Class frmKiosk
 
     Private Sub StyleKioskButtons()
         PaintKioskButton(btnStart, True)
+        PaintKioskButton(btnStartFood, False)
         PaintKioskButton(btnNext, True)
         PaintKioskButton(btnBack, False)
     End Sub

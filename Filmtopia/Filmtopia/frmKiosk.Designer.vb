@@ -31,6 +31,7 @@ Partial Class frmKiosk
         Me.lblWelcomeTitle = New System.Windows.Forms.Label()
         Me.lblWelcomeSub = New System.Windows.Forms.Label()
         Me.btnStart = New System.Windows.Forms.Button()
+        Me.btnStartFood = New System.Windows.Forms.Button()
         Me.pnlFilms = New System.Windows.Forms.Panel()
         Me.lblFilmsHeading = New System.Windows.Forms.Label()
         Me.lblNoFilms = New System.Windows.Forms.Label()
@@ -202,6 +203,7 @@ Partial Class frmKiosk
         '
         'pnlWelcome
         '
+        Me.pnlWelcome.Controls.Add(Me.btnStartFood)
         Me.pnlWelcome.Controls.Add(Me.btnStart)
         Me.pnlWelcome.Controls.Add(Me.lblWelcomeSub)
         Me.pnlWelcome.Controls.Add(Me.lblWelcomeTitle)
@@ -218,7 +220,7 @@ Partial Class frmKiosk
         Me.lblWelcomeTitle.Name = "lblWelcomeTitle"
         Me.lblWelcomeTitle.Size = New System.Drawing.Size(560, 61)
         Me.lblWelcomeTitle.TabIndex = 0
-        Me.lblWelcomeTitle.Text = "Buy your tickets here"
+        Me.lblWelcomeTitle.Text = "Welcome to Filmtopia"
         '
         'lblWelcomeSub
         '
@@ -228,7 +230,7 @@ Partial Class frmKiosk
         Me.lblWelcomeSub.Name = "lblWelcomeSub"
         Me.lblWelcomeSub.Size = New System.Drawing.Size(420, 30)
         Me.lblWelcomeSub.TabIndex = 1
-        Me.lblWelcomeSub.Text = "Pick a film, pick your seats, pay at the machine"
+        Me.lblWelcomeSub.Text = "Choose what you would like to do"
         '
         'btnStart
         '
@@ -237,8 +239,18 @@ Partial Class frmKiosk
         Me.btnStart.Name = "btnStart"
         Me.btnStart.Size = New System.Drawing.Size(460, 130)
         Me.btnStart.TabIndex = 2
-        Me.btnStart.Text = "Touch to start"
+        Me.btnStart.Text = "Film tickets"
         Me.btnStart.UseVisualStyleBackColor = True
+        '
+        'btnStartFood
+        '
+        Me.btnStartFood.Font = New System.Drawing.Font("Segoe UI", 22.0!, System.Drawing.FontStyle.Bold)
+        Me.btnStartFood.Location = New System.Drawing.Point(410, 460)
+        Me.btnStartFood.Name = "btnStartFood"
+        Me.btnStartFood.Size = New System.Drawing.Size(460, 130)
+        Me.btnStartFood.TabIndex = 3
+        Me.btnStartFood.Text = "Food and drink"
+        Me.btnStartFood.UseVisualStyleBackColor = True
         '
         'pnlFilms
         '
@@ -848,6 +860,7 @@ Partial Class frmKiosk
     Friend WithEvents lblWelcomeTitle As Label
     Friend WithEvents lblWelcomeSub As Label
     Friend WithEvents btnStart As Button
+    Friend WithEvents btnStartFood As Button
     Friend WithEvents pnlFilms As Panel
     Friend WithEvents lblFilmsHeading As Label
     Friend WithEvents lblNoFilms As Label
