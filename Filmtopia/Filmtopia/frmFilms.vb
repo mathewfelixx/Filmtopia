@@ -3,7 +3,7 @@
 Public Class frmFilms
 
     'tracks the FilmID of the row currently selected in the grid, 0 means nothing selected
-    Private selectedFilmID As Long = 0
+    Private selectedFilmID As Integer = 0
 
     Private Sub frmFilms_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup()
@@ -103,7 +103,7 @@ Public Class frmFilms
             SQLCmd.Parameters.AddWithValue("@FilmAgeRating", txtAgeRating.Text)
             SQLCmd.Parameters.AddWithValue("@FilmDuration", Val(txtDuration.Text))
             SQLCmd.Parameters.AddWithValue("@FilmDescription", txtDescription.Text)
-            SQLCmd.Parameters.AddWithValue("@FilmID", CInt(selectedFilmID))
+            SQLCmd.Parameters.AddWithValue("@FilmID", selectedFilmID)
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If
@@ -129,7 +129,7 @@ Public Class frmFilms
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "DELETE FROM tblFilm " &
                                  "WHERE FilmID = @FilmID"
-            SQLCmd.Parameters.AddWithValue("@FilmID", CInt(selectedFilmID))
+            SQLCmd.Parameters.AddWithValue("@FilmID", selectedFilmID)
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If
@@ -159,7 +159,7 @@ Public Class frmFilms
         If e.RowIndex < 0 Then Exit Sub
 
         Dim row As DataGridViewRow = dgvFilms.Rows(e.RowIndex)
-        selectedFilmID = CLng(row.Cells("FilmID").Value)
+        selectedFilmID = CInt(row.Cells("FilmID").Value)
         txtTitle.Text = row.Cells("FilmTitle").Value.ToString()
         txtAgeRating.Text = row.Cells("FilmAgeRating").Value.ToString()
         txtDuration.Text = row.Cells("FilmDuration").Value.ToString()

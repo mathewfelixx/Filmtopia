@@ -3,13 +3,13 @@ Imports System.Data.OleDb
 Public Class frmBookings
 
     'the screening currently picked in the combo, 0 means none
-    Private currentScreeningID As Long = 0
+    Private currentScreeningID As Integer = 0
     'the screen that screening runs in, used to load the right seats
-    Private currentScreenID As Long = 0
+    Private currentScreenID As Integer = 0
     'ticket price for the picked screening, used to work out the total
     Private currentTicketPrice As Double = 0
     'the booking id of the booking just created, used to open food ordering
-    Private lastBookingID As Long = 0
+    Private lastBookingID As Integer = 0
 
     'the three seat colours, made with FromArgb so the colour checks match properly
     Private availableColour As Color = Color.FromArgb(220, 220, 220)
@@ -71,7 +71,7 @@ Public Class frmBookings
             Exit Sub
         End If
 
-        currentScreeningID = CLng(cboScreening.SelectedValue)
+        currentScreeningID = CInt(cboScreening.SelectedValue)
         LoadScreeningDetails()
         BuildSeatMap()
     End Sub
@@ -90,11 +90,11 @@ Public Class frmBookings
             Exit Sub
         End If
 
-        LoadCustomerBookings(CLng(cboCustomer.SelectedValue))
+        LoadCustomerBookings(CInt(cboCustomer.SelectedValue))
     End Sub
 
     'loads every booking made by this customer into the small grid
-    Private Sub LoadCustomerBookings(customerID As Long)
+    Private Sub LoadCustomerBookings(customerID As Integer)
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
@@ -103,7 +103,7 @@ Public Class frmBookings
                                  "FROM (tblBooking INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
                                  "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
                                  "WHERE tblBooking.CustomerID = @CustomerID"
-            SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(customerID))
+            SQLCmd.Parameters.AddWithValue("@CustomerID", customerID)
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
@@ -123,7 +123,7 @@ Public Class frmBookings
         If e.RowIndex < 0 Then Exit Sub
 
         Dim row As DataGridViewRow = dgvCustomerBookings.Rows(e.RowIndex)
-        lastBookingID = CLng(row.Cells("BookingID").Value)
+        lastBookingID = CInt(row.Cells("BookingID").Value)
         btnOrderFood.Enabled = True
     End Sub
 
@@ -140,8 +140,8 @@ Public Class frmBookings
     End Sub
 
     'makes a quick customer record for someone who walks in without giving their details
-    Private Function CreateWalkInCustomer() As Long
-        Dim newCustomerID As Long = 0
+    Private Function CreateWalkInCustomer() As Integer
+        Dim newCustomerID As Integer = 0
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -156,7 +156,7 @@ Public Class frmBookings
 
             SQLCmd.CommandText = "SELECT @@IDENTITY"
             SQLCmd.Parameters.Clear()
-            newCustomerID = CLng(SQLCmd.ExecuteScalar())
+            newCustomerID = CInt(SQLCmd.ExecuteScalar())
             cn.Close()
         End If
 
@@ -171,10 +171,10 @@ Public Class frmBookings
             SQLCmd.CommandText = "SELECT ScreenID, TicketPrice " &
                                  "FROM tblScreening " &
                                  "WHERE ScreeningID = @ScreeningID"
-            SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
+            SQLCmd.Parameters.AddWithValue("@ScreeningID", currentScreeningID)
             Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
             If rs.Read() Then
-                currentScreenID = CLng(rs("ScreenID"))
+                currentScreenID = CInt(rs("ScreenID"))
                 currentTicketPrice = CDbl(rs("TicketPrice"))
             End If
             rs.Close()
@@ -198,7 +198,7 @@ Public Class frmBookings
                                  "FROM tblSeat " &
                                  "WHERE ScreenID = @ScreenID " &
                                  "ORDER BY SeatRow, SeatNumber"
-            SQLCmd.Parameters.AddWithValue("@ScreenID", CInt(currentScreenID))
+            SQLCmd.Parameters.AddWithValue("@ScreenID", currentScreenID)
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dtSeats)
 
@@ -207,7 +207,7 @@ Public Class frmBookings
                                  "FROM tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID " &
                                  "WHERE tblBooking.ScreeningID = @ScreeningID"
             SQLCmd.Parameters.Clear()
-            SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
+            SQLCmd.Parameters.AddWithValue("@ScreeningID", currentScreeningID)
             Dim da2 As New OleDbDataAdapter(SQLCmd)
             da2.Fill(dtTaken)
 
@@ -216,7 +216,7 @@ Public Class frmBookings
 
         'make one button per seat, positioned by its row letter and seat number
         For i As Integer = 0 To dtSeats.Rows.Count - 1
-            Dim seatID As Long = CLng(dtSeats.Rows(i)("SeatID"))
+            Dim seatID As Integer = CInt(dtSeats.Rows(i)("SeatID"))
             Dim seatRow As String = dtSeats.Rows(i)("SeatRow").ToString()
             Dim seatNumber As Integer = CInt(dtSeats.Rows(i)("SeatNumber"))
 
@@ -302,15 +302,15 @@ Public Class frmBookings
             Exit Sub
         End If
 
-        Dim newBookingID As Long = 0
+        Dim newBookingID As Integer = 0
         Dim totalCost As Double = seatCount * currentTicketPrice
 
         'if its a walk-in, make a quick customer record so the booking still has someone to belong to
-        Dim bookingCustomerID As Long
+        Dim bookingCustomerID As Integer
         If chkWalkIn.Checked Then
             bookingCustomerID = CreateWalkInCustomer()
         Else
-            bookingCustomerID = CLng(cboCustomer.SelectedValue)
+            bookingCustomerID = CInt(cboCustomer.SelectedValue)
         End If
 
         If DbConnect() Then
@@ -318,8 +318,8 @@ Public Class frmBookings
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "INSERT INTO tblBooking (CustomerID, ScreeningID, BookingDate, TotalCost) " &
                                  "VALUES (@CustomerID, @ScreeningID, @BookingDate, @TotalCost)"
-            SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(bookingCustomerID))
-            SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
+            SQLCmd.Parameters.AddWithValue("@CustomerID", bookingCustomerID)
+            SQLCmd.Parameters.AddWithValue("@ScreeningID", currentScreeningID)
             SQLCmd.Parameters.AddWithValue("@BookingDate", Date.Now.Date)
             SQLCmd.Parameters.AddWithValue("@TotalCost", totalCost)
             SQLCmd.ExecuteNonQuery()
@@ -327,7 +327,7 @@ Public Class frmBookings
             'grab the id just given to the new booking so we can link its seats
             SQLCmd.CommandText = "SELECT @@IDENTITY"
             SQLCmd.Parameters.Clear()
-            newBookingID = CLng(SQLCmd.ExecuteScalar())
+            newBookingID = CInt(SQLCmd.ExecuteScalar())
             cn.Close()
         End If
 
@@ -344,7 +344,7 @@ Public Class frmBookings
 
         'walk-ins dont have a customer picked in the combo, so theres no list to refresh
         If Not chkWalkIn.Checked Then
-            LoadCustomerBookings(CLng(cboCustomer.SelectedValue))
+            LoadCustomerBookings(CInt(cboCustomer.SelectedValue))
         End If
     End Sub
 
@@ -355,23 +355,23 @@ Public Class frmBookings
             Exit Sub
         End If
 
-        Dim newCustomerID As Long = CreateWalkInCustomer()
-        Dim newBookingID As Long = 0
+        Dim newCustomerID As Integer = CreateWalkInCustomer()
+        Dim newBookingID As Integer = 0
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "INSERT INTO tblBooking (CustomerID, ScreeningID, BookingDate, TotalCost) " &
                                  "VALUES (@CustomerID, @ScreeningID, @BookingDate, @TotalCost)"
-            SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(newCustomerID))
-            SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
+            SQLCmd.Parameters.AddWithValue("@CustomerID", newCustomerID)
+            SQLCmd.Parameters.AddWithValue("@ScreeningID", currentScreeningID)
             SQLCmd.Parameters.AddWithValue("@BookingDate", Date.Now.Date)
             SQLCmd.Parameters.AddWithValue("@TotalCost", 0)
             SQLCmd.ExecuteNonQuery()
 
             SQLCmd.CommandText = "SELECT @@IDENTITY"
             SQLCmd.Parameters.Clear()
-            newBookingID = CLng(SQLCmd.ExecuteScalar())
+            newBookingID = CInt(SQLCmd.ExecuteScalar())
             cn.Close()
         End If
 
@@ -393,7 +393,7 @@ Public Class frmBookings
     End Sub
 
     'inserts a tblBookingSeat row for each selected seat on the map
-    Private Sub SaveBookingSeats(bookingID As Long)
+    Private Sub SaveBookingSeats(bookingID As Integer)
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
@@ -404,7 +404,7 @@ Public Class frmBookings
                         SQLCmd.CommandText = "INSERT INTO tblBookingSeat (BookingID, SeatID) " &
                                              "VALUES (@BookingID, @SeatID)"
                         SQLCmd.Parameters.Clear()
-                        SQLCmd.Parameters.AddWithValue("@BookingID", CInt(bookingID))
+                        SQLCmd.Parameters.AddWithValue("@BookingID", bookingID)
                         SQLCmd.Parameters.AddWithValue("@SeatID", CInt(b.Tag))
                         SQLCmd.ExecuteNonQuery()
                     End If
@@ -424,7 +424,7 @@ Public Class frmBookings
             SQLCmd.CommandText = "SELECT tblBookingSeat.SeatID " &
                                  "FROM tblBookingSeat INNER JOIN tblBooking ON tblBookingSeat.BookingID = tblBooking.BookingID " &
                                  "WHERE tblBooking.ScreeningID = @ScreeningID"
-            SQLCmd.Parameters.AddWithValue("@ScreeningID", CInt(currentScreeningID))
+            SQLCmd.Parameters.AddWithValue("@ScreeningID", currentScreeningID)
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dtTaken)
             cn.Close()
@@ -434,7 +434,7 @@ Public Class frmBookings
             If TypeOf ctrl Is Button Then
                 Dim b As Button = CType(ctrl, Button)
                 If b.BackColor = selectedColour Then
-                    If dtTaken.Select("SeatID = " & CLng(b.Tag)).Length > 0 Then
+                    If dtTaken.Select("SeatID = " & CInt(b.Tag)).Length > 0 Then
                         Return True
                     End If
                 End If

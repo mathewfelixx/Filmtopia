@@ -3,7 +3,7 @@
 Public Class frmCustomers
 
     'tracks the CustomerID of the row currently selected in the grid, 0 means nothing selected
-    Private selectedCustomerID As Long = 0
+    Private selectedCustomerID As Integer = 0
 
     Private Sub frmCustomers_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup()
@@ -137,7 +137,7 @@ Public Class frmCustomers
             SQLCmd.Parameters.AddWithValue("@CustomerSurname", txtSurname.Text)
             SQLCmd.Parameters.AddWithValue("@CustomerEmail", txtEmail.Text)
             SQLCmd.Parameters.AddWithValue("@CustomerPhone", txtPhone.Text)
-            SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(selectedCustomerID))
+            SQLCmd.Parameters.AddWithValue("@CustomerID", selectedCustomerID)
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If
@@ -163,7 +163,7 @@ Public Class frmCustomers
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "DELETE FROM tblCustomer " &
                                  "WHERE CustomerID = @CustomerID"
-            SQLCmd.Parameters.AddWithValue("@CustomerID", CInt(selectedCustomerID))
+            SQLCmd.Parameters.AddWithValue("@CustomerID", selectedCustomerID)
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If
@@ -193,7 +193,7 @@ Public Class frmCustomers
         If e.RowIndex < 0 Then Exit Sub
 
         Dim row As DataGridViewRow = dgvCustomers.Rows(e.RowIndex)
-        selectedCustomerID = CLng(row.Cells("CustomerID").Value)
+        selectedCustomerID = CInt(row.Cells("CustomerID").Value)
         txtForename.Text = row.Cells("CustomerForename").Value.ToString()
         txtSurname.Text = row.Cells("CustomerSurname").Value.ToString()
         txtEmail.Text = row.Cells("CustomerEmail").Value.ToString()

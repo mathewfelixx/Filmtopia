@@ -3,7 +3,7 @@ Imports System.Data.OleDb
 Public Class frmFoodItems
 
     'tracks the FoodItemID of the row currently selected in the grid, 0 means nothing selected
-    Private selectedFoodItemID As Long = 0
+    Private selectedFoodItemID As Integer = 0
 
     Private Sub frmFoodItems_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup()
@@ -109,7 +109,7 @@ Public Class frmFoodItems
             SQLCmd.Parameters.AddWithValue("@FoodItemName", txtName.Text)
             SQLCmd.Parameters.AddWithValue("@FoodItemPrice", Val(txtPrice.Text))
             SQLCmd.Parameters.AddWithValue("@FoodItemCategory", txtCategory.Text)
-            SQLCmd.Parameters.AddWithValue("@FoodItemID", CInt(selectedFoodItemID))
+            SQLCmd.Parameters.AddWithValue("@FoodItemID", selectedFoodItemID)
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If
@@ -135,7 +135,7 @@ Public Class frmFoodItems
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "DELETE FROM tblFoodItem " &
                                  "WHERE FoodItemID = @FoodItemID"
-            SQLCmd.Parameters.AddWithValue("@FoodItemID", CInt(selectedFoodItemID))
+            SQLCmd.Parameters.AddWithValue("@FoodItemID", selectedFoodItemID)
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If
@@ -164,7 +164,7 @@ Public Class frmFoodItems
         If e.RowIndex < 0 Then Exit Sub
 
         Dim row As DataGridViewRow = dgvFoodItems.Rows(e.RowIndex)
-        selectedFoodItemID = CLng(row.Cells("FoodItemID").Value)
+        selectedFoodItemID = CInt(row.Cells("FoodItemID").Value)
         txtName.Text = row.Cells("FoodItemName").Value.ToString()
         txtPrice.Text = row.Cells("FoodItemPrice").Value.ToString()
         txtCategory.Text = row.Cells("FoodItemCategory").Value.ToString()

@@ -3,7 +3,7 @@ Imports System.Data.OleDb
 Public Class frmFoodOrder
 
     'the booking this food order belongs to, set by frmBookings before showing this form
-    Public currentBookingID As Long = 0
+    Public currentBookingID As Integer = 0
 
     'the order item currently selected in the grid, 0 means nothing selected
     Private selectedOrderItemID As Integer = 0
@@ -27,7 +27,7 @@ Public Class frmFoodOrder
                                  "INNER JOIN tblScreening ON tblBooking.ScreeningID = tblScreening.ScreeningID) " &
                                  "INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
                                  "WHERE tblBooking.BookingID = @BookingID"
-            SQLCmd.Parameters.AddWithValue("@BookingID", CInt(currentBookingID))
+            SQLCmd.Parameters.AddWithValue("@BookingID", currentBookingID)
             Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
             If rs.Read() Then
                 lblBookingInfo.Text = "Booking #" & currentBookingID & " - " & rs("CustomerName").ToString() & " - " & rs("FilmTitle").ToString() & " (" & rs("ScreeningDate").ToString() & " " & rs("ScreeningTime").ToString() & ")"
@@ -75,7 +75,7 @@ Public Class frmFoodOrder
             SQLCmd.CommandText = "SELECT tblOrderItem.OrderItemID, FoodItemName, FoodItemPrice, Quantity, FoodItemPrice * Quantity AS Subtotal " &
                                  "FROM tblOrderItem INNER JOIN tblFoodItem ON tblOrderItem.FoodItemID = tblFoodItem.FoodItemID " &
                                  "WHERE BookingID = @BookingID"
-            SQLCmd.Parameters.AddWithValue("@BookingID", CInt(currentBookingID))
+            SQLCmd.Parameters.AddWithValue("@BookingID", currentBookingID)
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
@@ -112,7 +112,7 @@ Public Class frmFoodOrder
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "INSERT INTO tblOrderItem (BookingID, FoodItemID, Quantity) " &
                                  "VALUES (@BookingID, @FoodItemID, @Quantity)"
-            SQLCmd.Parameters.AddWithValue("@BookingID", CInt(currentBookingID))
+            SQLCmd.Parameters.AddWithValue("@BookingID", currentBookingID)
             SQLCmd.Parameters.AddWithValue("@FoodItemID", CInt(cboFoodItem.SelectedValue))
             SQLCmd.Parameters.AddWithValue("@Quantity", quantity)
             SQLCmd.ExecuteNonQuery()
