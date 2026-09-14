@@ -134,6 +134,13 @@ Public Class frmScreenings
             Exit Sub
         End If
 
+        Dim newStartAdd As Integer = TimeToMinutes(txtScreeningTime.Text)
+        Dim newLengthAdd As Integer = ScreeningLengthMinutes(FilmDurationMinutes(CInt(cboFilm.SelectedValue)))
+        If ScreeningClashes(CInt(cboScreen.SelectedValue), dtpScreeningDate.Value.Date, newStartAdd, newLengthAdd, 0) Then
+            MessageBox.Show("This screening overlaps another one on " & cboScreen.Text & " once adverts and turnaround time are counted. Please choose a different time.")
+            Exit Sub
+        End If
+
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
@@ -181,6 +188,13 @@ Public Class frmScreenings
         End If
         If Val(txtTicketPrice.Text) <= 0 Then
             MessageBox.Show("Ticket price must be greater than 0")
+            Exit Sub
+        End If
+
+        Dim newStartUpd As Integer = TimeToMinutes(txtScreeningTime.Text)
+        Dim newLengthUpd As Integer = ScreeningLengthMinutes(FilmDurationMinutes(CInt(cboFilm.SelectedValue)))
+        If ScreeningClashes(CInt(cboScreen.SelectedValue), dtpScreeningDate.Value.Date, newStartUpd, newLengthUpd, selectedScreeningID) Then
+            MessageBox.Show("This screening overlaps another one on " & cboScreen.Text & " once adverts and turnaround time are counted. Please choose a different time.")
             Exit Sub
         End If
 
