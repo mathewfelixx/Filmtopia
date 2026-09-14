@@ -37,7 +37,7 @@ Public Class frmScreenings
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "SELECT ScreenID, ScreenName " &
-                                 "FROM tblScreen"
+                                 "FROM tblScreen WHERE IsActive = True"
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)

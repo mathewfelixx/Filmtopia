@@ -43,7 +43,7 @@ Public Class frmFoodOrder
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
             SQLCmd.CommandText = "SELECT FoodItemID, FoodItemName, FoodItemPrice " &
-                                 "FROM tblFoodItem"
+                                 "FROM tblFoodItem WHERE IsActive = True"
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
