@@ -2,8 +2,8 @@ Imports System.Data.OleDb
 
 Public Class frmFoodItems
 
-    'tracks the FoodItemID of the row currently selected in the grid, 0 means nothing selected
     Private selectedFoodItemID As Integer = 0
+    Private selectedFoodItemIsActive As Boolean = True
 
     Private Sub frmFoodItems_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup()
@@ -11,13 +11,14 @@ Public Class frmFoodItems
         WriteLog("FOOD", "Food items form opened")
     End Sub
 
-    'loads all food items from tblFoodItem into the grid
     Private Sub LoadFoodItems()
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT FoodItemID, FoodItemName, FoodItemPrice, FoodItemCategory " &
-                                 "FROM tblFoodItem"
+            SQLCmd.CommandText = "SELECT FoodItemID, FoodItemName, FoodItemPrice, FoodItemCategory, IsActive, " &
+                                 "IIF(IsActive, 'On sale', 'Withdrawn') AS Status " &
+                                 "FROM tblFoodItem WHERE (@ShowAll = True OR IsActive = True)"
+            SQLCmd.Parameters.AddWithValue("@ShowAll", chkShowInactive.Checked)
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
@@ -25,7 +26,7 @@ Public Class frmFoodItems
             cn.Close()
         End If
 
-        'let the name column stretch out and wrap so its all readable
+        dgvFoodItems.Columns("IsActive").Visible = False
         dgvFoodItems.Columns("FoodItemName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
         dgvFoodItems.DefaultCellStyle.WrapMode = DataGridViewTriState.True
         dgvFoodItems.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells
@@ -33,7 +34,6 @@ Public Class frmFoodItems
         WriteLog("FOOD", "Food item list loaded")
     End Sub
 
-    'adds a new food item using the values typed into the textboxes
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
         If txtName.Text = "" Then
             MessageBox.Show("Enter a food item name")
@@ -59,11 +59,12 @@ Public Class frmFoodItems
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "INSERT INTO tblFoodItem (FoodItemName, FoodItemPrice, FoodItemCategory) " &
-                                 "VALUES (@FoodItemName, @FoodItemPrice, @FoodItemCategory)"
+            SQLCmd.CommandText = "INSERT INTO tblFoodItem (FoodItemName, FoodItemPrice, FoodItemCategory, IsActive) " &
+                                 "VALUES (@FoodItemName, @FoodItemPrice, @FoodItemCategory, @IsActive)"
             SQLCmd.Parameters.AddWithValue("@FoodItemName", txtName.Text)
             SQLCmd.Parameters.AddWithValue("@FoodItemPrice", Val(txtPrice.Text))
             SQLCmd.Parameters.AddWithValue("@FoodItemCategory", txtCategory.Text)
+            SQLCmd.Parameters.AddWithValue("@IsActive", True)
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If
@@ -73,7 +74,6 @@ Public Class frmFoodItems
         ClearFields()
     End Sub
 
-    'updates the currently selected food item with the values in the textboxes
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
         If selectedFoodItemID = 0 Then
             MessageBox.Show("Select a food item in the grid first")
@@ -119,33 +119,44 @@ Public Class frmFoodItems
         ClearFields()
     End Sub
 
-    'deletes the currently selected food item
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
         If selectedFoodItemID = 0 Then
             MessageBox.Show("Select a food item in the grid first")
             Exit Sub
         End If
 
-        If MessageBox.Show("Delete this food item?", "Confirm", MessageBoxButtons.YesNo) = DialogResult.No Then
+        Dim withdrawing As Boolean = selectedFoodItemIsActive
+        Dim confirmMsg As String
+        If withdrawing Then
+            confirmMsg = "Withdraw this item from sale? Its record and past orders are kept, but it will not be offered on new orders."
+        Else
+            confirmMsg = "Return this item to sale?"
+        End If
+
+        If MessageBox.Show(confirmMsg, "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) = DialogResult.No Then
             Exit Sub
         End If
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "DELETE FROM tblFoodItem " &
-                                 "WHERE FoodItemID = @FoodItemID"
+            SQLCmd.CommandText = "UPDATE tblFoodItem SET IsActive = @IsActive WHERE FoodItemID = @FoodItemID"
+            SQLCmd.Parameters.AddWithValue("@IsActive", Not withdrawing)
             SQLCmd.Parameters.AddWithValue("@FoodItemID", selectedFoodItemID)
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If
 
-        WriteLog("FOOD", "Food item deleted: " & txtName.Text)
+        If withdrawing Then
+            WriteLog("FOOD", "Food item withdrawn from sale: " & txtName.Text)
+        Else
+            WriteLog("FOOD", "Food item returned to sale: " & txtName.Text)
+        End If
+
         LoadFoodItems()
         ClearFields()
     End Sub
 
-    'clears the textboxes and the selection
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         ClearFields()
         WriteLog("FOOD", "Food item fields cleared")
@@ -153,13 +164,19 @@ Public Class frmFoodItems
 
     Private Sub ClearFields()
         selectedFoodItemID = 0
+        selectedFoodItemIsActive = True
         txtName.Text = ""
         txtPrice.Text = ""
         txtCategory.Text = ""
+        btnDelete.Text = "Withdraw from sale"
         dgvFoodItems.ClearSelection()
     End Sub
 
-    'when a row is clicked, load its values into the textboxes for editing
+    Private Sub chkShowInactive_CheckedChanged(sender As Object, e As EventArgs) Handles chkShowInactive.CheckedChanged
+        LoadFoodItems()
+        ClearFields()
+    End Sub
+
     Private Sub dgvFoodItems_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvFoodItems.CellClick
         If e.RowIndex < 0 Then Exit Sub
 
@@ -168,6 +185,14 @@ Public Class frmFoodItems
         txtName.Text = row.Cells("FoodItemName").Value.ToString()
         txtPrice.Text = row.Cells("FoodItemPrice").Value.ToString()
         txtCategory.Text = row.Cells("FoodItemCategory").Value.ToString()
+        selectedFoodItemIsActive = CBool(row.Cells("IsActive").Value)
+
+        If selectedFoodItemIsActive Then
+            btnDelete.Text = "Withdraw from sale"
+        Else
+            btnDelete.Text = "Return to sale"
+        End If
+
         WriteLog("FOOD", "Food item selected: " & txtName.Text)
     End Sub
 

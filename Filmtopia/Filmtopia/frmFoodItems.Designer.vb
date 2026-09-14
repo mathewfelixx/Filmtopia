@@ -28,6 +28,7 @@ Partial Class frmFoodItems
         Me.btnUpdate = New System.Windows.Forms.Button()
         Me.btnDelete = New System.Windows.Forms.Button()
         Me.btnClear = New System.Windows.Forms.Button()
+        Me.chkShowInactive = New System.Windows.Forms.CheckBox()
         Me.lblVersion = New System.Windows.Forms.Label()
         CType(Me.dgvFoodItems, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -119,25 +120,36 @@ Partial Class frmFoodItems
         Me.btnUpdate.Text = "Update"
         Me.btnUpdate.UseVisualStyleBackColor = True
         '
-        'btnDelete
-        '
-        Me.btnDelete.Location = New System.Drawing.Point(600, 447)
-        Me.btnDelete.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
-        Me.btnDelete.Name = "btnDelete"
-        Me.btnDelete.Size = New System.Drawing.Size(120, 37)
-        Me.btnDelete.TabIndex = 9
-        Me.btnDelete.Text = "Delete"
-        Me.btnDelete.UseVisualStyleBackColor = True
-        '
         'btnClear
         '
-        Me.btnClear.Location = New System.Drawing.Point(728, 447)
+        Me.btnClear.Location = New System.Drawing.Point(856, 402)
         Me.btnClear.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.btnClear.Name = "btnClear"
         Me.btnClear.Size = New System.Drawing.Size(120, 37)
         Me.btnClear.TabIndex = 10
         Me.btnClear.Text = "Clear"
         Me.btnClear.UseVisualStyleBackColor = True
+        '
+        'btnDelete
+        '
+        Me.btnDelete.Location = New System.Drawing.Point(600, 447)
+        Me.btnDelete.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.btnDelete.Name = "btnDelete"
+        Me.btnDelete.Size = New System.Drawing.Size(248, 37)
+        Me.btnDelete.TabIndex = 9
+        Me.btnDelete.Text = "Withdraw from sale"
+        Me.btnDelete.UseVisualStyleBackColor = True
+        '
+        'chkShowInactive
+        '
+        Me.chkShowInactive.AutoSize = True
+        Me.chkShowInactive.Location = New System.Drawing.Point(16, 524)
+        Me.chkShowInactive.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.chkShowInactive.Name = "chkShowInactive"
+        Me.chkShowInactive.Size = New System.Drawing.Size(179, 20)
+        Me.chkShowInactive.TabIndex = 12
+        Me.chkShowInactive.Text = "Show withdrawn items"
+        Me.chkShowInactive.UseVisualStyleBackColor = True
         '
         'lblVersion
         '
@@ -156,6 +168,7 @@ Partial Class frmFoodItems
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1067, 640)
         Me.Controls.Add(Me.lblVersion)
+        Me.Controls.Add(Me.chkShowInactive)
         Me.Controls.Add(Me.btnClear)
         Me.Controls.Add(Me.btnDelete)
         Me.Controls.Add(Me.btnUpdate)
@@ -190,5 +203,6 @@ Partial Class frmFoodItems
     Friend WithEvents btnUpdate As Button
     Friend WithEvents btnDelete As Button
     Friend WithEvents btnClear As Button
+    Friend WithEvents chkShowInactive As CheckBox
     Friend WithEvents lblVersion As Label
 End Class
