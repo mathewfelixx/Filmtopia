@@ -70,7 +70,7 @@ Public Class frmMainForm
     Private Sub btnSettings_Click(sender As Object, e As EventArgs) Handles btnSettings.Click
         SetAllButtonsTransp()
         btnSettings.BackColor = Color.FromArgb(173, 20, 87)
-        MessageBox.Show("Settings coming soon")
+        frmSettings.Show()
     End Sub
 
     Private Sub btnLogout_Click(sender As Object, e As EventArgs) Handles btnLogout.Click
@@ -105,6 +105,7 @@ Public Class frmMainForm
             btnFood.Visible = True
             btnReports.Visible = True
             btnLogs.Visible = True
+            btnSettings.Visible = True
         Else
             GroupBox1.Text = "Filmtopia Staff"
             btnFilms.Visible = False
@@ -112,6 +113,7 @@ Public Class frmMainForm
             btnFood.Visible = False
             btnReports.Visible = False
             btnLogs.Visible = False
+            btnSettings.Visible = False
         End If
     End Sub
 
