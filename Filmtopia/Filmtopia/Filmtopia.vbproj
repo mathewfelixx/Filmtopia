@@ -193,6 +193,7 @@
     <Compile Include="modLogs.vb" />
     <Compile Include="modMain.vb" />
     <Compile Include="modSettings.vb" />
+    <Compile Include="modScheduling.vb" />
     <Compile Include="modVersionControl.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
