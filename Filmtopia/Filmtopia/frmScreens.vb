@@ -2,8 +2,8 @@
 
 Public Class frmScreens
 
-    'tracks the ScreenID of the row currently selected in the grid, 0 means nothing selected
     Private selectedScreenID As Integer = 0
+    Private selectedScreenIsActive As Boolean = True
 
     Private Sub frmScreens_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup()
@@ -11,13 +11,14 @@ Public Class frmScreens
         WriteLog("SCREEN", "Screens form opened")
     End Sub
 
-    'loads all screens from tblScreen into the grid
     Private Sub LoadScreens()
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT ScreenID, ScreenName, ScreenCapacity " &
-                                 "FROM tblScreen"
+            SQLCmd.CommandText = "SELECT ScreenID, ScreenName, ScreenCapacity, IsActive, " &
+                                 "IIF(IsActive, 'In service', 'Out of service') AS Status " &
+                                 "FROM tblScreen WHERE (@ShowAll = True OR IsActive = True)"
+            SQLCmd.Parameters.AddWithValue("@ShowAll", chkShowInactive.Checked)
             Dim da As New OleDbDataAdapter(SQLCmd)
             Dim dt As New DataTable
             da.Fill(dt)
@@ -25,7 +26,7 @@ Public Class frmScreens
             cn.Close()
         End If
 
-        'let the name column stretch out and wrap so its all readable
+        dgvScreens.Columns("IsActive").Visible = False
         dgvScreens.Columns("ScreenName").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
         dgvScreens.DefaultCellStyle.WrapMode = DataGridViewTriState.True
         dgvScreens.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells
@@ -33,7 +34,6 @@ Public Class frmScreens
         WriteLog("SCREEN", "Screen list loaded")
     End Sub
 
-    'adds a new screen using the values typed into the textboxes
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
         If txtName.Text = "" Then
             MessageBox.Show("Enter a screen name")
@@ -47,13 +47,13 @@ Public Class frmScreens
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "INSERT INTO tblScreen (ScreenName, ScreenCapacity) " &
-                                 "VALUES (@ScreenName, @ScreenCapacity)"
+            SQLCmd.CommandText = "INSERT INTO tblScreen (ScreenName, ScreenCapacity, IsActive) " &
+                                 "VALUES (@ScreenName, @ScreenCapacity, @IsActive)"
             SQLCmd.Parameters.AddWithValue("@ScreenName", txtName.Text)
             SQLCmd.Parameters.AddWithValue("@ScreenCapacity", Val(txtCapacity.Text))
+            SQLCmd.Parameters.AddWithValue("@IsActive", True)
             SQLCmd.ExecuteNonQuery()
 
-            'grab the ID just given to the new screen so we can generate its seats
             SQLCmd.CommandText = "SELECT @@IDENTITY"
             newScreenID = CInt(SQLCmd.ExecuteScalar())
             cn.Close()
@@ -66,14 +66,13 @@ Public Class frmScreens
         ClearFields()
     End Sub
 
-    'updates the currently selected screen with the values in the textboxes
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
         If selectedScreenID = 0 Then
             MessageBox.Show("Select a screen in the grid first")
             Exit Sub
         End If
 
-                If txtName.Text = "" Then
+        If txtName.Text = "" Then
             MessageBox.Show("Enter a screen name")
             Exit Sub
         End If
@@ -92,7 +91,6 @@ Public Class frmScreens
             cn.Close()
         End If
 
-        'capacity may have changed so wipe the old seats and generate fresh ones
         DeleteSeats(selectedScreenID)
         GenerateSeats(selectedScreenID, Val(txtCapacity.Text))
 
@@ -101,36 +99,44 @@ Public Class frmScreens
         ClearFields()
     End Sub
 
-    'deletes the currently selected screen
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
         If selectedScreenID = 0 Then
             MessageBox.Show("Select a screen in the grid first")
             Exit Sub
         End If
 
-        If MessageBox.Show("Delete this screen?", "Confirm", MessageBoxButtons.YesNo) = DialogResult.No Then
-            Exit Sub
+        Dim takingOut As Boolean = selectedScreenIsActive
+        Dim confirmMsg As String
+        If takingOut Then
+            confirmMsg = "Take this screen out of service? Its record and bookings are kept, but it will not be offered for new screenings."
+        Else
+            confirmMsg = "Return this screen to service?"
         End If
 
-        'remove the seats that belong to this screen first
-        DeleteSeats(selectedScreenID)
+        If MessageBox.Show(confirmMsg, "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) = DialogResult.No Then
+            Exit Sub
+        End If
 
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "DELETE FROM tblScreen " &
-                                 "WHERE ScreenID = @ScreenID"
+            SQLCmd.CommandText = "UPDATE tblScreen SET IsActive = @IsActive WHERE ScreenID = @ScreenID"
+            SQLCmd.Parameters.AddWithValue("@IsActive", Not takingOut)
             SQLCmd.Parameters.AddWithValue("@ScreenID", selectedScreenID)
             SQLCmd.ExecuteNonQuery()
             cn.Close()
         End If
 
-        WriteLog("SCREEN", "Screen deleted: " & txtName.Text)
+        If takingOut Then
+            WriteLog("SCREEN", "Screen taken out of service: " & txtName.Text)
+        Else
+            WriteLog("SCREEN", "Screen returned to service: " & txtName.Text)
+        End If
+
         LoadScreens()
         ClearFields()
     End Sub
 
-    'checks the capacity box is a whole multiple of 10, since seats are generated in rows of 10
     Private Function CapacityIsValid() As Boolean
         Dim capacity As Integer = Val(txtCapacity.Text)
 
@@ -142,7 +148,6 @@ Public Class frmScreens
         Return True
     End Function
 
-    'clears the textboxes and the selection
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         ClearFields()
         WriteLog("SCREEN", "Screen fields cleared")
@@ -150,12 +155,18 @@ Public Class frmScreens
 
     Private Sub ClearFields()
         selectedScreenID = 0
+        selectedScreenIsActive = True
         txtName.Text = ""
         txtCapacity.Text = ""
+        btnDelete.Text = "Take out of service"
         dgvScreens.ClearSelection()
     End Sub
 
-    'makes a row of 10 seats for every 10 seats of capacity, rows go A, B, C...
+    Private Sub chkShowInactive_CheckedChanged(sender As Object, e As EventArgs) Handles chkShowInactive.CheckedChanged
+        LoadScreens()
+        ClearFields()
+    End Sub
+
     Private Sub GenerateSeats(screenID As Integer, capacity As Integer)
         Dim numRows As Integer = capacity \ 10
 
@@ -183,7 +194,6 @@ Public Class frmScreens
         WriteLog("SCREEN", "Seats generated for ScreenID " & screenID)
     End Sub
 
-    'removes every seat that belongs to a screen
     Private Sub DeleteSeats(screenID As Integer)
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
@@ -196,7 +206,6 @@ Public Class frmScreens
         End If
     End Sub
 
-    'when a row is clicked, load its values into the textboxes for editing
     Private Sub dgvScreens_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvScreens.CellClick
         If e.RowIndex < 0 Then Exit Sub
 
@@ -204,6 +213,14 @@ Public Class frmScreens
         selectedScreenID = CInt(row.Cells("ScreenID").Value)
         txtName.Text = row.Cells("ScreenName").Value.ToString()
         txtCapacity.Text = row.Cells("ScreenCapacity").Value.ToString()
+        selectedScreenIsActive = CBool(row.Cells("IsActive").Value)
+
+        If selectedScreenIsActive Then
+            btnDelete.Text = "Take out of service"
+        Else
+            btnDelete.Text = "Return to service"
+        End If
+
         WriteLog("SCREEN", "Screen selected: " & txtName.Text)
     End Sub
 

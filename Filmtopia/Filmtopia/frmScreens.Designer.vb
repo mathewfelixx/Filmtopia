@@ -26,6 +26,7 @@ Partial Class frmScreens
         Me.btnUpdate = New System.Windows.Forms.Button()
         Me.btnDelete = New System.Windows.Forms.Button()
         Me.btnClear = New System.Windows.Forms.Button()
+        Me.chkShowInactive = New System.Windows.Forms.CheckBox()
         Me.lblVersion = New System.Windows.Forms.Label()
         CType(Me.dgvScreens, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -75,48 +76,58 @@ Partial Class frmScreens
         '
         'btnAdd
         '
-        Me.btnAdd.Location = New System.Drawing.Point(450, 327)
+        Me.btnAdd.Location = New System.Drawing.Point(486, 327)
         Me.btnAdd.Name = "btnAdd"
-        Me.btnAdd.Size = New System.Drawing.Size(90, 30)
+        Me.btnAdd.Size = New System.Drawing.Size(150, 30)
         Me.btnAdd.TabIndex = 5
         Me.btnAdd.Text = "Add"
         Me.btnAdd.UseVisualStyleBackColor = True
         '
         'btnUpdate
         '
-        Me.btnUpdate.Location = New System.Drawing.Point(546, 327)
+        Me.btnUpdate.Location = New System.Drawing.Point(486, 363)
         Me.btnUpdate.Name = "btnUpdate"
-        Me.btnUpdate.Size = New System.Drawing.Size(90, 30)
+        Me.btnUpdate.Size = New System.Drawing.Size(150, 30)
         Me.btnUpdate.TabIndex = 6
         Me.btnUpdate.Text = "Update"
         Me.btnUpdate.UseVisualStyleBackColor = True
         '
-        'btnDelete
-        '
-        Me.btnDelete.Location = New System.Drawing.Point(450, 363)
-        Me.btnDelete.Name = "btnDelete"
-        Me.btnDelete.Size = New System.Drawing.Size(90, 30)
-        Me.btnDelete.TabIndex = 7
-        Me.btnDelete.Text = "Delete"
-        Me.btnDelete.UseVisualStyleBackColor = True
-        '
         'btnClear
         '
-        Me.btnClear.Location = New System.Drawing.Point(546, 363)
+        Me.btnClear.Location = New System.Drawing.Point(486, 399)
         Me.btnClear.Name = "btnClear"
-        Me.btnClear.Size = New System.Drawing.Size(90, 30)
-        Me.btnClear.TabIndex = 8
+        Me.btnClear.Size = New System.Drawing.Size(150, 30)
+        Me.btnClear.TabIndex = 7
         Me.btnClear.Text = "Clear"
         Me.btnClear.UseVisualStyleBackColor = True
+        '
+        'btnDelete
+        '
+        Me.btnDelete.Location = New System.Drawing.Point(486, 435)
+        Me.btnDelete.Name = "btnDelete"
+        Me.btnDelete.Size = New System.Drawing.Size(150, 30)
+        Me.btnDelete.TabIndex = 8
+        Me.btnDelete.Text = "Take out of service"
+        Me.btnDelete.UseVisualStyleBackColor = True
+        '
+        'chkShowInactive
+        '
+        Me.chkShowInactive.AutoSize = True
+        Me.chkShowInactive.Location = New System.Drawing.Point(12, 395)
+        Me.chkShowInactive.Name = "chkShowInactive"
+        Me.chkShowInactive.Size = New System.Drawing.Size(172, 17)
+        Me.chkShowInactive.TabIndex = 9
+        Me.chkShowInactive.Text = "Show out-of-service screens"
+        Me.chkShowInactive.UseVisualStyleBackColor = True
         '
         'lblVersion
         '
         Me.lblVersion.AutoSize = True
         Me.lblVersion.ForeColor = System.Drawing.Color.Gray
-        Me.lblVersion.Location = New System.Drawing.Point(550, 490)
+        Me.lblVersion.Location = New System.Drawing.Point(250, 495)
         Me.lblVersion.Name = "lblVersion"
         Me.lblVersion.Size = New System.Drawing.Size(215, 13)
-        Me.lblVersion.TabIndex = 9
+        Me.lblVersion.TabIndex = 10
         Me.lblVersion.Text = "Filmtopia Cinema Management System  v1.0"
         '
         'frmScreens
@@ -125,8 +136,9 @@ Partial Class frmScreens
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(800, 520)
         Me.Controls.Add(Me.lblVersion)
-        Me.Controls.Add(Me.btnClear)
+        Me.Controls.Add(Me.chkShowInactive)
         Me.Controls.Add(Me.btnDelete)
+        Me.Controls.Add(Me.btnClear)
         Me.Controls.Add(Me.btnUpdate)
         Me.Controls.Add(Me.btnAdd)
         Me.Controls.Add(Me.txtCapacity)
@@ -154,5 +166,6 @@ Partial Class frmScreens
     Friend WithEvents btnUpdate As Button
     Friend WithEvents btnDelete As Button
     Friend WithEvents btnClear As Button
+    Friend WithEvents chkShowInactive As CheckBox
     Friend WithEvents lblVersion As Label
 End Class
