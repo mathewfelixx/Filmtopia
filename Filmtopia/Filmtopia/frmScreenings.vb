@@ -266,6 +266,95 @@ Public Class frmScreenings
         End If
     End Sub
 
+    Private Sub InsertScreening(filmID As Integer, screenID As Integer, screeningDate As Date, timeText As String, price As Decimal)
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "INSERT INTO tblScreening (FilmID, ScreenID, ScreeningDate, ScreeningTime, TicketPrice) " &
+                                 "VALUES (@FilmID, @ScreenID, @ScreeningDate, @ScreeningTime, @TicketPrice)"
+            SQLCmd.Parameters.AddWithValue("@FilmID", filmID)
+            SQLCmd.Parameters.AddWithValue("@ScreenID", screenID)
+            SQLCmd.Parameters.AddWithValue("@ScreeningDate", screeningDate)
+            SQLCmd.Parameters.AddWithValue("@ScreeningTime", timeText)
+            SQLCmd.Parameters.AddWithValue("@TicketPrice", price)
+            SQLCmd.ExecuteNonQuery()
+            cn.Close()
+        End If
+    End Sub
+
+    Private Sub btnAddDaily_Click(sender As Object, e As EventArgs) Handles btnAddDaily.Click
+        If cboFilm.SelectedIndex = -1 Or cboScreen.SelectedIndex = -1 Then
+            MessageBox.Show("Pick a film and a screen")
+            Exit Sub
+        End If
+        If Not IsValidScreeningTime(txtScreeningTime.Text) Then
+            MessageBox.Show("Enter a valid time (HH:MM) to repeat each day")
+            Exit Sub
+        End If
+        If Not IsNumeric(txtTicketPrice.Text) OrElse Val(txtTicketPrice.Text) <= 0 Then
+            MessageBox.Show("Enter a ticket price greater than 0")
+            Exit Sub
+        End If
+        If dtpUntilDate.Value.Date < dtpScreeningDate.Value.Date Then
+            MessageBox.Show("The 'until' date must be on or after the start date")
+            Exit Sub
+        End If
+
+        Dim filmID As Integer = CInt(cboFilm.SelectedValue)
+        Dim screenID As Integer = CInt(cboScreen.SelectedValue)
+        Dim price As Decimal = CDec(Val(txtTicketPrice.Text))
+        Dim startMinutes As Integer = TimeToMinutes(txtScreeningTime.Text)
+        Dim length As Integer = ScreeningLengthMinutes(FilmDurationMinutes(filmID))
+
+        Dim addedCount As Integer = 0
+        Dim skippedCount As Integer = 0
+        Dim theDate As Date = dtpScreeningDate.Value.Date
+        Do While theDate <= dtpUntilDate.Value.Date
+            If ScreeningClashes(screenID, theDate, startMinutes, length, 0) Then
+                skippedCount = skippedCount + 1
+            Else
+                InsertScreening(filmID, screenID, theDate, txtScreeningTime.Text, price)
+                addedCount = addedCount + 1
+            End If
+            theDate = theDate.AddDays(1)
+        Loop
+
+        WriteLog("SCREENING", "Bulk daily add: " & cboFilm.Text & " on " & cboScreen.Text & " x" & addedCount)
+        MessageBox.Show(addedCount & " screening(s) added." & vbCrLf & skippedCount & " day(s) skipped because the time clashed.")
+        LoadScreenings()
+    End Sub
+
+    Private Sub btnFillDay_Click(sender As Object, e As EventArgs) Handles btnFillDay.Click
+        If cboFilm.SelectedIndex = -1 Or cboScreen.SelectedIndex = -1 Then
+            MessageBox.Show("Pick a film and a screen")
+            Exit Sub
+        End If
+        If Not IsNumeric(txtTicketPrice.Text) OrElse Val(txtTicketPrice.Text) <= 0 Then
+            MessageBox.Show("Enter a ticket price greater than 0")
+            Exit Sub
+        End If
+
+        Dim filmID As Integer = CInt(cboFilm.SelectedValue)
+        Dim screenID As Integer = CInt(cboScreen.SelectedValue)
+        Dim price As Decimal = CDec(Val(txtTicketPrice.Text))
+        Dim theDate As Date = dtpScreeningDate.Value.Date
+
+        Dim plannedTimes() As String = Nothing
+        Dim addedCount As Integer = PlanFillDay(screenID, theDate, filmID, plannedTimes)
+        If addedCount = 0 Then
+            MessageBox.Show("There is no free slot for this film on " & cboScreen.Text & " that day.")
+            Exit Sub
+        End If
+
+        For i As Integer = 0 To addedCount - 1
+            InsertScreening(filmID, screenID, theDate, plannedTimes(i), price)
+        Next
+
+        WriteLog("SCREENING", "Bulk fill day: " & cboFilm.Text & " on " & cboScreen.Text & " x" & addedCount)
+        MessageBox.Show(addedCount & " screening(s) added to fill " & theDate.ToShortDateString() & ".")
+        LoadScreenings()
+    End Sub
+
     Private Sub ClearFields()
         selectedScreeningID = 0
         cboFilm.SelectedIndex = -1

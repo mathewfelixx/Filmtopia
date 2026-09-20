@@ -33,8 +33,14 @@ Partial Class frmScreenings
         Me.btnDelete = New System.Windows.Forms.Button()
         Me.btnClear = New System.Windows.Forms.Button()
         Me.btnSuggest = New System.Windows.Forms.Button()
+        Me.grpBulk = New System.Windows.Forms.GroupBox()
+        Me.lblUntil = New System.Windows.Forms.Label()
+        Me.dtpUntilDate = New System.Windows.Forms.DateTimePicker()
+        Me.btnAddDaily = New System.Windows.Forms.Button()
+        Me.btnFillDay = New System.Windows.Forms.Button()
         Me.lblVersion = New System.Windows.Forms.Label()
         CType(Me.dgvScreenings, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.grpBulk.SuspendLayout()
         Me.SuspendLayout()
         '
         'dgvScreenings
@@ -206,12 +212,61 @@ Partial Class frmScreenings
         Me.lblVersion.TabIndex = 15
         Me.lblVersion.Text = "Filmtopia Cinema Management System  v1.0"
         '
+        'grpBulk
+        '
+        Me.grpBulk.Controls.Add(Me.lblUntil)
+        Me.grpBulk.Controls.Add(Me.dtpUntilDate)
+        Me.grpBulk.Controls.Add(Me.btnAddDaily)
+        Me.grpBulk.Controls.Add(Me.btnFillDay)
+        Me.grpBulk.Location = New System.Drawing.Point(600, 495)
+        Me.grpBulk.Name = "grpBulk"
+        Me.grpBulk.Size = New System.Drawing.Size(452, 105)
+        Me.grpBulk.TabIndex = 17
+        Me.grpBulk.TabStop = False
+        Me.grpBulk.Text = "Bulk scheduling"
+        '
+        'lblUntil
+        '
+        Me.lblUntil.AutoSize = True
+        Me.lblUntil.Location = New System.Drawing.Point(14, 30)
+        Me.lblUntil.Name = "lblUntil"
+        Me.lblUntil.Size = New System.Drawing.Size(120, 16)
+        Me.lblUntil.TabIndex = 0
+        Me.lblUntil.Text = "Repeat daily until"
+        '
+        'dtpUntilDate
+        '
+        Me.dtpUntilDate.Format = System.Windows.Forms.DateTimePickerFormat.Short
+        Me.dtpUntilDate.Location = New System.Drawing.Point(160, 26)
+        Me.dtpUntilDate.Name = "dtpUntilDate"
+        Me.dtpUntilDate.Size = New System.Drawing.Size(150, 22)
+        Me.dtpUntilDate.TabIndex = 1
+        '
+        'btnAddDaily
+        '
+        Me.btnAddDaily.Location = New System.Drawing.Point(322, 22)
+        Me.btnAddDaily.Name = "btnAddDaily"
+        Me.btnAddDaily.Size = New System.Drawing.Size(115, 30)
+        Me.btnAddDaily.TabIndex = 2
+        Me.btnAddDaily.Text = "Add daily"
+        Me.btnAddDaily.UseVisualStyleBackColor = True
+        '
+        'btnFillDay
+        '
+        Me.btnFillDay.Location = New System.Drawing.Point(14, 62)
+        Me.btnFillDay.Name = "btnFillDay"
+        Me.btnFillDay.Size = New System.Drawing.Size(220, 30)
+        Me.btnFillDay.TabIndex = 3
+        Me.btnFillDay.Text = "Fill the day back to back"
+        Me.btnFillDay.UseVisualStyleBackColor = True
+        '
         'frmScreenings
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1067, 640)
         Me.Controls.Add(Me.lblVersion)
+        Me.Controls.Add(Me.grpBulk)
         Me.Controls.Add(Me.btnClear)
         Me.Controls.Add(Me.btnDelete)
         Me.Controls.Add(Me.btnUpdate)
@@ -235,6 +290,8 @@ Partial Class frmScreenings
         Me.Text = "Screenings"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         CType(Me.dgvScreenings, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.grpBulk.ResumeLayout(False)
+        Me.grpBulk.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -256,5 +313,10 @@ Partial Class frmScreenings
     Friend WithEvents btnDelete As Button
     Friend WithEvents btnClear As Button
     Friend WithEvents btnSuggest As Button
+    Friend WithEvents grpBulk As GroupBox
+    Friend WithEvents lblUntil As Label
+    Friend WithEvents dtpUntilDate As DateTimePicker
+    Friend WithEvents btnAddDaily As Button
+    Friend WithEvents btnFillDay As Button
     Friend WithEvents lblVersion As Label
 End Class
