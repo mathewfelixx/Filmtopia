@@ -33,6 +33,7 @@ Partial Class frmScreens
         Me.lblSeatScreen = New System.Windows.Forms.Label()
         Me.cboSeatTypeScreen = New System.Windows.Forms.ComboBox()
         Me.lblSeatHint = New System.Windows.Forms.Label()
+        Me.lblScreenIndicator = New System.Windows.Forms.Label()
         Me.pnlSeatTypeMap = New System.Windows.Forms.Panel()
         Me.lblKeyTitle = New System.Windows.Forms.Label()
         Me.lblStdKey = New System.Windows.Forms.Label()
@@ -84,6 +85,7 @@ Partial Class frmScreens
         Me.tabSeatTypes.Controls.Add(Me.lblSeatScreen)
         Me.tabSeatTypes.Controls.Add(Me.cboSeatTypeScreen)
         Me.tabSeatTypes.Controls.Add(Me.lblSeatHint)
+        Me.tabSeatTypes.Controls.Add(Me.lblScreenIndicator)
         Me.tabSeatTypes.Controls.Add(Me.pnlSeatTypeMap)
         Me.tabSeatTypes.Controls.Add(Me.lblKeyTitle)
         Me.tabSeatTypes.Controls.Add(Me.lblStdKey)
@@ -216,14 +218,23 @@ Partial Class frmScreens
         Me.lblSeatHint.TabIndex = 2
         Me.lblSeatHint.Text = "Click seats to select them, then choose a type and press Apply."
         '
+        'lblScreenIndicator
+        '
+        Me.lblScreenIndicator.Location = New System.Drawing.Point(16, 74)
+        Me.lblScreenIndicator.Name = "lblScreenIndicator"
+        Me.lblScreenIndicator.Size = New System.Drawing.Size(600, 22)
+        Me.lblScreenIndicator.TabIndex = 3
+        Me.lblScreenIndicator.Text = "Screen"
+        Me.lblScreenIndicator.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
         'pnlSeatTypeMap
         '
         Me.pnlSeatTypeMap.AutoScroll = True
         Me.pnlSeatTypeMap.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.pnlSeatTypeMap.Location = New System.Drawing.Point(16, 80)
+        Me.pnlSeatTypeMap.Location = New System.Drawing.Point(16, 100)
         Me.pnlSeatTypeMap.Name = "pnlSeatTypeMap"
-        Me.pnlSeatTypeMap.Size = New System.Drawing.Size(600, 430)
-        Me.pnlSeatTypeMap.TabIndex = 3
+        Me.pnlSeatTypeMap.Size = New System.Drawing.Size(600, 410)
+        Me.pnlSeatTypeMap.TabIndex = 4
         '
         'lblKeyTitle
         '
@@ -345,6 +356,7 @@ Partial Class frmScreens
     Friend WithEvents lblSeatScreen As Label
     Friend WithEvents cboSeatTypeScreen As ComboBox
     Friend WithEvents lblSeatHint As Label
+    Friend WithEvents lblScreenIndicator As Label
     Friend WithEvents pnlSeatTypeMap As Panel
     Friend WithEvents lblKeyTitle As Label
     Friend WithEvents lblStdKey As Label
