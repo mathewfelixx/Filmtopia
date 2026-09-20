@@ -5,9 +5,24 @@ Public Class frmScreens
     Private selectedScreenID As Integer = 0
     Private selectedScreenIsActive As Boolean = True
 
+    Private seatTypeScreenID As Integer = 0
+    Private seatMapIDs() As Integer
+    Private seatMapTypeIDs() As Integer
+
+    Private seatStandardColour As Color = Color.FromArgb(220, 220, 220)
+    Private seatPremiumColour As Color = Color.FromArgb(255, 214, 100)
+    Private seatAccessibleColour As Color = Color.FromArgb(150, 200, 240)
+    Private seatSelectedColour As Color = Color.Fuchsia
+
     Private Sub frmScreens_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CommonFormStartup()
         LoadScreens()
+        LoadSeatTypeScreens()
+        LoadTargetTypes()
+        ApplySeatTypeSwatches()
+        If UserAccessLevel <> 1 Then
+            tabScreens.TabPages.Remove(tabSeatTypes)
+        End If
         WriteLog("SCREEN", "Screens form opened")
     End Sub
 
@@ -63,6 +78,7 @@ Public Class frmScreens
 
         WriteLog("SCREEN", "Screen added: " & txtName.Text)
         LoadScreens()
+        LoadSeatTypeScreens()
         ClearFields()
     End Sub
 
@@ -96,6 +112,7 @@ Public Class frmScreens
 
         WriteLog("SCREEN", "Screen updated: " & txtName.Text)
         LoadScreens()
+        LoadSeatTypeScreens()
         ClearFields()
     End Sub
 
@@ -134,6 +151,7 @@ Public Class frmScreens
         End If
 
         LoadScreens()
+        LoadSeatTypeScreens()
         ClearFields()
     End Sub
 
@@ -222,6 +240,191 @@ Public Class frmScreens
         End If
 
         WriteLog("SCREEN", "Screen selected: " & txtName.Text)
+    End Sub
+
+    Private Sub LoadSeatTypeScreens()
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT ScreenID, ScreenName " &
+                                 "FROM tblScreen WHERE IsActive = True ORDER BY ScreenName"
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            Dim dt As New DataTable
+            da.Fill(dt)
+            cboSeatTypeScreen.DataSource = dt
+            cboSeatTypeScreen.DisplayMember = "ScreenName"
+            cboSeatTypeScreen.ValueMember = "ScreenID"
+            cboSeatTypeScreen.SelectedIndex = -1
+            cn.Close()
+        End If
+    End Sub
+
+    Private Sub LoadTargetTypes()
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT SeatTypeID, TypeName " &
+                                 "FROM tblSeatType ORDER BY SeatTypeID"
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            Dim dt As New DataTable
+            da.Fill(dt)
+            cboTargetType.DataSource = dt
+            cboTargetType.DisplayMember = "TypeName"
+            cboTargetType.ValueMember = "SeatTypeID"
+            cboTargetType.SelectedIndex = -1
+            cn.Close()
+        End If
+    End Sub
+
+    Private Sub ApplySeatTypeSwatches()
+        lblStdKey.BackColor = seatStandardColour
+        lblPremKey.BackColor = seatPremiumColour
+        lblAccKey.BackColor = seatAccessibleColour
+    End Sub
+
+    Private Function ColourForType(typeID As Integer) As Color
+        If typeID = 2 Then
+            Return seatPremiumColour
+        ElseIf typeID = 3 Then
+            Return seatAccessibleColour
+        Else
+            Return seatStandardColour
+        End If
+    End Function
+
+    Private Function TypeForSeat(seatID As Integer) As Integer
+        For i As Integer = 0 To seatMapIDs.Length - 1
+            If seatMapIDs(i) = seatID Then
+                Return seatMapTypeIDs(i)
+            End If
+        Next
+        Return 1
+    End Function
+
+    Private Sub cboSeatTypeScreen_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboSeatTypeScreen.SelectedIndexChanged
+        If cboSeatTypeScreen.SelectedIndex = -1 Then
+            Exit Sub
+        End If
+        If Not IsNumeric(cboSeatTypeScreen.SelectedValue) Then
+            Exit Sub
+        End If
+        seatTypeScreenID = CInt(cboSeatTypeScreen.SelectedValue)
+        BuildSeatTypeMap()
+    End Sub
+
+    Private Sub BuildSeatTypeMap()
+        pnlSeatTypeMap.Controls.Clear()
+
+        If seatTypeScreenID = 0 Then
+            Exit Sub
+        End If
+
+        Dim dtSeats As New DataTable
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT SeatID, SeatRow, SeatNumber, SeatTypeID " &
+                                 "FROM tblSeat WHERE ScreenID = @ScreenID " &
+                                 "ORDER BY SeatRow, SeatNumber"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", seatTypeScreenID)
+            Dim da As New OleDbDataAdapter(SQLCmd)
+            da.Fill(dtSeats)
+            cn.Close()
+        End If
+
+        If dtSeats.Rows.Count > 0 Then
+            ReDim seatMapIDs(dtSeats.Rows.Count - 1)
+            ReDim seatMapTypeIDs(dtSeats.Rows.Count - 1)
+        Else
+            seatMapIDs = New Integer() {}
+            seatMapTypeIDs = New Integer() {}
+        End If
+
+        For i As Integer = 0 To dtSeats.Rows.Count - 1
+            Dim seatID As Integer = CInt(dtSeats.Rows(i)("SeatID"))
+            Dim seatRow As String = dtSeats.Rows(i)("SeatRow").ToString()
+            Dim seatNumber As Integer = CInt(dtSeats.Rows(i)("SeatNumber"))
+            Dim typeID As Integer = CInt(dtSeats.Rows(i)("SeatTypeID"))
+            seatMapIDs(i) = seatID
+            seatMapTypeIDs(i) = typeID
+
+            Dim b As New Button
+            b.Tag = seatID
+            b.Text = seatRow & seatNumber
+            b.Size = New Size(40, 35)
+            b.Font = New Font("Segoe UI", 7)
+            Dim rowIndex As Integer = Asc(seatRow) - 65
+            b.Location = New Point((seatNumber - 1) * 45 + 10, rowIndex * 45 + 10)
+            b.BackColor = ColourForType(typeID)
+            AddHandler b.Click, AddressOf SeatType_Click
+            pnlSeatTypeMap.Controls.Add(b)
+        Next
+    End Sub
+
+    Private Sub SeatType_Click(sender As Object, e As EventArgs)
+        Dim b As Button = CType(sender, Button)
+        If b.BackColor = seatSelectedColour Then
+            b.BackColor = ColourForType(TypeForSeat(CInt(b.Tag)))
+        Else
+            b.BackColor = seatSelectedColour
+        End If
+    End Sub
+
+    Private Sub btnClearSel_Click(sender As Object, e As EventArgs) Handles btnClearSel.Click
+        For Each ctrl As Control In pnlSeatTypeMap.Controls
+            If TypeOf ctrl Is Button Then
+                Dim b As Button = CType(ctrl, Button)
+                If b.BackColor = seatSelectedColour Then
+                    b.BackColor = ColourForType(TypeForSeat(CInt(b.Tag)))
+                End If
+            End If
+        Next
+    End Sub
+
+    Private Sub btnApplyType_Click(sender As Object, e As EventArgs) Handles btnApplyType.Click
+        If UserAccessLevel <> 1 Then
+            MessageBox.Show("Only a manager can change seat types")
+            Exit Sub
+        End If
+        If seatTypeScreenID = 0 Then
+            MessageBox.Show("Pick a screen first")
+            Exit Sub
+        End If
+        If cboTargetType.SelectedIndex = -1 Then
+            MessageBox.Show("Pick a seat type to set")
+            Exit Sub
+        End If
+
+        Dim targetTypeID As Integer = CInt(cboTargetType.SelectedValue)
+        Dim changed As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            For Each ctrl As Control In pnlSeatTypeMap.Controls
+                If TypeOf ctrl Is Button Then
+                    Dim b As Button = CType(ctrl, Button)
+                    If b.BackColor = seatSelectedColour Then
+                        SQLCmd.CommandText = "UPDATE tblSeat SET SeatTypeID = @SeatTypeID " &
+                                             "WHERE SeatID = @SeatID"
+                        SQLCmd.Parameters.Clear()
+                        SQLCmd.Parameters.AddWithValue("@SeatTypeID", targetTypeID)
+                        SQLCmd.Parameters.AddWithValue("@SeatID", CInt(b.Tag))
+                        SQLCmd.ExecuteNonQuery()
+                        changed = changed + 1
+                    End If
+                End If
+            Next
+            cn.Close()
+        End If
+
+        If changed = 0 Then
+            MessageBox.Show("Select at least one seat first")
+            Exit Sub
+        End If
+
+        WriteLog("SCREEN", changed & " seats set to type " & targetTypeID & " on ScreenID " & seatTypeScreenID)
+        BuildSeatTypeMap()
     End Sub
 
 End Class
