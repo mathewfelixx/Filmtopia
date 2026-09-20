@@ -251,6 +251,21 @@ Public Class frmScreenings
         WriteLog("SCREENING", "Screening fields cleared")
     End Sub
 
+    Private Sub btnSuggest_Click(sender As Object, e As EventArgs) Handles btnSuggest.Click
+        If cboFilm.SelectedIndex = -1 Or cboScreen.SelectedIndex = -1 Then
+            MessageBox.Show("Pick a film and a screen first")
+            Exit Sub
+        End If
+
+        Dim suggested As Integer = 0
+        If SuggestNextStartTime(CInt(cboScreen.SelectedValue), dtpScreeningDate.Value.Date, CInt(cboFilm.SelectedValue), suggested) Then
+            txtScreeningTime.Text = MinutesToTime(suggested)
+            WriteLog("SCREENING", "Suggested next start time " & txtScreeningTime.Text & " for " & cboFilm.Text & " on " & cboScreen.Text)
+        Else
+            MessageBox.Show("There is no free slot for this film on " & cboScreen.Text & " that day.")
+        End If
+    End Sub
+
     Private Sub ClearFields()
         selectedScreeningID = 0
         cboFilm.SelectedIndex = -1

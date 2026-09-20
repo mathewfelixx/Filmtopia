@@ -32,6 +32,7 @@ Partial Class frmScreenings
         Me.btnUpdate = New System.Windows.Forms.Button()
         Me.btnDelete = New System.Windows.Forms.Button()
         Me.btnClear = New System.Windows.Forms.Button()
+        Me.btnSuggest = New System.Windows.Forms.Button()
         Me.lblVersion = New System.Windows.Forms.Label()
         CType(Me.dgvScreenings, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -126,6 +127,16 @@ Partial Class frmScreenings
         Me.txtScreeningTime.Size = New System.Drawing.Size(132, 22)
         Me.txtScreeningTime.TabIndex = 8
         '
+        'btnSuggest
+        '
+        Me.btnSuggest.Location = New System.Drawing.Point(304, 509)
+        Me.btnSuggest.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.btnSuggest.Name = "btnSuggest"
+        Me.btnSuggest.Size = New System.Drawing.Size(160, 30)
+        Me.btnSuggest.TabIndex = 16
+        Me.btnSuggest.Text = "Suggest next time"
+        Me.btnSuggest.UseVisualStyleBackColor = True
+        '
         'lblTicketPrice
         '
         Me.lblTicketPrice.AutoSize = True
@@ -207,6 +218,7 @@ Partial Class frmScreenings
         Me.Controls.Add(Me.btnAdd)
         Me.Controls.Add(Me.txtTicketPrice)
         Me.Controls.Add(Me.lblTicketPrice)
+        Me.Controls.Add(Me.btnSuggest)
         Me.Controls.Add(Me.txtScreeningTime)
         Me.Controls.Add(Me.lblScreeningTime)
         Me.Controls.Add(Me.dtpScreeningDate)
@@ -243,5 +255,6 @@ Partial Class frmScreenings
     Friend WithEvents btnUpdate As Button
     Friend WithEvents btnDelete As Button
     Friend WithEvents btnClear As Button
+    Friend WithEvents btnSuggest As Button
     Friend WithEvents lblVersion As Label
 End Class
