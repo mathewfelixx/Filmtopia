@@ -68,4 +68,18 @@ Module modScheduling
         Return clash
     End Function
 
+    Public Function RoundUpToInterval(minutes As Integer) As Integer
+        Dim interval As Integer = GetSettingInt("RoundingIntervalMinutes")
+        If interval <= 1 Then
+            Return minutes
+        End If
+
+        Dim remainder As Integer = minutes Mod interval
+        If remainder = 0 Then
+            Return minutes
+        End If
+
+        Return minutes + (interval - remainder)
+    End Function
+
 End Module
