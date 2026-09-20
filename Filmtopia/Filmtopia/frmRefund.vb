@@ -161,7 +161,7 @@ Public Class frmRefund
             SQLCmd.CommandText = "INSERT INTO tblRefund (BookingID, RefundDate, TotalRefunded, Reason, AuthorisedBy) " &
                                  "VALUES (@BookingID, @RefundDate, @TotalRefunded, @Reason, @AuthorisedBy)"
             SQLCmd.Parameters.AddWithValue("@BookingID", currentBookingID)
-            SQLCmd.Parameters.AddWithValue("@RefundDate", Date.Now)
+            SQLCmd.Parameters.AddWithValue("@RefundDate", Date.Now.Date)
             SQLCmd.Parameters.AddWithValue("@TotalRefunded", total)
             SQLCmd.Parameters.AddWithValue("@Reason", txtReason.Text.Trim())
             SQLCmd.Parameters.AddWithValue("@AuthorisedBy", CurrentLoginID)
