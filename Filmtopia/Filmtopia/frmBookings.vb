@@ -11,6 +11,9 @@ Public Class frmBookings
     'the booking id of the booking just created, used to open food ordering
     Private lastBookingID As Integer = 0
 
+    Private seatIDs() As Integer
+    Private seatMultipliers() As Double
+
     'the three seat colours, made with FromArgb so the colour checks match properly
     Private availableColour As Color = Color.FromArgb(220, 220, 220)
     Private selectedColour As Color = Color.Fuchsia
@@ -194,10 +197,10 @@ Public Class frmBookings
             SQLCmd.Connection = cn
 
             'all the seats that belong to this screen
-            SQLCmd.CommandText = "SELECT SeatID, SeatRow, SeatNumber " &
-                                 "FROM tblSeat " &
-                                 "WHERE ScreenID = @ScreenID " &
-                                 "ORDER BY SeatRow, SeatNumber"
+            SQLCmd.CommandText = "SELECT tblSeat.SeatID, tblSeat.SeatRow, tblSeat.SeatNumber, tblSeatType.PriceMultiplier " &
+                                 "FROM tblSeat INNER JOIN tblSeatType ON tblSeat.SeatTypeID = tblSeatType.SeatTypeID " &
+                                 "WHERE tblSeat.ScreenID = @ScreenID " &
+                                 "ORDER BY tblSeat.SeatRow, tblSeat.SeatNumber"
             SQLCmd.Parameters.AddWithValue("@ScreenID", currentScreenID)
             Dim da As New OleDbDataAdapter(SQLCmd)
             da.Fill(dtSeats)
@@ -214,11 +217,21 @@ Public Class frmBookings
             cn.Close()
         End If
 
+        If dtSeats.Rows.Count > 0 Then
+            ReDim seatIDs(dtSeats.Rows.Count - 1)
+            ReDim seatMultipliers(dtSeats.Rows.Count - 1)
+        Else
+            seatIDs = New Integer() {}
+            seatMultipliers = New Double() {}
+        End If
+
         'make one button per seat, positioned by its row letter and seat number
         For i As Integer = 0 To dtSeats.Rows.Count - 1
             Dim seatID As Integer = CInt(dtSeats.Rows(i)("SeatID"))
             Dim seatRow As String = dtSeats.Rows(i)("SeatRow").ToString()
             Dim seatNumber As Integer = CInt(dtSeats.Rows(i)("SeatNumber"))
+            seatIDs(i) = seatID
+            seatMultipliers(i) = CDbl(dtSeats.Rows(i)("PriceMultiplier"))
 
             Dim b As New Button
             b.Tag = seatID
@@ -271,10 +284,32 @@ Public Class frmBookings
         Return count
     End Function
 
+    Private Function SeatMultiplier(seatID As Integer) As Double
+        For i As Integer = 0 To seatIDs.Length - 1
+            If seatIDs(i) = seatID Then
+                Return seatMultipliers(i)
+            End If
+        Next
+        Return 1.0
+    End Function
+
+    Private Function SelectedSeatsTotal() As Double
+        Dim total As Double = 0
+        For Each ctrl As Control In pnlSeatMap.Controls
+            If TypeOf ctrl Is Button Then
+                Dim b As Button = CType(ctrl, Button)
+                If b.BackColor = selectedColour Then
+                    total = total + currentTicketPrice * SeatMultiplier(CInt(b.Tag))
+                End If
+            End If
+        Next
+        Return total
+    End Function
+
     'shows the running total of selected seats and their cost
     Private Sub UpdateTotal()
         Dim count As Integer = CountSelectedSeats()
-        lblTotal.Text = count & " seats selected - " & FormatCurrency(count * currentTicketPrice)
+        lblTotal.Text = count & " seats selected - " & FormatCurrency(SelectedSeatsTotal())
     End Sub
 
     'creates a booking from the picked screening, customer and selected seats
@@ -303,7 +338,7 @@ Public Class frmBookings
         End If
 
         Dim newBookingID As Integer = 0
-        Dim totalCost As Double = seatCount * currentTicketPrice
+        Dim totalCost As Double = SelectedSeatsTotal()
 
         'if its a walk-in, make a quick customer record so the booking still has someone to belong to
         Dim bookingCustomerID As Integer
@@ -401,11 +436,14 @@ Public Class frmBookings
                 If TypeOf ctrl Is Button Then
                     Dim b As Button = CType(ctrl, Button)
                     If b.BackColor = selectedColour Then
-                        SQLCmd.CommandText = "INSERT INTO tblBookingSeat (BookingID, SeatID) " &
-                                             "VALUES (@BookingID, @SeatID)"
+                        Dim seatID As Integer = CInt(b.Tag)
+                        Dim pricePaid As Double = Math.Round(currentTicketPrice * SeatMultiplier(seatID), 2)
+                        SQLCmd.CommandText = "INSERT INTO tblBookingSeat (BookingID, SeatID, SeatPricePaid) " &
+                                             "VALUES (@BookingID, @SeatID, @SeatPricePaid)"
                         SQLCmd.Parameters.Clear()
                         SQLCmd.Parameters.AddWithValue("@BookingID", bookingID)
-                        SQLCmd.Parameters.AddWithValue("@SeatID", CInt(b.Tag))
+                        SQLCmd.Parameters.AddWithValue("@SeatID", seatID)
+                        SQLCmd.Parameters.AddWithValue("@SeatPricePaid", pricePaid)
                         SQLCmd.ExecuteNonQuery()
                     End If
                 End If
