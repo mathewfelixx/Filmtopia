@@ -46,6 +46,8 @@ Public Class frmRefund
             cn.Close()
         End If
 
+        dgvRefundSeats.DataSource = Nothing
+        dgvRefundSeats.Columns.Clear()
         dgvRefundSeats.DataSource = dt
 
         Dim colRefund As New DataGridViewCheckBoxColumn()
@@ -82,6 +84,8 @@ Public Class frmRefund
             cn.Close()
         End If
 
+        dgvRefundFood.DataSource = Nothing
+        dgvRefundFood.Columns.Clear()
         dgvRefundFood.DataSource = dt
 
         Dim colQty As New DataGridViewTextBoxColumn()
