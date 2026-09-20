@@ -52,7 +52,7 @@ Public Class frmLogin
         If DbConnect() Then
             Dim SQLCmd As New OleDbCommand
             SQLCmd.Connection = cn
-            SQLCmd.CommandText = "SELECT Password, AccessLevel " &
+            SQLCmd.CommandText = "SELECT Password, AccessLevel, LoginID " &
                                  "FROM tblLogin " &
                                  "WHERE Username = @Username"
             SQLCmd.Parameters.AddWithValue("@Username", username)
@@ -63,6 +63,7 @@ Public Class frmLogin
                 Dim strPW = rs("Password")
                 plainTextPW = Decrypt(strPW)
                 UserAccessLevel = rs("AccessLevel")
+                CurrentLoginID = rs("LoginID")
             Else
                 If username = "" Then
                     MessageBox.Show("Username cannot be empty", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning)

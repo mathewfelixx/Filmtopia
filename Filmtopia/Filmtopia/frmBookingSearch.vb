@@ -134,6 +134,17 @@ Public Class frmBookingSearch
         LoadBookings(txtSearch.Text.Trim())
     End Sub
 
+    Private Sub btnRefund_Click(sender As Object, e As EventArgs) Handles btnRefund.Click
+        If selectedBookingID = 0 Then
+            MessageBox.Show("Select a booking in the grid first")
+            Exit Sub
+        End If
+
+        frmRefund.currentBookingID = selectedBookingID
+        frmRefund.ShowDialog()
+        LoadBookings(txtSearch.Text.Trim())
+    End Sub
+
     'loads the register grid: who is booked onto the selected screening, their seats and ticket count
     Private Sub btnLoadRegister_Click(sender As Object, e As EventArgs) Handles btnLoadRegister.Click
         If cboRegisterScreening.SelectedIndex = -1 Then

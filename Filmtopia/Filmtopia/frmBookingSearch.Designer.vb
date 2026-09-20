@@ -23,6 +23,7 @@ Partial Class frmBookingSearch
         Me.btnShowAll = New System.Windows.Forms.Button()
         Me.dgvBookings = New System.Windows.Forms.DataGridView()
         Me.btnCancelBooking = New System.Windows.Forms.Button()
+        Me.btnRefund = New System.Windows.Forms.Button()
         Me.lblRegisterTitle = New System.Windows.Forms.Label()
         Me.lblRegisterScreening = New System.Windows.Forms.Label()
         Me.cboRegisterScreening = New System.Windows.Forms.ComboBox()
@@ -94,6 +95,16 @@ Partial Class frmBookingSearch
         Me.btnCancelBooking.TabIndex = 5
         Me.btnCancelBooking.Text = "Cancel Booking"
         Me.btnCancelBooking.UseVisualStyleBackColor = True
+        '
+        'btnRefund
+        '
+        Me.btnRefund.Location = New System.Drawing.Point(16, 440)
+        Me.btnRefund.Margin = New System.Windows.Forms.Padding(4)
+        Me.btnRefund.Name = "btnRefund"
+        Me.btnRefund.Size = New System.Drawing.Size(357, 40)
+        Me.btnRefund.TabIndex = 6
+        Me.btnRefund.Text = "Refund part of booking..."
+        Me.btnRefund.UseVisualStyleBackColor = True
         '
         'lblRegisterTitle
         '
@@ -182,6 +193,7 @@ Partial Class frmBookingSearch
         Me.Controls.Add(Me.cboRegisterScreening)
         Me.Controls.Add(Me.lblRegisterScreening)
         Me.Controls.Add(Me.lblRegisterTitle)
+        Me.Controls.Add(Me.btnRefund)
         Me.Controls.Add(Me.btnCancelBooking)
         Me.Controls.Add(Me.dgvBookings)
         Me.Controls.Add(Me.btnShowAll)
@@ -207,6 +219,7 @@ Partial Class frmBookingSearch
     Friend WithEvents btnShowAll As Button
     Friend WithEvents dgvBookings As DataGridView
     Friend WithEvents btnCancelBooking As Button
+    Friend WithEvents btnRefund As Button
     Friend WithEvents lblRegisterTitle As Label
     Friend WithEvents lblRegisterScreening As Label
     Friend WithEvents cboRegisterScreening As ComboBox
