@@ -151,4 +151,73 @@ Module modScheduling
         Return False
     End Function
 
+    Public Function PlanFillDay(screenID As Integer, screeningDate As Date, filmID As Integer, ByRef plannedTimes() As String) As Integer
+        Dim length As Integer = ScreeningLengthMinutes(FilmDurationMinutes(filmID))
+        Dim interval As Integer = GetSettingInt("RoundingIntervalMinutes")
+        If interval < 1 Then
+            interval = 1
+        End If
+
+        Dim times(-1) As String
+        Dim durations(-1) As Integer
+        Dim count As Integer = 0
+
+        If DbConnect() Then
+            Dim SQLCmd As New OleDbCommand
+            SQLCmd.Connection = cn
+            SQLCmd.CommandText = "SELECT ScreeningTime, FilmDuration " &
+                                 "FROM tblScreening INNER JOIN tblFilm ON tblScreening.FilmID = tblFilm.FilmID " &
+                                 "WHERE ScreenID = @ScreenID AND ScreeningDate = @ScreeningDate"
+            SQLCmd.Parameters.AddWithValue("@ScreenID", screenID)
+            SQLCmd.Parameters.AddWithValue("@ScreeningDate", screeningDate)
+            Dim rs As OleDbDataReader = SQLCmd.ExecuteReader()
+            Do While rs.Read()
+                ReDim Preserve times(count)
+                ReDim Preserve durations(count)
+                times(count) = rs("ScreeningTime").ToString()
+                durations(count) = CInt(rs("FilmDuration"))
+                count = count + 1
+            Loop
+            rs.Close()
+            cn.Close()
+        End If
+
+        Dim starts(-1) As Integer
+        Dim ends(-1) As Integer
+        Dim occupied As Integer = 0
+        For i As Integer = 0 To count - 1
+            ReDim Preserve starts(occupied)
+            ReDim Preserve ends(occupied)
+            starts(occupied) = TimeToMinutes(times(i))
+            ends(occupied) = starts(occupied) + ScreeningLengthMinutes(durations(i))
+            occupied = occupied + 1
+        Next
+
+        Dim resultTimes(-1) As String
+        Dim planned As Integer = 0
+        Dim candidate As Integer = RoundUpToInterval(OpeningMinutes)
+        Do While candidate + length <= ClosingMinutes And planned < 50
+            Dim fits As Boolean = True
+            For i As Integer = 0 To occupied - 1
+                If candidate < ends(i) And starts(i) < candidate + length Then
+                    fits = False
+                End If
+            Next
+            If fits Then
+                ReDim Preserve resultTimes(planned)
+                resultTimes(planned) = MinutesToTime(candidate)
+                planned = planned + 1
+                ReDim Preserve starts(occupied)
+                ReDim Preserve ends(occupied)
+                starts(occupied) = candidate
+                ends(occupied) = candidate + length
+                occupied = occupied + 1
+            End If
+            candidate = candidate + interval
+        Loop
+
+        plannedTimes = resultTimes
+        Return planned
+    End Function
+
 End Module
