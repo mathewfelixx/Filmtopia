@@ -98,7 +98,7 @@ Partial Class frmBookingSearch
         '
         'btnRefund
         '
-        Me.btnRefund.Location = New System.Drawing.Point(16, 440)
+        Me.btnRefund.Location = New System.Drawing.Point(389, 390)
         Me.btnRefund.Margin = New System.Windows.Forms.Padding(4)
         Me.btnRefund.Name = "btnRefund"
         Me.btnRefund.Size = New System.Drawing.Size(357, 40)
